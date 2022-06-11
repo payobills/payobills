@@ -20,4 +20,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapGet("/", () => (new { app = "expenses.bills" }));
+
 app.Run();
