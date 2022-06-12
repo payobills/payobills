@@ -15,4 +15,3 @@ services:
       - ${PWD}/apps/bills/src:/app
     ports:
       - "8081:8081"
-
