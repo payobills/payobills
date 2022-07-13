@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  bills:
+    build:
+      dockerfile: ${PWD}/common/docker/dotnet.dev.dockerfile
+      context: .
+      args:
+        DOTNET_VERSION: ${DOTNET_VERSION}
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
+    entrypoint: 'sh -c "dotnet watch run"'
+    working_dir: /app
+    volumes:
+      - ${PWD}/apps/bills/src:/app
+    ports:
+      - "8081:8081"
+
