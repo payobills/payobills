@@ -7,10 +7,12 @@ services:
       context: .
       args:
         DOTNET_VERSION: ${DOTNET_VERSION}
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=1
     entrypoint: 'sh -c "dotnet watch run"'
     working_dir: /app
     volumes:
-      - ${PWD}/apps/bills:/app
+      - ${PWD}/apps/bills/src:/app
     ports:
       - "8081:8081"
 
