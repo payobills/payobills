@@ -1,0 +1,9 @@
+﻿{
+  "Id": "00000000-0000-0000-0000-000000000000",
+  "Name": "Electricity - Home",
+  "BillingDate": 3,
+  "PayByDate": 17,
+  "LatePayByDate": 0,
+  "CreatedAt": "2022-01-01T00:00:00",
+  "UpdatedAt": "2022-01-01T00:00:00"
+}
