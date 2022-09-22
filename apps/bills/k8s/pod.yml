@@ -9,4 +9,7 @@ spec:
   containers:
   - name: main
     imagePullPolicy: IfNotPresent
-    image: payobills-bills:0.1.0-alpha.1
+    image: payobills-bills:0.1.0-alpha.2
+    env:
+    - name: ASPNETCORE_ENVIRONMENT
+      value: DEVELOPMENT
