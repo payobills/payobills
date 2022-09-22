@@ -13,8 +13,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\external\FileContextCore\FileContextCore\FileContextCore.csproj" />
-  </ItemGroup>
-
 </Project>
