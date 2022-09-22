@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: bills
+  labels:
+    app: bills
+spec:
+  containers:
+  - name: main
+    imagePullPolicy: IfNotPresent
+    image: payobills-bills:0.1.0-alpha.1
