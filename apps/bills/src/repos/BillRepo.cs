@@ -1,5 +1,6 @@
 namespace payobills.bills.repos;
 
+using System;
 using payobills.bills.data;
 using payobills.bills.dtos;
 using payobills.bills.models;
@@ -37,5 +38,10 @@ public class BillRepo
         await this.billsContext.SaveChangesAsync();
 
         return addResult.Entity;
+    }
+
+    public IQueryable<Bill> GetBillsAsync()
+    {
+        return this.billsContext.Bills.AsQueryable();
     }
 }

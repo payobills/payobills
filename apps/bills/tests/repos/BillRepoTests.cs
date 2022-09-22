@@ -43,4 +43,11 @@ public class BillRepoTests
 
     Snapshot.Match(addedBill);
   }
+
+  [Fact]
+  public async Task ShouldGetBills() 
+  {
+    var bills = await billRepo.GetBillsAsync();
+    Snapshot.Match(bills);
+  }
 }

@@ -6,4 +6,5 @@ namespace payobills.bills.svc;
 public interface IBillService
 {
   Task<Bill> AddBillAsync(BillDto dto);
+  Task<IEnumerable<Bill>> GetBillsAsync();
 }

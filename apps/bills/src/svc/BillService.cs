@@ -6,13 +6,19 @@ namespace payobills.bills.svc;
 
 public class BillService : IBillService
 {
-  private readonly BillRepo billRepo;
+    private readonly BillRepo billRepo;
 
-  public BillService(BillRepo billRepo) { this.billRepo = billRepo; }
+    public BillService(BillRepo billRepo) { this.billRepo = billRepo; }
 
-  public Task<Bill> AddBillAsync(BillDto dto)
-  {
-    var bill = billRepo.AddBillAsync(dto);
-    return bill;
-  }
+    public Task<Bill> AddBillAsync(BillDto dto)
+    {
+        var bill = billRepo.AddBillAsync(dto);
+        return bill;
+    }
+
+    public async Task<IEnumerable<Bill>> GetBillsAsync()
+    {
+        var bills = billRepo.GetBillsAsync();
+        return await Task.FromResult(bills);
+    }
 }
