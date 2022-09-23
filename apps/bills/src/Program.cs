@@ -13,13 +13,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IBillsService, BillsService>();
 builder.Services.AddScoped<BillsRepo>();
-builder.Services.AddDbContext<BillsContext>(options => {
-  options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("BILLS_DB_PATH")}");
+builder.Services.AddDbContext<BillsContext>(options =>
+{
+    options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("BILLS_DB_PATH")}");
 });
 builder.Services.AddSingleton<IGuidService, GuidService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 
 var app = builder.Build();
+
+using (var serviceScope = app.Services.CreateScope())
+{
+    using (var billsContext = serviceScope.ServiceProvider.GetService<BillsContext>())
+    {
+        billsContext?.Database.EnsureCreated();
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
