@@ -3,7 +3,7 @@ using payobills.bills.models;
 
 namespace payobills.bills.svc;
 
-public interface IBillService
+public interface IBillsService
 {
   Task<Bill> AddBillAsync(BillDto dto);
   Task<IEnumerable<Bill>> GetBillsAsync();

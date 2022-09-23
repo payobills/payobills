@@ -11,10 +11,10 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IBillService, BillService>();
-builder.Services.AddScoped<BillRepo>();
+builder.Services.AddScoped<IBillsService, BillsService>();
+builder.Services.AddScoped<BillsRepo>();
 builder.Services.AddDbContext<BillsContext>(options => {
-  options.UseSqlite("Data Source=bills.sqlite");
+  options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("BILLS_DB_PATH")}");
 });
 builder.Services.AddSingleton<IGuidService, GuidService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();

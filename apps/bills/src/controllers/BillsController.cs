@@ -5,13 +5,13 @@ using payobills.bills.svc;
 
 namespace payobills.bills.controllers;
 
-[Route("api/[controller]s")]
+[Route("api/[controller]")]
 [ApiController]
-public class BillController : ControllerBase
+public class BillsController : ControllerBase
 {
-    private readonly IBillService billService;
+    private readonly IBillsService billService;
 
-    public BillController(IBillService billService)
+    public BillsController(IBillsService billService)
     {
         this.billService = billService;
     }

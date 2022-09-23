@@ -4,11 +4,11 @@ using payobills.bills.repos;
 
 namespace payobills.bills.svc;
 
-public class BillService : IBillService
+public class BillsService : IBillsService
 {
-    private readonly BillRepo billRepo;
+    private readonly BillsRepo billRepo;
 
-    public BillService(BillRepo billRepo) { this.billRepo = billRepo; }
+    public BillsService(BillsRepo billRepo) { this.billRepo = billRepo; }
 
     public Task<Bill> AddBillAsync(BillDto dto)
     {

@@ -6,13 +6,13 @@ using payobills.bills.dtos;
 using payobills.bills.models;
 using payobills.bills.svc;
 
-public class BillRepo
+public class BillsRepo
 {
     private readonly IGuidService guidService;
     private readonly IDateTimeService dateTimeService;
     private readonly BillsContext billsContext;
 
-    public BillRepo(
+    public BillsRepo(
         IGuidService guidService,
         IDateTimeService dateTimeService,
         BillsContext billsContext
