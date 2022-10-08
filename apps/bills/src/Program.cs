@@ -27,6 +27,7 @@ using (var serviceScope = app.Services.CreateScope())
     using (var billsContext = serviceScope.ServiceProvider.GetService<BillsContext>())
     {
         billsContext?.Database.EnsureCreated();
+        billsContext?.SaveChanges();
     }
 }
 
