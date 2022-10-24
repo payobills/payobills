@@ -9,14 +9,13 @@
 <style>
   
   .card {
-    width: calc(100% - 4 * 1rem);
+    width: calc(100% - 2 * 1rem);
     background-color: rgb(151, 151, 151);
     aspect-ratio: 1.8 / 1;
     border-radius: 0.25rem;
     box-shadow: 0rem 1rem 1rem rgb(105, 105, 105);
-    margin: 1rem;
+    margin: 1rem 0;
     padding: 1rem;
-
     display: flex;
   }
 

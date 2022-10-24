@@ -1,16 +1,17 @@
-<script lang='ts'>
-  import Card from '$lib/card.svelte';
+<script lang="ts">
+  import Card from "$lib/card.svelte";
 
   /** @type {import('./$types').PageData} */
   export let data: any;
 </script>
 
 <nav>
-  <h1>{data.appInfo.app}</h1>
+  <h1>payobills</h1>
 </nav>
 <main>
+  <h2>your bills</h2>
   {#each data.bills as bill}
-  <Card title={bill.name}/>
+    <Card title={bill.name} />
   {/each}
 </main>
 
@@ -31,9 +32,18 @@
     margin: 0;
   }
 
+  h2 {
+    font-weight: 100;
+    font-size: 1rem;
+  }
+
   nav {
     background-color: #5b81bb;
     margin: 0;
     padding: 0;
+  }
+
+  main {
+    margin: 1rem;
   }
 </style>
