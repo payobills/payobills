@@ -11,7 +11,7 @@
   <h1>payobills</h1>
 </nav>
 <main>
-  <h2>your bills</h2>
+  <h2>timeline view</h2>
   <Timeline items={data.bills} />
 </main>
 
