@@ -1,8 +1,10 @@
 <script lang="ts">
-  import Card from "$lib/card.svelte";
+  import Timeline from "$lib/timeline.svelte";
 
   /** @type {import('./$types').PageData} */
   export let data: any;
+
+  let vis;
 </script>
 
 <nav>
@@ -10,30 +12,21 @@
 </nav>
 <main>
   <h2>your bills</h2>
-  {#each data.bills as bill}
-    <Card title={bill.name} />
-  {/each}
+  <Timeline items={data.bills} />
 </main>
 
 <style>
-  :global(body, html) {
-    margin: 0;
-    padding: 0;
-  }
-  :global(*) {
-    font-family: Quicksand, "Work Sans", sans-serif;
-  }
-
   h1 {
     font-size: 1.5rem;
     color: white;
     padding: 0.75rem 1rem;
-    font-weight: 100;
+    font-weight: 400;
     margin: 0;
   }
 
   h2 {
-    font-weight: 100;
+    font-weight: 400;
+    color: #9f9f9f;
     font-size: 1rem;
   }
 
@@ -45,5 +38,8 @@
 
   main {
     margin: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
   }
 </style>
