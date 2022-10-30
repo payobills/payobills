@@ -1,0 +1,15 @@
+mode: MainLine
+tag-prefix: v
+branches:
+  main:
+    increment: Minor
+  release:
+    increment: None
+  feature:
+    regex: ^(feat|fix|improv|chore)[/-]
+    commit-message-incrementing: Enabled
+    tag: alpha
+    increment: Minor
+  hotfix:
+    tag: hotfix
+    increment: Patch
