@@ -1,4 +1,4 @@
-# Default values for k8s.
+# Default values for bills.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -22,21 +22,6 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
-
-podVolumes:
-  - name: bills-data
-    hostPath:
-      path: /home/mrsauravsahu/Code/payobills/data/bills-data
-
-podVolumeMounts:
-  - mountPath: /data
-    name: bills-data
-
-podEnv:
-  - name: ASPNETCORE_ENVIRONMENT
-    value: DEVELOPMENT
-  - name: BILLS_DB_PATH
-    value: /data/bills.sqlite
 
 podAnnotations: {}
 
