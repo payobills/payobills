@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "bills.fullname" . }}
+  name: {{ include "ui.fullname" . }}
   labels:
-    {{- include "bills.labels" . | nindent 4 }}
+    {{- include "ui.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "bills.selectorLabels" . | nindent 6 }}
+      {{- include "ui.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,27 +18,21 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "bills.selectorLabels" . | nindent 8 }}
+        {{- include "ui.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "bills.serviceAccountName" . }}
+      serviceAccountName: {{ include "ui.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      volumes:
-        {{- toYaml .Values.podVolumes | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            {{- toYaml .Values.podEnv | nindent 12 }}
-          volumeMounts:
-            {{- toYaml .Values.podVolumeMounts | nindent 12 }}
           ports:
             - name: http
               containerPort: 80

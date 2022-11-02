@@ -1,3 +1,5 @@
+# @payobills/bills
+
 docker build -t payobills-bills:0.1.0-alpha.2 -f ../../../common/docker/dotnet-svc.prod.dockerfile --build-arg SVC=payobills.bills --build-arg DOTNET_VERSION=6.0 .
 
 helm upgrade --install -n payobills \
