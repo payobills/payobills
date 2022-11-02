@@ -2,6 +2,12 @@
 
 UI for payobills.
 
+docker build -t payobills-ui:0.1.0-alpha.1 -f ../../common/docker/svelte-svc.prod.dockerfile --build-arg SVC=payobills.ui --build-arg NODE_VERSION=18.12.0 .
+
+helm upgrade --create-namespace --install -n payobills --set service.type=NodePort --set image.tag=0.1.0-alpha.1 ui ./k8s
+
+k port-forward -n payobills svc/ui 8080:80
+
 ## Creating a project
 
 If you're seeing this, you've probably already done this step. Congrats!
