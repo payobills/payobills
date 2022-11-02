@@ -1,0 +1,2 @@
+- v0.2.0
+- v0.1.0 - create bills service with create and list bills
