@@ -1,6 +1,6 @@
-# create-svelte
+# @payobills/ui
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+UI for payobills.
 
 ## Creating a project
 
