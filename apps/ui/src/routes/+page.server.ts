@@ -1,9 +1,9 @@
 /** @type {import('./$types').PageLoad} */
 export async function load() {
-    const appInfoResponse = await fetch('http://127.0.0.1:31108/')
+    const appInfoResponse = await fetch(process.env.BILLS_SERVICE || 'http://bills')
     const appInfo = await appInfoResponse.json()
 
-    const billsResponse = await fetch('http://127.0.0.1:31108/api/bills')
+    const billsResponse = await fetch(process.env.BILLS_SERVICE || 'http://bills')
     const bills = await billsResponse.json()
     
     return {
