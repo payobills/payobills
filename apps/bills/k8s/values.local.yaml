@@ -24,11 +24,16 @@ serviceAccount:
   name: ""
 
 podVolumes:
+  - name: code
+    hostPath:
+      pathPrefix: apps/bills/src
   - name: bills-data
     hostPath:
-      path: /home/mrsauravsahu/Code/payobills/data/bills-data
+      pathPrefix: data/bills-data
 
 podVolumeMounts:
+  - mountPath: /app
+    name: code
   - mountPath: /data
     name: bills-data
 
@@ -38,7 +43,9 @@ podEnv:
   - name: BILLS_DB_PATH
     value: /data/bills.sqlite
   - name: BILLS_ALLOWED_ORIGINS
-    value: "http://localhost:5173"
+    value: "http://ui"
+  - name: ASPNETCORE_URLS
+    value: "http://0.0.0.0:80"
 
 podAnnotations: {}
 

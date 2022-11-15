@@ -28,7 +28,11 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        {{- toYaml .Values.podVolumes | nindent 8 }}
+        {{- range $value := .Values.podVolumes }}
+          - name: {{ $value.name }}
+            hostPath:
+              path: {{ printf "%s/%s" $.Values.helpers.PROJECT_ROOT $value.hostPath.pathPrefix }}
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
