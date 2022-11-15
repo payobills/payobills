@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  export let title: string = "";
   export let items: any[] = [];
 </script>
 
 <div class="timeline">
+  <div class="title">{title}</div>
   <div class="legend legend-top">
     <span>1</span>
     <span>31</span>
@@ -55,6 +58,12 @@
     <span>1</span>
     <span>31</span>
   </div>
+  <button
+    on:click={() => {
+      goto("add-bill");
+    }}
+    >Add bill
+  </button>
 </div>
 
 <style>
@@ -64,8 +73,13 @@
     justify-content: space-between;
     flex-grow: 1;
     background-color: #f3f3f3;
-    padding: 1.5rem 1rem;
-    border-radius: 0.5rem;
+    padding: 1rem 1rem;
+    border-radius: 2rem;
+  }
+
+  .title {
+    color: #9f9f9f;
+    margin: 0.5rem 0 1rem 0;
   }
 
   .items {
@@ -79,7 +93,8 @@
     justify-content: space-between;
     font-size: 0.75rem;
   }
-
+button{    margin: 1rem 0 0 0;
+    padding: 1rem;}
   .pill {
     display: flex;
     width: 100%;

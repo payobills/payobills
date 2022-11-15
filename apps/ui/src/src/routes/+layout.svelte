@@ -9,11 +9,20 @@
     padding: 0;
   }
   :global(*) {
-    font-family: Quicksand, "Work Sans", sans-serif;
+    font-family: "Work Sans", sans-serif;
   }
 
   :global(body){
     height: 100vh;
+  }
+
+  :global(button){
+    align-self: flex-end;
+    border: none;
+    border-radius: 2rem;
+    background: #5b81bb;
+    color: white;
+    text-transform: uppercase;
   }
 </style>
 
