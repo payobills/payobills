@@ -10,3 +10,7 @@
 
 [buildconfig]
 default-docker-repo=ghcr.io/payobills
+
+[build]
+passenv=PROJ
+
