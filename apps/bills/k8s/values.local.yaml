@@ -27,7 +27,7 @@ environment: LOCAL_DEVELOPMENT
 
 pod:
   # command: ["tail", "-f", "/dev/null"]
-  command: ["dotnet", "run", "--no-launch-profile"]
+  command: ["dotnet", "watch", "run", "--no-launch-profile"]
   annotations: {}
   volumes:
     - name: code
@@ -65,7 +65,7 @@ securityContext: {}
 service:
   type: NodePort
   port: 80
-  nodePort: 30000
+  nodePort: 30001
 
 ingress:
   enabled: false

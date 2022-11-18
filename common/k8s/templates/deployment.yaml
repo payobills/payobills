@@ -41,7 +41,7 @@ spec:
           {{- if .Values.pod.command }}
           command:
             {{- range .Values.pod.command }}
-              - {{ . | quote }}
+              - {{ . }}
             {{- end }}
           {{- end }}
           {{- if eq .Values.environment "LOCAL_DEVELOPMENT" }}
