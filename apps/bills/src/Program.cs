@@ -7,6 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+var corsPolicyName = "allowedOrigins";
+builder.Services.AddCors(options =>
+{
+    var allowedOrigins = Environment.GetEnvironmentVariable("BILLS_ALLOWED_ORIGINS");
+    options.AddPolicy(name: corsPolicyName, policy  =>
+    {
+        policy.WithOrigins(allowedOrigins.Split(","));
+    });
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -31,6 +40,7 @@ using (var serviceScope = app.Services.CreateScope())
     }
 }
 
+app.UseCors(corsPolicyName);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
