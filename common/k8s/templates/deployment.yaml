@@ -13,7 +13,7 @@ spec:
       {{- include "bills.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- with .Values.pod.annotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -28,7 +28,7 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        {{- range $value := .Values.podVolumes }}
+        {{- range $value := .Values.pod.volumes }}
           - name: {{ $value.name }}
             hostPath:
               path: {{ printf "%s/%s" $.Values.helpers.PROJECT_ROOT $value.hostPath.pathPrefix }}
@@ -38,15 +38,25 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- if .Values.pod.command }}
+          command:
+            {{- range .Values.pod.command }}
+              - {{ . | quote }}
+            {{- end }}
+          {{- end }}
+          {{- if eq .Values.environment "LOCAL_DEVELOPMENT" }}
+          workingDir: "/app"
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{- toYaml .Values.podEnv | nindent 12 }}
+            {{- toYaml .Values.pod.env | nindent 12 }}
           volumeMounts:
-            {{- toYaml .Values.podVolumeMounts | nindent 12 }}
+            {{- toYaml .Values.pod.volumeMounts | nindent 12 }}
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
+          {{- if ne .Values.environment "LOCAL_DEVELOPMENT" }}
           livenessProbe:
             httpGet:
               path: /
@@ -55,6 +65,7 @@ spec:
             httpGet:
               path: /
               port: http
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
