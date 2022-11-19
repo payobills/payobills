@@ -10,15 +10,14 @@ docker_image(
     build_args="--no-cache --build-arg NODE_VERSION=18.11.0"
 )
 
-filegroup(
+tarball(
   name="local_k8s",
   srcs=["//common/k8s"] + glob("k8s/**")
 )
 
-helm_upgrade_cmd_str='cd plz-out/gen/apps/{svc}/local_k8s; helm upgrade --create-namespace -n ${PROJ}-dev --set helpers.PROJECT_ROOT=${PROJECT_ROOT} --set image.repository=node --set image.tag=18.11.0 --set image.pullPolicy=IfNotPresent --values values.local.yaml {svc} .'.format(svc=svc)
 sh_cmd(
     name="local",
     deps=[":local_k8s"],
-    cmd=helm_upgrade_cmd_str,
+    cmd='mkdir plz-out/gen/apps/{svc}/local_k8s; tar xvf plz-out/gen/apps/{svc}/local_k8s.tar.gz --directory plz-out/gen/apps/{svc}/local_k8s; helm upgrade --install --create-namespace -n ${PROJ}-dev --set helpers.PROJECT_ROOT=${PROJECT_ROOT} --values plz-out/gen/apps/{svc}/local_k8s/values.local.yaml {svc} plz-out/gen/apps/{svc}/local_k8s; rm -r plz-out/gen/apps/{svc}/local_k8s'.format(svc=svc),
     srcs=[":local_k8s"],
 )
