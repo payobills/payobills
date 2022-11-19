@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: mcr.microsoft.com/dotnet/sdk
+  repository: node
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "6.0"
+  tag: "18.11.0"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -27,29 +27,20 @@ environment: LOCAL_DEVELOPMENT
 
 pod:
   # command: ["tail", "-f", "/dev/null"]
-  command: ["dotnet", "watch", "run", "--no-launch-profile"]
+  command: ["sh", "-c", "npm i && npm run dev -- --host ${HOST} --port ${PORT}"]
   annotations: {}
   volumes:
     - name: code
       hostPath:
-        pathPrefix: apps/bills/src
-    - name: bills-data
-      hostPath:
-        pathPrefix: data/bills-data
+        pathPrefix: apps/ui/src
   volumeMounts:
     - mountPath: /app
       name: code
-    - mountPath: /data
-      name: bills-data
   env:
-    - name: ASPNETCORE_ENVIRONMENT
-      value: DEVELOPMENT
-    - name: BILLS_DB_PATH
-      value: /data/bills.sqlite
-    - name: BILLS_ALLOWED_ORIGINS
-      value: "http://ui"
-    - name: ASPNETCORE_URLS
-      value: "http://0.0.0.0:80"
+    - name: HOST
+      value: "0.0.0.0"
+    - name: PORT
+      value: "80"
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -65,7 +56,7 @@ securityContext: {}
 service:
   type: NodePort
   port: 80
-  nodePort: 30001
+  nodePort: 30000
 
 ingress:
   enabled: false
