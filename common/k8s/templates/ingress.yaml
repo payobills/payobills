@@ -1,4 +1,5 @@
 {{- if .Values.ingress.enabled -}}
+{{- if eq .Values.ingress.class "default" }}
 {{- $fullName := include "bills.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
@@ -58,4 +59,5 @@ spec:
               {{- end }}
           {{- end }}
     {{- end }}
+{{- end }}
 {{- end }}

@@ -38,12 +38,6 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          {{- if .Values.pod.command }}
-          command:
-            {{- range .Values.pod.command }}
-              - {{ . }}
-            {{- end }}
-          {{- end }}
           {{- if eq .Values.environment "LOCAL_DEVELOPMENT" }}
           workingDir: "/app"
           {{- end }}
@@ -59,11 +53,11 @@ spec:
           {{- if ne .Values.environment "LOCAL_DEVELOPMENT" }}
           livenessProbe:
             httpGet:
-              path: /
+              path: "/" 
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: "/" 
               port: http
           {{- end }}
           resources:

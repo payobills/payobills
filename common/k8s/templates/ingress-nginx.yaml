@@ -1,0 +1,23 @@
+{{- if .Values.ingress.enabled }}
+{{- if eq .Values.ingress.class "nginx" }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: {{ include "bills.fullname" . }}
+spec:
+  ingressClassName: {{ .Values.ingress.class }}
+  rules:
+  - host: pi.local
+    http:
+      paths:
+      - path: {{ printf "/%s(/?|$)(.*)" .Values.ingress.routePath }}
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "bills.fullname" . }}
+            port:
+              number: 80
+{{- end}}
+{{- end}}
