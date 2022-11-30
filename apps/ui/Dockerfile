@@ -1,0 +1,1 @@
+../../common/docker/svelte-svc.prod.dockerfile

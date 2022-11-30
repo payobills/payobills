@@ -7,3 +7,8 @@ plz-out
 /data
 
 /playground
+
+# Pants workspace files
+/.pants.*
+/dist/
+/.pids

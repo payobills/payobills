@@ -1,0 +1,1 @@
+../../common/docker/dotnet-svc.prod.dockerfile

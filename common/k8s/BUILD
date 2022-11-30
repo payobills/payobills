@@ -1,5 +1,4 @@
-filegroup(
+files(
   name="k8s",
-  visibility=["PUBLIC"],
-  srcs=["templates"]
+  srcs=["templates/**/*"]
 )
