@@ -6,7 +6,8 @@ files(
 )
 
 docker_image(
-    name="bills",
+    name="docker",
+    repository="ghcr.io/payobills/bills",
     dependencies=[
       ":src"
     ],
@@ -15,3 +16,19 @@ docker_image(
       'WORKSPACE=apps/bills/src'
     ]
 )
+
+relocated_files(
+  name='helm_relocated_files',
+  files_targets=['common/k8s'],
+  src="common/k8s",
+  dest="apps/bills"
+)
+
+helm_chart(
+  name = 'helm',
+  chart = "Chart.yaml",
+  dependencies = [":helm_relocated_files"],
+  sources = ['values.yaml'],
+  output_path = "apps/bills/"
+)
+

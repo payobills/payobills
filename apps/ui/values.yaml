@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: payobills-ui
+  repository: ghcr.io/payobills/ui
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ""
@@ -23,7 +23,8 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+pod:
+  annotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000

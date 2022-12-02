@@ -28,10 +28,17 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
+        {{- if eq .Values.environment "LOCAL_DEVELOPMENT" }}
         {{- range $value := .Values.pod.volumes }}
           - name: {{ $value.name }}
             hostPath:
               path: {{ printf "%s/%s" $.Values.helpers.PROJECT_ROOT $value.hostPath.pathPrefix }}
+        {{- end }}
+        {{- end }}
+        {{- range $value := .Values.pod.volumes }}
+          - name: {{ $value.name }}
+            hostPath:
+              path: {{ $value.hostPath.path }}
         {{- end }}
       containers:
         - name: {{ .Chart.Name }}

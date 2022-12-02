@@ -2,7 +2,8 @@
 pants_version = "$PANTS_VERSION"
 backend_packages = [
   "pants.backend.docker",
-  "pants.backend.docker.lint.hadolint"
+  "pants.backend.docker.lint.hadolint",
+  "pants.backend.experimental.helm"
 ]
 
 [anonymous-telemetry]
@@ -10,3 +11,4 @@ enabled = false
 
 [docker]
 build_verbose = true
+

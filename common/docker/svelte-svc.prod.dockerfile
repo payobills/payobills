@@ -1,4 +1,4 @@
-ARG NODE_VERSION=18.11.0
+ARG NODE_VERSION=18.12.1
 
 FROM node:${NODE_VERSION}-alpine AS build-env
 
