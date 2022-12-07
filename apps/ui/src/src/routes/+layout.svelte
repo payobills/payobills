@@ -16,3 +16,13 @@
     height: 100vh;
   }
 </style>
+
+<script lang="ts">
+  import { createClient, setContextClient } from '@urql/svelte';
+
+  const client = createClient({
+    url: `/graphql`,
+  });
+
+  setContextClient(client);
+</script>

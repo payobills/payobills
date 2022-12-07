@@ -3,8 +3,20 @@
   import { faBars } from "@fortawesome/free-solid-svg-icons";
   import Timeline from "$lib/timeline.svelte";
 
-  /** @type {import('./$types').PageData} */
-  export let data: any;
+  import { queryStore, gql, getContextClient } from "@urql/svelte";
+
+  const billsQuery = queryStore({
+    client: getContextClient(),
+    query: gql`
+      query {
+        bills {
+          name
+          billingDate
+          payByDate
+        }
+      }
+    `,
+  });
 
   let vis;
 </script>
@@ -18,8 +30,14 @@
   <h1>payobills</h1>
 </nav>
 <main>
-  <h2>timeline view</h2>
-  <Timeline items={data.bills} />
+  {#if $billsQuery.fetching}
+    <p>Loading...</p>
+  {:else if $billsQuery.error}
+    <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
+  {:else}
+    <h2>timeline view</h2>
+    <Timeline items={$billsQuery.data.bills} />
+  {/if}
 </main>
 
 <style>
