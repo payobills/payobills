@@ -60,7 +60,7 @@
   </div>
   <button
     on:click={() => {
-      goto("add-bill");
+      goto("bills/add");
     }}
     >Add bill
   </button>
@@ -93,8 +93,9 @@
     justify-content: space-between;
     font-size: 0.75rem;
   }
-button{    margin: 1rem 0 0 0;
-    padding: 1rem;}
+button{  margin: 1rem 0 0 0;
+    padding: 1rem;  
+  align-self: flex-end;}
   .pill {
     display: flex;
     width: 100%;

@@ -2,11 +2,12 @@
   import Timeline from "$lib/timeline.svelte";
   import { goto } from "$app/navigation";
   import Nav from "$lib/nav.svelte";
+  import {urql } from '$lib/stores/urql'
 
   import { queryStore, gql, getContextClient } from "@urql/svelte";
 
   const billsQuery = queryStore({
-    client: getContextClient(),
+    client: $urql,
     query: gql`
       query {
         bills {
@@ -21,22 +22,11 @@
   let vis;
 </script>
 
-<Nav />
-<main>
-  {#if $billsQuery.fetching}
-    <p>Loading...</p>
-  {:else if $billsQuery.error}
-    <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
-  {:else}
-    <Timeline  title="timeline view" items={$billsQuery.data.bills} />
-  {/if}
-</main>
+{#if $billsQuery.fetching}
+  <p>Loading...</p>
+{:else if $billsQuery.error}
+  <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
+{:else}
+  <Timeline title="timeline view" items={$billsQuery.data.bills} />
+{/if}
 
-<style>
-  main {
-    margin: 1rem;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
-</style>
