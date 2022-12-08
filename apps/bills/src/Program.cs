@@ -30,7 +30,11 @@ builder.Services.AddDbContext<BillsContext>(options =>
 });
 builder.Services.AddSingleton<IGuidService, GuidService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
-builder.Services.AddGraphQLServer().AddQueryType<Query>().ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
+builder.Services
+  .AddGraphQLServer()
+  .AddQueryType<Query>()
+  .AddMutationType<Mutation>()
+  .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
 
 var app = builder.Build();
 
