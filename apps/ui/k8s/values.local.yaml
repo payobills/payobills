@@ -1,6 +1,8 @@
-# Default values for bills.
+# Default values for ui.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+environment: LOCAL_DEVELOPMENT
 
 replicaCount: 1
 
@@ -9,21 +11,6 @@ image:
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "18.11.0"
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-environment: LOCAL_DEVELOPMENT
 
 pod:
   # command: ["tail", "-f", "/dev/null"]
@@ -41,6 +28,20 @@ pod:
       value: "0.0.0.0"
     - name: PORT
       value: "80"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
 
 podSecurityContext: {}
   # fsGroup: 2000
