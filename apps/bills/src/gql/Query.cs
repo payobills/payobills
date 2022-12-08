@@ -6,6 +6,6 @@ namespace payobills.bills.gql
   public class Query 
   {
     private readonly IBillsService? _billsService;
-    public async Task<IEnumerable<Bill>> Bills([Service] IBillsService _billsService) => await _billsService.GetBillsAsync();
+    public async Task<IEnumerable<Bill>> Bills([Service] IBillsService billsService) => await billsService.GetBillsAsync();
   }
 }
