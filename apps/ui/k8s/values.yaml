@@ -14,6 +14,12 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+pod:
+  command: ["node", "/app/build/index.js"]
+  annotations: {}
+  livenessProbePath: "/payobills"
+  readinessProbePath: "/payobills"
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -23,7 +29,7 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podAnnotations: {}
+
 
 podSecurityContext: {}
   # fsGroup: 2000

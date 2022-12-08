@@ -26,7 +26,7 @@ serviceAccount:
 podVolumes:
   - name: bills-data
     hostPath:
-      path: /home/mrsauravsahu/Code/payobills/data/bills-data
+      path: /home/mrsauravsahu/data/bills-data
 
 podVolumeMounts:
   - mountPath: /data

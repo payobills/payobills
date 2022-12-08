@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: {{ .Values.ingress.class }}
   rules:
-  - host: pi.local
+  - host: pi
     http:
       paths:
       - path: {{ printf "/%s(/?|$)(.*)" .Values.ingress.routePath }}
