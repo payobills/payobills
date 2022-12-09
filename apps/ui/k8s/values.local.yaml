@@ -28,6 +28,8 @@ pod:
       value: "0.0.0.0"
     - name: PORT
       value: "80"
+    - name: BILLS_SERVICE
+      value: "http://bills"
 
 imagePullSecrets: []
 nameOverride: ""
