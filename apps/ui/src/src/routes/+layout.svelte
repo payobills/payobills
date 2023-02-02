@@ -1,5 +1,24 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
   import Nav from "$lib/nav.svelte";
+  import Keycloak from "keycloak-js";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    const keycloakInstance = new Keycloak({
+      // url: "keycloak.svc.playground.cluster.local",
+      url: "http://localhost:8080",
+      realm: "homelab",
+      clientId: "payobills",
+    });
+
+    keycloakInstance
+      .init({ onLoad: "login-required", checkLoginIframe: false })
+      .then(() => {})
+      .catch((err) => {
+        // TODO: Go to an error page
+      });
+  });
 </script>
 
 <Nav />
