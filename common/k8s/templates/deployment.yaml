@@ -45,7 +45,7 @@ spec:
             {{- end }}
           {{- end }}
           {{- if eq .Values.environment "LOCAL_DEVELOPMENT" }}
-          workingDir: "/app"
+          workingDir: {{ printf "/app/apps/%s/src" (include "bills.fullname" .) }}
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
