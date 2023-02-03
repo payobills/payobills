@@ -24,7 +24,7 @@ jobs:
       - name: check targets
         id: check_targets
         run: |
-          BUILD_TARGETS=$(for i in `ls -1 svc`; do echo -n "(//svc/$i)|"; done | sed 's/|$//')
+          BUILD_TARGETS=$(for i in `ls -1 apps`; do echo -n "(//apps/$i)|"; done | sed 's/|$//')
           PLZ_CHANGES=`plz query changes -s origin/${{ env.MAIN_BRANCH }}`
           CHANGED_TARGETS=`echo $PLZ_CHANGES | (egrep -o $BUILD_TARGETS || true)`
           SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
@@ -44,7 +44,7 @@ jobs:
 
       # - name: run tests
       #   if: steps.check_targets.outputs.SERVICES_SINGLE_LINE != ''
-      #   run: plz test `echo ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }} | sed 's|//svc/[a-z]*|&/tests|g'`
+      #   run: plz test `echo ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }} | sed 's|//apps/[a-z]*|&/tests|g'`
 
       - name: build targets
         if: steps.check_targets.outputs.SERVICES != ''
