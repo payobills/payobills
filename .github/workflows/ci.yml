@@ -1,0 +1,51 @@
+name: 'ci workflow'
+
+env:
+  MAIN_BRANCH: main
+  DOTNET_VERSION: 6.0.x
+
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout to head branch for PR
+        uses: actions/checkout@v2
+
+      - name: setup please.build
+        uses: sagikazarmark/setup-please-action@v0
+
+      - name: check targets
+        id: check_targets
+        run: |
+          BUILD_TARGETS=$(for i in `ls -1 svc`; do echo -n "(//svc/$i)|"; done | sed 's/|$//')
+          PLZ_CHANGES=`plz query changes -s origin/${{ env.MAIN_BRANCH }}`
+          CHANGED_TARGETS=`echo $PLZ_CHANGES | (egrep -o $BUILD_TARGETS || true)`
+          SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
+          SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
+          echo "Please changes: $PLZ_CHANGES"
+          echo "Services to build: '$SERVICES'"
+          echo "::set-output name=SERVICES::$SERVICES"
+          echo "::set-output name=SERVICES_SINGLE_LINE::$SERVICES_SINGLE_LINE"
+
+      # - name: lint targets
+      #   if: steps.check_targets.outputs.SERVICES != ''
+      #   run: |
+      #     # TODO: figure out how to pass different env for different targets
+      #     for i in ${{ steps.check_targets.outputs.SERVICES }}; do
+      #       PLZ_OVERRIDES=buildenv.SECRET_SERVICE_NAME:"$i" plz run $i:lint
+      #     done
+
+      # - name: run tests
+      #   if: steps.check_targets.outputs.SERVICES_SINGLE_LINE != ''
+      #   run: plz test `echo ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }} | sed 's|//svc/[a-z]*|&/tests|g'`
+
+      - name: build targets
+        if: steps.check_targets.outputs.SERVICES != ''
+        run: |
+          plz run parallel ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }}
