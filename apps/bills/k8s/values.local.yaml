@@ -32,7 +32,7 @@ pod:
   volumes:
     - name: code
       hostPath:
-        pathPrefix: apps/bills/src
+        pathPrefix: ""
     - name: bills-data
       hostPath:
         pathPrefix: data/bills-data
@@ -51,6 +51,16 @@ pod:
     - name: ASPNETCORE_URLS
       value: "http://0.0.0.0:80"
 
+ingress:
+  enabled: false
+  className: "nginx"
+  enabled: true
+  name: bills-ingress
+  routePath: 'payobills-dev/bills'
+  hosts:
+  - name: msi-pc-linux
+  tls: []
+
 podSecurityContext: {}
   # fsGroup: 2000
 
@@ -63,25 +73,10 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
+  name: bills
   type: NodePort
   port: 80
   nodePort: 30001
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -97,7 +92,7 @@ resources: {}
 
 autoscaling:
   enabled: false
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
