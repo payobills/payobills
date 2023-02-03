@@ -61,11 +61,11 @@ changed)
         echo "changed='${changed}'"
         echo "::set-output name=changed::$changed"
     else
-        if [ "$(git diff "${DIFF_SOURCE}" "${DIFF_DEST}" --name-only | grep -o '^common/' > /dev/null && echo 'common changed')" = 'common changed' ]; then
-        changed_services=`ls -1 apps | xargs -n 1 printf 'apps/%s\n'`
-        else
+        # if [ "$(git diff "${DIFF_SOURCE}" "${DIFF_DEST}" --name-only | grep -o '^common/' > /dev/null && echo 'common changed')" = 'common changed' ]; then
+        # changed_services=`ls -1 apps | xargs -n 1 printf 'apps/%s\n'`
+        # else
         changed_services=`git diff "${DIFF_SOURCE}" "${DIFF_DEST}" --name-only | grep -o '^apps/[a-zA-Z-]*' | sort | uniq`
-        fi
+        # fi
         changed_services=$(printf '%s' "$changed_services" | jq --raw-input --slurp '.')
         echo "::set-output name=changed_services::$changed_services"
         echo "changed_services='$(echo "$changed_services" | sed 'N;s/\n/, /g')'"
