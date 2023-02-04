@@ -1,4 +1,4 @@
-name: 'versioning'
+name: 'ci'
 
 on:
   pull_request:
