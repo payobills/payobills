@@ -57,10 +57,12 @@ jobs:
         CHANGED_TARGETS=`echo $PLZ_CHANGES | (egrep -o $BUILD_TARGETS || true)`
         SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
+        DOCKER_BUILD_TARGETS=`echo $SERVICES | sed 's|\n|:docker\n|' | tr '\n' ' '`
         echo "Please changes: $PLZ_CHANGES"
         echo "Services to build: '$SERVICES'"
         echo "::set-output name=SERVICES::$SERVICES"
         echo "::set-output name=SERVICES_SINGLE_LINE::$SERVICES_SINGLE_LINE"
+        echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
 
     # - name: lint targets
     #   if: steps.check_targets.outputs.SERVICES != ''
@@ -77,7 +79,7 @@ jobs:
     - name: Build targets
       if: steps.check_targets.outputs.SERVICES != ''
       run: |
-        echo ${{ steps.check_targets.outputs.SERVICES }} | sed 's|$|:docker|' | xargs echo plz run parallel
+        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs echo plz run parallel
 
     - name: Calculate versions
       id: calculate_service_versions
