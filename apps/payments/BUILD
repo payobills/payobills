@@ -5,7 +5,7 @@ svc=split_path(package_name())[-1]
 docker_image(
     name="docker",
     image=package_name(),
-    dockerfile="//common/docker:svelte-svc.prod.dockerfile",
+    dockerfile="//common/docker:node-svc.prod.dockerfile",
     srcs=glob(["src"], ["src/bin/**", "src/obj/**"]),
     build_args='--build-arg NODE_VERSION=18.11.0'.format(svc=svc)
 )
