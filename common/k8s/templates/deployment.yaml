@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "bills.fullname" . }}
+  name: {{ include "app.fullname" . }}
   labels:
-    {{- include "bills.labels" . | nindent 4 }}
+    {{- include "app.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "bills.selectorLabels" . | nindent 6 }}
+      {{- include "app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.pod.annotations }}
@@ -18,13 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "bills.selectorLabels" . | nindent 8 }}
+        {{- include "app.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "bills.serviceAccountName" . }}
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
@@ -45,7 +45,7 @@ spec:
             {{- end }}
           {{- end }}
           {{- if eq .Values.environment "LOCAL_DEVELOPMENT" }}
-          workingDir: {{ printf "/app/apps/%s/src" (include "bills.fullname" .) }}
+          workingDir: "/app"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
