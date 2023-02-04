@@ -9,7 +9,7 @@
 version = 16.25.1
 
 [buildconfig]
-default-docker-repo=ghcr.io/payobills
+default-docker-repo=ghcr.io/mrsauravsahu/payobills
 
 [build]
 passenv=PROJECT_ROOT
