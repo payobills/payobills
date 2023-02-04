@@ -1,4 +1,4 @@
-name: 'versioning'
+name: 'ci'
 
 on:
   pull_request:
@@ -30,6 +30,9 @@ jobs:
     name: gitversion
     runs-on: ubuntu-22.04
     steps:
+    - name: Setup please.build
+      uses: sagikazarmark/setup-please-action@v0
+
     - name: Checkout
       uses: actions/checkout@v2
 
@@ -46,11 +49,41 @@ jobs:
       id: calculate_changed_services
       run: . ./.cicd/common/semver-yeasy.sh changed
 
+    - name: Check targets
+      id: check_targets
+      run: |
+        BUILD_TARGETS=$(for i in `ls -1 apps`; do echo -n "(//apps/$i)|"; done | sed 's/|$//')
+        PLZ_CHANGES=`plz query changes -s ${{ steps.calculate_changed_services.outputs.diff_source }}`
+        CHANGED_TARGETS=`echo $PLZ_CHANGES | (egrep -o $BUILD_TARGETS || true)`
+        SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
+        SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
+        echo "Please changes: $PLZ_CHANGES"
+        echo "Services to build: '$SERVICES'"
+        echo "::set-output name=SERVICES::$SERVICES"
+        echo "::set-output name=SERVICES_SINGLE_LINE::$SERVICES_SINGLE_LINE"
+
+    # - name: lint targets
+    #   if: steps.check_targets.outputs.SERVICES != ''
+    #   run: |
+    #     # TODO: figure out how to pass different env for different targets
+    #     for i in ${{ steps.check_targets.outputs.SERVICES }}; do
+    #       PLZ_OVERRIDES=buildenv.SECRET_SERVICE_NAME:"$i" plz run $i:lint
+    #     done
+
+    # - name: run tests
+    #   if: steps.check_targets.outputs.SERVICES_SINGLE_LINE != ''
+    #   run: plz test `echo ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }} | sed 's|//apps/[a-z]*|&/tests|g'`
+
+    - name: Build targets
+      if: steps.check_targets.outputs.SERVICES != ''
+      run: |
+        plz run parallel ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }}
+
     - name: Calculate versions
       id: calculate_service_versions
       env:
         SEMVERYEASY_CHANGED: ${{ steps.calculate_changed_services.outputs.changed }}
-        SEMVERYEASY_CHANGED_SERVICES: ${{ fromJSON(steps.calculate_changed_services.outputs.changed_services) }}
+        SEMVERYEASY_CHANGED_SERVICES: ${{ steps.check_targets.outputs.SERVICES }}
       run: . ./.cicd/common/semver-yeasy.sh calculate-version
 
     - name: Update PR description
@@ -60,9 +93,8 @@ jobs:
       if: ${{ github.event_name == 'pull_request' }}
       run: . ./.cicd/common/semver-yeasy.sh update-pr
 
-
     - name: Tag build
-      if: ${{ github.event_name == 'push' && (startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix') || contains(env.MAIN_BRANCHES, steps.calculate_changed_services.outputs.diff_dest)) }}
+      if: ${{ github.event_name == 'push' && (steps.check_targets.outputs.SERVICES != '') && (startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix') || contains(env.MAIN_BRANCHES, steps.calculate_changed_services.outputs.diff_dest)) }}
       env:
         DIFF_DEST: ${{ steps.calculate_changed_services.outputs.DIFF_DEST }}
         SEMVERYEASY_CHANGED: ${{ steps.calculate_changed_services.outputs.changed }}
