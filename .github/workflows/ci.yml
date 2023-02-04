@@ -24,6 +24,7 @@ env:
   GITVERSION_REPO_TYPE: MONOREPO
   GITVERSION_CONFIG_SINGLE_APP: '/repo/.cicd/common/.gitversion.yml'
   GITVERSION_CONFIG_MONOREPO: '/repo/apps/${svc}/.gitversion.yml'
+  PROJECT_NAME: payobills
 
 jobs:
   ci:
