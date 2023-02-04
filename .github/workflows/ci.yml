@@ -30,6 +30,9 @@ jobs:
     name: gitversion
     runs-on: ubuntu-22.04
     steps:
+    - name: Setup please.build
+      uses: sagikazarmark/setup-please-action@v0
+
     - name: Checkout
       uses: actions/checkout@v2
 
