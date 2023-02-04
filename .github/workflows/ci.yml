@@ -26,8 +26,8 @@ env:
   GITVERSION_CONFIG_MONOREPO: '/repo/apps/${svc}/.gitversion.yml'
 
 jobs:
-  gitversion:
-    name: gitversion
+  ci:
+    name: ci
     runs-on: ubuntu-22.04
     steps:
     - name: Setup please.build
