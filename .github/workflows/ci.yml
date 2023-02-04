@@ -79,7 +79,7 @@ jobs:
     - name: Build targets
       if: steps.check_targets.outputs.SERVICES != ''
       run: |
-        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs echo plz run parallel
+        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
 
     - name: Calculate versions
       id: calculate_service_versions
