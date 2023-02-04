@@ -37,7 +37,7 @@ jobs:
         id: check_targets
         run: |
           BUILD_TARGETS=$(for i in `ls -1 apps`; do echo -n "(//apps/$i)|"; done | sed 's/|$//')
-          PLZ_CHANGES=`plz query changes -s origin/${{ steps.calculate_changed_services.outputs.diff_source }}`
+          PLZ_CHANGES=`plz query changes -s ${{ steps.calculate_changed_services.outputs.diff_source }}`
           CHANGED_TARGETS=`echo $PLZ_CHANGES | (egrep -o $BUILD_TARGETS || true)`
           SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
           SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
