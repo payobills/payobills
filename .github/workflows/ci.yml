@@ -57,7 +57,7 @@ jobs:
         CHANGED_TARGETS=`echo $PLZ_CHANGES | (egrep -o $BUILD_TARGETS || true)`
         SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
-        DOCKER_BUILD_TARGETS=`echo $SERVICES | sed 's|\n|:docker\n|' | tr '\n' ' '`
+        DOCKER_BUILD_TARGETS=`echo "${SERVICES}" | sed "s|$|:docker|" | tr '\n' ' '`
         echo "Please changes: $PLZ_CHANGES"
         echo "Services to build: '$SERVICES'"
         echo "::set-output name=SERVICES::$SERVICES"
