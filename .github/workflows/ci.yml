@@ -77,7 +77,7 @@ jobs:
     - name: Build targets
       if: steps.check_targets.outputs.SERVICES != ''
       run: |
-        plz run parallel ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }}
+        echo ${{ steps.check_targets.outputs.SERVICES }} | sed 's|$|:docker|' | xargs echo plz run parallel
 
     - name: Calculate versions
       id: calculate_service_versions
