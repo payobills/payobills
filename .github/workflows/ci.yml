@@ -61,7 +61,9 @@ jobs:
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
         DOCKER_BUILD_TARGETS=`echo "${SERVICES_WITH_PREFIXES}" | sed "s|$|:docker|" | tr '\n' ' '`
         echo "Please changes: $PLZ_CHANGES"
+        echo "Services with prefixes: '$SERVICES'"
         echo "Services to build: '$SERVICES'"
+        echo "Docker targets to build: '$DOCKER_BUILD_TARGETS'"
         echo "::set-output name=SERVICES::$SERVICES"
         echo "::set-output name=SERVICES_SINGLE_LINE::$SERVICES_SINGLE_LINE"
         echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
