@@ -24,10 +24,11 @@ env:
   GITVERSION_REPO_TYPE: MONOREPO
   GITVERSION_CONFIG_SINGLE_APP: '/repo/.cicd/common/.gitversion.yml'
   GITVERSION_CONFIG_MONOREPO: '/repo/apps/${svc}/.gitversion.yml'
+  PROJECT_NAME: payobills
 
 jobs:
-  gitversion:
-    name: gitversion
+  ci:
+    name: ci
     runs-on: ubuntu-22.04
     steps:
     - name: Setup please.build
@@ -55,12 +56,17 @@ jobs:
         BUILD_TARGETS=$(for i in `ls -1 apps`; do echo -n "(//apps/$i)|"; done | sed 's/|$//')
         PLZ_CHANGES=`plz query changes -s ${{ steps.calculate_changed_services.outputs.diff_source }}`
         CHANGED_TARGETS=`echo $PLZ_CHANGES | (egrep -o $BUILD_TARGETS || true)`
-        SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
+        SERVICES_WITH_PREFIXES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
+        SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq | sed 's|//apps/||' `
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
+        DOCKER_BUILD_TARGETS=`echo "${SERVICES_WITH_PREFIXES}" | sed "s|$|:docker|" | tr '\n' ' '`
         echo "Please changes: $PLZ_CHANGES"
+        echo "Services with prefixes: '$SERVICES'"
         echo "Services to build: '$SERVICES'"
+        echo "Docker targets to build: '$DOCKER_BUILD_TARGETS'"
         echo "::set-output name=SERVICES::$SERVICES"
         echo "::set-output name=SERVICES_SINGLE_LINE::$SERVICES_SINGLE_LINE"
+        echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
 
     # - name: lint targets
     #   if: steps.check_targets.outputs.SERVICES != ''
@@ -77,7 +83,7 @@ jobs:
     - name: Build targets
       if: steps.check_targets.outputs.SERVICES != ''
       run: |
-        plz run parallel ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }}
+        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
 
     - name: Calculate versions
       id: calculate_service_versions

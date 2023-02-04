@@ -26,7 +26,6 @@ serviceAccount:
 environment: LOCAL_DEVELOPMENT
 
 pod:
-  # command: ["tail", "-f", "/dev/null"]
   command: ["dotnet", "watch", "run", "--no-launch-profile"]
   annotations: {}
   volumes:
