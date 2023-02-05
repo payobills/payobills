@@ -5,5 +5,13 @@
 ;
 ; Or you can uncomment the following to pin everyone to a particular version;
 ; when you change it all users will automatically get updated.
-; [please]
-; version = 16.19.0
+[please]
+version = 16.25.1
+
+[buildconfig]
+default-docker-repo=ghcr.io/mrsauravsahu/payobills
+
+[build]
+passenv=PROJECT_ROOT
+passenv=PROJECT_NAME
+

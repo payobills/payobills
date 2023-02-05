@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build-env
 WORKDIR /app
 
 # copy everything else and build
-COPY . ./
+COPY src ./
 
 ARG ARCH=linux-x64
 RUN dotnet publish -c Release --self-contained -r $ARCH -o out

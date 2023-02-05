@@ -37,6 +37,8 @@ podEnv:
     value: DEVELOPMENT
   - name: BILLS_DB_PATH
     value: /data/bills.sqlite
+  - name: BILLS_ALLOWED_ORIGINS
+    value: "http://localhost:5173"
 
 podAnnotations: {}
 
