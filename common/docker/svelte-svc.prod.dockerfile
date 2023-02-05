@@ -9,8 +9,6 @@ RUN npm ci
 
 COPY src ./
 
-RUN ls
-
 RUN npm run build
 
 FROM node:${NODE_VERSION}-alpine
