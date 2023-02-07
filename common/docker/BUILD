@@ -1,7 +1,7 @@
 for i in glob("*.dockerfile"):
-    export_file(
+    filegroup(
         name=i,
-        src=i,
+        srcs=[i, "{dockerfile}.dockerignore".format(dockerfile=i)],
         visibility=["PUBLIC"]
     )
 
