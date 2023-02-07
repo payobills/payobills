@@ -13,6 +13,7 @@ on:
     - 'hotfix/**'
 
 env:
+  K3S_VERSION: 'v1.21.2-k3s1'
   GITVERSION: 'gittools/gitversion:5.10.0-alpine.3.14-6.0'
   MAIN_BRANCHES: ("develop" "main")
   GITVERSION_TAG_PROPERTY_PULL_REQUESTS: .SemVer
@@ -33,6 +34,11 @@ jobs:
     steps:
     - name: Setup please.build
       uses: sagikazarmark/setup-please-action@v0
+
+    - uses: debianmaster/actions-k3s@master
+      id: k3s
+      with:
+        version: ${{ env.K3S_VERSION }}
 
     - name: Checkout
       uses: actions/checkout@v2

@@ -1,0 +1,24 @@
+{
+  "name": "@payobills/gateway",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "mesh dev",
+    "prebuild": "mesh build --fileType js",
+    "build": "(mkdir dist 2> /dev/null || true) && ( rm -rf dist/.mesh 2> /dev/null || true) && mv .mesh/ dist && echo 'import { createServer } from \"node:http\"; import { createBuiltMeshHTTPHandler } from \"./.mesh\"; const server = createServer(createBuiltMeshHTTPHandler()); server.listen(80)' > dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gateway",
+    "microservices",
+    "payobills"
+  ],
+  "author": "Saurav Sahu <mrsauravsahu@outlook.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@graphql-mesh/cli": "^0.82.13",
+    "@graphql-mesh/graphql": "^0.33.10",
+    "graphql": "^16.6.0"
+  }
+}

@@ -1,0 +1,6 @@
+sources:
+  - name: bills
+    handler:
+      graphql:
+        endpoint: http://localhost:30001/graphql
+        # endpoint: http://bills/graphql
