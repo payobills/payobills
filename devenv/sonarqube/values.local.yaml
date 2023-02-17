@@ -34,7 +34,7 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 securityContext:
-  fsGroup: 999
+  {}
   # capabilities:
   #   drop:
   #   - ALL
