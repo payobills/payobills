@@ -3,18 +3,17 @@
 # Declare variables to be passed into your templates.
 # environment: LOCAL_DEVELOPMENT
 
+type: "expose-external-service"
 replicaCount: 1
 
-image:
-  repository: sonarqube
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "9.9.0-community"
+app:
+  selectorLabels:
+    app: sonarqube
 
-pod:
-  # command: ["tail", "-f", "/dev/null"]
-  # command: ["dotnet", "watch", "run", "--no-launch-profile"]
-  annotations: {}
+service:
+  type: NodePort
+  port: 9000
+  nodePort: 31000
 
 imagePullSecrets: []
 nameOverride: ""
@@ -41,11 +40,6 @@ securityContext:
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
-
-service:
-  type: NodePort
-  port: 9000
-  nodePort: 31000
 
 ingress:
   enabled: false

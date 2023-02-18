@@ -1,6 +1,33 @@
 subinclude("@pleasings//k8s")
 
-for devenv_item in glob("*"):
+devenv_items = [
+  "sonarqube",
+  "sonarqube-expose",
+  "sonarscanner",
+]
+
+local_dev_items = [
+  "sonarqube-expose",
+  "sonarscanner"
+]
+
+# externals
+
+sh_cmd(
+  name="sonarqube",
+  cmd='''
+  helm upgrade --create-namespace --install -n ${PROJECT_NAME}-dev --repo https://SonarSource.github.io/helm-chart-sonarqube sonarqube sonarqube
+  ''',
+)
+
+# ---
+
+sh_cmd(
+  name="sonarqube_cleanup",
+  cmd='helm uninstall -n ${PROJECT_NAME}-dev sonarqube',
+)
+
+for devenv_item in local_dev_items:
   tarball(
     name="{devenv_item}_k8s".format(devenv_item=devenv_item),
     srcs=["//common/k8s"] + [
@@ -35,12 +62,10 @@ for devenv_item in glob("*"):
 
 sh_cmd(
     name="devenv",
-    deps=[":{devenv_item}_k8s".format(devenv_item=devenv_item) for devenv_item in glob("*")],
-    cmd='cd ${PROJECT_ROOT} && echo plz run {labels} && plz run parallel {labels}'.format(labels=" ".join(["//devenv:{devenv_item}".format(devenv_item=devenv_item) for devenv_item in glob("*")])),
+    cmd='cd ${PROJECT_ROOT} && plz run parallel {labels}'.format(labels=" ".join(["//devenv:{devenv_item}".format(devenv_item=devenv_item) for devenv_item in devenv_items])),
 )
 
 sh_cmd(
     name="cleanup",
-    deps=[":{devenv_item}_k8s".format(devenv_item=devenv_item) for devenv_item in glob("*")],
-    cmd='cd ${PROJECT_ROOT} && plz run parallel {labels}'.format(labels=" ".join(["//devenv:{devenv_item}_cleanup".format(devenv_item=devenv_item) for devenv_item in glob("*")])),
+    cmd='cd ${PROJECT_ROOT} && plz run parallel {labels}'.format(labels=" ".join(["//devenv:{devenv_item}_cleanup".format(devenv_item=devenv_item) for devenv_item in devenv_items])),
 )
