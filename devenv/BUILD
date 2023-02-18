@@ -3,12 +3,10 @@ subinclude("@pleasings//k8s")
 devenv_items = [
   "sonarqube",
   "sonarqube-expose",
-  "sonarscanner",
 ]
 
 local_dev_items = [
   "sonarqube-expose",
-  "sonarscanner"
 ]
 
 # externals
