@@ -1,4 +1,4 @@
-{{- if eq .Values.type "" }}
+{{- if not (eq .Values.type "expose-external-service") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
