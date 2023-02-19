@@ -56,7 +56,7 @@ jobs:
         SERVICES: ${{ steps.calculate_changed_services.outputs.changed_services }}
       run: |
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
-        DOCKER_BUILD_TARGETS=`echo $SERVICES_SINGLE_LINE | sed "s|$|:docker|" | tr '\n' ' '`
+        DOCKER_BUILD_TARGETS=`echo "${SERVICES}" | sed "s|$|:docker|" | tr '\n' ' '`
         echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
 
     # - name: Check targets with Please.Build
