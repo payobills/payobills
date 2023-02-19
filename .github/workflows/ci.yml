@@ -56,26 +56,9 @@ jobs:
         SERVICES: ${{ steps.calculate_changed_services.outputs.changed_services }}
       run: |
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
-        DOCKER_BUILD_TARGETS=`echo "${SERVICES}" | sed "s|$|:docker|" | tr '\n' ' '`
+        DOCKER_BUILD_TARGETS=`echo $SERVICES | sed "s|$|:docker|" | tr '\n' ' '`
+        echo DOCKER_BUILD_TARGETS="${DOCKER_BUILD_TARGETS}"
         echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
-
-    # - name: Check targets with Please.Build
-    #   id: check_targets
-    #   run: |
-    #     BUILD_TARGETS=$(for i in `ls -1 apps`; do echo -n "(//apps/$i)|"; done | sed 's/|$//')
-    #     PLZ_CHANGES=`plz query changes -s ${{ steps.calculate_changed_services.outputs.diff_source }}`
-    #     CHANGED_TARGETS=`echo $PLZ_CHANGES | (egrep -o $BUILD_TARGETS || true)`
-    #     SERVICES_WITH_PREFIXES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq`
-    #     SERVICES=`echo $CHANGED_TARGETS | egrep -o $BUILD_TARGETS | sort | uniq | sed 's|//apps/||' `
-    #     SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
-    #     DOCKER_BUILD_TARGETS=`echo "${SERVICES_WITH_PREFIXES}" | sed "s|$|:docker|" | tr '\n' ' '`
-    #     echo "Please changes: $PLZ_CHANGES"
-    #     echo "Services with prefixes: '$SERVICES'"
-    #     echo "Services to build: '$SERVICES'"
-    #     echo "Docker targets to build: '$DOCKER_BUILD_TARGETS'"
-    #     echo "::set-output name=SERVICES::$SERVICES"
-    #     echo "::set-output name=SERVICES_SINGLE_LINE::$SERVICES_SINGLE_LINE"
-    #     echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
 
     # - name: lint targets
     #   if: steps.check_targets.outputs.SERVICES != ''
