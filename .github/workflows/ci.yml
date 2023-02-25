@@ -58,7 +58,7 @@ jobs:
         echo SERVICES="${SERVICES}"
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
         echo SERVICES_SINGLE_LINE="${SERVICES_SINGLE_LINE}"
-        DOCKER_BUILD_TARGETS=`echo $SERVICES | sed "s|$|:docker|" | tr '\n' ' '`
+        DOCKER_BUILD_TARGETS=`echo "${SERVICES}" | sed -e "s|^|//|" -e "s|$|:docker|" | tr '\n' ' '`
         echo DOCKER_BUILD_TARGETS="${DOCKER_BUILD_TARGETS}"
         echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
 
