@@ -81,7 +81,6 @@ jobs:
 
     - name: Calculate versions
       id: calculate_service_versions
-      if: steps.check_targets.outputs.SERVICES != ''
       env:
         SEMVERYEASY_CHANGED_SERVICES: ${{ steps.check_targets.outputs.SERVICES }}
       run: . ./.cicd/common/semver-yeasy.sh calculate-version
