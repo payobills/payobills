@@ -50,6 +50,13 @@ jobs:
       id: calculate_changed_services
       run: . ./.cicd/common/semver-yeasy.sh changed
 
+    - name: Update PR description
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SEMVERY_YEASY_PR_BODY: ${{ fromJSON(steps.calculate_service_versions.outputs.PR_BODY) }}
+      if: ${{ github.event_name == 'pull_request' }}
+      run: . ./.cicd/common/semver-yeasy.sh update-pr
+
     - name: Generate other targets
       id: check_targets
       env:
@@ -84,13 +91,6 @@ jobs:
       env:
         SEMVERYEASY_CHANGED_SERVICES: ${{ steps.check_targets.outputs.SERVICES }}
       run: . ./.cicd/common/semver-yeasy.sh calculate-version
-
-    - name: Update PR description
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SEMVERY_YEASY_PR_BODY: ${{ fromJSON(steps.calculate_service_versions.outputs.PR_BODY) }}
-      if: ${{ github.event_name == 'pull_request' }}
-      run: . ./.cicd/common/semver-yeasy.sh update-pr
 
     - name: Tag build
       if: ${{ github.event_name == 'push' && (steps.check_targets.outputs.SERVICES != '') && (startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix') || contains(env.MAIN_BRANCHES, steps.calculate_changed_services.outputs.diff_dest)) }}
