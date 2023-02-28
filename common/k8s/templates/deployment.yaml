@@ -49,10 +49,10 @@ spec:
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-          - name: POD_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             {{- toYaml .Values.pod.env | nindent 12 }}
           volumeMounts:
             {{- toYaml .Values.pod.volumeMounts | nindent 12 }}
