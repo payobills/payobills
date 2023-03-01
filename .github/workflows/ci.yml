@@ -59,8 +59,11 @@ jobs:
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
         echo SERVICES_SINGLE_LINE="${SERVICES_SINGLE_LINE}"
         DOCKER_BUILD_TARGETS=`echo "${SERVICES}" | sed -e "s|^|//|" -e "s|$|:docker|" | tr '\n' ' '`
+        IMAGE_SCAN_TARGETS=`echo "${SERVICES}" | sed -e "s|^|//|" -e "s|$|:image_scan|" | tr '\n' ' '`
         echo DOCKER_BUILD_TARGETS="${DOCKER_BUILD_TARGETS}"
+        echo IMAGE_SCAN_TARGETS="${IMAGE_SCAN_TARGETS}"
         echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
+        echo "::set-output name=IMAGE_SCAN_TARGETS::$IMAGE_SCAN_TARGETS"
 
     # - name: lint targets
     #   if: steps.check_targets.outputs.SERVICES != ''
@@ -77,7 +80,12 @@ jobs:
     - name: Build targets
       if: steps.check_targets.outputs.SERVICES != ''
       run: |
-        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
+        echo ${{ steps.check_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs plz run parallel
+
+    - name: Container Scanning
+      if: steps.check_targets.outputs.SERVICES != ''
+      run: |
+        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs -n 1 plz run
 
     - name: Calculate versions
       id: calculate_service_versions

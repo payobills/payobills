@@ -31,3 +31,16 @@ sh_cmd(
     '''.format(svc=svc),
     srcs=[":local_k8s"],
 )
+
+sh_cmd(
+    name = "image_scan",
+    deps = [":docker"],
+    srcs = [":docker_fqn"],
+    cmd = '''
+    docker run --rm \
+      --volume /var/run/docker.sock:/var/run/docker.sock \
+      anchore/grype:v0.57.1 \
+      `cat $SRCS`
+    '''
+)
+
