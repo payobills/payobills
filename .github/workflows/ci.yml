@@ -85,7 +85,7 @@ jobs:
     - name: Container Scanning
       if: fromJSON(steps.calculate_changed_services.outputs.changed_services) != ''
       run: |
-        echo ${{ steps.check_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 plz run
+        echo ${{ steps.check_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 sh -c 'echo $0; echo ----; plz run $0; echo ----;'
 
     - name: Calculate versions
       id: calculate_service_versions
