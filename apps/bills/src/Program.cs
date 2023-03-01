@@ -1,12 +1,37 @@
 using payobills.bills.svc;
 using payobills.bills.repos;
 using payobills.bills.data;
-using Microsoft.EntityFrameworkCore;
 using payobills.bills.gql;
+using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var serviceVersion = Environment.GetEnvironmentVariable("VERSION") ?? throw new ArgumentNullException("'VERSION' Environment Variable is missing.");
+
+// https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Instrumentation.AspNetCore/README.md
+var isTelemetryEnabled = (Environment.GetEnvironmentVariable("TELEMETRY_DISABLED") ?? "true") == "true";
+if (isTelemetryEnabled)
+{
+  builder.Services
+    .AddOpenTelemetry()
+    // .WithMetrics(builder => builder.AddPrometheusExporter())
+    .WithTracing(builder =>
+    {
+      builder
+      .AddSource("ServiceA")
+      .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("ServiceA"))
+      .AddAspNetCoreInstrumentation();
+      // .AddConsoleExporter(options => {options.})
+      // https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/src/OpenTelemetry.Exporter.OpenTelemetryProtocol/README.md
+      // .AddOtlpExporter(options => {
+      //   options.Endpoint = new Uri(Environment.GetEnvironmentVariable("OTEL_ENDPOINT") ?? throw new ArgumentNullException("'OTEL_ENDPOINT' Environment Variable is missing."));
+      // });
+    });
+}
+
 
 var corsPolicyName = "allowedOrigins";
 builder.Services.AddCors(options =>
@@ -56,6 +81,7 @@ app.UseCors(corsPolicyName);
 // }
 
 app.UseAuthorization();
+// app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 // app.MapControllers();
 

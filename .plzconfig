@@ -14,4 +14,5 @@ default-docker-repo=ghcr.io/mrsauravsahu/payobills
 [build]
 passenv=PROJECT_ROOT
 passenv=PROJECT_NAME
-
+passenv=KUBECONFIG
+passenv=K8S_NAMESPACE
