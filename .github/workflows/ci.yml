@@ -80,12 +80,12 @@ jobs:
     - name: Build targets
       if: steps.check_targets.outputs.SERVICES != ''
       run: |
-        echo ${{ steps.check_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs plz run parallel
+        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
 
     - name: Container Scanning
       if: steps.check_targets.outputs.SERVICES != ''
       run: |
-        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs -n 1 plz run
+        echo ${{ steps.check_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 plz run
 
     - name: Calculate versions
       id: calculate_service_versions
