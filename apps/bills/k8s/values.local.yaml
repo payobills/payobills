@@ -4,6 +4,8 @@
 
 replicaCount: 1
 
+enableOpenTelemetry: true
+
 image:
   repository: mcr.microsoft.com/dotnet/sdk
   pullPolicy: IfNotPresent
@@ -26,7 +28,7 @@ serviceAccount:
 environment: LOCAL_DEVELOPMENT
 
 pod:
-  command: ["dotnet", "watch", "run", "--no-launch-profile"]
+  command: ["bash", "-c", "'dotnet run --no-launch-profile > /var/log/app.log'"]
   annotations: {}
   volumes:
     - name: code
