@@ -46,6 +46,11 @@ jobs:
     - name: Checkout to branch
       run: . ./.cicd/common/semver-yeasy.sh checkout
 
+    - uses: actions/cache@v2
+      with:
+        path: plz-out
+        key: plz-out
+
     - name: Calculate changed services
       id: calculate_changed_services
       run: . ./.cicd/common/semver-yeasy.sh changed
