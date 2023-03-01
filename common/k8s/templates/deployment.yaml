@@ -33,6 +33,17 @@ spec:
             hostPath:
               path: {{ printf "%s/%s" $.Values.helpers.PROJECT_ROOT $value.hostPath.pathPrefix }}
         {{- end }}
+        {{- if .Values.enableOpenTelemetry }}
+          - name: varlog
+            emptyDir: {}
+          - name: opentelemetry-collector-configmap
+            configMap:
+              defaultMode: 420
+              items:
+              - key: relay
+                path: relay.yaml
+              name: opentelemetry-collector
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -56,6 +67,10 @@ spec:
             {{- toYaml .Values.pod.env | nindent 12 }}
           volumeMounts:
             {{- toYaml .Values.pod.volumeMounts | nindent 12 }}
+            {{- if .Values.enableOpenTelemetry }}
+            - name: varlog
+              mountPath: /var/log
+            {{- end }}
           ports:
             - name: http
               containerPort: 80
@@ -72,6 +87,23 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.enableOpenTelemetry }}
+        - name: opentelemetry-collector
+          image: otel/opentelemetry-collector-contrib:0.72.0
+          command:
+          - /otelcol-contrib
+          - --config=/conf/relay.yaml
+          volumeMounts:
+          - mountPath: /conf
+            name: opentelemetry-collector-configmap
+          - name: varlog
+            mountPath: /var/log
+          env:
+            - name: OTEL_RESOURCE_ATTRIBUTES_POD_NAME # set pod name as resource attribute for k8s metadata processor
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name 
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
