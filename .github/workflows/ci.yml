@@ -82,7 +82,7 @@ jobs:
     - name: Calculate versions
       id: calculate_service_versions
       env:
-        SEMVERYEASY_CHANGED_SERVICES: ${{ steps.check_targets.outputs.SERVICES }}
+        SEMVERYEASY_CHANGED_SERVICES: ${{ fromJSON(steps.calculate_changed_services.outputs.changed_services) }}
       run: . ./.cicd/common/semver-yeasy.sh calculate-version
 
     - name: Update PR description
