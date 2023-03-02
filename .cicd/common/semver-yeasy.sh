@@ -89,6 +89,7 @@ calculate-version)
     else
         service_versions_txt='## impact surface\n'
         changed_services=( $SEMVERYEASY_CHANGED_SERVICES )
+        echo "services changed = \"$SEMVERYEASY_CHANGED_SERVICES)\""
         if [ "${#changed_services[@]}" = "0" ]; then
         service_versions_txt+='No services changed\n'
         else
