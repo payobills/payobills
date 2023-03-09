@@ -1,8 +1,9 @@
 # payobills
 A self-hosted (Bring and Keep your own Data) bill management app - very much WIP
 
-![Screenshot of the current version of the App](img-assets/timeline-view.png)
-![Screenshot of adding a bill manually page](img-assets/add-bill-view.png)
+Home Timeline view | Adding a bill manually
+--- | ---
+![Screenshot of the current version of the App](img-assets/timeline-view.png) | ![Screenshot of adding a bill manually page](img-assets/add-bill-view.png)
 
 ## why create such an app?
 - Help me with all my bill related needs.
