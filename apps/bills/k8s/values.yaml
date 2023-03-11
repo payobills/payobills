@@ -5,11 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: payobills-bills
+  repository: ghcr.io/payobills/apps/bills
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
-
+  tag: "28f6f606e3a310651888d512af3292888a7d26b1eb2bb373748559d4e9b83f8b"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -23,24 +22,24 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podVolumes:
+pod:
+  annotations: {}
+  volumes:
   - name: bills-data
     hostPath:
       path: /home/mrsauravsahu/Code/payobills/data/bills-data
 
-podVolumeMounts:
+  volumeMounts:
   - mountPath: /data
     name: bills-data
 
-podEnv:
+  env:
   - name: ASPNETCORE_ENVIRONMENT
     value: DEVELOPMENT
   - name: BILLS_DB_PATH
     value: /data/bills.sqlite
   - name: BILLS_ALLOWED_ORIGINS
     value: "http://localhost:5173"
-
-podAnnotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
