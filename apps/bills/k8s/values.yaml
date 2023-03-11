@@ -61,9 +61,9 @@ flags:
   rewrite: false
 
 ingress:
-  enabled: true
-  name: payobills-bills
+  name: payobills
   subdomain: payobills
+  enabled: true
   className: "nginx"
   annotations: {}
   routePath: /graphql

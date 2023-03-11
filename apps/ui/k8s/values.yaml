@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: payobills-ui
+  repository: ghcr.io/payobills/apps/ui
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "e82dcadd3fb90b5e2a41962d145753788a73f1e8deb4b4475df2eaa976df638c"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -22,6 +22,9 @@ serviceAccount:
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
+
+pod:
+  annotations: {}
 
 podAnnotations: {}
 
@@ -39,22 +42,22 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
+  name: ui
+
+flags:
+  rewrite: false
 
 ingress:
-  enabled: false
-  className: ""
+  name: payobills
+  subdomain: payobills
+  enabled: true
+  className: "nginx"
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  routePath: /
   hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+    - name: pi.lol
+    - name: pi.local
+    - name: 192.168.0.100.nip.io  
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
