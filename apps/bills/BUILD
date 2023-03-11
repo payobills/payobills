@@ -12,7 +12,7 @@ docker_image(
 
 tarball(
   name="local_k8s",
-  srcs=["//common/k8s"] + ["k8s/Chart.yaml", "k8s/values.local.yaml" ]
+  srcs=["//common/k8s"] + glob("k8s/**")
 )
 
 sh_cmd(
