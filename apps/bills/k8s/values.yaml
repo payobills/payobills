@@ -5,11 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: payobills-bills
+  repository: ghcr.io/payobills/apps/bills
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
-
+  tag: "v0.2.0-alpha.7"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -23,24 +22,24 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-podVolumes:
+pod:
+  annotations: {}
+  volumes:
   - name: bills-data
     hostPath:
-      path: /home/mrsauravsahu/Code/payobills/data/bills-data
+      pathPrefix: data/bills-data
 
-podVolumeMounts:
+  volumeMounts:
   - mountPath: /data
     name: bills-data
 
-podEnv:
+  env:
   - name: ASPNETCORE_ENVIRONMENT
     value: DEVELOPMENT
   - name: BILLS_DB_PATH
     value: /data/bills.sqlite
   - name: BILLS_ALLOWED_ORIGINS
     value: "http://localhost:5173"
-
-podAnnotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -54,24 +53,24 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
+  name: bills
   type: ClusterIP
   port: 80
 
+flags:
+  rewrite: false
+
 ingress:
-  enabled: false
-  className: ""
+  enabled: true
+  name: payobills-bills
+  subdomain: payobills
+  className: "nginx"
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  routePath: /graphql
   hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+    - name: pi.lol
+    - name: pi.local
+    - name: 192.168.0.100.nip.io  
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

@@ -6,7 +6,7 @@
 ; Or you can uncomment the following to pin everyone to a particular version;
 ; when you change it all users will automatically get updated.
 [please]
-version = 16.27.2
+version = 16.27.3
 
 [buildconfig]
 default-docker-repo=ghcr.io/mrsauravsahu/payobills
@@ -14,4 +14,12 @@ default-docker-repo=ghcr.io/mrsauravsahu/payobills
 [build]
 passenv=PROJECT_ROOT
 passenv=PROJECT_NAME
+passenv=ARCH
 
+[buildenv]
+dotnet-runtime-id = linux-musl-x64
+dotnet-runtime-version = 6.0-alpine
+
+;[buildenv]
+;dotnet-runtime-id = linux-arm6
+;dotnet-runtime-version = 6.0.14-bullseye-slim-arm64v8
