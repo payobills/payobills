@@ -8,7 +8,7 @@ image:
   repository: ghcr.io/payobills/apps/ui
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "e82dcadd3fb90b5e2a41962d145753788a73f1e8deb4b4475df2eaa976df638c"
+  tag: "v0.2.0-alpha.7"
 
 imagePullSecrets: []
 nameOverride: ""
