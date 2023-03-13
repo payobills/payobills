@@ -16,3 +16,10 @@ passenv=PROJECT_ROOT
 passenv=PROJECT_NAME
 passenv=ARCH
 
+[buildenv]
+dotnet-runtime-id = linux-musl-x64
+dotnet-runtime-version = 6.0-alpine
+
+;[buildenv]
+;dotnet-runtime-id = linux-arm6
+;dotnet-runtime-version = 6.0.14-bullseye-slim-arm64v8

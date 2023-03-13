@@ -7,7 +7,7 @@ docker_image(
     image=package_name(),
     dockerfile="//common/docker:dotnet-svc.prod.dockerfile",
     srcs=glob(["src"], ["src/bin/**", "src/obj/**"]),
-    build_args='--build-arg DOTNET_VERSION=6.0 --build-arg ARCH=${ARCH} --build-arg SVC=${PROJECT_NAME}.{svc}'.format(svc=svc)
+    build_args='--build-arg DOTNET_VERSION=6.0 --build-arg SVC=${PROJECT_NAME}.{svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION}'.format(svc=svc)
 )
 
 tarball(
