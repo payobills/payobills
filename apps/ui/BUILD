@@ -33,3 +33,10 @@ sh_cmd(
       `cat $SRCS`
     '''
 )
+
+sh_cmd(
+    name="prod",
+    deps=[":local_k8s"],
+    cmd='mkdir plz-out/gen/apps/{svc}/local_k8s; tar xvf plz-out/gen/apps/{svc}/local_k8s.tar.gz --directory plz-out/gen/apps/{svc}/local_k8s; helm upgrade --install --create-namespace -n ${PROJECT_NAME} --values plz-out/gen/apps/{svc}/local_k8s/values.yaml {svc} plz-out/gen/apps/{svc}/local_k8s; rm -r plz-out/gen/apps/{svc}/local_k8s'.format(svc=svc),
+    srcs=[":local_k8s"],
+)
