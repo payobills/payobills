@@ -23,7 +23,7 @@ sh_cmd(
     tar xvf plz-out/gen/apps/{svc}/local_k8s.tar.gz --directory plz-out/gen/apps/{svc}/local_k8s
     helm upgrade --install \
       --wait \
-      --create-namespace -n ${PROJECT_NAME}-dev \
+      --create-namespace -n ${K8S_NAMESPACE} \
       --set helpers.PROJECT_ROOT=${PROJECT_ROOT} \
       --values plz-out/gen/apps/{svc}/local_k8s/values.local.yaml \
       {svc} plz-out/gen/apps/{svc}/local_k8s
