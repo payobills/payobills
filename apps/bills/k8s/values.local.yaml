@@ -28,7 +28,7 @@ serviceAccount:
 environment: LOCAL_DEVELOPMENT
 
 pod:
-  command: ["bash", "-c", "'dotnet run --no-launch-profile > /var/log/app.log'"]
+  command: ["bash", "-c", "'dotnet run --no-launch-profile | tee /var/log/app.log'"]
   annotations: {}
   volumes:
     - name: code
