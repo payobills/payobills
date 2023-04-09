@@ -2,13 +2,14 @@
   import { goto } from "$app/navigation";
   export let title: string = "";
   export let items: any[] = [];
+  const lastDay = new Date(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 0).getDate()
 </script>
 
 <div class="timeline">
   <div class="title">{title}</div>
   <div class="legend legend-top">
     <span>1</span>
-    <span>31</span>
+    <span>{lastDay}</span>
   </div>
   <div class="items">
     {#each items as item}
@@ -56,7 +57,7 @@
   </div>
   <div class="legend legend-bottom">
     <span>1</span>
-    <span>31</span>
+    <span>{lastDay}</span>
   </div>
   <button
     on:click={() => {
