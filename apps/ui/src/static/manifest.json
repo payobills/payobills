@@ -1,0 +1,20 @@
+{
+  "short_name": "payobills",
+  "name": "payobills",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "type": "image/png",
+      "sizes": "110x110"
+    }
+  ],
+  "id": "/",
+  "start_url": "/",
+  "background_color": "#7E9DCD",
+  "display": "fullscreen",
+  "scope": "/",
+  "theme_color": "#7E9DCD",
+  "shortcuts": [],
+  "description": "Self Hosted Bill and Payments App",
+  "screenshots": []
+}

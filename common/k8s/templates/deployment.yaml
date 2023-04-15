@@ -65,7 +65,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+          {{- if .Values.pod.env }}
             {{- toYaml .Values.pod.env | nindent 12 }}
+          {{- end }}
           volumeMounts:
             {{- toYaml .Values.pod.volumeMounts | nindent 12 }}
             {{- if .Values.enableOpenTelemetry }}

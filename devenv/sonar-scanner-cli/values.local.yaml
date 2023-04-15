@@ -11,6 +11,7 @@ image:
 
 pod:
   command: [ "tail", "-f", "/dev/null" ]
+  env: []
   volumes:
     - name: code
       hostPath:

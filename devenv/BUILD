@@ -2,7 +2,7 @@ subinclude("@pleasings//k8s")
 
 devenv_items = [
   "sonarqube",
-  "sonar-scanner-cli"
+  "sonar-scanner-cli",
   "sonarqube-expose",
 ]
 
