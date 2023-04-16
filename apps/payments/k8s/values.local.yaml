@@ -15,7 +15,10 @@ image:
 pod:
   # command: ["tail", "-f", "/dev/null"]
   command: ["sh", "-c", "npm i && npm run start:dev"]
-  annotations: {}
+  annotations:
+    dapr.io/enabled: "true"
+    dapr.io/app-id: "payments"
+    dapr.io/app-port: "80"
   volumes:
     - name: code
       hostPath:
