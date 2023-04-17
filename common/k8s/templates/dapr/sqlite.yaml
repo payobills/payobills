@@ -1,0 +1,13 @@
+{{- if .Values.features.dapr.sqlite }}
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ include "app.fullname" . }}
+spec:
+  type: state.sqlite
+  version: v1
+  metadata:
+  - name: connectionString
+    value: {{ printf "Data Source=/mnt/state-store/%s;Cache=Shared" .Values.features.dapr.sqlite.dbFileName }}
+{{- end }}
+ 

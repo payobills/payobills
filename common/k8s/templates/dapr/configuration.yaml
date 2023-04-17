@@ -1,0 +1,13 @@
+{{- if .Values.features.dapr }}
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: {{ include "app.fullname" . }}
+spec:
+  mtls:
+    enabled: true
+  secrets:
+    scopes:
+    - storeName: {{ include "app.fullname" . }}
+{{- end }}
+ 

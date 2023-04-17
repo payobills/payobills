@@ -4,6 +4,8 @@
 
 environment: LOCAL_DEVELOPMENT
 
+enableOpenTelemetry: true
+
 replicaCount: 1
 
 image:
@@ -13,19 +15,25 @@ image:
   tag: "18.11.0"
 
 pod:
-  # command: ["tail", "-f", "/dev/null"]
-  command: ["sh", "-c", "npm i && npm run start:dev"]
-  annotations:
-    dapr.io/enabled: "true"
-    dapr.io/app-id: "payments"
-    dapr.io/app-port: "80"
+  command: ["sh", "-c", "'npm i && npm run start:dev | tee /var/log/app.log'"]
+  annotations: {}
+    #dapr.io/enabled: "true"
+    #dapr.io/app-id: "payments"
+    #dapr.io/app-port: "80"
+    #dapr.io/config: "payments"
+    #dapr.io/volume-mounts-rw: "payments-data:/mnt/state-store"
   volumes:
     - name: code
       hostPath:
         pathPrefix: apps/payments/src
+    - name: payments-data
+      hostPath:
+        pathPrefix: data/payments-data
   volumeMounts:
     - mountPath: /app
       name: code
+    - mountPath: /data
+      name: payments-data
   env:
     - name: HOST
       value: "0.0.0.0"
@@ -33,6 +41,8 @@ pod:
       value: "80"
     - name: BILLS_SERVICE
       value: "http://bills"
+    - name: PAYMENTS_DB_PATH
+      value: "/data/payments.sqlite"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -86,8 +96,8 @@ resources: {}
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
+  #   cpu: 200m
+  #   memory: 256Mi
   # requests:
   #   cpu: 100m
   #   memory: 128Mi

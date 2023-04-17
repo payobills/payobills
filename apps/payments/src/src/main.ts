@@ -6,5 +6,6 @@ async function bootstrap() {
   await app.listen(process.env.PORT || 80, '0.0.0.0');
   console.log(`service running at ${await app.getUrl()}`);
 }
+
 bootstrap();
 
