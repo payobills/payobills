@@ -6,8 +6,6 @@ using payobills.bills.gql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 var corsPolicyName = "allowedOrigins";
 builder.Services.AddCors(options =>
 {
@@ -18,16 +16,16 @@ builder.Services.AddCors(options =>
         => policy.WithOrigins(allowedOrigins.Split(",")));
   }
 });
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IBillsService, BillsService>();
 builder.Services.AddScoped<BillsRepo>();
 builder.Services.AddDbContext<BillsContext>(options =>
 {
   options.UseSqlite($"Data Source={Environment.GetEnvironmentVariable("BILLS_DB_PATH")}");
 });
+
 builder.Services.AddSingleton<IGuidService, GuidService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 builder.Services
@@ -48,19 +46,14 @@ using (var serviceScope = app.Services.CreateScope())
 }
 
 app.UseCors(corsPolicyName);
-// Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment())
-// {
-//   app.UseSwagger();
-//   app.UseSwaggerUI();
-// }
-
+app.MapControllers();
 app.UseAuthorization();
-
-// app.MapControllers();
 
 app.MapGet("/", () => (new { app = "payobills.bills" }));
 
 app.MapGraphQL();
+
+// var appUri = app.ServerFeatures.Get<IServerAddressesFeature>().Addresses.FirstOrDefault();
+// Console.WriteLine($"App running at {appUri.ToString()}");
 
 app.Run();
