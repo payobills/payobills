@@ -50,10 +50,6 @@ app.MapControllers();
 app.UseAuthorization();
 
 app.MapGet("/", () => (new { app = "payobills.bills" }));
-
 app.MapGraphQL();
-
-// var appUri = app.ServerFeatures.Get<IServerAddressesFeature>().Addresses.FirstOrDefault();
-// Console.WriteLine($"App running at {appUri.ToString()}");
 
 app.Run();
