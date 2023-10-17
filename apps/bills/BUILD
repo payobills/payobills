@@ -11,24 +11,31 @@ docker_image(
 )
 
 tarball(
-  name="local_k8s",
+  name="package",
   srcs=["//common/k8s"] + glob("k8s/**")
+)
+
+tarball(
+  name="package_prod",
+  srcs=["//common/k8s"] + ["k8s/Chart.yaml"],
+  subdir="bills",
+  gzip=True
 )
 
 sh_cmd(
     name="local",
-    deps=[":local_k8s"],
+    deps=[":package"],
     cmd='''
-    mkdir plz-out/gen/apps/{svc}/local_k8s
-    tar xvf plz-out/gen/apps/{svc}/local_k8s.tar.gz --directory plz-out/gen/apps/{svc}/local_k8s
+    mkdir plz-out/gen/apps/{svc}/package
+    tar xvf plz-out/gen/apps/{svc}/package.tar.gz --directory plz-out/gen/apps/{svc}/package
     helm upgrade --install \
       --create-namespace -n ${PROJECT_NAME}-dev \
       --set helpers.PROJECT_ROOT=${PROJECT_ROOT} \
-      --values plz-out/gen/apps/{svc}/local_k8s/values.local.yaml \
-      {svc} plz-out/gen/apps/{svc}/local_k8s
-    rm -r plz-out/gen/apps/{svc}/local_k8s
+      --values plz-out/gen/apps/{svc}/package/values.local.yaml \
+      {svc} plz-out/gen/apps/{svc}/package
+    rm -r plz-out/gen/apps/{svc}/package
     '''.format(svc=svc),
-    srcs=[":local_k8s"],
+    srcs=[":package"],
 )
 
 
@@ -46,7 +53,7 @@ sh_cmd(
 
 sh_cmd(
     name="prod",
-    deps=[":local_k8s"],
-    cmd='mkdir plz-out/gen/apps/{svc}/local_k8s; tar xvf plz-out/gen/apps/{svc}/local_k8s.tar.gz --directory plz-out/gen/apps/{svc}/local_k8s; helm upgrade --install --create-namespace -n ${PROJECT_NAME} --set helpers.PROJECT_ROOT=${PROJECT_ROOT} --values plz-out/gen/apps/{svc}/local_k8s/values.yaml {svc} plz-out/gen/apps/{svc}/local_k8s; rm -r plz-out/gen/apps/{svc}/local_k8s'.format(svc=svc),
-    srcs=[":local_k8s"],
+    deps=[":package"],
+    cmd='mkdir plz-out/gen/apps/{svc}/package; tar xvf plz-out/gen/apps/{svc}/package.tar.gz --directory plz-out/gen/apps/{svc}/package; helm upgrade --install --create-namespace -n ${PROJECT_NAME} --set helpers.PROJECT_ROOT=${PROJECT_ROOT} --values plz-out/gen/apps/{svc}/package/values.yaml {svc} plz-out/gen/apps/{svc}/package; rm -r plz-out/gen/apps/{svc}/package'.format(svc=svc),
+    srcs=[":package"],
 )
