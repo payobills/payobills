@@ -1,16 +1,15 @@
-using payobills.bills.dtos;
-using payobills.bills.models;
-using payobills.bills.repos;
+using Payobills.Bills.Data.Contracts;
+using Payobills.Bills.Services.Contracts;
 
-namespace payobills.bills.svc;
+namespace Payobills.Bills.Services;
 
 public class BillsService : IBillsService
 {
-    private readonly BillsRepo billRepo;
+    private readonly IBillsRepo billRepo;
 
     public BillsService(BillsRepo billRepo) { this.billRepo = billRepo; }
 
-    public Task<Bill> AddBillAsync(BillDto dto)
+    public Task<BillDTO> AddBillAsync(BillDTO dto)
     {
         var bill = billRepo.AddBillAsync(dto);
         return bill;

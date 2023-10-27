@@ -4,7 +4,7 @@ using System;
 using payobills.bills.data;
 using payobills.bills.dtos;
 using payobills.bills.models;
-using payobills.bills.svc;
+using Payobills.Bills.Services;
 
 public class BillsRepo
 {

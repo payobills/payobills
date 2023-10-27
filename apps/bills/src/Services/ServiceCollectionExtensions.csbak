@@ -1,0 +1,7 @@
+public class ServiceCollectionExtensions
+{
+    public static void AddServices( this IServiceCollection)
+    {
+
+    }
+}

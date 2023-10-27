@@ -1,4 +1,4 @@
-namespace payobills.bills.svc;
+namespace Payobills.Bills.Services.Contracts;
 
 public interface IGuidService
 {

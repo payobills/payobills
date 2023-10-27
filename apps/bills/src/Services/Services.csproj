@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Payobills.Bills.Services</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\Services.Contracts\Services.Contracts.csproj" />
+    <ProjectReference Include="..\Data.Contracts\Data.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <PackageReference Include="HotChocolate.AspNetCore" Version="12.15.2" />
+  </ItemGroup>
+</Project>

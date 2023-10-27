@@ -1,11 +1,8 @@
-using payobills.bills.models;
-using payobills.bills.svc;
+using HotChocolate;
+using Payobills.Bills.Services;
 
-namespace payobills.bills.gql
-{
-  public class Query 
+  public class Query
   {
     private readonly IBillsService? _billsService;
     public async Task<IEnumerable<Bill>> Bills([Service] IBillsService billsService) => await billsService.GetBillsAsync();
   }
-}
