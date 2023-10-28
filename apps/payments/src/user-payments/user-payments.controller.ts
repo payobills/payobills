@@ -11,7 +11,6 @@ import { ApiTags } from "@nestjs/swagger";
 export class UserPaymentsController {
     @Get()
     getUserPayments(): Envelope<UserPaymentDTO[]> {
-        console.log('lel')
         return {data: []}
     }
 }
