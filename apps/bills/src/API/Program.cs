@@ -3,6 +3,7 @@ using Payobills.Bills.Services;
 using Payobills.Bills.Data;
 using Payobills.Bills.Data.Contracts;
 using MongoDB.Driver;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,16 @@ builder.Services.AddScoped<IMongoClient>((_) =>
 builder.Services.AddSingleton<IGuidService, GuidService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 
+// mapper
+builder.Services.AddSingleton<IMapper>((_) => {
+  var config = new MapperConfiguration(cfg => {
+    cfg.AddProfile<BillsMappingProfile>();
+  });
+
+  return new Mapper(config);
+});
+
+// gql
 builder.Services
   .AddGraphQLServer()
   .AddQueryType<Query>()
