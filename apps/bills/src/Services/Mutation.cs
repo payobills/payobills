@@ -1,9 +1,7 @@
-using HotChocolate;
+using Payobills.Bills.Services.Contracts;
+using Payobills.Bills.Services.Contracts.DTOs;
 public class Mutation
 {
-  public async Task<Bill> AddBill([Service] IBillsService billsService, BillDTO billDto)
-  {
-    var addedBill = await billsService.AddBillAsync(billDto);
-    return addedBill;
-  }
+  public async Task<BillDTO> AddBill([Service] IBillsService billsService, BillDTO billDto)
+    => await billsService.AddBillAsync(billDto);
 }

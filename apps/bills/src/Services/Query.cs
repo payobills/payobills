@@ -1,8 +1,8 @@
-using HotChocolate;
-using Payobills.Bills.Services;
+using Payobills.Bills.Services.Contracts;
+using Payobills.Bills.Services.Contracts.DTOs;
 
-  public class Query
-  {
-    private readonly IBillsService? _billsService;
-    public async Task<IEnumerable<Bill>> Bills([Service] IBillsService billsService) => await billsService.GetBillsAsync();
-  }
+public class Query
+{
+  public async Task<IEnumerable<BillDTO>> Bills([Service] IBillsService billsService)
+    => await billsService.GetBillsAsync();
+}

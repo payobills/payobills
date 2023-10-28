@@ -1,13 +1,10 @@
 using MongoDB.Driver;
-using Payobills.Bills.Models;
+using Payobills.Bills.Data.Contracts.Models;
 
-namespace Payobills.Contracts.Bills.Data;
+namespace Payobills.Bills.Data.Contracts;
 
 public interface IBillsContext
 {
-    private const string DB_NAME = "payobills";
-    private const string COLLECTION_NAME = "payobills";
-
-    public IMongoClient MongoClient { get; set; }
-    public IMongoCollection<Bill> Bills => MongoClient.GetDatabase(DB_NAME).GetCollection<Bill>(COLLECTION_NAME);
+    public IMongoClient MongoClient { get; }
+    public IMongoCollection<Bill> Bills { get; }
 }

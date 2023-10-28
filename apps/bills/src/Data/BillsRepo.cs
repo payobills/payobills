@@ -1,47 +1,23 @@
-namespace payobills.bills.repos;
+using MongoDB.Driver;
+using Payobills.Bills.Data.Contracts;
+using Payobills.Bills.Data.Contracts.Models;
 
-using System;
-using payobills.bills.data;
-using payobills.bills.dtos;
-using payobills.bills.models;
-using Payobills.Bills.Services;
+namespace Payobills.Bills.Data;
 
-public class BillsRepo
+public class BillsRepo : IBillsRepo
 {
-    private readonly IGuidService guidService;
-    private readonly IDateTimeService dateTimeService;
-    private readonly BillsContext billsContext;
+    private readonly IBillsContext billsContext;
 
-    public BillsRepo(
-        IGuidService guidService,
-        IDateTimeService dateTimeService,
-        BillsContext billsContext
-    ) {
-        this.guidService = guidService;
-        this.dateTimeService = dateTimeService;
+    public BillsRepo(IBillsContext billsContext)
+    {
         this.billsContext = billsContext;
-     }
-
-    public async Task<Bill> AddBillAsync(BillDto dto)
-    {
-        var addResult = this.billsContext.Add(new Bill
-        {
-            Id = this.guidService.NewGuid(),
-            Name = dto.Name,
-            BillingDate = dto.BillingDate,
-            PayByDate = dto.PayByDate,
-            LatePayByDate = dto.LatePayByDate,
-            CreatedAt = this.dateTimeService.UtcNow,
-            UpdatedAt = this.dateTimeService.UtcNow
-        });
-
-        await this.billsContext.SaveChangesAsync();
-
-        return addResult.Entity;
     }
 
-    public IQueryable<Bill> GetBillsAsync()
+    public async Task<Bill> AddBillAsync(Bill input)
     {
-        return this.billsContext.Bills.AsQueryable();
+        await this.billsContext.Bills.InsertOneAsync(input);
+        return input;
     }
+
+    public IQueryable<Bill> GetBillsAsync() => this.billsContext.Bills.AsQueryable();
 }

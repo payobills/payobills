@@ -11,9 +11,4 @@
     <PackageReference Include="MongoDb.Driver" Version="2.22.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Payobills.Bills.Models\Payobills.Bills.Models.csproj" />
-    <ProjectReference Include="..\Models\Models.csproj" />
-  </ItemGroup>
-
 </Project>

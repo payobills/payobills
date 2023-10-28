@@ -1,4 +1,4 @@
-namespace Payobills.Bills.Services.Contracts;
+namespace Payobills.Bills.Services.Contracts.DTOs;
 
 public class BillDTO
 {
