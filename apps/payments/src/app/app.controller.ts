@@ -1,6 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 
-@Controller()
+@Controller({
+  path: '',
+  version: 'v1'
+})
 export class AppController {
   @Get()
   getHello(): { app: string } {
