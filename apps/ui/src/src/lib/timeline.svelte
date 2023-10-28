@@ -34,16 +34,16 @@
           {:else}
             <span
               data-start={0}
-              style={`flex-grow: ${item.payByDate}`}
+              style={`flex-grow: ${item.billingDate}`}
               class="pill--empty"
             />
             <span
-              data-start={item.payByDate}
-              style={`flex-grow: ${item.payByDate - item.billingDate + 1}`}
+              data-start={item.billingDate}
+              style={`flex-grow: ${item.payByDate}`}
               class="pill--filled"
             />
             <span
-              data-start={item.billingDate}
+              data-start={item.payByDate}
               style={`flex-grow: ${31 - item.billingDate + 1}`}
               class="pill--empty"
             />
