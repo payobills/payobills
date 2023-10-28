@@ -1,13 +1,13 @@
 subinclude("@pleasings//docker")
 
-svc=split_path(package_name())[-1]
+svc='API'
 
 docker_image(
     name="docker",
     image=package_name(),
     dockerfile="//common/docker:dotnet-svc.prod.dockerfile",
     srcs=glob(["src"], ["src/bin/**", "src/obj/**"]),
-    build_args='--build-arg DOTNET_VERSION=6.0 --build-arg SVC=${PROJECT_NAME}.{svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION}'.format(svc=svc)
+    build_args='--build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION}'.format(svc=svc)
 )
 
 tarball(
