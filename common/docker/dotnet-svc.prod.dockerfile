@@ -1,6 +1,5 @@
 ARG DOTNET_VERSION=6.0
 ARG DOTNET_RUNTIME_VERSION=6.0.14-bullseye-slim-arm64v8
-# 6.0-alpine
 
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build-env
 

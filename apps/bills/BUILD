@@ -1,6 +1,6 @@
 subinclude("@pleasings//docker")
 
-svc=split_path(package_name())[-1]
+svc='API'
 
 docker_image(
     name="docker",

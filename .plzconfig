@@ -19,8 +19,5 @@ passenv=DOTNET_VERSION
 
 [buildenv]
 dotnet-runtime-id = linux-musl-x64
-dotnet-runtime-version = 6.0-alpine
-
-;[buildenv]
-;dotnet-runtime-id = linux-arm6
-;dotnet-runtime-version = 6.0.14-bullseye-slim-arm64v8
+dotnet-runtime-version = 7.0-bookworm-slim-arm64v8
+dotnet-version=7.0
