@@ -13,9 +13,9 @@
 <div>
     <button on:click={login}>
         <div>
-            <span>Login with</span>
+            <span>Get started with Keycloak</span>
             <img
-                src="http://localhost:3001/auth/resources/79rom/welcome/keycloak/logo.png"
+                src="http://localhost:3001/auth/welcome-content/keycloak-project.png"
                 alt="Keycloak Logo"
             />
         </div>
