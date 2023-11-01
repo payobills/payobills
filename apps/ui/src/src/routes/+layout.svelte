@@ -1,7 +1,3 @@
-<script lang="ts">
-  import Nav from "$lib/nav.svelte";
-</script>
-
 <main>
   <slot />
 </main>
@@ -19,7 +15,8 @@
     padding: 0;
   }
   :global(*) {
-    font-family: "Work Sans", sans-serif;
+    font-family: 'Helvetica Neue', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+    font-weight: 200;
   }
 
   :global(body) {
@@ -27,13 +24,11 @@
   }
 
   :global(button) {
-    /* align-self: flex-end; */
     border: none;
-    border-radius: 2rem;
+    border-radius: .25rem;
     background: #5b81bb;
     color: white;
     text-transform: uppercase;
-    /* margin: 1rem 0 0 0; */
     padding: 1rem;
   }
 
