@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import { redirect } from "@sveltejs/kit";
     import { onMount } from "svelte";
 
@@ -10,15 +11,13 @@
 
         if (code === null) throw redirect(301, "/login");
 
-        let encodedParams = new URLSearchParams();
-        encodedParams.append("client_id", "payobills");
-        encodedParams.append(
-            "redirect_uri",
-            "http://localhost:3000/callback"
-        );
-        encodedParams.append("grant_type", "authorization_code");
-        encodedParams.append("scope", "openid");
-        encodedParams.append("code", code || "");
+        let encodedParams = new URLSearchParams({
+            client_id: "payobills",
+            redirect_uri: "http://localhost:3000/callback",
+            grant_type: "authorization_code",
+            scope: "openid",
+            code: code || "",
+        });
 
         let accessTokenResponse = await fetch(
             "http://localhost:3001/auth/realms/homelab/protocol/openid-connect/token",
@@ -34,7 +33,7 @@
 
         let accessTokenResponseJSON = await accessTokenResponse.json();
         accessToken = accessTokenResponseJSON["access_token"];
+
+        await goto("/timeline");
     });
 </script>
-
-<p>{accessToken}</p>

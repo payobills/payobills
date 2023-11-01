@@ -2,7 +2,6 @@
   import Nav from "$lib/nav.svelte";
 </script>
 
-<Nav />
 <main>
   <slot />
 </main>

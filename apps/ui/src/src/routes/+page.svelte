@@ -1,32 +1,43 @@
 <script lang="ts">
-  import Timeline from "$lib/timeline.svelte";
-  import { goto } from "$app/navigation";
-  import Nav from "$lib/nav.svelte";
-  import {urql } from '$lib/stores/urql'
+    import { goto } from "$app/navigation";
+    import { redirect } from "@sveltejs/kit";
+    import { onMount } from "svelte";
 
-  import { queryStore, gql, getContextClient } from "@urql/svelte";
-
-  const billsQuery = queryStore({
-    client: $urql,
-    query: gql`
-      query {
-        bills {
-          name
-          billingDate
-          payByDate
-        }
-      }
-    `,
-  });
-
-  let vis;
+    async function login() {
+        await goto(
+            "http://localhost:3001/auth/realms/homelab/protocol/openid-connect/auth?client_id=payobills&redirect_uri=http://localhost:3000/callback&response_type=code&grant_type=authorization_code&scope=openid"
+        );
+    }
 </script>
 
-{#if $billsQuery.fetching}
-  <p>Loading...</p>
-{:else if $billsQuery.error}
-  <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
-{:else}
-  <Timeline title="timeline view" items={$billsQuery.data.bills} />
-{/if}
+<div>
+    <button on:click={login}>
+        <div>
+            <span>Login with</span>
+            <img
+                src="http://localhost:3001/auth/resources/79rom/welcome/keycloak/logo.png"
+                alt="Keycloak Logo"
+            />
+        </div>
+    </button>
+</div>
 
+<style>
+    div {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+    }
+
+    img {
+        height: 2rem;
+    }
+    span {
+        margin-right: .5rem;
+    }
+
+    button {
+        width: auto;
+    }
+</style>
