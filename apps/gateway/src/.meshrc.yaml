@@ -1,0 +1,10 @@
+sources:
+  - name: Bills
+    handler:
+      graphql:
+        endpoint: http://bills/graphql
+  - name: Payments
+    handler:
+      openapi:
+        source: http://payments/swagger-json
+        endpoint: http://payments/
