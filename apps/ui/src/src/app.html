@@ -5,9 +5,11 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
 		<meta name="viewport" content="width=device-width" />
 		<style>
-			body { display: flex; flex-direction: column; }
+			#app { display: flex; flex-direction: column; height: 100%; }
 		</style>
 		%sveltekit.head%
 	</head>
-	<body>%sveltekit.body%</body>
+	<body>
+		<div id="app">%sveltekit.body%</div>
+	</body>
 </html>
