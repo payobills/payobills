@@ -20,7 +20,7 @@
         });
 
         let accessTokenResponse = await fetch(
-            "http://localhost:3001/auth/realms/homelab/protocol/openid-connect/token",
+            `${import.meta.env.VITE_OIDC_TENANT_URL}/auth/realms/homelab/protocol/openid-connect/token`,
             {
                 method: "POST",
                 headers: {
