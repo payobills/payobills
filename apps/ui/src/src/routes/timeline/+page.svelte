@@ -18,8 +18,6 @@
       }
     `,
   });
-
-  let vis;
 </script>
 
 <Nav />
