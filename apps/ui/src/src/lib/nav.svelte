@@ -19,10 +19,9 @@
     background-color: #5b81bb;
     display: flex;
     align-items: center;
-    margin: 0;
     padding: 0;
     height: 4rem;
-    margin: 1rem 1rem 0 1rem;
+    margin: 0 0 1rem 0;
     border-radius: calc(4em / 2);
   }
 
