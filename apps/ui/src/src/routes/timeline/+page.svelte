@@ -26,6 +26,6 @@
 {:else if $billsQuery.error}
   <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
 {:else}
-  <Timeline title="timeline view" items={$billsQuery.data.bills} />
+  <Timeline items={$billsQuery.data.bills} />
 {/if}
 

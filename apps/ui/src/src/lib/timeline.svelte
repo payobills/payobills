@@ -1,8 +1,22 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
   export let title: string = "";
   export let items: any[] = [];
-  const lastDay = new Date(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 0).getDate()
+  let lastDay = 31;
+
+  onMount(() => {
+    let lastDateOfMonth = new Date(
+      new Date().getUTCFullYear(),
+      new Date().getUTCMonth() + 1,
+      0
+    );
+    lastDay = lastDateOfMonth.getDate();
+    let month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
+      lastDateOfMonth
+    );
+    if (title === "") title = `timeline view for ${month.toLocaleLowerCase()}`;
+  });
 </script>
 
 <div class="timeline">
@@ -94,9 +108,11 @@
     justify-content: space-between;
     font-size: 0.75rem;
   }
-button{  margin: 1rem 0 0 0;
-    padding: 1rem;  
-  align-self: flex-end;}
+  button {
+    margin: 1rem 0 0 0;
+    padding: 1rem;
+    align-self: flex-end;
+  }
   .pill {
     display: flex;
     width: 100%;
