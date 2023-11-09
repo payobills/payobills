@@ -1,6 +1,7 @@
 using MongoDB.Driver;
 using Payobills.Bills.Data.Contracts;
 using Payobills.Bills.Data.Contracts.Models;
+using System.Linq;
 
 namespace Payobills.Bills.Data;
 
@@ -20,4 +21,7 @@ public class BillsRepo : IBillsRepo
     }
 
     public IQueryable<Bill> GetBillsAsync() => this.billsContext.Bills.AsQueryable();
+    public IQueryable<Bill> GetBillByIdAsync(Guid id) => this.billsContext.Bills
+        .AsQueryable()
+        .Where(p => p.Id == id);
 }
