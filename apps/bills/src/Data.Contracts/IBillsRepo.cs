@@ -6,4 +6,5 @@ public interface IBillsRepo
 {
      Task<Bill> AddBillAsync(Bill dto);
      IQueryable<Bill> GetBillsAsync();
+     IQueryable<Bill> GetBillByIdAsync(Guid id);
 }

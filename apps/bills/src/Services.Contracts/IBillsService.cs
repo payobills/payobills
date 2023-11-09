@@ -6,4 +6,5 @@ public interface IBillsService
 {
   Task<BillDTO> AddBillAsync(CreateBillDTO dto);
   Task<IEnumerable<BillDTO>> GetBillsAsync();
+  Task<BillDTO?> GetBillByIdAsync(Guid id);
 }
