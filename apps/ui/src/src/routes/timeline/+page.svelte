@@ -11,6 +11,7 @@
     query: gql`
       query {
         bills {
+          id
           name
           billingDate
           payByDate
