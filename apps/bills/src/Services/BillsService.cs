@@ -32,4 +32,11 @@ public class BillsService : IBillsService
         var billsDTOList = mapper.Map<IEnumerable<BillDTO>>(bills);
         return Task.FromResult(billsDTOList);
     }
+
+    public Task<BillDTO?> GetBillByIdAsync(Guid id)
+    {
+        var bills = billRepo.GetBillByIdAsync(id);
+        var billDTO = bills.Any() ? mapper.Map<BillDTO>(bills.First()) : null;
+        return Task.FromResult(billDTO);
+    }
 }
