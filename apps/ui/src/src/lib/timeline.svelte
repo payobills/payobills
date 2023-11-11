@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
+  import PaymentTimelinePill from "./payment-timeline-pill.svelte";
   export let title: string = "";
   export let items: any[] = [];
   let lastDay = 31;
@@ -27,46 +28,9 @@
   </div>
   <div class="items">
     {#each items as item}
-      <div class="item">
-        <div class="pill">
-          {#if item.billingDate > item.payByDate}
-            <span
-              data-start={0}
-              style={`flex-grow: ${item.payByDate}`}
-              class="pill--filled"
-            />
-            <span
-              data-start={item.payByDate}
-              style={`flex-grow: ${item.billingDate - item.payByDate + 1}`}
-              class="pill--empty"
-            />
-            <span
-              data-start={item.billingDate}
-              style={`flex-grow: ${31 - item.billingDate + 1}`}
-              class="pill--filled"
-            />
-          {:else}
-            <span
-              data-start={0}
-              style={`flex-grow: ${item.billingDate}`}
-              class="pill--empty"
-            />
-            <span
-              data-start={item.billingDate}
-              style={`flex-grow: ${item.payByDate}`}
-              class="pill--filled"
-            />
-            <span
-              data-start={item.payByDate}
-              style={`flex-grow: ${31 - item.billingDate + 1}`}
-              class="pill--empty"
-            />
-          {/if}
-        </div>
-        <span data-start={0} data-length={item.payByDate} class="item-title"
-          >{item.name}</span
-        >
-      </div>
+      <button class="bill" on:click={() => goto(`bills?id=${item.id}`)}>
+        <PaymentTimelinePill {item} />
+      </button>
     {/each}
   </div>
   <div class="legend legend-bottom">
@@ -74,6 +38,7 @@
     <span>{lastDay}</span>
   </div>
   <button
+    class="cta"
     on:click={() => {
       goto("bills/add");
     }}
@@ -82,6 +47,18 @@
 </div>
 
 <style>
+  .bill {
+    all: unset;
+    width: 100%;
+    margin: 1rem 0 0 0;
+    /* padding: 1rem; */
+    align-self: flex-end;
+  }
+  .cta {
+    margin: 1rem 0 0 0;
+    border-radius: 1rem;
+  }
+
   .timeline {
     display: flex;
     flex-direction: column;
@@ -108,30 +85,7 @@
     justify-content: space-between;
     font-size: 0.75rem;
   }
-  button {
-    margin: 1rem 0 0 0;
-    padding: 1rem;
-    align-self: flex-end;
-  }
-  .pill {
-    display: flex;
-    width: 100%;
-    padding: 1rem 0 0.25rem 0;
-  }
-  .pill > span {
-    height: 0.3125rem;
-    border-radius: 0.25rem;
-    margin: 1.5rem 0 0 0;
-  }
-  .pill--filled {
-    background-color: #7a98c5;
-  }
-  .pill--empty {
-    background-color: #e5ecf8;
-  }
-  .item-title {
-    font-size: 0.75rem;
-  }
+
   span {
     color: #9f9f9f;
   }
