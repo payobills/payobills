@@ -7,17 +7,6 @@ using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var CORS_POLICY_NAME = "allowedOrigins";
-builder.Services.AddCors(options =>
-{
-  var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS");
-  if (!string.IsNullOrEmpty(allowedOrigins))
-  {
-    options.AddPolicy(name: CORS_POLICY_NAME, policy
-        => policy.WithOrigins(allowedOrigins.Split(",")));
-  }
-});
-
 // bills
 builder.Services.AddScoped<IBillsService, BillsService>();
 builder.Services.AddScoped<IBillsRepo, BillsRepo>();
@@ -36,8 +25,10 @@ builder.Services.AddSingleton<IGuidService, GuidService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 
 // mapper
-builder.Services.AddSingleton<IMapper>((_) => {
-  var config = new MapperConfiguration(cfg => {
+builder.Services.AddSingleton<IMapper>((_) =>
+{
+  var config = new MapperConfiguration(cfg =>
+  {
     cfg.AddProfile<BillsMappingProfile>();
   });
 
@@ -52,8 +43,6 @@ builder.Services
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
 
 var app = builder.Build();
-
-app.UseCors(CORS_POLICY_NAME);
 
 app.MapGet("/", () => (new { app = "payobills.bills" }));
 app.MapGraphQL();
