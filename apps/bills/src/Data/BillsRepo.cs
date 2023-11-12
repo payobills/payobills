@@ -24,4 +24,10 @@ public class BillsRepo : IBillsRepo
     public IQueryable<Bill> GetBillByIdAsync(Guid id) => this.billsContext.Bills
         .AsQueryable()
         .Where(p => p.Id == id);
+
+    public async Task<Bill> UpdateBillAsync(Bill bill)
+    {
+        await billsContext.Bills.ReplaceOneAsync(p => p.Id == bill.Id, bill);
+        return bill;
+    }
 }

@@ -39,4 +39,33 @@ public class BillsService : IBillsService
         var billDTO = bills.Any() ? mapper.Map<BillDTO>(bills.First()) : null;
         return Task.FromResult(billDTO);
     }
+
+    public async Task<PaymentDTO> MarkPaymentForBillAsync(MarkPaymentForBillDTO dto)
+    {
+        var today = DateTime.SpecifyKind(DateTime.Today.AddDays(-DateTime.Today.Day), DateTimeKind.Utc);
+        var billPeriodStart = today.Subtract(TimeSpan.FromDays(31));
+        var billPeriodEnd = today;
+
+        var bill = billRepo.GetBillByIdAsync(dto.Id).FirstOrDefault();
+
+        if (bill is null) throw new ArgumentNullException(nameof(bill), $"The bill with {dto.Id} was not found.");
+
+        var existingPayment = bill.Payments
+            .Where(p => p.BillPeriodStart == billPeriodStart && p.BillPeriodEnd == billPeriodEnd)
+            .FirstOrDefault();
+
+        if (existingPayment is not null) return mapper.Map<PaymentDTO>(existingPayment);
+
+        var payment = new BillPayment
+        {
+            Id = Guid.NewGuid(),
+            BillPeriodStart = billPeriodStart,
+            BillPeriodEnd = billPeriodEnd,
+        };
+
+        bill.Payments.Add(payment);
+        await billRepo.UpdateBillAsync(bill);
+
+        return mapper.Map<PaymentDTO>(payment);
+    }
 }
