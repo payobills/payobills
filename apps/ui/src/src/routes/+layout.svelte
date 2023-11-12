@@ -32,6 +32,11 @@
     padding: 1rem;
   }
 
+  :global(h1) {
+    margin: .5rem 0;
+    font-size: 1.5rem;
+  }
+
   main {
     margin: 1rem;
     display: flex;
