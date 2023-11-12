@@ -51,7 +51,6 @@
     all: unset;
     width: 100%;
     margin: 1rem 0 0 0;
-    /* padding: 1rem; */
     align-self: flex-end;
   }
   .cta {
