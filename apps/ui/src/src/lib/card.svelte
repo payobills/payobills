@@ -3,7 +3,9 @@
 </script>
 
 <div class="card">
-  <div class="title">{title}</div>
+  {#if title !== ""}
+    <div class="title">{title}</div>
+  {/if}
   <slot />
 </div>
 
