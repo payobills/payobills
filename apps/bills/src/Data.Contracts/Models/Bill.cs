@@ -7,6 +7,7 @@ public class Bill
     public int BillingDate { get; set; }
     public int PayByDate { get; set; }
     public int LatePayByDate { get; set; }
+    public List<BillPayment> Payments { get; set; } = new();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }
