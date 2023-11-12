@@ -3,6 +3,7 @@ namespace Payobills.Bills.Data.Contracts.Models;
 public class Bill
 {
     public Guid Id { get; set; }
+    public Guid UserId { get; set; } = Guid.Empty;
     public string Name { get; set; } = string.Empty;
     public int BillingDate { get; set; }
     public int PayByDate { get; set; }
