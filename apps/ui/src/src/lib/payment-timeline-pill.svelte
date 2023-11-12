@@ -50,7 +50,7 @@
     .pill {
         display: flex;
         width: 100%;
-        padding: 1rem 0 0.25rem 0;
+        padding: .5rem 0 0.25rem 0;
     }
     .pill > span {
         height: 0.3125rem;

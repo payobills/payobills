@@ -21,7 +21,7 @@
 </script>
 
 <div class="timeline">
-  <div class="title">{title}</div>
+  <h1>{title}</h1>
   <div class="legend legend-top">
     <span>1</span>
     <span>{lastDay}</span>
@@ -66,11 +66,6 @@
     background-color: #f3f3f3;
     padding: 1rem 1rem;
     border-radius: 2rem;
-  }
-
-  .title {
-    color: #9f9f9f;
-    margin: 0.5rem 0 1rem 0;
   }
 
   .items {
