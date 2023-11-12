@@ -7,7 +7,7 @@ public class BillDTO
     public int BillingDate { get; set; }
     public int PayByDate { get; set; }
     public int LatePayByDate { get; set; }
-    public List<PaymentDTO> BillPayments { get; set; } = new();
+    public List<PaymentDTO> Payments { get; set; } = new();
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

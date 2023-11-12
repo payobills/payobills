@@ -8,5 +8,8 @@ public class BillsMappingProfile : Profile
     {
         CreateMap<CreateBillDTO, Bill>();
         CreateMap<Bill, BillDTO>();
+
+        CreateMap<BillPayment, PaymentDTO>()
+            .ForMember(d => d.BillingPeriod, opt => opt.MapFrom(s => new DateRange(s.BillPeriodStart, s.BillPeriodEnd)));
     }
 }
