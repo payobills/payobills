@@ -89,7 +89,12 @@
                 {#each $billByIdQuery.data.billById.payments as payment}
                     <p>
                         {#if payment.amount}
-                            <span class="amount">{payment.amount}</span>
+                            <!-- TODO: Get currency from user, suggest based on Intl -->
+                            <span class="amount"
+                                >{new Intl.NumberFormat(undefined, { style: 'currency', currency: 'INR' }).format(
+                                    payment.amount,
+                                  )} (manually entered)</span
+                            >
                         {:else}
                             <span class="amount--unknown">Unknown Amount </span>
                         {/if}
