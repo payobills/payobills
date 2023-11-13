@@ -1,17 +1,19 @@
 <script>
   import Icon from "svelte-awesome/components/Icon.svelte";
   import { faBars } from "@fortawesome/free-solid-svg-icons";
+  import { goto } from "$app/navigation";
 </script>
 
 <nav>
-  <button>
+  <button class="hamburger">
     <Icon
       data={faBars}
       scale={1.5}
       style="color: white; padding: 1rem; cursor: pointer;"
     />
   </button>
-  <h1>payobills</h1>
+  <button class="app-title" on:click={() => goto("/timeline")}>payobills</button
+  >
 </nav>
 
 <style>
@@ -24,8 +26,12 @@
     margin: 0 0 1rem 0;
     border-radius: calc(4em / 2);
   }
+  .app-title {
+    font-size: 1.5rem;
+    text-transform: lowercase;
+  }
 
-  button {
+  .hamburger {
     align-self: center;
     background-color: #7e9dcd;
     border: none;
@@ -35,13 +41,4 @@
     height: 3.5rem;
     width: 3.5rem;
   }
-
-  h1 {
-    font-size: 1.5rem;
-    color: white;
-    padding: 0.75rem 1.5rem 0.75rem 1rem;
-    font-weight: 400;
-    margin: 0;
-  }
-  
 </style>
