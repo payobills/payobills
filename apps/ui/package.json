@@ -24,8 +24,6 @@
 	"type": "module",
 	"dependencies": {
 		"@fortawesome/free-solid-svg-icons": "^6.2.0",
-		"@urql/svelte": "^3.0.1",
-		"graphql": "^16.6.0",
 		"svelte-awesome": "^3.0.0"
 	}
 }
