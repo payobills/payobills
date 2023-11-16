@@ -5,5 +5,19 @@
 ;
 ; Or you can uncomment the following to pin everyone to a particular version;
 ; when you change it all users will automatically get updated.
-; [please]
-; version = 16.19.0
+[please]
+version = 16.25.1
+
+[buildconfig]
+default-docker-repo=ghcr.io/payobills
+
+[build]
+passenv=PROJECT_ROOT
+passenv=PROJECT_NAME
+passenv=ARCH
+passenv=DOTNET_VERSION
+
+[buildenv]
+dotnet-runtime-id = linux-musl-x64
+dotnet-runtime-version = 7.0-bookworm-slim-arm64v8
+dotnet-version=7.0
