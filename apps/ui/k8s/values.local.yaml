@@ -2,13 +2,32 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+environment: LOCAL_DEVELOPMENT
+
 replicaCount: 1
 
 image:
-  repository: ghcr.io/payobills/apps/ui
+  repository: node
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.2.0-alpha.7"
+  tag: "18.11.0"
+
+pod:
+  # command: ["tail", "-f", "/dev/null"]
+  command: ["sh", "-c", "npm i && npm run dev -- --host ${HOST} --port ${PORT}"]
+  annotations: {}
+  volumes:
+    - name: code
+      hostPath:
+        pathPrefix: apps/ui/src
+  volumeMounts:
+    - mountPath: /app
+      name: code
+  env:
+    - name: HOST
+      value: "0.0.0.0"
+    - name: PORT
+      value: "80"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -23,10 +42,6 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-pod:
-  annotations: {}
-
-podAnnotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -40,24 +55,25 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 80
-  name: ui
-
-flags:
-  rewrite: false
+  nodePort: 30000
 
 ingress:
-  name: payobills
-  subdomain: payobills
-  enabled: true
-  className: "nginx"
+  enabled: false
+  className: ""
   annotations: {}
-  routePath: /
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
   hosts:
-    - name: pi.lol
-    - name: pi.local
-    - name: 192.168.0.100.nip.io  
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
