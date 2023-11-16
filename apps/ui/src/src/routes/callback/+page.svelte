@@ -13,7 +13,7 @@
 
         let encodedParams = new URLSearchParams({
             client_id: "payobills",
-            redirect_uri: "http://localhost:3000/callback",
+            redirect_uri: "http://192.168.0.110:3000/callback",
             grant_type: "authorization_code",
             scope: "openid",
             code: code || "",
