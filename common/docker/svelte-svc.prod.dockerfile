@@ -3,13 +3,11 @@ ARG NODE_VERSION
 FROM node:${NODE_VERSION}-alpine AS build-env
 WORKDIR /app
 
-COPY src/package*.json ./
+COPY package*.json ./
 
 RUN npm ci
 
-COPY src ./
-
-RUN ls
+COPY . ./
 
 RUN npm run build
 
@@ -19,7 +17,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY src/package*.json ./
+COPY package*.json ./
 
 RUN npm ci
 
