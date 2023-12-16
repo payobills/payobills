@@ -1,7 +1,12 @@
+const { Duplex } = require('stream')
+const uuid = require('uuid')
+
 /**
- * @param {{mongoClient: import("mongodb").MongoClient}}
+ * @param {{
+ * minioClient: import("minio").Client
+ * }}
  */
-const postFile = ({mongoClient}) => {
+const postFile = ({minioClient }) => {
     /**
      * @param {import('express').Request} req
      * @param {import('express').Response} res
@@ -9,22 +14,35 @@ const postFile = ({mongoClient}) => {
     return async (req, res) => {
         let rawFile = req.file;
 
-        let fileInput = {
-            originalName: rawFile.originalname,
-            key: rawFile.filename,
-            pathPrefix: '/',
-            mimeType: rawFile.mimetype,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        }
+        const correlationIdHeaderName='X-Payobills-Correlation-ID'
+        const correlationId = req.headers[correlationIdHeaderName.toLowerCase()]
 
-        const createdFile = await mongoClient
-            .db("payobills-files")
-            .collection("files")
-            .insertOne(fileInput)
+        const fileId = uuid.v4()
+        const fileExtension = req.file.mimetype.split('/')[1]
+        const fileName = `${fileId}.${fileExtension}`
+
+        const tags = {
+            [correlationIdHeaderName]: correlationId,
+            mimeType: req.file.mimetype
+        }
+        const createdFile = await minioClient.putObject(
+            process.env.STORAGE__BUCKET_NAME,
+            fileName,
+            req.file.buffer,
+            { 'Content-Type': tags.mimeType }
+        )
+
+        await minioClient.setObjectTagging(
+            process.env.STORAGE__BUCKET_NAME,
+            fileName,
+            tags
+        )
 
         res.status(201).send({
-            data: createdFile
+            data: {
+                ...createdFile,
+                tags,
+            }
         })
     }
 }
