@@ -3,13 +3,13 @@ const Express = require("express");
 const multer = require('multer');
 
 const MinioClientFactory = require('./minio-client.factory');
-const MongoClientFactory = require("./mongo-client.factory");
-const { postFile } = require("./post-file.route");
+
+const { postFile, patchFile, getFile } = require("./files.route");
 
 async function main() {
   let app = Express();
   let port = +(process.env.PORT || 80);
-  let host = +(process.env.HOST || 'localhost');
+  let host = (process.env.HOST || 'localhost');
 
   const upload = multer()
 
@@ -22,8 +22,10 @@ async function main() {
   app.get('/', (_, res) => (res.send({ app: 'files service' })))
   /// @ts-ignore
   app.post('/files', upload.single('file'), postFile(DI))
-  app.listen(port, '0.0.0.0', () => {
-    console.log(`app listening on port ${port}`)
+  app.get('/files/:fileId([a-z0-9A-Z-/]*)', getFile(DI))
+  app.patch('/files/:fileId([a-z0-9A-Z-/]*)', patchFile(DI))
+  app.listen(port, host, () => {
+    console.log(`app listening at ${host}:${port}`)
   })
 }
 
