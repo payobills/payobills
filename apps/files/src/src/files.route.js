@@ -17,7 +17,8 @@ const postFile = ({minioClient }) => {
 
         const fileId = uuid.v4()
         const fileExtension = req.file.mimetype.split('/')[1]
-        const fileName = `${process.env.STORAGE__TMP_UPLOAD_PREFIX}/${fileId}.${fileExtension}`
+        const fileName = `${fileId}.${fileExtension}`
+        const fullFileName = `${process.env.STORAGE__TMP_UPLOAD_PREFIX}/${fileId}.${fileExtension}`
 
         const tags = {
             [correlationIdHeaderName]: correlationId,
@@ -25,20 +26,20 @@ const postFile = ({minioClient }) => {
         }
         const createdFile = await minioClient.putObject(
             process.env.STORAGE__BUCKET_NAME,
-            fileName,
+            fullFileName,
             req.file.buffer,
             { 'Content-Type': tags.mimeType }
         )
 
         await minioClient.setObjectTagging(
             process.env.STORAGE__BUCKET_NAME,
-            fileName,
+            fullFileName,
             tags
         )
 
         res.status(201).send({
             data: {
-                ...createdFile,
+                name: fileName,
                 tags,
             }
         })
@@ -102,7 +103,7 @@ const patchFile = ({ minioClient }) => {
 
        console.log({fileId})
 
-       const sourceObjectName = `${process.env.STORAGE__BUCKET_NAME}/tmp-uploads/${fileId}`
+       const sourceObjectName = `${process.env.STORAGE__BUCKET_NAME}/${fileId}`
        const destObjectName = `bills/${fileId}`
        
        await minioClient.copyObject(
@@ -119,7 +120,7 @@ const patchFile = ({ minioClient }) => {
 
        res.status(200).send({
            data: {
-               tags,
+               {},
            }
        })
    }
