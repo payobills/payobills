@@ -10,7 +10,7 @@
     "build": "(rm -rf dist || true) && mkdir dist && cp src/* dist",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node .",
-    "dev": "nodemon src/main.js",
+    "dev": "nodemon src/index.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "echo todo"
   },
