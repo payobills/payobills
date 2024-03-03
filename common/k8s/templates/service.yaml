@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "app.fullname" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- if eq .Values.type "expose-external-service" }}
+    {{- toYaml .Values.app.selectorLabels | nindent 4 }}
+    {{- else }}
+    {{- include "app.selectorLabels" . | nindent 4 }}
+    {{- end }}

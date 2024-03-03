@@ -4,6 +4,8 @@
 
 environment: LOCAL_DEVELOPMENT
 
+enableOpenTelemetry: true
+
 replicaCount: 1
 
 image:
@@ -14,7 +16,7 @@ image:
 
 pod:
   # command: ["tail", "-f", "/dev/null"]
-  command: ["sh", "-c", "npm i && npm run dev -- --host ${HOST} --port ${PORT}"]
+  command: ["sh", "-c", "npm i && npm run dev -- --host ${HOST} --port ${PORT} | tee /var/log/app.log"]
   annotations: {}
   volumes:
     - name: code
@@ -28,6 +30,8 @@ pod:
       value: "0.0.0.0"
     - name: PORT
       value: "80"
+    - name: BILLS_SERVICE
+      value: "http://bills"
 
 imagePullSecrets: []
 nameOverride: ""

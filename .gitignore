@@ -5,5 +5,7 @@ plz-out
 .plzconfig.local
 
 /data
-
 /playground
+/worktrees
+
+.scannerwork
