@@ -9,14 +9,16 @@
 version = 16.27.5
 
 [buildconfig]
-default-docker-repo=ghcr.io/mrsauravsahu/payobills
+default-docker-repo=ghcr.io/payobills
 
 [build]
 passenv=PROJECT_ROOT
 passenv=PROJECT_NAME
 passenv=ARCH
+passenv=DOTNET_VERSION
 
 [buildenv]
 dotnet-runtime-id = linux-musl-x64
 dotnet-runtime-version = 7.0-bookworm-slim-arm64v8
+dotnet-version=7.0
 dotnet-version=7.0
