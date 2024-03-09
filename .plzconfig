@@ -16,6 +16,7 @@ passenv=PROJECT_ROOT
 passenv=PROJECT_NAME
 passenv=ARCH
 passenv=DOTNET_VERSION
+passenv=VERSION
 
 [buildenv]
 dotnet-runtime-id = linux-musl-x64
