@@ -15,8 +15,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- if eq .Values.type "expose-external-service" }}
-    {{- toYaml .Values.app.selectorLabels | nindent 4 }}
-    {{- else }}
     {{- include "app.selectorLabels" . | nindent 4 }}
-    {{- end }}
