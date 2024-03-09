@@ -14,7 +14,7 @@ on:
 
 env:
   GITVERSION: 'gittools/gitversion:5.10.0-alpine.3.14-6.0'
-  MAIN_BRANCHES: ("develop" "main")
+  MAIN_BRANCHES: ("main")
   GITVERSION_TAG_PROPERTY_PULL_REQUESTS: .SemVer
   GITVERSION_TAG_PROPERTY_DEFAULT: .SemVer
   GITVERSION_TAG_PROPERTY_DEVELOP: .SemVer
@@ -37,7 +37,6 @@ jobs:
       run: |
         git fetch --unshallow
         git checkout main && git checkout -
-        git checkout develop && git checkout -
 
     - name: Checkout to branch
       run: . ./.cicd/common/semver-yeasy.sh checkout
