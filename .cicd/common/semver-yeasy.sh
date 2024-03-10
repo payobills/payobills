@@ -168,8 +168,8 @@ tag)
         else
             full_service_version="${service_version}"
         fi
-        echo git tag -a "${svc_without_prefix}/v${full_service_version}" -m "${svc_without_prefix}/v${full_service_version}"
-        echo git push origin "${svc_without_prefix}/v${full_service_version}"
+        git tag -a "${svc_without_prefix}/v${full_service_version}" -m "${svc_without_prefix}/v${full_service_version}"
+        git push origin "${svc_without_prefix}/v${full_service_version}"
         done
     fi
 ;;
