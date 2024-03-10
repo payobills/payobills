@@ -150,7 +150,8 @@ tag)
         git push origin "v${full_service_version}"
         fi
     else
-        for svc in "${SEMVERYEASY_CHANGED_SERVICES[@]}"; do
+        changed_services=( $SEMVERYEASY_CHANGED_SERVICES )
+        for svc in "${changed_services[@]}"; do
         echo "calculation for ${svc}"
         CONFIG_FILE=${!CONFIG_FILE_VAR//\$svc/$svc}
         docker run --rm -v "$(pwd):/repo" ${GITVERSION} /repo /config "/repo/${svc}/.gitversion.yml"
