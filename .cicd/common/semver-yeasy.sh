@@ -150,7 +150,8 @@ tag)
         git push origin "v${full_service_version}"
         fi
     else
-        for svc in "${SEMVERYEASY_CHANGED_SERVICES[@]}"; do
+        changed_services=( $SEMVERYEASY_CHANGED_SERVICES )
+        for svc in "${changed_services[@]}"; do
         echo "calculation for ${svc}"
         CONFIG_FILE=${!CONFIG_FILE_VAR//\$svc/$svc}
         docker run --rm -v "$(pwd):/repo" ${GITVERSION} /repo /config "/repo/${svc}/.gitversion.yml"
@@ -167,8 +168,8 @@ tag)
         else
             full_service_version="${service_version}"
         fi
-        git tag -a "${svc_without_prefix}/v${full_service_version}" -m "${svc_without_prefix}/v${full_service_version}"
-        git push origin "${svc_without_prefix}/v${full_service_version}"
+        echo git tag -a "${svc_without_prefix}/v${full_service_version}" -m "${svc_without_prefix}/v${full_service_version}"
+        echo git push origin "${svc_without_prefix}/v${full_service_version}"
         done
     fi
 ;;
