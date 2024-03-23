@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 
@@ -29,6 +30,29 @@ public class NocoDBClientService
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
     var recordsPage = await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream);
+
+    return recordsPage;
+  }
+
+  public async Task<T> GetRecordByIdAsync<T>(string id, string baseName, string table, string fields)
+  {
+    using var request = new HttpRequestMessage(
+      HttpMethod.Get,
+      $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}/{id}?fields={fields}"
+    );
+
+    request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+
+    var response = await httpClient.SendAsync(request);
+
+    if (response.StatusCode == HttpStatusCode.NotFound)
+    {
+      // Return default value - null for 404 response
+      return default(T);
+    }
+
+    var responseStream = await response.Content.ReadAsStreamAsync();
+    var recordsPage = await JsonSerializer.DeserializeAsync<T>(responseStream);
 
     return recordsPage;
   }

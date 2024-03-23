@@ -39,12 +39,17 @@ public class BillsNocoDBService : IBillsService
         return bills;
     }
 
-    public Task<BillDTO?> GetBillByIdAsync(Guid id) => throw new NotImplementedException();
-    // {
-    //     var bills = billRepo.GetBillByIdAsync(id);
-    //     var billDTO = bills.Any() ? mapper.Map<BillDTO>(bills.First()) : null;
-    //     return Task.FromResult(billDTO);
-    // }
+    public async Task<BillDTO?> GetBillByIdAsync(string id)
+    {
+        var bill = await nocoDBClientService.GetRecordByIdAsync<Bill>(
+            id,
+            "payobills",
+            "bills",
+            "Id,Name,BillingDate,LatePayByDate,CreatedAt,UpdatedAt,PayByDate"
+        );
+        var billDTO = bill is not null ? mapper.Map<BillDTO>(bill) : null;
+        return billDTO;
+    }
 
     public Task<PaymentDTO> MarkPaymentForBillAsync(MarkPaymentForBillDTO dto) => throw new NotImplementedException();
     // {

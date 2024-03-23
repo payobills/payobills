@@ -33,9 +33,9 @@ public class BillsService : IBillsService
         return Task.FromResult(billsDTOList);
     }
 
-    public Task<BillDTO?> GetBillByIdAsync(Guid id)
+    public Task<BillDTO?> GetBillByIdAsync(string id)
     {
-        var bills = billRepo.GetBillByIdAsync(id);
+        var bills = billRepo.GetBillByIdAsync(Guid.Parse(id));
         var billDTO = bills.Any() ? mapper.Map<BillDTO>(bills.First()) : null;
         return Task.FromResult(billDTO);
     }
