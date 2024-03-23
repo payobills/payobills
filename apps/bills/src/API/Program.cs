@@ -2,23 +2,19 @@ using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services;
 using Payobills.Bills.Data;
 using Payobills.Bills.Data.Contracts;
+using Payobills.Bills.NocoBD;
 using MongoDB.Driver;
 using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// options
+builder.Services.Configure<NocoDBOptions>(builder.Configuration.GetRequiredSection(nameof(NocoDBOptions)));
+
 // bills
-builder.Services.AddScoped<IBillsService, BillsService>();
-builder.Services.AddScoped<IBillsRepo, BillsRepo>();
-builder.Services.AddScoped<IBillsContext, BillsContext>();
-builder.Services.AddScoped<IMongoClient>((_) =>
-{
-  var connectionString = Environment.GetEnvironmentVariable("BILLS_DB_CONNECTION_STRING");
-  if (string.IsNullOrEmpty(connectionString))
-    throw new ArgumentNullException($"{connectionString}, the connection string cannot be null.");
-  var mongoClient = new MongoClient(connectionString);
-  return mongoClient;
-});
+builder.Services.AddSingleton<HttpClient>();
+builder.Services.AddScoped<NocoDBClientService>();
+builder.Services.AddScoped<IBillsService, BillsNocoDBService>();
 
 // utils
 builder.Services.AddSingleton<IGuidService, GuidService>();

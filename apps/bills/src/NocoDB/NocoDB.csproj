@@ -3,17 +3,15 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Payobills.Bills.Services</RootNamespace>
+    <RootNamespace>Payobills.Bills.NocoBD</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Services.Contracts\Services.Contracts.csproj" />
     <ProjectReference Include="..\Data.Contracts\Data.Contracts.csproj" />
-    <ProjectReference Include="..\NocoDB\NocoDB.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-      <PackageReference Include="Automapper" Version="12.0.1" />
-      <PackageReference Include="HotChocolate.AspNetCore" Version="12.15.2" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
   </ItemGroup>
 </Project>

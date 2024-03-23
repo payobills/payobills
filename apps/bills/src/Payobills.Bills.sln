@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data.Contracts", "Data.Contracts\Data.Contracts.csproj", "{39F93BC5-7AB9-442C-8F88-2D6E87D1E77D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "Playground\Playground.csproj", "{B0F6A88B-7581-424C-AD53-2803F3846BA5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{2BD097AB-6C53-4461-8B4E-11C27EE9CCFD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Contracts", "Services.Contracts\Services.Contracts.csproj", "{A4C4C8D2-137E-4939-9C51-A3F6BF7E450C}"
@@ -36,10 +34,6 @@ Global
 		{39F93BC5-7AB9-442C-8F88-2D6E87D1E77D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39F93BC5-7AB9-442C-8F88-2D6E87D1E77D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39F93BC5-7AB9-442C-8F88-2D6E87D1E77D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B0F6A88B-7581-424C-AD53-2803F3846BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0F6A88B-7581-424C-AD53-2803F3846BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0F6A88B-7581-424C-AD53-2803F3846BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0F6A88B-7581-424C-AD53-2803F3846BA5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2BD097AB-6C53-4461-8B4E-11C27EE9CCFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2BD097AB-6C53-4461-8B4E-11C27EE9CCFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BD097AB-6C53-4461-8B4E-11C27EE9CCFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
