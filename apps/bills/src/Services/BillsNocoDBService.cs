@@ -51,7 +51,7 @@ public class BillsNocoDBService : IBillsService
             id,
             "payobills",
             "bills",
-            BILLS_NOCODB_FIELDS
+            $"{BILLS_NOCODB_FIELDS},Payments&nested[Payments][fields]=*"
         );
         var billDTO = bill is not null ? mapper.Map<BillDTO>(bill) : null;
         return billDTO;
