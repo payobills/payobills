@@ -14,6 +14,8 @@ public class BillsNocoDBService : IBillsService
     private readonly NocoDBClientService nocoDBClientService;
     private readonly IMapper mapper;
 
+    public const string  BILLS_NOCODB_FIELDS= "Id,Name,BillingDate,LatePayByDate,CreatedAt,UpdatedAt,PayByDate";
+
     public BillsNocoDBService(NocoDBClientService nocoDBClientService, IMapper mapper)
     {
         this.nocoDBClientService = nocoDBClientService;
@@ -37,7 +39,7 @@ public class BillsNocoDBService : IBillsService
         var page = await nocoDBClientService.GetRecordsPageAsync<Bill>(
             "payobills",
             "bills",
-            "Id,Name,BillingDate,LatePayByDate,CreatedAt,UpdatedAt,PayByDate"
+            BILLS_NOCODB_FIELDS
         );
         var bills = mapper.Map<List<BillDTO>>(page?.List);
         return bills;
@@ -49,38 +51,28 @@ public class BillsNocoDBService : IBillsService
             id,
             "payobills",
             "bills",
-            "Id,Name,BillingDate,LatePayByDate,CreatedAt,UpdatedAt,PayByDate"
+            BILLS_NOCODB_FIELDS
         );
         var billDTO = bill is not null ? mapper.Map<BillDTO>(bill) : null;
         return billDTO;
     }
 
-    public Task<PaymentDTO> MarkPaymentForBillAsync(MarkPaymentForBillDTO dto) => throw new NotImplementedException();
-    // {
-    //     var today = DateTime.SpecifyKind(DateTime.Today.AddDays(-DateTime.Today.Day), DateTimeKind.Utc);
-    //     var billPeriodStart = today.Subtract(TimeSpan.FromDays(31));
-    //     var billPeriodEnd = today;
+    public async Task<PaymentDTO> MarkPaymentForBillAsync(MarkPaymentForBillDTO dto)
+    {
+        var bill = await nocoDBClientService.GetRecordByIdAsync<Bill>(
+            dto.BillId,
+            "payobills", 
+            "bills",
+            $"{BILLS_NOCODB_FIELDS}&nested[Payments][fields]=*");
 
-    //     var bill = billRepo.GetBillByIdAsync(dto.Id).FirstOrDefault();
+        if (bill is null) throw new ArgumentNullException(nameof(bill), $"The bill with {dto.BillId} was not found.");
+        
+        var markedPayment = await nocoDBClientService.CreateRecordAsync<MarkPaymentForBillDTO, BillPayment>(
+            "payobills",
+            "payments",
+            dto
+        );
 
-    //     if (bill is null) throw new ArgumentNullException(nameof(bill), $"The bill with {dto.Id} was not found.");
-
-    //     var existingPayment = bill.Payments
-    //         .Where(p => p.BillPeriodStart == billPeriodStart && p.BillPeriodEnd == billPeriodEnd)
-    //         .FirstOrDefault();
-
-    //     if (existingPayment is not null) return mapper.Map<PaymentDTO>(existingPayment);
-
-    //     var payment = new BillPayment
-    //     {
-    //         Id = Guid.NewGuid(),
-    //         BillPeriodStart = billPeriodStart,
-    //         BillPeriodEnd = billPeriodEnd,
-    //     };
-
-    //     bill.Payments.Add(payment);
-    //     await billRepo.UpdateBillAsync(bill);
-
-    //     return mapper.Map<PaymentDTO>(payment);
-    // }
+        return mapper.Map<PaymentDTO>(markedPayment);
+    }
 }

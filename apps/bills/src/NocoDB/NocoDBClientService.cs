@@ -70,7 +70,7 @@ public class NocoDBClientService
 
     using var request = new HttpRequestMessage(
       HttpMethod.Post,
-      $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}"
+      $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}?fields=*"
     )
     {
       Content = contentStream
@@ -79,8 +79,11 @@ public class NocoDBClientService
     request.Headers.Add("xc-token", nocoDBOptions.XCToken);
 
     var response = await httpClient.SendAsync(request);
-    var responseStream = await response.Content.ReadAsStreamAsync();
-    var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream);
+    // var responseStream = await response.Content.ReadAsStreamAsync();
+    var responseJsonString = await response.Content.ReadAsStringAsync();
+    // Console.WriteLine("bruh");
+    // Console.WriteLine(responseJsonString);
+    var createdRecord = JsonSerializer.Deserialize<TOutput>(responseJsonString);
 
     return createdRecord!;
   }

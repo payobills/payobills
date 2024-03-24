@@ -11,6 +11,6 @@ public class BillsMappingProfile : Profile
         CreateMap<Bill, BillDTO>();
 
         CreateMap<BillPayment, PaymentDTO>()
-            .ForMember(d => d.BillingPeriod, opt => opt.MapFrom(s => new Range<DateTime>(s.BillPeriodStart, s.BillPeriodEnd)));
+            .ForMember(d => d.BillingPeriod, opt => opt.MapFrom(s => new Range<DateTime?>(s.BillPeriodStart, s.BillPeriodEnd)));
     }
 }
