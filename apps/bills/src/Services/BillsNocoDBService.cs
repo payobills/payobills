@@ -5,7 +5,7 @@ using Payobills.Bills.Data.Contracts;
 using Payobills.Bills.Data.Contracts.Models;
 using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services.Contracts.DTOs;
-using Payobills.Bills.NocoBD;
+using Payobills.Bills.NocoDB;
 
 namespace Payobills.Bills.Services;
 

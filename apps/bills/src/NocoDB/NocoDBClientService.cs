@@ -2,8 +2,9 @@ using System.IO;
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using Payobills.Bills.Services.Contracts;
 
-namespace Payobills.Bills.NocoBD;
+namespace Payobills.Bills.NocoDB;
 
 public class NocoDBClientService
 {

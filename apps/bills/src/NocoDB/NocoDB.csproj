@@ -3,7 +3,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Payobills.Bills.NocoBD</RootNamespace>
+    <RootNamespace>Payobills.Bills.NocoDB</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

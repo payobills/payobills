@@ -2,7 +2,7 @@ using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services;
 using Payobills.Bills.Data;
 using Payobills.Bills.Data.Contracts;
-using Payobills.Bills.NocoBD;
+using Payobills.Bills.NocoDB;
 using MongoDB.Driver;
 using AutoMapper;
 
