@@ -3,7 +3,7 @@
 
     async function login() {
         await goto(
-            `${import.meta.env.VITE_OIDC_TENANT_URL}/auth/realms/homelab/protocol/openid-connect/auth?client_id=payobills&redirect_uri=${import.meta.env.OWN_URL}/callback&response_type=code&grant_type=authorization_code&scope=openid`
+            `${import.meta.env.VITE_OIDC_TENANT_URL}/auth/realms/homelab/protocol/openid-connect/auth?client_id=payobills&redirect_uri=${import.meta.env.VITE_OWN_URL}/callback&response_type=code&grant_type=authorization_code&scope=openid`
         );
     }
 </script>
