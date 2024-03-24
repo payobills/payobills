@@ -21,9 +21,10 @@ public class BillsRepo : IBillsRepo
     }
 
     public IQueryable<Bill> GetBillsAsync() => this.billsContext.Bills.AsQueryable();
-    public IQueryable<Bill> GetBillByIdAsync(Guid id) => this.billsContext.Bills
-        .AsQueryable()
-        .Where(p => p.Id == id);
+    public IQueryable<Bill> GetBillByIdAsync(Guid id) =>throw new NotImplementedException();
+    //  this.billsContext.Bills
+    //     .AsQueryable()
+    //     .Where(p => p.Id == id);
 
     public async Task<Bill> UpdateBillAsync(Bill bill)
     {

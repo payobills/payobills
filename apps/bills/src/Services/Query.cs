@@ -6,6 +6,6 @@ public class Query
   public async Task<IEnumerable<BillDTO>> Bills([Service] IBillsService billsService)
     => await billsService.GetBillsAsync();
 
-    public async Task<BillDTO?> BillById([Service] IBillsService billsService, Guid id)
+    public async Task<BillDTO?> BillById([Service] IBillsService billsService, string id)
     => await billsService.GetBillByIdAsync(id);
 }
