@@ -80,7 +80,7 @@ public class NocoDBClientService
 
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
-    var createdRecord = JsonSerializer.DeserializeAsync<TOutput>(responseJsonString);
+    var createdRecord = JsonSerializer.DeserializeAsync<TOutput>(responseStream);
 
     return createdRecord!;
   }
