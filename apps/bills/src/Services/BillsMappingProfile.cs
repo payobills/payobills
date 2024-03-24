@@ -7,6 +7,7 @@ public class BillsMappingProfile : Profile
     public BillsMappingProfile()
     {
         CreateMap<CreateBillDTO, Bill>();
+        CreateMap<CreateBillDTO, BillDTO>();
         CreateMap<Bill, BillDTO>();
 
         CreateMap<BillPayment, PaymentDTO>()

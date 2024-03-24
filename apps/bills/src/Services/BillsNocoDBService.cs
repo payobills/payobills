@@ -20,13 +20,17 @@ public class BillsNocoDBService : IBillsService
         this.mapper = mapper;
     }
 
-    public Task<BillDTO> AddBillAsync(CreateBillDTO dto) => throw new NotImplementedException();
-    // {
-    //     var billToAdd = mapper.Map<Bill>(dto);
-    //     var bill = await billRepo.AddBillAsync(billToAdd);
-    //     var billDTO = mapper.Map<BillDTO>(bill);
-    //     return billDTO;
-    // }
+    public async Task<BillDTO> AddBillAsync(CreateBillDTO dto)
+    {
+        var addedBill = await nocoDBClientService.CreateRecordAsync<CreateBillDTO, Bill>(
+            "payobills",
+            "bills",
+            dto
+        );
+
+        var billDTO = mapper.Map<BillDTO>(addedBill);
+        return billDTO;
+    }
 
     public async Task<IEnumerable<BillDTO>> GetBillsAsync()
     {
