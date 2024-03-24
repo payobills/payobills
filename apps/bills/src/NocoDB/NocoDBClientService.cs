@@ -11,8 +11,8 @@ public class NocoDBClientService
   private readonly NocoDBOptions nocoDBOptions;
 
   public NocoDBClientService(
-    HttpClient httpClient,
-    IOptions<NocoDBOptions> nocoDBOptions
+    IOptions<NocoDBOptions> nocoDBOptions,
+    HttpClient httpClient
   )
   {
     this.httpClient = httpClient;
