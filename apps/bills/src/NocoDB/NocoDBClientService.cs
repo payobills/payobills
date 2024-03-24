@@ -70,7 +70,7 @@ public class NocoDBClientService
 
     using var request = new HttpRequestMessage(
       HttpMethod.Post,
-      $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}"
+      $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}?fields=*"
     )
     {
       Content = contentStream
