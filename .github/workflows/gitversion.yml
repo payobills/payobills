@@ -61,7 +61,7 @@ jobs:
 
 
     - name: Tag build
-      # if: ${{ github.event_name == 'push' && (startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix') || contains(env.MAIN_BRANCHES, steps.calculate_changed_services.outputs.diff_dest)) }}
+      if: ${{ github.event_name == 'push' && (startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix') || contains(env.MAIN_BRANCHES, steps.calculate_changed_services.outputs.diff_dest)) }}
       env:
         DIFF_DEST: ${{ steps.calculate_changed_services.outputs.DIFF_DEST }}
         SEMVERYEASY_CHANGED: ${{ steps.calculate_changed_services.outputs.changed }}
