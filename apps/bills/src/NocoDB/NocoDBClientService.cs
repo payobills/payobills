@@ -36,7 +36,7 @@ public class NocoDBClientService
     return recordsPage;
   }
 
-  public async Task<T> GetRecordByIdAsync<T>(string id, string baseName, string table, string fields)
+  public async Task<T?> GetRecordByIdAsync<T>(string id, string baseName, string table, string fields)
   {
     using var request = new HttpRequestMessage(
       HttpMethod.Get,
@@ -79,16 +79,9 @@ public class NocoDBClientService
     request.Headers.Add("xc-token", nocoDBOptions.XCToken);
 
     var response = await httpClient.SendAsync(request);
-
-    if (response.StatusCode == HttpStatusCode.NotFound)
-    {
-      // Return default value - null for 404 response
-      return default(TOutput);
-    }
-
     var responseStream = await response.Content.ReadAsStreamAsync();
-    var recordsPage = await JsonSerializer.DeserializeAsync<TOutput>(responseStream);
+    var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream);
 
-    return recordsPage;
+    return createdRecord!;
   }
 }
