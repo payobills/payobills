@@ -79,11 +79,8 @@ public class NocoDBClientService
     request.Headers.Add("xc-token", nocoDBOptions.XCToken);
 
     var response = await httpClient.SendAsync(request);
-    // var responseStream = await response.Content.ReadAsStreamAsync();
-    var responseJsonString = await response.Content.ReadAsStringAsync();
-    // Console.WriteLine("bruh");
-    // Console.WriteLine(responseJsonString);
-    var createdRecord = JsonSerializer.Deserialize<TOutput>(responseJsonString);
+    var responseStream = await response.Content.ReadAsStreamAsync();
+    var createdRecord = JsonSerializer.DeserializeAsync<TOutput>(responseJsonString);
 
     return createdRecord!;
   }
