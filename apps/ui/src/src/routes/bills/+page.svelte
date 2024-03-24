@@ -14,7 +14,7 @@
     $: billByIdQuery = queryStore({
         client: $urql,
         query: gql`
-            query billById($billId: UUID!) {
+            query billById($billId: String!) {
                 billById(id: $billId) {
                     id
                     name
@@ -85,7 +85,7 @@
             {#if $billByIdQuery.data.billById.payments.length == 0}
                 <p>we don't see any payments made for this bill. 😞</p>
             {:else}
-                <h2>payments</h2>
+                <h2>past payments</h2>
                 {#each $billByIdQuery.data.billById.payments as payment}
                     <p>
                         {#if payment.amount}
