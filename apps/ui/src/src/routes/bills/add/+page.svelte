@@ -78,7 +78,7 @@
       backgroundColor="#d96c59"
       rounded={true}
       on:click={() => {
-        goto('/');
+        window.history.back();
       }}
     />
     <!-- {#if !isAddingBill} -->
