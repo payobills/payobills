@@ -63,7 +63,7 @@ jobs:
     - name: Generate other targets
       id: check_targets
       env:
-        SERVICES: ${{ fromJSON(steps.calculate_changed_services.outputs.changed_services) }}
+        SERVICES: ${{ steps.calculate_changed_services.outputs.changed_services }}
       run: |
         echo SERVICES="${SERVICES}"
         SERVICES_SINGLE_LINE=`echo $SERVICES | tr '\n' ' '`
@@ -72,8 +72,8 @@ jobs:
         IMAGE_SCAN_TARGETS=`echo "${SERVICES}" | sed -e "s|^|//|" -e "s|$|:image_scan|" | tr '\n' ' '`
         echo DOCKER_BUILD_TARGETS="${DOCKER_BUILD_TARGETS}"
         echo IMAGE_SCAN_TARGETS="${IMAGE_SCAN_TARGETS}"
-        echo "::set-output name=DOCKER_BUILD_TARGETS::$DOCKER_BUILD_TARGETS"
-        echo "::set-output name=IMAGE_SCAN_TARGETS::$IMAGE_SCAN_TARGETS"
+        echo "DOCKER_BUILD_TARGETS=$DOCKER_BUILD_TARGETS" >> $GITHUB_OUTPUT
+        echo "IMAGE_SCAN_TARGETS=$IMAGE_SCAN_TARGETS" >> $GITHUB_OUTPUT
 
     # - name: lint targets
     #   if: steps.check_targets.outputs.SERVICES != ''
@@ -89,16 +89,16 @@ jobs:
 
     - name: Build targets
       if: fromJSON(steps.calculate_changed_services.outputs.changed_services) != ''
-      run: |
-        echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
+      run: echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
 
     - name: Container Scanning
       if: fromJSON(steps.calculate_changed_services.outputs.changed_services) != ''
-      run: |
-        echo ${{ steps.check_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 sh -c 'echo $0; echo ----; plz run $0; echo ----;'
+      run: echo ${{ steps.check_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 sh -c 'echo $0; echo ----; plz run $0; echo ----;'
 
     - name: Calculate versions
       id: calculate_service_versions
+      env:
+        SEMVERYEASY_CHANGED_SERVICES: ${{ steps.calculate_changed_services.outputs.changed_services }}
       uses: mrsauravsahu/monotools/apps/semver-yeasy@semver-yeasy/v0.3.0
       with: 
         repo-type: MONOREPO
