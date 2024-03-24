@@ -43,10 +43,18 @@ jobs:
         git checkout main && git checkout -
 
     - name: Checkout to branch
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@semver-yeasy/v0.3.0
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
       with: 
         repo-type: MONOREPO
         mode: checkout
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.x
+
+    - name: Install GitVersion.Tool
+      run: dotnet tool install --global GitVersion.Tool --version 5.12.0
 
     - uses: actions/cache@v2
       with:
@@ -55,53 +63,53 @@ jobs:
 
     - name: Calculate changed services
       id: calculate_changed_services
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@semver-yeasy/v0.3.0
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
       with: 
         repo-type: MONOREPO
         mode: changed
 
     - name: Generate other targets
-      id: check_targets
+      id: generate_other_targets
       env:
-        SEMVERYEASY_CHANGED_SERVICES: ${{ fromJson(steps.calculate_changed_services.outputs.changed_services) }}
+        SERVICES_RAW: ${{ steps.calculate_changed_services.outputs.changed_services }}
       run: |
-        SERVICES=( $SEMVERYEASY_CHANGED_SERVICES )
-        echo "SERVICES=\"${SERVICES[@]}\""
+        SERVICES=$(echo "${SERVICES_RAW}" | sed -e 's|\\n|\n|' -e 's/"//g' -e 's|^\s*||' -e "s|\s*$||")
+        echo "SERVICES='${SERVICES}'"
+        DOCKER_BUILD_TARGETS=$(echo "${SERVICES}" | sed -e "s|^|//|" -e "s|$|:docker|" | tr '\n' ' ')
+        IMAGE_SCAN_TARGETS=$(echo "${SERVICES}" | sed -e "s|^|//|" -e "s|$|:image_scan|" | tr '\n' ' ')
+        echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS}'"
+        echo "IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS}'"
 
-        DOCKER_BUILD_TARGETS_ARR=($(printf "%s\n" "${SERVICES[@]}" | sed -e "s|^|//|" -e "s|$|:docker|"))
-        DOCKER_BUILD_TARGETS="$(echo "${DOCKER_BUILD_TARGETS_ARR[@]}")"
-        
-        IMAGE_SCAN_TARGETS_ARR=($(printf "%s\n" "${SERVICES[@]}" | sed -e "s|^|//|" -e "s|$|:image_scan|"))
-        IMAGE_SCAN_TARGETS="$(echo "${IMAGE_SCAN_TARGETS_ARR[@]}")"
-        
-        echo "DOCKER_BUILD_TARGETS=$DOCKER_BUILD_TARGETS" >> $GITHUB_OUTPUT
-        echo "IMAGE_SCAN_TARGETS=$IMAGE_SCAN_TARGETS" >> $GITHUB_OUTPUT
+        echo "DOCKER_BUILD_TARGETS=\"${DOCKER_BUILD_TARGETS}\"" >> $GITHUB_OUTPUT
+        echo "IMAGE_SCAN_TARGETS=\"${IMAGE_SCAN_TARGETS}\"" >> $GITHUB_OUTPUT
+        echo "SERVICES='${SERVICES}'" >> $GITHUB_OUTPUT
 
     # - name: lint targets
-    #   if: steps.check_targets.outputs.SERVICES != ''
+    #   if: steps.generate_other_targets.outputs.SERVICES != ''
     #   run: |
     #     # TODO: figure out how to pass different env for different targets
-    #     for i in ${{ steps.check_targets.outputs.SERVICES }}; do
+    #     for i in ${{ steps.generate_other_targets.outputs.SERVICES }}; do
     #       PLZ_OVERRIDES=buildenv.SECRET_SERVICE_NAME:"$i" plz run $i:lint
     #     done
 
     # - name: run tests
-    #   if: steps.check_targets.outputs.SERVICES_SINGLE_LINE != ''
-    #   run: plz test `echo ${{ steps.check_targets.outputs.SERVICES_SINGLE_LINE }} | sed 's|//apps/[a-z]*|&/tests|g'`
+    #   if: steps.generate_other_targets.outputs.SERVICES_SINGLE_LINE != ''
+    #   run: plz test `echo ${{ steps.generate_other_targets.outputs.SERVICES_SINGLE_LINE }} | sed 's|//apps/[a-z]*|&/tests|g'`
 
     - name: Build targets
-      if: fromJSON(steps.calculate_changed_services.outputs.changed_services) != ''
-      run: echo ${{ steps.check_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
+      if: steps.calculate_changed_services.outputs.changed_services != ''
+      run: echo ${{ steps.generate_other_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
 
     - name: Container Scanning
-      if: fromJSON(steps.calculate_changed_services.outputs.changed_services) != ''
-      run: echo ${{ steps.check_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 sh -c 'echo $0; echo ----; plz run $0; echo ----;'
+      if: steps.calculate_changed_services.outputs.changed_services != ''
+      run: echo ${{ steps.generate_other_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 sh -c 'echo $0; echo ----; plz run $0; echo ----;'
 
     - name: Calculate versions
       id: calculate_service_versions
       env:
-        SEMVERYEASY_CHANGED_SERVICES: ${{ steps.calculate_changed_services.outputs.changed_services }}
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@semver-yeasy/v0.3.0
+        GITVERSION_EXEC_PATH: /home/runner/.dotnet/tools/dotnet-gitversion
+        SEMVERYEASY_CHANGED_SERVICES: ${{ steps.generate_other_targets.outputs.SERVICES }}
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
       with: 
         repo-type: MONOREPO
         mode: calculate-version
@@ -111,18 +119,18 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SEMVERY_YEASY_PR_BODY: ${{ fromJSON(steps.calculate_service_versions.outputs.PR_BODY) }}
       if: ${{ github.event_name == 'pull_request' }}
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@semver-yeasy/v0.3.0
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
       with: 
         repo-type: MONOREPO
         mode: update-pr
 
     - name: Tag build
-      if: ${{ github.event_name == 'push' && (startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix')) && fromJSON(steps.calculate_changed_services.outputs.changed_services) != '' }}
+      if: ${{ github.event_name == 'push' && (startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix')) && steps.calculate_changed_services.outputs.changed_services != '' }}
       env:
         DIFF_DEST: ${{ steps.calculate_changed_services.outputs.DIFF_DEST }}
         SEMVERYEASY_CHANGED: ${{ steps.calculate_changed_services.outputs.changed }}
-        SEMVERYEASY_CHANGED_SERVICES: ${{ fromJSON(steps.calculate_changed_services.outputs.changed_services) }}
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@semver-yeasy/v0.3.0
+        SEMVERYEASY_CHANGED_SERVICES: ${{ steps.generate_other_targets.outputs.SERVICES }}
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
       with: 
         repo-type: MONOREPO
         mode: tag
