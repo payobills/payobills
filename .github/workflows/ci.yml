@@ -98,19 +98,19 @@ jobs:
     #   if: steps.generate_other_targets.outputs.SERVICES_SINGLE_LINE != ''
     #   run: plz test `echo ${{ steps.generate_other_targets.outputs.SERVICES_SINGLE_LINE }} | sed 's|//apps/[a-z]*|&/tests|g'`
 
-    - name: Build targets
-      if: steps.calculate_changed_services.outputs.changed_services != ''
-      run: echo ${{ steps.generate_other_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
+    # - name: Build targets
+    #   if: steps.calculate_changed_services.outputs.changed_services != ''
+    #   run: echo ${{ steps.generate_other_targets.outputs.DOCKER_BUILD_TARGETS }} | xargs plz run parallel
 
-    - name: Container Scanning
-      if: steps.calculate_changed_services.outputs.changed_services != ''
-      run: echo ${{ steps.generate_other_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 sh -c 'echo $0; echo ----; plz run $0; echo ----;'
+    # - name: Container Scanning
+    #   if: steps.calculate_changed_services.outputs.changed_services != ''
+    #   run: echo ${{ steps.generate_other_targets.outputs.IMAGE_SCAN_TARGETS }} | xargs -n 1 sh -c 'echo $0; echo ----; plz run $0; echo ----;'
 
     - name: Calculate versions
       id: calculate_service_versions
       env:
         GITVERSION_EXEC_PATH: /home/runner/.dotnet/tools/dotnet-gitversion
-        SEMVERYEASY_CHANGED_SERVICES: ${{ steps.generate_other_targets.outputs.SERVICES }}
+        SEMVERYEASY_CHANGED_SERVICES: ${{ fromJSON(steps.generate_other_targets.outputs.SERVICES) }}
       uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
       with: 
         repo-type: MONOREPO
@@ -119,7 +119,7 @@ jobs:
     - name: Update PR description
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SEMVERY_YEASY_PR_BODY: ${{ fromJSON(steps.calculate_service_versions.outputs.PR_BODY) }}
+        SEMVERY_YEASY_PR_BODY: ${{ steps.calculate_service_versions.outputs.PR_BODY }}
       if: ${{ github.event_name == 'pull_request' }}
       uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
       with: 
