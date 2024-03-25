@@ -82,7 +82,9 @@ jobs:
 
         echo "DOCKER_BUILD_TARGETS=\"${DOCKER_BUILD_TARGETS}\"" >> $GITHUB_OUTPUT
         echo "IMAGE_SCAN_TARGETS=\"${IMAGE_SCAN_TARGETS}\"" >> $GITHUB_OUTPUT
-        echo "SERVICES='${SERVICES}'" >> $GITHUB_OUTPUT
+
+        changed_services=$(printf '%s' "$SERVICES" | jq --raw-input --slurp '.')
+        echo "SERVICES='${changed_services}'" >> $GITHUB_OUTPUT
 
     # - name: lint targets
     #   if: steps.generate_other_targets.outputs.SERVICES != ''
