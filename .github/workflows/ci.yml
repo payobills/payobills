@@ -120,6 +120,8 @@ jobs:
       with: 
         repo-type: MONOREPO
         mode: calculate-version
+        diff_source: ${{ steps.calculate_changed_services.outputs.diff_source }}
+        diff_dest: ${{ steps.calculate_changed_services.outputs.diff_dest }}
 
     - name: Update PR description
       env:
