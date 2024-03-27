@@ -43,7 +43,7 @@ jobs:
         git checkout main && git checkout -
 
     - name: Checkout to branch
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@improv/all-json-outputs
       with: 
         repo-type: MONOREPO
         mode: checkout
@@ -63,7 +63,7 @@ jobs:
 
     - name: Calculate changed services
       id: calculate_changed_services
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@improv/all-json-outputs
       with: 
         repo-type: MONOREPO
         mode: changed
@@ -112,7 +112,7 @@ jobs:
       env:
         GITVERSION_EXEC_PATH: /home/runner/.dotnet/tools/dotnet-gitversion
         SEMVERYEASY_CHANGED_SERVICES: ${{ fromJSON(steps.generate_other_targets.outputs.SERVICES) }}
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@improv/all-json-outputs
       with: 
         repo-type: MONOREPO
         mode: calculate-version
@@ -122,7 +122,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SEMVERY_YEASY_PR_BODY: ${{ steps.calculate_service_versions.outputs.PR_BODY }}
       if: ${{ github.event_name == 'pull_request' }}
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@improv/all-json-outputs
       with: 
         repo-type: MONOREPO
         mode: update-pr
@@ -133,7 +133,7 @@ jobs:
         DIFF_DEST: ${{ steps.calculate_changed_services.outputs.DIFF_DEST }}
         SEMVERYEASY_CHANGED: ${{ steps.calculate_changed_services.outputs.changed }}
         SEMVERYEASY_CHANGED_SERVICES: ${{ steps.generate_other_targets.outputs.SERVICES }}
-      uses: mrsauravsahu/monotools/apps/semver-yeasy@fix/jq-path
+      uses: mrsauravsahu/monotools/apps/semver-yeasy@improv/all-json-outputs
       with: 
         repo-type: MONOREPO
         mode: tag
