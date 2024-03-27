@@ -113,6 +113,7 @@ jobs:
       id: calculate_service_versions
       env:
         GITVERSION_EXEC_PATH: /home/runner/.dotnet/tools/dotnet-gitversion
+        JQ_EXEC_PATH: /usr/bin/jq
         SEMVERYEASY_CHANGED_SERVICES: ${{ fromJSON(steps.generate_other_targets.outputs.SERVICES) }}
       uses: mrsauravsahu/monotools/apps/semver-yeasy@improv/all-json-outputs
       with: 
