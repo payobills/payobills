@@ -77,8 +77,8 @@ jobs:
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
         echo "SERVICES='${SERVICES[@]}'"
 
-        DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker|")
-        IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan|")
+        DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker|"))
+        IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan|"))
 
         echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
         echo "IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS[@]}'"
