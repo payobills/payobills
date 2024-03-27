@@ -77,10 +77,11 @@ jobs:
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
         echo "SERVICES='${SERVICES[@]}'"
 
-        DOCKER_BUILD_TARGETS=$(echo "${SERVICES}" | sed -e "s|^|//|" -e "s|$|:docker|" | tr '\n' ' ')
-        IMAGE_SCAN_TARGETS=$(echo "${SERVICES}" | sed -e "s|^|//|" -e "s|$|:image_scan|" | tr '\n' ' ')
-        echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS}'"
-        echo "IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS}'"
+        DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker|")
+        IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan|")
+
+        echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
+        echo "IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS[@]}'"
 
         echo "DOCKER_BUILD_TARGETS=\"${DOCKER_BUILD_TARGETS}\"" >> $GITHUB_OUTPUT
         echo "IMAGE_SCAN_TARGETS=\"${IMAGE_SCAN_TARGETS}\"" >> $GITHUB_OUTPUT
