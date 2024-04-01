@@ -2,7 +2,7 @@ mode: MainLine
 tag-prefix: v
 branches:
   main:
-    increment: Minor
+    increment: Patch
   release:
     increment: None
   feature:
