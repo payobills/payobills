@@ -1,12 +1,20 @@
 using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services;
-using Payobills.Bills.Data;
-using Payobills.Bills.Data.Contracts;
 using Payobills.Bills.NocoDB;
-using MongoDB.Driver;
 using AutoMapper;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.AddJsonConsole(options =>
+{
+    options.IncludeScopes = false;
+    options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
+    options.JsonWriterOptions = new JsonWriterOptions
+    {
+        Indented = false
+    };
+});
 
 // options
 builder.Services.Configure<NocoDBOptions>(builder.Configuration.GetRequiredSection(nameof(NocoDBOptions)));
