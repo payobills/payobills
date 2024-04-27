@@ -35,7 +35,7 @@ jobs:
     - name: Checkout to branch
       uses: mrsauravsahu/monotools/apps/semver-yeasy@main
       with: 
-        repo-type: MONOREPO 
+        repo-type: MONOREPO
         mode: checkout
 
     - name: Setup .NET
