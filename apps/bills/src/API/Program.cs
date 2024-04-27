@@ -23,6 +23,7 @@ builder.Services.Configure<NocoDBOptions>(builder.Configuration.GetRequiredSecti
 builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddScoped<NocoDBClientService>();
 builder.Services.AddScoped<IBillsService, BillsNocoDBService>();
+builder.Services.AddScoped<StatsQueryService>();
 
 // utils
 builder.Services.AddSingleton<IGuidService, GuidService>();
