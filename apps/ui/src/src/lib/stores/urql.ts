@@ -1,8 +1,8 @@
-import { createClient, setContextClient } from "@urql/svelte";
+import { createClient } from "@urql/svelte";
 import { readable } from "svelte/store";
 
 const client = createClient({
-  url: `/graphql`,
+  url: '/graphql'
 });
 
 export const urql = readable(client)

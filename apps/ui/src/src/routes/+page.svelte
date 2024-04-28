@@ -1,10 +1,11 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
+    
+    /** @type {import('./$types').PageData} */
+	export let data: any;
 
     async function login() {
-        await goto(
-            `${import.meta.env.VITE_OIDC_TENANT_URL}/auth/realms/homelab/protocol/openid-connect/auth?client_id=payobills&redirect_uri=${import.meta.env.VITE_OWN_URL}/callback&response_type=code&grant_type=authorization_code&scope=openid`
-        );
+        await goto(data.urls.loginUrl);
     }
 </script>
 
@@ -17,7 +18,7 @@
         <button on:click={login}>
             <span>Login with SSO</span>
             <img
-                src={`${import.meta.env.VITE_OIDC_TENANT_URL}/auth/welcome-content/keycloak-project.png`}
+                src={`${data.urls.oidcUrl}/auth/welcome-content/keycloak-project.png`}
                 alt="Keycloak Logo"
             />
         </button>
@@ -35,6 +36,9 @@
 
     .intro {
         flex-grow: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .cta {
@@ -63,5 +67,10 @@
 
     h1 {
         font-size: 4rem;
+        text-align: center;
+    }
+
+    p {
+        text-align: center;
     }
 </style>

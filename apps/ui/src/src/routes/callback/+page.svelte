@@ -3,6 +3,9 @@
     import { redirect } from "@sveltejs/kit";
     import { onMount } from "svelte";
 
+    /** @type {import('./$types').PageData} */
+	export let data: any;
+
     let accessToken: string | null = null;
 
     onMount(async () => {
@@ -13,14 +16,14 @@
 
         let encodedParams = new URLSearchParams({
             client_id: "payobills",
-            redirect_uri: `${import.meta.env.VITE_OWN_URL}/callback`,
+            redirect_uri: `${data.urls.ownUrl}/callback`,
             grant_type: "authorization_code",
             scope: "openid",
             code: code || "",
         });
 
         let accessTokenResponse = await fetch(
-            `${import.meta.env.VITE_OIDC_TENANT_URL}/auth/realms/homelab/protocol/openid-connect/token`,
+            `${data.urls.oidcUrl}/auth/realms/homelab/protocol/openid-connect/token`,
             {
                 method: "POST",
                 headers: {
