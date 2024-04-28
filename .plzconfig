@@ -17,9 +17,9 @@ passenv=PROJECT_NAME
 passenv=ARCH
 passenv=DOTNET_VERSION
 passenv=VERSION
+passenv=KUBECONFIG
 
 [buildenv]
 dotnet-runtime-id = linux-musl-x64
 dotnet-runtime-version = 7.0-bookworm-slim-arm64v8
-dotnet-version=7.0
 dotnet-version=7.0

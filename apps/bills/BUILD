@@ -10,6 +10,37 @@ docker_image(
     build_args='--build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION}'.format(svc=svc)
 )
 
+filegroup(
+  name= "sources",
+  srcs=glob(["src"], ["src/bin/**", "src/obj/**"]) + ["//common/docker:dotnet-svc.prod.dockerfile"],
+)
+
+genrule(
+  name="docker_build1",
+  binary = True,
+  srcs=[":sources"],
+  cmd="echo 'export DOTNET_VERSION=7.0 svc=API DOTNET_RUNTIME_ID=linux-x64 DOTNET_RUNTIME_VERSION=7.0.17-bookworm-slim && /opt/homebrew/bin/docker build --build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC=${svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t test -f ../../../common/docker/dotnet-svc.prod.dockerfile ..' > $OUT",
+  out="dockerbuild.sh"
+)
+
+# sh_cmd(
+#     name="local",
+#     deps=[":helm_tarball"],
+#     cmd='''
+#     tar \
+#       xvf \
+#       plz-out/gen/apps/{svc}/bills.tgz \
+#       --directory plz-out/gen/apps/{svc}/helm_tarball
+#     helm upgrade --install \
+#       --create-namespace -n ${PROJECT_NAME}-dev \
+#       --set helpers.PROJECT_ROOT=${PROJECT_ROOT} \
+#       --values plz-out/gen/apps/{svc}/helm_tarball/values.local.yaml \
+#       {svc} plz-out/gen/apps/{svc}/helm_tarball
+#     rm -r plz-out/gen/apps/{svc}/helm_tarball
+#     '''.format(svc='bills'),
+#     srcs=[":helm_tarball"],
+# )
+
 genrule(
   name="chart_yaml",
   srcs = ["k8s/Chart.yaml"],
@@ -34,7 +65,7 @@ genrule(
 tarball(
   name="helm_tarball",
   subdir="chart",
-  out='{svc}.tgz'.format(svc=split_path(package_name())[-1]),
+  out='bills.tgz'.format(svc=split_path(package_name())[-1]),
   srcs=["//common/k8s"] + glob("k8s/values.yaml") + [":chart_yaml"]
 )
 
@@ -42,15 +73,17 @@ sh_cmd(
     name="local",
     deps=[":helm_tarball"],
     cmd='''
-    mkdir plz-out/gen/apps/{svc}/helm_tarball
-    tar xvf plz-out/gen/apps/{svc}/helm_tarball.tar.gz --directory plz-out/gen/apps/{svc}/helm_tarball
+    tar \
+      xvf \
+      plz-out/gen/apps/{svc}/bills.tgz \
+      --directory plz-out/gen/apps/{svc}/helm_tarball
     helm upgrade --install \
       --create-namespace -n ${PROJECT_NAME}-dev \
       --set helpers.PROJECT_ROOT=${PROJECT_ROOT} \
       --values plz-out/gen/apps/{svc}/helm_tarball/values.local.yaml \
       {svc} plz-out/gen/apps/{svc}/helm_tarball
     rm -r plz-out/gen/apps/{svc}/helm_tarball
-    '''.format(svc=svc),
+    '''.format(svc='bills'),
     srcs=[":helm_tarball"],
 )
 
@@ -70,6 +103,17 @@ sh_cmd(
 sh_cmd(
     name="prod",
     deps=[":helm_tarball"],
-    cmd='mkdir plz-out/gen/apps/{svc}/helm_tarball; tar xvf plz-out/gen/apps/{svc}/helm_tarball.tar.gz --directory plz-out/gen/apps/{svc}/helm_tarball; helm upgrade --install --create-namespace -n ${PROJECT_NAME} --set helpers.PROJECT_ROOT=${PROJECT_ROOT} --values plz-out/gen/apps/{svc}/helm_tarball/values.yaml {svc} plz-out/gen/apps/{svc}/helm_tarball; rm -r plz-out/gen/apps/{svc}/helm_tarball'.format(svc=svc),
+    cmd='''
+    tar \
+      xvf \
+      plz-out/gen/apps/{svc}/bills.tgz \
+      --directory plz-out/gen/apps/{svc}
+    helm upgrade \
+      --install \
+      --create-namespace -n payobills-dev \
+      --values apps/{svc}/values.yaml \
+      {svc} plz-out/gen/apps/{svc}/k8s/values.yaml
+    rm plz-out/gen/apps/{svc}/bills.tgz
+    '''.format(svc=split_path(package_name())[-1], project_name='API'),
     srcs=[":helm_tarball"],
 )

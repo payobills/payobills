@@ -2,13 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+enableOpenTelemetry: true
+
 replicaCount: 1
 
 image:
   repository: ghcr.io/payobills/apps/bills
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.2.0-alpha.7"
+  tag: "v0.2.5-alpha.1"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -24,6 +26,7 @@ serviceAccount:
 
 pod:
   annotations: {}
+  # command: ["tail", "-f", "/dev/null"]
   volumes:
   - name: bills-data
     hostPath:
@@ -40,6 +43,10 @@ pod:
     value: /data/bills.sqlite
   - name: BILLS_ALLOWED_ORIGINS
     value: "http://localhost:5173"
+  - name: NocoDBOptions__BaseUrl
+    value: "http://nocodb.homelab.svc.cluster.local:8080"
+  - name: NocoDBOptions__XCToken
+    value: ""
 
 podSecurityContext: {}
   # fsGroup: 2000
