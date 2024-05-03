@@ -16,11 +16,18 @@ filegroup(
 )
 
 genrule(
-  name="docker_build1",
+  name="docker_buildx",
   binary = True,
   srcs=[":sources"],
-  cmd="echo 'export DOTNET_VERSION=7.0 svc=API DOTNET_RUNTIME_ID=linux-x64 DOTNET_RUNTIME_VERSION=7.0.17-bookworm-slim && /opt/homebrew/bin/docker build --build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC=${svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t test -f ../../../common/docker/dotnet-svc.prod.dockerfile ..' > $OUT",
-  out="dockerbuild.sh"
+  pass_env=["VERSION", "DOTNET_VERSION", "DOTNET_RUNTIME_VERSION"],
+  cmd='''
+    echo '#!/bin/sh' > $OUT
+    echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
+    echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
+    echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
+    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC=${svc} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/apps/bills:${IMAGE_TAG_VERSION} -f common/docker/dotnet-svc.prod.dockerfile ${EXTRA_ARGS} apps/bills' >> $OUT
+  '''.format(svc=svc),
+  out="docker-buildx.sh"
 )
 
 # sh_cmd(
