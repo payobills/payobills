@@ -6,4 +6,5 @@ node_modules
 .env
 .env.*
 !.env.example
-src/build
+
+/src/build
