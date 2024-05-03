@@ -10,15 +10,9 @@ docker_image(
     build_args='--build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION}'.format(svc=svc)
 )
 
-filegroup(
-  name= "sources",
-  srcs=glob(["src"], ["src/bin/**", "src/obj/**"]) + ["//common/docker:dotnet-svc.prod.dockerfile"],
-)
-
 genrule(
   name="docker_buildx",
   binary = True,
-  srcs=[":sources"],
   pass_env=["VERSION", "DOTNET_VERSION", "DOTNET_RUNTIME_VERSION"],
   cmd='''
     echo '#!/bin/sh' > $OUT

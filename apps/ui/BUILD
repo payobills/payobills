@@ -51,6 +51,20 @@ tarball(
   srcs=["//common/k8s"] + glob("k8s/values.yaml") + glob("k8s/values.local.yaml") + glob("k8s/Chart.yaml")
 )
 
+genrule(
+  name="docker_buildx",
+  binary = True,
+  pass_env=["VERSION", "DOTNET_VERSION", "DOTNET_RUNTIME_VERSION"],
+  cmd='''
+    echo '#!/bin/sh' > $OUT
+    echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
+    echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
+    echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
+    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg NODE_VERSION="${NODE_VERSION}" -t ghcr.io/payobills/apps/ui:${IMAGE_TAG_VERSION} -f common/docker/node-svc.prod.dockerfile ${EXTRA_ARGS} apps/ui' >> $OUT
+  '''.format(svc=svc),
+  out="docker-buildx.sh"
+)
+
 sh_cmd(
     name="local",
     deps=[":local_k8s"],
