@@ -1,7 +1,7 @@
 # https://devblogs.microsoft.com/dotnet/improving-multiplatform-container-support/
 
-ARG DOTNET_VERSION=6.0
-ARG DOTNET_RUNTIME_VERSION=6.0.14-bullseye-slim-arm64v8
+ARG DOTNET_VERSION
+ARG DOTNET_RUNTIME_VERSION
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build-env
 
