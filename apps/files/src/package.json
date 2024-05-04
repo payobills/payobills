@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "main": "src/main.js",
   "scripts": {
-    "build": "(rm -rf dist || true) && mkdir dist && cp src/* dist",
+    "build": "(rm -rf build || true) && mkdir build && cp src/* build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node .",
     "dev": "nodemon src/main.js",
