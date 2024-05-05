@@ -15,7 +15,18 @@
     padding: 0;
   }
   :global(*) {
-    font-family: 'Helvetica Neue', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+    font-family:
+      "Helvetica Neue",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      "Open Sans",
+      sans-serif;
     font-weight: 200;
   }
 
@@ -25,7 +36,7 @@
 
   :global(button) {
     border: none;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     background: #5b81bb;
     color: white;
     text-transform: uppercase;
@@ -33,7 +44,7 @@
   }
 
   :global(h1) {
-    margin: .5rem 0;
+    margin: 0.5rem 0;
     font-size: 1.5rem;
   }
 

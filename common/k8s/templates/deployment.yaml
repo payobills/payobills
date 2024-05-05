@@ -90,7 +90,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- if .Values.enableOpenTelemetry }}
         - name: opentelemetry-collector
-          image: otel/opentelemetry-collector-contrib:0.72.0
+          image: otel/opentelemetry-collector-contrib:0.98.0
           command:
           - /otelcol-contrib
           - --config=/conf/relay.yaml
@@ -103,7 +103,11 @@ spec:
             - name: OTEL_RESOURCE_ATTRIBUTES_POD_NAME # set pod name as resource attribute for k8s metadata processor
               valueFrom:
                 fieldRef:
-                  fieldPath: metadata.name 
+                  fieldPath: metadata.name
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

@@ -6,6 +6,8 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Doc: How to write all logs in JSON format
+// https://learn.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter#json
 builder.Logging.AddJsonConsole(options =>
 {
     options.IncludeScopes = false;
