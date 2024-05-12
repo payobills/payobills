@@ -8,7 +8,7 @@ image:
   repository: ghcr.io/payobills/apps/ui
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.2.0-alpha.8"
+  tag: "0.2.2"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -32,6 +32,14 @@ pod:
     value: "80"
   - name: BILLS_SERVICE
     value: "http://bills.payobills-dev.svc.cluster.local"
+  - name: OIDC_CLIENT_ID
+    value: "payobills"
+  - name: OIDC_TENANT_URL
+    value: "http://idp.mrsauravsahu.in"
+  - name: OWN_URL
+    value: "http://payobills.mrsauravsahu.in"
+  - name: OIDC_TENANT_LOGIN_URL_TEMPLATE
+    value: "${OIDC_TENANT_URL}/auth/realms/homelab/protocol/openid-connect/auth?client_id=${OIDC_CLIENT_ID}&redirect_uri=${OWN_URL}/callback&response_type=code&grant_type=authorization_code&scope=openid"
 
 podAnnotations: {}
 
