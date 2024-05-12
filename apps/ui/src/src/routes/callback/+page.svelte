@@ -15,7 +15,7 @@
         if (code === null) throw redirect(301, "/login");
 
         let encodedParams = new URLSearchParams({
-            client_id: "payobills",
+            client_id: data.data.oidcClientId,
             redirect_uri: `${data.urls.ownUrl}/callback`,
             grant_type: "authorization_code",
             scope: "openid",
