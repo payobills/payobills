@@ -2,9 +2,13 @@
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import PaymentTimelinePill from "./payment-timeline-pill.svelte";
+  import IdeaCard from "./idea-card.svelte";
   export let title: string = "";
   export let items: any[] = [];
+  export let stats: any = {};
   let lastDay = 31;
+  let fullPaymentDates: any[] = [];
+  let month = '';
 
   onMount(() => {
     let lastDateOfMonth = new Date(
@@ -13,15 +17,20 @@
       0
     );
     lastDay = lastDateOfMonth.getDate();
-    let month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
+    month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
       lastDateOfMonth
     );
     if (title === "") title = `timeline view for ${month.toLocaleLowerCase()}`;
+
+    fullPaymentDates = stats.stats.filter((p: any) => p.type === "FULL_PAYMENT_DATES")
   });
 </script>
 
 <div class="timeline">
   <h1>{title}</h1>
+  {#if fullPaymentDates.length > 0}
+    <IdeaCard idea={`you can pay all bills together if you pay between ${month} ${fullPaymentDates[0].dateRanges[0].start} and ${month} ${fullPaymentDates[0].dateRanges[0].end}`}/>
+  {/if}
   <div class="legend legend-top">
     <span>1</span>
     <span>{lastDay}</span>
@@ -47,6 +56,10 @@
 </div>
 
 <style>
+
+  h1 {
+    padding-top: 1rem;
+  }
   .bill {
     all: unset;
     width: 100%;

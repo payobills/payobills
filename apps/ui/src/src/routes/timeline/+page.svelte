@@ -19,14 +19,37 @@
       }
     `,
   });
+
+  const currentMonth = new Date().getUTCMonth() + 1
+  const currentYear = new Date().getUTCFullYear()
+
+  const billStatsQuery = queryStore({
+    client: $urql,
+    query: gql`
+        {
+        billStats(year: ${currentYear.toString()}, month: ${currentMonth.toString()}) {
+            startDate,
+            endDate,
+            stats {
+                type
+                billIds
+                dateRanges {
+                    start
+                    end
+                }
+            }
+        }
+    }
+    `,
+  });
 </script>
 
 <Nav />
-{#if $billsQuery.fetching}
+{#if $billsQuery.fetching || $billStatsQuery.fetching}
   <p>Loading...</p>
-{:else if $billsQuery.error}
+{:else if $billsQuery.error || $billStatsQuery.error}
   <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
 {:else}
-  <Timeline items={$billsQuery.data.bills} />
+  <Timeline items={$billsQuery.data.bills} stats={$billStatsQuery.data.billStats} />
 {/if}
 
