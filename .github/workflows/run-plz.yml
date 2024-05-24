@@ -36,8 +36,8 @@ jobs:
       - name: Parse environment variables
         id: parse_env
         run: |
-          echo '${{ github.event.inputs.ENV_VARS }}' | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
+          echo '{ \"VERSION\": \"0.2.1-alpha.3\", \"EXTRA_ARGS\": \"--load\", \"PLATFORMS\": \"linux/arm64\" }' | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
 
       - name: Run plz command
-        run: plz ${{ github.event.inputs.PLZ_SUBCOMMAND }} ${{ github.event.inputs.PLZ_ARGS }}
-        env: ${{ fromJson(github.event.inputs.ENV_VARS) }}
+        run: plz run //apps/ui:docker_buildx
+        env: ${{ fromJson('{ \"VERSION\": \"0.2.1-alpha.3\", \"EXTRA_ARGS\": \"--load\", \"PLATFORMS\": \"linux/arm64\" }') }}
