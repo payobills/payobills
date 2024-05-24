@@ -1,20 +1,26 @@
-name: 'run plz command'
+name: 'Run plz Command'
 
 on:
+  push:
+    branches:
+      - fix/plz-run-workflow-run-with-params
   workflow_dispatch:
     inputs:
       PLZ_SUBCOMMAND:
         description: 'plz subcommand to run'
         required: true
-        default: ''
+        default: 'run'
+        # default: ''
       ENV_VARS:
         description: 'JSON string of environment variables'
         required: true
-        default: '{}'
+        default: '{ \"VERSION\": \"0.2.1-alpha.3\", \"EXTRA_ARGS\": \"--load\", \"PLATFORMS\": \"linux/arm64\" }'
+        # default: '{}'
       PLZ_ARGS:
         description: 'Arguments for plz command'
         required: true
-        default: ''
+        default: '//apps/ui:docker_buildx'
+        # default: ''
 
 jobs:
   run_plz_command:
@@ -30,7 +36,7 @@ jobs:
       - name: Parse environment variables
         id: parse_env
         run: |
-          echo "${{ github.event.inputs.ENV_VARS }}" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
+          echo '${{ github.event.inputs.ENV_VARS }}' | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
 
       - name: Run plz command
         run: plz ${{ github.event.inputs.PLZ_SUBCOMMAND }} ${{ github.event.inputs.PLZ_ARGS }}
