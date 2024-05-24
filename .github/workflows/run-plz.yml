@@ -1,0 +1,37 @@
+name: 'run plz command'
+
+on:
+  workflow_dispatch:
+    inputs:
+      PLZ_SUBCOMMAND:
+        description: 'plz subcommand to run'
+        required: true
+        default: ''
+      ENV_VARS:
+        description: 'JSON string of environment variables'
+        required: true
+        default: '{}'
+      PLZ_ARGS:
+        description: 'Arguments for plz command'
+        required: true
+        default: ''
+
+jobs:
+  run_plz_command:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup please.build
+        uses: sagikazarmark/setup-please-action@v0
+
+      - name: Parse environment variables
+        id: parse_env
+        run: |
+          echo "${{ github.event.inputs.ENV_VARS }}" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
+
+      - name: Run plz command
+        run: plz ${{ github.event.inputs.PLZ_SUBCOMMAND }} ${{ github.event.inputs.PLZ_ARGS }}
+        env: ${{ fromJson(github.event.inputs.ENV_VARS) }}
