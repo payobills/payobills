@@ -14,7 +14,7 @@ on:
       ENV_VARS:
         description: 'JSON string of environment variables'
         required: true
-        default: '{ \"VERSION\": \"0.2.1-alpha.3\", \"EXTRA_ARGS\": \"--load\", \"PLATFORMS\": \"linux/arm64\" }'
+        default: '{ "VERSION": "0.2.1-alpha.3", "EXTRA_ARGS": "--load", "PLATFORMS": "linux/arm64" }'
         # default: '{}'
       PLZ_ARGS:
         description: 'Arguments for plz command'
@@ -33,11 +33,7 @@ jobs:
       - name: Setup please.build
         uses: sagikazarmark/setup-please-action@v0
 
-      - name: Parse environment variables
-        id: parse_env
-        run: |
-          echo '{ \"VERSION\": \"0.2.1-alpha.3\", \"EXTRA_ARGS\": \"--load\", \"PLATFORMS\": \"linux/arm64\" }' | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' >> $GITHUB_ENV
-
       - name: Run plz command
-        run: plz run //apps/ui:docker_buildx
-        env: ${{ fromJson('{ \"VERSION\": \"0.2.1-alpha.3\", \"EXTRA_ARGS\": \"--load\", \"PLATFORMS\": \"linux/arm64\" }') }}
+        run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' | xargs); plz run //apps/ui:docker_buildx
+        env:
+          PASSED_ENV_VARS: '{ "VERSION": "0.2.1-alpha.3", "EXTRA_ARGS": "--load", "PLATFORMS": "linux/arm64" }'
