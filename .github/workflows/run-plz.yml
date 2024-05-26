@@ -1,7 +1,6 @@
 name: 'Run plz Command'
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       PLZ_SUBCOMMAND:
