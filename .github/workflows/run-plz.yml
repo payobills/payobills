@@ -12,7 +12,7 @@ on:
         default: ''
       ENV_VARS:
         description: 'JSON string of environment variables'
-        default: '{}'
+        default: '{ "CI": "true" }'
       PLZ_SUBCOMMAND_ARGS:
         description: 'Arguments for plz command'
         required: false
