@@ -39,4 +39,8 @@ jobs:
       - name: Run plz command
         run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' | xargs); plz run //apps/ui:docker_buildx"
         env:
+          PROJECT_NAME: ${{ vars.PROJECT_NAME }}
+          DOTNET_RUNTIME_VERSION: ${{ vars.DOTNET_RUNTIME_VERSION }}
+          DOTNET_VERSION: ${{ vars.DOTNET_VERSION }}
+          NODE_VERSION: ${{ vars.NODE_VERSION }}
           PASSED_ENV_VARS: '{ "VERSION": "0.2.1-alpha.3", "EXTRA_ARGS": "--load", "PLATFORMS": "linux/arm64" }'
