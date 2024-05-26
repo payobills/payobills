@@ -8,19 +8,15 @@ on:
     inputs:
       PLZ_SUBCOMMAND:
         description: 'plz subcommand to run'
-        required: true
-        default: 'run'
-        # default: ''
+        required: false
+        default: ''
       ENV_VARS:
         description: 'JSON string of environment variables'
-        required: true
-        default: '{ "VERSION": "0.2.1-alpha.3", "EXTRA_ARGS": "--load", "PLATFORMS": "linux/arm64" }'
-        # default: '{}'
-      PLZ_ARGS:
+        default: '{}'
+      PLZ_SUBCOMMAND_ARGS:
         description: 'Arguments for plz command'
-        required: true
-        default: '//apps/ui:docker_buildx'
-        # default: ''
+        required: false
+        default: ''
 
 jobs:
   run_plz_command:
@@ -37,10 +33,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Run plz command
-        run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' | xargs); plz run //apps/ui:docker_buildx"
+        run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' | xargs); plz ${PLZ_SUBCOMMAND} ${PLZ_SUBCOMMAND_ARGS}"
         env:
           PROJECT_NAME: ${{ vars.PROJECT_NAME }}
           DOTNET_RUNTIME_VERSION: ${{ vars.DOTNET_RUNTIME_VERSION }}
           DOTNET_VERSION: ${{ vars.DOTNET_VERSION }}
           NODE_VERSION: ${{ vars.NODE_VERSION }}
-          PASSED_ENV_VARS: '{ "VERSION": "0.2.1-alpha.3", "EXTRA_ARGS": "--load", "PLATFORMS": "linux/arm64" }'
+          PASSED_ENV_VARS: ${{ github.event.inputs.ENV_VARS }}
+          PLZ_SUBCOMMAND: ${{ github.event.inputs.PLZ_SUBCOMMAND }}
+          PLZ_SUBCOMMAND_ARGS: ${{ github.event.inputs.PLZ_SUBCOMMAND_ARGS }}
