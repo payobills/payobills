@@ -2,8 +2,6 @@ name: 'Run plz Command'
 
 on:
   push:
-    branches:
-      - fix/plz-run-workflow-run-with-params
   workflow_dispatch:
     inputs:
       PLZ_SUBCOMMAND:
