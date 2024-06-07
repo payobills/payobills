@@ -1,0 +1,18 @@
+{
+    "short_name": "payobills",
+    "name": "payobills",
+    "start_url": "/",
+    "icons": [
+      {
+        "src": "favicon.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "background_color": "#3367D6",
+    "display": "fullscreen",
+    "scope": "/",
+    "theme_color": "#3367D6",
+    "shortcuts": [],
+    "description": "pay your bills on time"
+}
