@@ -14,7 +14,7 @@ public class BillsNocoDBService : IBillsService
     private readonly NocoDBClientService nocoDBClientService;
     private readonly IMapper mapper;
 
-    public const string  BILLS_NOCODB_FIELDS= "Id,Name,BillingDate,LatePayByDate,CreatedAt,UpdatedAt,PayByDate";
+    public const string  BILLS_NOCODB_FIELDS= "Id,Name,BillingDate,LatePayByDate,CreatedAt,UpdatedAt,PayByDate,IsEnabled";
 
     public BillsNocoDBService(NocoDBClientService nocoDBClientService, IMapper mapper)
     {
