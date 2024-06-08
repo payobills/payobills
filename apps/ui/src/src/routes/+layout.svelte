@@ -27,7 +27,7 @@
       Cantarell,
       "Open Sans",
       sans-serif;
-    font-weight: 200;
+    font-weight: 400;
   }
 
   :global(body) {
@@ -53,5 +53,6 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    max-height: calc(100% - 2rem);
   }
 </style>

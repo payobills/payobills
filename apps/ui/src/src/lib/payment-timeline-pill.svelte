@@ -4,6 +4,11 @@
 </script>
 
 <div class="item">
+    {#if showLabel}
+    <span data-start={0} data-length={item.payByDate} class="item-title"
+        >{item.name}</span
+    >
+    {/if}
     <div class="pill">
         {#if item.billingDate > item.payByDate}
             <span
@@ -39,23 +44,19 @@
             />
         {/if}
     </div>
-    {#if showLabel}
-    <span data-start={0} data-length={item.payByDate} class="item-title"
-        >{item.name}</span
-    >
-    {/if}
 </div>
 
 <style>
     .pill {
         display: flex;
         width: 100%;
-        padding: .5rem 0 0.25rem 0;
+        padding: .25rem 0 .25rem 0;
+        margin: 0 0 .5rem 0;
     }
     .pill > span {
         height: 0.3125rem;
         border-radius: 0.25rem;
-        margin: 1.5rem 0 0 0;
+        margin: 1.25rem 0 0 0;
     }
     .pill--filled {
         background-color: #7a98c5;
@@ -65,5 +66,6 @@
     }
     .item-title {
         font-size: 0.75rem;
+        margin: 2rem 0;
     }
 </style>
