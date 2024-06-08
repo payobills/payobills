@@ -15,6 +15,7 @@
           name
           billingDate
           payByDate
+          isEnabled
         }
       }
     `,
