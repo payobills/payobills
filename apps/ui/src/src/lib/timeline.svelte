@@ -27,9 +27,10 @@
 </script>
 
 <div class="timeline">
+  <div class="timeline-data">
   <h1>{title}</h1>
   {#if fullPaymentDates.length > 0}
-    <IdeaCard idea={`you can pay all bills together if you pay between ${month} ${fullPaymentDates[0].dateRanges[0].start} and ${month} ${fullPaymentDates[0].dateRanges[0].end}`}/>
+    <IdeaCard idea={`Pay all bills together by paying between ${month} ${fullPaymentDates[0].dateRanges[0].start} and ${month} ${fullPaymentDates[0].dateRanges[0].end}!`}/>
   {/if}
   <div class="legend legend-top">
     <span>1</span>
@@ -46,6 +47,7 @@
     <span>1</span>
     <span>{lastDay}</span>
   </div>
+</div>
   <button
     class="cta"
     on:click={() => {
@@ -62,9 +64,12 @@
   }
   .bill {
     all: unset;
-    width: 100%;
-    margin: 1rem 0 0 0;
+    width: calc(100% - 1rem);
+    margin: .5rem 0;
+    padding:0 .5rem;
     align-self: flex-end;
+    background-color: #d3d9e1;
+    border-radius: .25rem;
   }
   .cta {
     margin: 1rem 0 0 0;
@@ -79,10 +84,19 @@
     background-color: #f3f3f3;
     padding: 1rem 1rem;
     border-radius: 2rem;
+    /* margin-bottom: 1rem; */
+    overflow-y: scroll;
+  }
+
+  .timeline-data {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
   }
 
   .items {
-    flex-grow: 1;
+    overflow-y: scroll;
+    /* flex-grow: 1; */
     display: flex;
     flex-direction: column;
   }
@@ -91,6 +105,7 @@
     display: flex;
     justify-content: space-between;
     font-size: 0.75rem;
+    margin: .5rem;
   }
 
   span {
