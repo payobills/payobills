@@ -1,3 +1,17 @@
+<script>
+  import { goto } from "$app/navigation";
+  import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
+  import { onMount } from "svelte";
+  import { get } from "svelte/store";
+
+  onMount(async () => {
+    // Guard against going to other pages without login
+    loadAuthFromLocalStorage()
+    const authState = get(auth);
+    if (authState == null) await goto("/");
+  });
+</script>
+
 <main>
   <slot />
 </main>
