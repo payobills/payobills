@@ -1,12 +1,22 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    
+    import { onMount } from "svelte";
+    import { CONSTANTS } from "../constants";
+    import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
+    import { get } from "svelte/store";
+
     /** @type {import('./$types').PageData} */
-	export let data: any;
+    export let data: any;
 
     async function login() {
         await goto(data.urls.loginUrl);
     }
+
+    onMount(async () => {
+        loadAuthFromLocalStorage();
+        const authState = get(auth);
+        if (authState !== null) await goto("/timeline");
+    });
 </script>
 
 <div class="main">

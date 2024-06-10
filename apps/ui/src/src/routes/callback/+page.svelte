@@ -2,9 +2,11 @@
     import { goto } from "$app/navigation";
     import { redirect } from "@sveltejs/kit";
     import { onMount } from "svelte";
+    import { CONSTANTS } from "../../constants";
+    import { auth } from "$lib/stores/auth";
 
     /** @type {import('./$types').PageData} */
-	export let data: any;
+    export let data: any;
 
     let accessToken: string | null = null;
 
@@ -31,11 +33,29 @@
                     Accept: "application/json",
                 },
                 body: encodedParams,
-            }
+            },
         );
 
         let accessTokenResponseJSON = await accessTokenResponse.json();
         accessToken = accessTokenResponseJSON["access_token"];
+        let refreshToken = accessTokenResponseJSON["refresh_token"];
+
+        var refreshTokenPayload = refreshToken.split(".")[1];
+        var refreshTokenPayloadObject = JSON.parse(
+            window.atob(refreshTokenPayload),
+        );
+        var refreshTokenExpiry = refreshTokenPayloadObject.exp;
+
+        localStorage.setItem(CONSTANTS.REFRESH_TOKEN_KEY, refreshToken);
+        localStorage.setItem(
+            CONSTANTS.REFRESH_TOKEN_EXPIRY_KEY,
+            (refreshTokenExpiry * 1000).toString(),
+        );
+
+        auth.set({
+            refreshToken,
+            refreshTokenExpiry,
+        });
 
         await goto("/timeline");
     });
