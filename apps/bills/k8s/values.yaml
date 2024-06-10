@@ -10,7 +10,7 @@ image:
   repository: ghcr.io/payobills/apps/bills
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.2.5-alpha.1"
+  tag: "0.2.8"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -39,6 +39,8 @@ pod:
   env:
   - name: ASPNETCORE_ENVIRONMENT
     value: DEVELOPMENT
+  - name: ASPNETCORE_HTTP_PORTS
+    value: "80"
   - name: BILLS_DB_PATH
     value: /data/bills.sqlite
   - name: BILLS_ALLOWED_ORIGINS
@@ -68,16 +70,7 @@ flags:
   rewrite: false
 
 ingress:
-  name: payobills
-  subdomain: payobills
-  enabled: true
-  className: "nginx"
-  annotations: {}
-  routePath: /graphql
-  hosts:
-    - name: pi.lol
-    - name: pi.local
-    - name: 192.168.0.100.nip.io  
+  enabled: false
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
