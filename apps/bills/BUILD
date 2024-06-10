@@ -19,7 +19,7 @@ genrule(
     echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
     echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
     echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
-    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC=${svc} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/apps/bills:${IMAGE_TAG_VERSION} -f common/docker/dotnet-svc.prod.dockerfile ${EXTRA_ARGS} apps/bills' >> $OUT
+    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/apps/bills:${IMAGE_TAG_VERSION} -f common/docker/dotnet-svc.prod.dockerfile ${EXTRA_ARGS} apps/bills' >> $OUT
   '''.format(svc=svc),
   out="docker-buildx.sh"
 )
