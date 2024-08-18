@@ -3,8 +3,22 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Payobills.Bills.Services.Contracts;
+using System.Text.Json.Serialization;
 
 namespace Payobills.Bills.NocoDB;
+
+public class DateTimeConverterUsingDateTimeParse : JsonConverter<DateTime>
+{
+    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return DateTime.Parse(reader.GetString() ?? string.Empty);
+    }
+
+    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value.ToString());
+    }
+}
 
 public class NocoDBClientService
 {
@@ -31,7 +45,9 @@ public class NocoDBClientService
 
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
-    var recordsPage = await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream);
+    JsonSerializerOptions options = new JsonSerializerOptions();
+    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    var recordsPage = await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream, options);
 
     return recordsPage;
   }
@@ -54,7 +70,9 @@ public class NocoDBClientService
     }
 
     var responseStream = await response.Content.ReadAsStreamAsync();
-    var recordsPage = await JsonSerializer.DeserializeAsync<T>(responseStream);
+    JsonSerializerOptions options = new JsonSerializerOptions();
+    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    var recordsPage = await JsonSerializer.DeserializeAsync<T>(responseStream, options);
 
     return recordsPage;
   }

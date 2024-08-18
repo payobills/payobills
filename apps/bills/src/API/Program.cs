@@ -47,7 +47,8 @@ builder.Services
   .AddGraphQLServer()
   .AddQueryType<Query>()
   .AddMutationType<Mutation>()
-  .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
+  .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
+  .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>();
 
 var app = builder.Build();
 

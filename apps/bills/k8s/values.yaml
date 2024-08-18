@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-enableOpenTelemetry: true
+enableOpenTelemetry: false
 
 replicaCount: 1
 
@@ -10,7 +10,7 @@ image:
   repository: ghcr.io/payobills/apps/bills
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2.8"
+  tag: "0.2.9"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -48,7 +48,7 @@ pod:
   - name: NocoDBOptions__BaseUrl
     value: "http://nocodb.homelab.svc.cluster.local:8080"
   - name: NocoDBOptions__XCToken
-    value: ""
+    value: "ULmI7g0hQZq6oYGrFmbzwAk6mlt52ashrH5g82cJ"
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -91,7 +91,8 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
+nodeSelector:
+  kubernetes.io/hostname: pi
 
 tolerations: []
 
