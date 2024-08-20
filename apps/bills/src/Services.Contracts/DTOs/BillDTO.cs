@@ -8,7 +8,7 @@ public class BillDTO
     public int? PayByDate { get; set; }
     public int? LatePayByDate { get; set; }
     public bool IsEnabled { get; set; } = false;
-    public List<PaymentDTO> Payments { get; set; } = new();
+    public List<PaymentDTO> Payments { get; set; } = [];
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
