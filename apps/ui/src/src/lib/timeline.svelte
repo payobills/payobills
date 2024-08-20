@@ -53,7 +53,7 @@
           scale={1.5}
           style={`color: ${filteringCriteria === 'ALL' ? 'grey': 'green'}; padding: 0 .5rem 0 .5rem; cursor: pointer;`}
         />
-        <p class="button-label">{filteringCriteria === 'ALL' ? "ALL": "only enabled"}</p>
+        <!-- <p class="button-label">{filteringCriteria === 'ALL' ? "ALL": "only enabled"}</p> -->
       </button>
     </div>
     {#if fullPaymentDates.length > 0}

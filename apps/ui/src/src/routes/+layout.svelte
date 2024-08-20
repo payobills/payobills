@@ -17,8 +17,7 @@
 </main>
 
 <style>
-  @import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@200;400;900&display=swap");
-  @import url("https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap");
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
   :root {
     --color: #9f9f9f;
@@ -30,6 +29,7 @@
   }
   :global(*) {
     font-family:
+      Montserrat,
       "Helvetica Neue",
       system-ui,
       -apple-system,
@@ -64,5 +64,11 @@
     flex-direction: column;
     flex-grow: 1;
     height: 100dvh;
+  }
+
+  :global {
+    :root {
+      --primary-color: #5B81BB;
+    }
   }
 </style>

@@ -5,14 +5,14 @@
 </script>
 
 <nav>
-  <button class="hamburger">
+  <button class="hamburger" role="button">
     <Icon
       data={faBars}
-      scale={1.5}
-      style="color: white; padding: 1rem; cursor: pointer;"
+      scale={1.2}
+      style="color: white; padding: 0; cursor: pointer;"
     />
   </button>
-  <button class="app-title" on:click={() => goto("/timeline")}>payobills</button
+  <button class="app-title" on:click={() => goto("/timeline")}>Payobills</button
   >
 </nav>
 
@@ -26,8 +26,10 @@
     height: 4rem;
   }
   .app-title {
-    font-size: 1.5rem;
-    text-transform: lowercase;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: unset;
+    padding: 0;
   }
 
   .hamburger {
@@ -36,7 +38,7 @@
     border-radius: 1.75rem;
     padding: 0;
     margin: 0 0 0 0.2rem;
-    height: 3.5rem;
-    width: 3.5rem;
+    width: 4rem;
+    padding-top: .25rem;
   }
 </style>
