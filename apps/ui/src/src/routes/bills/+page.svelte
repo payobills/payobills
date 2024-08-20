@@ -120,6 +120,17 @@
 </Card>
 
 <style>
+    h1 {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    h2{
+        font-size: 1rem;
+    }
+    p {
+        font-size: .8rem;
+    }
     .content {
         display: flex;
         flex-direction: column;
