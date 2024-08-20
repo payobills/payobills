@@ -19,8 +19,8 @@
     display: flex;
     margin: 1rem 0;
     padding: 0.5rem 1rem;
-    background-color: #5b81bb;
-    border-radius: 1rem;
+    background-color: #454545;
+    border-radius: .2rem;
   }
 
   p {
