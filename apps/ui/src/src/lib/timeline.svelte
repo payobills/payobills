@@ -13,11 +13,9 @@
   let fullPaymentDates: any[] = [];
   let month = "";
 
-  let filteringCriteria: "ALL" | "IS_ENABLED" = "IS_ENABLED";
-  $: filteredItems =
-    filteringCriteria === "ALL"
-      ? items
-      : items.filter((item) => item.isEnabled);
+  $: filteredItems = items.toSorted((p: any, q: any) =>
+    (p?.billingDate !== null && p?.payByDate !== null) ? (p.name > q.name ? 1 : -1) : 1
+  );
 
   onMount(() => {
     let lastDateOfMonth = new Date(
