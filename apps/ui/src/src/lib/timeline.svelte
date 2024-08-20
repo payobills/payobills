@@ -87,8 +87,17 @@
 </div>
 
 <style>
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+    background-color: #f3f3f3;
+    padding: 1rem 1rem;
+    overflow-y: scroll;
+  }
+  
   .title {
-    padding-top: 1rem;
     display: flex;
   }
 
@@ -110,17 +119,6 @@
     border-radius: 1rem;
   }
 
-  .timeline {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex-grow: 1;
-    background-color: #f3f3f3;
-    padding: 1rem 1rem;
-    border-radius: 2rem;
-    /* margin-bottom: 1rem; */
-    overflow-y: scroll;
-  }
 
   .timeline-data {
     display: flex;
@@ -130,7 +128,6 @@
 
   .items {
     overflow-y: scroll;
-    /* flex-grow: 1; */
     display: flex;
     flex-direction: column;
   }

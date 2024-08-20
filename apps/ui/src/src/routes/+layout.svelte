@@ -44,10 +44,6 @@
     font-weight: 400;
   }
 
-  :global(body) {
-    height: 100vh;
-  }
-
   :global(button) {
     border: none;
     border-radius: 0.25rem;
@@ -67,6 +63,6 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    max-height: calc(100% - 2rem);
+    height: 100dvh;
   }
 </style>

@@ -22,8 +22,8 @@
     display: flex;
     align-items: center;
     padding: 0;
+    margin: 0;
     height: 4rem;
-    margin: 0 0 1rem 0;
   }
   .app-title {
     font-size: 1.5rem;
