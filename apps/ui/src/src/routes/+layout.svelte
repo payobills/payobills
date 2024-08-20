@@ -66,9 +66,9 @@
     height: 100dvh;
   }
 
-  :global {
+  /* :global { */
     :root {
       --primary-color: #5B81BB;
     }
-  }
+  /* } */
 </style>

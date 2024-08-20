@@ -38,7 +38,8 @@
     border-radius: 1.75rem;
     padding: 0;
     margin: 0 0 0 0.2rem;
-    width: 4rem;
+    width: 3rem;
+    height: 100%;
     padding-top: .25rem;
   }
 </style>

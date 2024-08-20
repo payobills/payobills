@@ -29,7 +29,7 @@
     month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
       lastDateOfMonth,
     );
-    if (title === "") title = `timeline view for ${month.toLocaleLowerCase()}`;
+    if (title === "") title = `Timeline view for ${month}`;
 
     fullPaymentDates = stats.stats.filter(
       (p: any) => p.type === "FULL_PAYMENT_DATES",
@@ -103,6 +103,9 @@
 
   .title > h1 {
     flex-grow: 1;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
   }
 
   .bill {
@@ -146,10 +149,5 @@
   .button--no-style {
     background-color: unset;
     padding: unset;
-  }
-  .button-label {
-    font-size: 0.5rem;
-    color: grey;
-    margin: 0;
   }
 </style>
