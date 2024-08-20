@@ -1,4 +1,7 @@
 # payobills
+
+<img src="docs/images/icon.png" alt="Screenshot of the current version of the App" style="width: 5rem">
+
 A self-hosted (Bring and Keep your own Data) bill management app. 
 
 ## Screenshot
