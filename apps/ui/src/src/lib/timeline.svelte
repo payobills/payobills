@@ -13,7 +13,7 @@
   let fullPaymentDates: any[] = [];
   let month = "";
 
-  let filteringCriteria: ('ALL' | 'IS_ENABLED') = "IS_ENABLED";
+  let filteringCriteria: "ALL" | "IS_ENABLED" = "IS_ENABLED";
   $: filteredItems =
     filteringCriteria === "ALL"
       ? items
@@ -23,16 +23,16 @@
     let lastDateOfMonth = new Date(
       new Date().getUTCFullYear(),
       new Date().getUTCMonth() + 1,
-      0,
+      0
     );
     lastDay = lastDateOfMonth.getDate();
     month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
-      lastDateOfMonth,
+      lastDateOfMonth
     );
     if (title === "") title = `Timeline view for ${month}`;
 
     fullPaymentDates = stats.stats.filter(
-      (p: any) => p.type === "FULL_PAYMENT_DATES",
+      (p: any) => p.type === "FULL_PAYMENT_DATES"
     );
   });
 </script>
@@ -42,7 +42,7 @@
     <div class="title">
       <h1>{title}</h1>
 
-      <button
+      <!-- <button
         class="button--no-style"
         on:click={() =>
           (filteringCriteria =
@@ -53,8 +53,8 @@
           scale={1.5}
           style={`color: ${filteringCriteria === 'ALL' ? 'grey': 'green'}; padding: 0 .5rem 0 .5rem; cursor: pointer;`}
         />
-        <!-- <p class="button-label">{filteringCriteria === 'ALL' ? "ALL": "only enabled"}</p> -->
-      </button>
+        <p class="button-label">{filteringCriteria === 'ALL' ? "ALL": "only enabled"}</p>
+      </button> -->
     </div>
     {#if fullPaymentDates.length > 0}
       <IdeaCard
@@ -96,7 +96,7 @@
     padding: 1rem 1rem;
     overflow-y: scroll;
   }
-  
+
   .title {
     display: flex;
   }
@@ -114,14 +114,12 @@
     margin: 0.5rem 0;
     padding: 0 0.5rem;
     align-self: flex-end;
-    background-color: #d3d9e1;
     border-radius: 0.25rem;
   }
   .cta {
     margin: 1rem 0 0 0;
     border-radius: 1rem;
   }
-
 
   .timeline-data {
     display: flex;
@@ -133,6 +131,17 @@
     overflow-y: scroll;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .items::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .items {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   .legend {
