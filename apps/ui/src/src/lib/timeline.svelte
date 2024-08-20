@@ -154,9 +154,4 @@
   span {
     color: #9f9f9f;
   }
-
-  .button--no-style {
-    background-color: unset;
-    padding: unset;
-  }
 </style>

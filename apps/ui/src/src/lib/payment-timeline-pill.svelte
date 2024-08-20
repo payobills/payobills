@@ -4,11 +4,7 @@
 </script>
 
 <div class="item">
-    {#if showLabel}
-    <span data-start={0} data-length={item.payByDate} class="item-title"
-        >{item.name}</span
-    >
-    {/if}
+
     <div class="pill">
         {#if item.billingDate > item.payByDate}
             <span
@@ -44,6 +40,11 @@
             />
         {/if}
     </div>
+    {#if showLabel}
+    <span data-start={0} data-length={item.payByDate} class="item-title"
+        >{item.name}</span
+    >
+    {/if}
 </div>
 
 <style>
@@ -51,7 +52,7 @@
         display: flex;
         width: 100%;
         padding: .25rem 0 .25rem 0;
-        margin: 0 0 .5rem 0;
+        margin: 0;
     }
     .pill > span {
         height: 0.3125rem;
