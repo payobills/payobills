@@ -64,6 +64,7 @@
     }
     span {
         margin-right: 0.5rem;
+        font-weight: 600;
     }
 
     button {
