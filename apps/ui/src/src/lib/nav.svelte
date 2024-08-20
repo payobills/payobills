@@ -24,7 +24,6 @@
     padding: 0;
     height: 4rem;
     margin: 0 0 1rem 0;
-    border-radius: calc(4em / 2);
   }
   .app-title {
     font-size: 1.5rem;
@@ -33,7 +32,6 @@
 
   .hamburger {
     align-self: center;
-    background-color: #7e9dcd;
     border: none;
     border-radius: 1.75rem;
     padding: 0;

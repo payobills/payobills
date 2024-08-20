@@ -63,7 +63,7 @@
   }
 
   main {
-    margin: 1rem;
+    margin: 0;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
