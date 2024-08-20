@@ -1,13 +1,18 @@
 # payobills
-A self-hosted (Bring and Keep your own Data) bill management app - very much WIP
+A self-hosted (Bring and Keep your own Data) bill management app. 
 
-some screen shots...
+## Screenshot
 
-Home Timeline view | Adding a bill manually
---- | ---
-![Screenshot of the current version of the App](img-assets/timeline-view.png) | ![Screenshot of adding a bill manually page](img-assets/add-bill-view.png)
+### Timeline view of bills
 
-## why create such an app?
+<img src="docs/images/timeline-view.png" alt="Screenshot of the current version of the App" style="width: 50%">
+
+### Bill detail page
+
+<img src="docs/images/bill-detail-page.png" alt="Screenshot of adding a bill manually page" style="width: 50%">
+
+
+## Why create such an app?
 - Help me with all my bill related needs - save time and pay bills together.
 - Reminders about which bills I need to pay.
 - Analytics from all my financial data, locally.
@@ -16,7 +21,7 @@ Home Timeline view | Adding a bill manually
 - Contributing to the Self-Hosted open source community
 
 
-## project setup (headed towards this setup)
+## Project setup (headed towards this setup)
 - Each microservice in a folder in `apps` directory
 - A build system to help managing deployment and running the services
 - Code reuse with packages 
