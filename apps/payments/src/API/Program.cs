@@ -1,4 +1,3 @@
-using AutoMapper;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,41 +14,8 @@ builder.Logging.AddJsonConsole(options =>
     };
 });
 
-// options
-// builder.Services.Configure<NocoDBOptions>(builder.Configuration.GetRequiredSection(nameof(NocoDBOptions)));
-
-// bills
-builder.Services.AddSingleton<HttpClient>();
-// builder.Services.AddScoped<NocoDBClientService>();
-// builder.Services.AddScoped<IBillsService, BillsNocoDBService>();
-builder.Services.AddScoped<StatsQueryService>();
-
-// utils
-// builder.Services.AddSingleton<IGuidService, GuidService>();
-// builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
-
-// mapper
-builder.Services.AddSingleton<IMapper>((_) =>
-{
-  var config = new MapperConfiguration(cfg =>
-  {
-    cfg.AddProfile<BillsMappingProfile>();
-  });
-
-  return new Mapper(config);
-});
-
-// gql
-// builder.Services
-//   .AddGraphQLServer()
-//   .AddQueryType<Query>()
-//   .AddMutationType<Mutation>()
-//   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
-//   .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>();
-
 var app = builder.Build();
 
 app.MapGet("/", () => (new { app = "payobills.payments" }));
-// app.MapGraphQL();
 
 app.Run();
