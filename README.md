@@ -4,7 +4,8 @@
 
 A self-hosted (Bring and Keep your own Data) bill management app. 
 
-## Screenshot
+## Screenshots
+[Figma Link 😊](https://www.figma.com/design/RuZ5khlNpA4IgKPb1iebzc/payobills-main) - feel free to connect with me if you're a designer and want to contribute!
 
 ### Timeline view of bills
 
