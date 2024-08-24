@@ -25,6 +25,7 @@
 	"dependencies": {
 		"@fortawesome/free-solid-svg-icons": "^6.4.0",
 		"@urql/svelte": "^3.0.4",
+		"apexcharts": "^3.52.0",
 		"graphql": "^16.6.0",
 		"svelte-awesome": "^3.2.0"
 	}
