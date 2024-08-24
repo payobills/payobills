@@ -135,6 +135,7 @@
     );
 
     let options: any = {
+      colors: ['#7a98c5'],
       legend: {
         show: false,
       },
@@ -143,7 +144,7 @@
         width: 2,
       },
       chart: {
-        type: "line",
+        type: "area",
       },
       series: [
         {
@@ -154,6 +155,20 @@
       xaxis: {
         categories: data.map((p: any) => p.x),
       },
+      yaxis: {
+        labels: {
+          show:false,
+          formatter: (value: number) => `₹ ${value}`
+        }
+      },
+      dataLabels: {
+              enabled: true,
+              // textAnchor: 'start',
+              style: {
+                colors: ['#96b7e8']
+              },
+               formatter: (value: number) => `₹ ${value}`,
+            },
     };
 
     let myChart = new (window as any).ApexCharts(node, options);
@@ -179,10 +194,6 @@
       <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
     {:else}
       <h1>{$billByIdQuery.data.billById.name}</h1>
-      <PaymentTimelinePill
-        item={$billByIdQuery.data.billById}
-        showLabel={false}
-      />
 
       {#if $billByIdQuery.data.billById.payments.length == 0}
         <p>we don't see any payments made for this bill. 😞</p>
