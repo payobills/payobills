@@ -14,4 +14,10 @@
     <PackageReference Include="HotChocolate.AspNetCore" Version="12.15.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Data.Contracts\Data.Contracts.csproj" />
+    <ProjectReference Include="..\Services\Services.csproj" />
+    <ProjectReference Include="..\NocoDB\NocoDB.csproj" />
+  </ItemGroup>
+
 </Project>
