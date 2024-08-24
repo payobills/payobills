@@ -8,7 +8,7 @@ A self-hosted (Bring and Keep your own Data) bill management app.
 
 ### Timeline view of bills
 
-<img src="docs/images/timeline-view.png" alt="Screenshot of the current version of the App" style="width: 50%">
+<img src="docs/images/Home Page.png" alt="Screenshot of the current version of the App" style="width: 50%">
 
 ### Bill detail page
 
