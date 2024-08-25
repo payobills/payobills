@@ -28,10 +28,10 @@ tarball(
 genrule(
   name="chart_yaml",
   srcs = ["k8s/Chart.yaml"],
-  pass_env = ["VERSION"],
+  pass_env = ["HELMCHART_VERSION"],
   cmd = [
     "cat $SRCS >> $OUT",
-    "echo version: \"${VERSION}\" >> $OUT",
+    "echo version: \"${HELMCHART_VERSION}\" >> $OUT",
     "echo appVersion: \"${VERSION}\" >> $OUT"
   ],
   out = "Chart.yaml"
