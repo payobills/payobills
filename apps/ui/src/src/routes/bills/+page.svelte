@@ -26,6 +26,7 @@
           payments {
             id
             amount
+            paidAt
             billingPeriod {
               start
               end
@@ -91,7 +92,7 @@
     if (!loaded) load();
 
     const orderedData  = $billByIdQuery.data.billById.payments.sort((a:any,b:any) => {
-        return  new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        return  new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime()
     });
 
 
@@ -100,7 +101,7 @@
         x: Intl.DateTimeFormat(undefined, {
           month: "short",
           year: "2-digit",
-        }).format(new Date(p.createdAt).getTime()),
+        }).format(new Date(p.paidAt).getTime()),
         y: p.amount,
         note: `${p.amount}`,
       };
@@ -201,7 +202,7 @@
         <div use:chart></div>
         <h2>past payments</h2>
         {#each $billByIdQuery.data.billById.payments as payment}
-          <p>
+          <p class="payment">
             {#if payment.amount}
               <!-- TODO: Get currency from user, suggest based on Intl -->
               <span class="amount"
@@ -213,12 +214,11 @@
             {:else}
               <span class="amount--unknown">Unknown Amount</span>
             {/if}
-            <span>•</span>
             <span class="paid-on"
               >{Intl.DateTimeFormat(undefined, {
                 month: "long",
                 year: "2-digit",
-              }).format(new Date(payment.createdAt).getTime())}</span
+              }).format(new Date(payment.paidAt).getTime())}</span
             >
           </p>
         {/each}
@@ -258,5 +258,10 @@
 
   .markPaid {
     align-self: flex-end;
+  }
+
+  .payment {display: flex;}
+  .amount,.amount--unknown {
+    flex-grow: 1;
   }
 </style>

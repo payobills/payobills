@@ -9,6 +9,7 @@ public class BillPayment
     public DateTime? BillPeriodStart { get; set; }
     public DateTime? BillPeriodEnd { get; set; }
     public double? Amount { get; set; }
+    public DateTime PaidAt { get; set; } = DateTime.UtcNow;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     [JsonPropertyName("nc_14ri__bills_id")]
