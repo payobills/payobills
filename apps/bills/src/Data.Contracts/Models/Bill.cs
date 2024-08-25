@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace Payobills.Bills.Data.Contracts.Models;
 
@@ -12,5 +12,20 @@ public class Bill
     public bool IsEnabled { get; set; } = false;
     public List<BillPayment> Payments { get; set; } = new();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    
+    [JsonIgnore]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    private DateTime updatedAt;
+
+    [JsonPropertyName("updatedAt")]
+    public string UpdatedAtString 
+    {
+        get => updatedAt.ToString("O");
+        set
+        {
+            updatedAt = string.IsNullOrWhiteSpace(value) ? CreatedAt : DateTime.Parse(value);
+            UpdatedAt = updatedAt;
+        }
+    }
 }
