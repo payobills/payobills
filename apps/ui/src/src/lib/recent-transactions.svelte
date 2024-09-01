@@ -38,6 +38,7 @@
   .container {
     padding: 1rem;
     background-color: var(--primary-bg-color);
+    padding-bottom: 0;
   }
 
   .recent-transaction {

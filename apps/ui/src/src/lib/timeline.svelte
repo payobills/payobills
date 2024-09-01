@@ -91,7 +91,8 @@
     justify-content: space-between;
     flex-grow: 1;
     background-color: #f3f3f3;
-    padding: 1rem 1rem;
+    padding: 1rem;
+    padding-top: 0;
   }
 
   .title {
