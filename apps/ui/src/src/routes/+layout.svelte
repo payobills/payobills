@@ -8,7 +8,7 @@
 
   onMount(async () => {
     // Guard against going to other pages without login
-    loadAuthFromLocalStorage()
+    loadAuthFromLocalStorage();
     const authState = get(auth);
     if (authState == null) await goto("/");
   });
@@ -20,10 +20,14 @@
 </main>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
   :root {
     --color: #9f9f9f;
+  }
+
+  :global(div#app) {
+    height: 100dvh;
   }
 
   :global(body, html) {
@@ -66,8 +70,8 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-    height: 100dvh;
+    overflow-y: scroll;
+    height: calc(100% - 4rem);
   }
 
   :global(h1) {
@@ -77,9 +81,9 @@
   }
 
   /* :global { */
-    :root {
-      --primary-color: #5B81BB;
-      --primary-bg-color: #f3f3f3;
-    }
+  :root {
+    --primary-color: #5b81bb;
+    --primary-bg-color: #f3f3f3;
+  }
   /* } */
 </style>
