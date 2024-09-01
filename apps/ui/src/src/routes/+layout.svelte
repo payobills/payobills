@@ -24,6 +24,9 @@
 
   :root {
     --color: #9f9f9f;
+
+    --primary-color: #5b81bb;
+    --primary-bg-color: #f3f3f3;
   }
 
   :global(div#app) {
@@ -79,11 +82,4 @@
     font-weight: 600;
     color: var(--primary-color);
   }
-
-  /* :global { */
-  :root {
-    --primary-color: #5b81bb;
-    --primary-bg-color: #f3f3f3;
-  }
-  /* } */
 </style>

@@ -49,7 +49,7 @@
     client: $paymentsUrql,
     query: gql`
     {
-        transactions 
+        transactions
         {
             id
             amount
