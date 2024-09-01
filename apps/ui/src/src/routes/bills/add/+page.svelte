@@ -1,7 +1,7 @@
 <script lang="ts">
   import Card from "$lib/card.svelte";
   import { faCancel, faEllipsis } from "@fortawesome/free-solid-svg-icons";
-  import {urql} from '$lib/stores/urql'
+  import {billsUrql} from '$lib/stores/urql'
   import IconButton from "$lib/icon-button.svelte";
   import {
     queryStore,
@@ -26,7 +26,7 @@
     let client;
     try{
       console.log('got client')
-      $urql
+      $billsUrql
       .mutation(
         gql`
           mutation ($name: String!, $payByDate: Int!, $billingDate: Int!) {

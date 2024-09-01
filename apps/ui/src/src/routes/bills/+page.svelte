@@ -1,6 +1,6 @@
 <script lang="ts">
   import { queryStore, gql } from "@urql/svelte";
-  import { urql } from "$lib/stores/urql";
+  import { billsUrql } from "$lib/stores/urql";
   import { page } from "$app/stores";
   import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
   import Nav from "$lib/nav.svelte";
@@ -13,7 +13,7 @@
 
   billId = $page.url.searchParams.get("id");
   $: billByIdQuery = queryStore({
-    client: $urql,
+    client: $billsUrql,
     query: gql`
       query billById($billId: String!) {
         billById(id: $billId) {
@@ -41,7 +41,7 @@
   });
 
   async function markPaid() {
-    const markPaidQuery = $urql
+    const markPaidQuery = $billsUrql
       .mutation(
         gql`
           mutation markPayment($billId: UUID!) {
@@ -186,7 +186,6 @@
   };
 </script>
 
-<Nav />
 <Card>
   <div class="content">
     {#if $billByIdQuery.fetching}

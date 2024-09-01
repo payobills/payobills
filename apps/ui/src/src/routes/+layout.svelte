@@ -1,5 +1,7 @@
 <script>
   import { goto } from "$app/navigation";
+  import BottomNav from "$lib/bottom-nav.svelte";
+  import Nav from "$lib/nav.svelte";
   import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
@@ -12,6 +14,7 @@
   });
 </script>
 
+<Nav />
 <main>
   <slot />
 </main>
@@ -27,6 +30,7 @@
     margin: 0;
     padding: 0;
   }
+
   :global(*) {
     font-family:
       Montserrat,
@@ -66,9 +70,16 @@
     height: 100dvh;
   }
 
+  :global(h1) {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
   /* :global { */
     :root {
       --primary-color: #5B81BB;
+      --primary-bg-color: #f3f3f3;
     }
   /* } */
 </style>

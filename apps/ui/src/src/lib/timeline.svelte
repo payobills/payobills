@@ -92,7 +92,6 @@
     flex-grow: 1;
     background-color: #f3f3f3;
     padding: 1rem 1rem;
-    overflow-y: scroll;
   }
 
   .title {

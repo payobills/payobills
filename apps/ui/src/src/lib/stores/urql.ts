@@ -1,8 +1,12 @@
 import { createClient } from "@urql/svelte";
 import { readable } from "svelte/store";
 
-const client = createClient({
+const billsClient = createClient({
   url: '/bills-graphql/graphql'
 });
+export const billsUrql = readable(billsClient)
 
-export const urql = readable(client)
+const paymentsClient = createClient({
+  url: '/payments-graphql/graphql'
+});
+export const paymentsUrql = readable(paymentsClient)
