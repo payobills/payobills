@@ -5,13 +5,13 @@
 </script>
 
 <nav>
-  <button class="hamburger" role="button">
+  <!-- <button class="hamburger" role="button">
     <Icon
       data={faBars}
       scale={1.2}
       style="color: white; padding: 0; cursor: pointer;"
     />
-  </button>
+  </button> -->
   <button class="app-title" on:click={() => goto("/timeline")}>Payobills</button
   >
 </nav>
@@ -26,13 +26,15 @@
     height: 4rem;
   }
   .app-title {
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 100;
     text-transform: unset;
     padding: 0;
+    margin: 0 1rem;
+    /* font-style: italic; */
   }
 
-  .hamburger {
+  /* .hamburger {
     align-self: center;
     border: none;
     border-radius: 1.75rem;
@@ -41,5 +43,5 @@
     width: 3rem;
     height: 100%;
     padding-top: .25rem;
-  }
+  } */
 </style>
