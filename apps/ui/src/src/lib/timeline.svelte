@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Icon from "svelte-awesome/components/Icon.svelte";
-  import { faCheckCircle as filterIcon } from "@fortawesome/free-solid-svg-icons";
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import PaymentTimelinePill from "./payment-timeline-pill.svelte";
@@ -13,9 +11,17 @@
   let fullPaymentDates: any[] = [];
   let month = "";
 
-  $: filteredItems = items.toSorted((p: any, q: any) =>
-    (p?.billingDate !== null && p?.payByDate !== null) ? (p.name > q.name ? 1 : -1) : 1
-  );
+  $: itemsFilteredByName = items.toSorted((p: any, q: any) => p.name > q.name ? 1 : -1);
+  $: filteredItems = itemsFilteredByName.toSorted((p: any, q: any) => {
+    if (
+      p.billingDate !== null &&
+      p.payByDate !== null &&
+      q.billingDate !== null &&
+      q.payByDate !== null
+    )
+      return -1;
+    return 0;
+  });
 
   onMount(() => {
     let lastDateOfMonth = new Date(
