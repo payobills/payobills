@@ -3,6 +3,10 @@ name = "payobills_transaction_parser"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "transaction-syncer"
+path = "src/main.rs"
+
 [dependencies]
 csv = "1.1"
 serde = "1.0"
