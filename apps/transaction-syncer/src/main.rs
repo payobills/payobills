@@ -3,20 +3,24 @@ use notion::models::block::{Block, CreateBlock};
 use notion::models::paging::Paging;
 use notion::NotionApi;
 use notion::models::search::{DatabaseQuery, FilterCondition, FilterProperty, FilterValue, NotionSearch, PropertyCondition, SelectCondition};
-use notion::models::{ListResponse, Object, Page};
+use notion::models::{Database, ListResponse, Object, Page};
 use reqwest::header::{HeaderMap, HeaderValue};
 use tokio;
 use std::str::FromStr;
 use serde_json::json;
 
-async fn write_transaction_to_nocodb(token: &str, transaction: String, source_system_id: String, back_date_string: String) -> Result<(), Box<dyn std::error::Error>>  {
+async fn write_transaction_to_nocodb(
+    token: &str,
+    transaction: String,
+    source_system_id: String,
+    back_date_string: String,
+    bill_id: i32) -> Result<(), Box<dyn std::error::Error>> {
+
     let mut map = HeaderMap::new();
     map.append("xc-token", HeaderValue::from_str(token)?);
 
     let client = reqwest::Client::new();
-
-    let bill_id_string = std::env::var("NOCODB_BILL_ID").expect("NOCODB_BILL_ID must be set");
-    let bill_id = bill_id_string.parse::<i32>().expect("Unable to convert NOCODB_BILL_ID to a number");
+    let bill_id = bill_id;
 
     let body = json!({
         "BackDateString": back_date_string,
@@ -86,6 +90,26 @@ async fn search_database_items(notion_api: NotionApi, db_id: String, notion_toke
         })
     };
 
+    let mut bill_id = 0;
+
+    match notion_api.get_database(db_id.clone()).await {
+        Ok(Database { title, .. }) => {
+            let bill_id_str_db_title = title
+                .iter()
+                .map(|rich_text| rich_text.plain_text())
+                .collect::<Vec<&str>>()
+                .join(" ");
+            let bill_id_string = bill_id_str_db_title
+                .split(".")
+                .collect::<Vec<&str>>()[0];
+
+            bill_id = bill_id_string.parse::<i32>().expect("Unable to convert NOCODB_BILL_ID to a number");
+                
+            println!("Bill ID: {}", bill_id);
+        }
+        Err(e) => eprintln!("Error reading page: {:?}", e),
+    }
+
     match notion_api.query_database(db_id, db_query).await {
         Ok(ListResponse::<Page> { results: response, .. }) => {
             println!("Finding Notion Pages");
@@ -107,7 +131,7 @@ async fn search_database_items(notion_api: NotionApi, db_id: String, notion_toke
                                     .collect::<Vec<&str>>()
                                     .join(" ");
 
-                                println!("{:?}", content);
+                                // println!("{:?}", content);
 
                                 let page_id = PageId::from(page.id.clone());
 
@@ -115,7 +139,8 @@ async fn search_database_items(notion_api: NotionApi, db_id: String, notion_toke
                                     nocodb_integration_token,
                                     content,
                                     page_id.clone().to_string(),
-                                    page_title.clone().to_string()
+                                    page_title.clone().to_string(),
+                                    bill_id
                                 )
                                     .await
                                     .expect("Unable to write to NocoDB");
