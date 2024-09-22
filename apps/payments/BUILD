@@ -48,7 +48,7 @@ genrule(
   pass_env = ["VERSION"],
   cmd = [
     "cat $SRCS >> $OUT",
-    "echo version: \"${VERSION}\" >> $OUT",
+    "echo version: \"${HELMCHART_VERSION}\" >> $OUT",
     "echo appVersion: \"${VERSION}\" >> $OUT"
   ],
   out = "Chart.yaml"
