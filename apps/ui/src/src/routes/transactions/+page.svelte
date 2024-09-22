@@ -15,12 +15,15 @@
       client: $paymentsUrql,
       query: gql`
       {
-          transactions
+          transactions(order: [{ backDate: DESC }])
           {
+            nodes
+            {
               id
               amount
               merchant
-              backDateString
+              backDate
+            }
           }
       }
       `,
@@ -32,7 +35,7 @@
   {:else if $transactionsQuery.error}
     <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
   {:else}
-    <RecentTransactions transactions={$transactionsQuery.data.transactions}
+    <RecentTransactions transactions={$transactionsQuery.data.transactions.nodes}
     showAllTransactions={true}
     showViewAllCTA={false} />
   {/if}

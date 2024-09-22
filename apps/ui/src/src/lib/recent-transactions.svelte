@@ -28,7 +28,7 @@
     if (!loaded) load();
 
     const orderedData = transactions.sort((a: any, b: any) => {
-      return new Date(a.backDateString).getTime() - new Date(b.backDateString).getTime();
+      return new Date(a.backDate).getTime() - new Date(b.backDate).getTime();
     });
 
     let allData = orderedData.map((p: any) => {
@@ -37,7 +37,7 @@
           day: '2-digit',
           month: "short",
           year: "2-digit",
-        }).format(new Date(p.backDateString).getTime()),
+        }).format(new Date(p.backDate).getTime()),
         y: p.amount,
         note: `${p.amount}`,
       };
@@ -143,7 +143,7 @@
           >{Intl.DateTimeFormat(undefined, {
             day: "numeric",
             month: "short",
-          }).format(new Date(transaction.backDateString).getTime())}</span
+          }).format(new Date(transaction.backDate).getTime())}</span
         >
       </div>
       <span

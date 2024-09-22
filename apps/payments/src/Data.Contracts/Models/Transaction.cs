@@ -9,4 +9,5 @@ public class Transaction
     public string? Currency { get; set; }
     public double? Amount { get; set; }
     public required string BackDateString { get; set; }
+    public DateTime? BackDate { get; set; }
 }

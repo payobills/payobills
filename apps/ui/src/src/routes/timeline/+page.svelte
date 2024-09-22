@@ -49,13 +49,16 @@
     client: $paymentsUrql,
     query: gql`
     {
-        transactions
+      transactions(order: [{ backDate: DESC }])
+      {
+        nodes
         {
-            id
-            amount
-            merchant
-            backDateString
+          id
+          amount
+          merchant
+          backDate
         }
+      }
     }
     `,
   });
@@ -66,7 +69,7 @@
 {:else if $billsQuery.error || $billStatsQuery.error || $transactionsQuery.error}
   <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
 {:else}
-  <RecentTransactions transactions={$transactionsQuery.data.transactions} />
+  <RecentTransactions transactions={$transactionsQuery.data.transactions.nodes} />
   <Timeline items={$billsQuery.data.bills} stats={$billStatsQuery.data.billStats} />
 {/if}
 
