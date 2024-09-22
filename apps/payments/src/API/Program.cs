@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Payobills.Payments.Services.Contracts;
 using Payobills.Payments.Services;
 using Payobills.Payments.NocoDB;
@@ -44,6 +43,7 @@ builder.Services.AddSingleton<IMapper>((_) =>
 
 builder.Services
   .AddGraphQLServer()
+  .AddSorting()
   .AddQueryType<Query>()
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
   .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>();

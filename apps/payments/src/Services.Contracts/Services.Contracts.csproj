@@ -4,6 +4,10 @@
     <ProjectReference Include="..\Data.Contracts\Data.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.Data" Version="12.15.2" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
