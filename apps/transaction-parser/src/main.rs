@@ -1,8 +1,9 @@
+use chrono::{format, DateTime};
 use clap::{builder::TypedValueParser, Parser};
 use regex::Regex;
 use reqwest::header::HeaderMap;
 use serde_derive::{Deserialize, Serialize};
-use std::error::Error;
+use std::{error::Error, str::FromStr};
 use tokio;
 use std::collections::HashMap;
 use serde::{Serialize as SerializeImpl, Serializer};
@@ -95,8 +96,32 @@ impl SerializeImpl for Value {
 async fn parse_transaction(record: Transaction, base_name: String, table_name: String) -> Result<(), Box<dyn std::error::Error>> {
     let token =
         std::env::var("NOCODB_INTEGRATION_TOKEN").expect("NOCODB_INTEGRATION_TOKEN must be set");
+        
+    let mut parsed_date_string:String = String::new();
 
     let mut changes: HashMap<String, Value> = HashMap::new();
+    let format = "%a, %d %b %Y %H:%M:%S %z";
+
+    println!("Trying to parse {:?}", record.back_date_string.clone());
+    match DateTime::parse_from_str(record.back_date_string.clone().unwrap().as_str(), format) {
+        Ok(date) => {
+            println!("Parsed date: {:?}", date);
+            parsed_date_string = date.clone().to_rfc3339();
+        },
+        Err(_) => {
+            match DateTime::parse_from_rfc3339(record.back_date_string.clone().unwrap().as_str()) {
+                Ok(date) => {
+                    println!("Parsed date: {:?}", date);
+                    parsed_date_string = date.clone().to_rfc3339();
+                },
+                Err(_) => {
+                    // return Err("Could not parse date".into());
+                }
+            }
+        }
+    }
+
+    changes.insert("BackDate".to_string(), Value::Str(parsed_date_string));
 
     if record.bills.name.to_string() == String::from("AMEX") {
     let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on")
@@ -154,7 +179,7 @@ else  if record.bills.name.to_string() == String::from("Test Bill") {
 }
 
 else {
-    changes.insert("ParseStatus".to_string(), Value::Str("CannotParse".to_string()));
+    changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
 }
 
         // match serde_json::to_string(&changes) {
@@ -205,7 +230,7 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
 
         let nocodb_base_url = std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
         let url: String = format!(
-            "{}/api/v1/db/data/nc/{}/{}?w=(ParseStatus,eq,NotStarted)&l=1000",
+            "{}/api/v1/db/data/nc/{}/{}?w=(ParseStatus,eq,NotStarted)&l=1000&fields=*",
             nocodb_base_url, base_name.clone(), table_name.clone()
         );
 
@@ -220,8 +245,8 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
             .json::<NocoBDResponse>()
             .await?;
         
-
-        println!("{}", serde_json::to_string(&response)?);
+        println!("retrieved transactions to parse");
+        // println!("{}", serde_json::to_string(&response)?);
         // parse_more = !response.page_info.is_last_page;
         // println!("parse_more: {}", parse_more);
         // offset = offset + response.page_info.page_size;
@@ -238,8 +263,10 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
 
 #[tokio::main]
 async fn main() {
-    let args = Cli::parse();
-    process_transactions(args.base_name, args.table_name)
+    let base_name = std::env::var("NOCODB_BASE_NAME").expect("NOCODB_BASE_NAME must be set");
+    let table_name = std::env::var("NOCODB_TABLE_NAME").expect("NOCODB_TABLE_NAME must be set");
+
+    process_transactions(base_name, table_name)
         .await
         .expect("Unable to parse transactions");
 }

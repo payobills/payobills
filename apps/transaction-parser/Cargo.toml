@@ -3,6 +3,10 @@ name = "payobills_transaction_parser"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "transaction-parser"
+path = "src/main.rs"
+
 [dependencies]
 csv = "1.1"
 serde = "1.0"
@@ -13,3 +17,4 @@ reqwest = { version = "0.12.5", features = ["json"] }
 tokio = { version = "1.39.2", features = ["full"] }
 serde_json = "1.0.125"
 notion = "0.6.0"
+chrono = "0.4.38"
