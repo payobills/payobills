@@ -10,7 +10,7 @@ image:
   repository: ghcr.io/payobills/apps/payments
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2.17"
+  tag: "0.3.0"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -34,6 +34,10 @@ pod:
   env:
   - name: ENV
     value: PRODUCTION
+  - name: NocoDBOptions__XCToken
+    value: ULmI7g0hQZq6oYGrFmbzwAk6mlt52ashrH5g82cJ
+  - name: NocoDBOptions__BaseUrl
+    value: http://nocodb.homelab.svc.cluster.local:8080
 
 podSecurityContext: {}
   # fsGroup: 2000
