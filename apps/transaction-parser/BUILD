@@ -19,7 +19,7 @@ genrule(
     echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
     echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
     echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
-    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg APP={svc} --build-arg RUST_VERSION=${RUST_VERSION} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/tools/transaction-syncer:${IMAGE_TAG_VERSION} -f common/docker/rust-cron-alpine.prod.dockerfile ${EXTRA_ARGS} apps/transaction-syncer' >> $OUT
+    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg APP={svc} --build-arg RUST_VERSION=${RUST_VERSION} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/tools/transaction-parser:${IMAGE_TAG_VERSION} -f common/docker/rust-cron-alpine.prod.dockerfile ${EXTRA_ARGS} apps/transaction-parser' >> $OUT
   '''.format(svc=svc),
   out="docker-buildx.sh"
 )
