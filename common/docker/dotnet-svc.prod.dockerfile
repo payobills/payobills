@@ -12,7 +12,7 @@ COPY src ./
 
 ARG TARGETARCH
 # RUN dotnet restore
-RUN dotnet publish -c Release --self-contained -a $TARGETARCH -o out
+RUN dotnet publish -c Release --self-contained -a $TARGETARCH -o out API/API.csproj
 
 # build runtime image
 
