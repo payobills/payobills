@@ -6,7 +6,7 @@
 ; Or you can uncomment the following to pin everyone to a particular version;
 ; when you change it all users will automatically get updated.
 [please]
-version = 16.27.5
+version = 17.0.0
 
 [buildconfig]
 default-docker-repo=ghcr.io/payobills
@@ -21,3 +21,16 @@ passenv=VERSION
 passenv=HELMCHART_VERSION
 passenv=KUBECONFIG
 passenv=RUST_VERSION
+
+[Plugin "please-reuse"]
+Target = //plugins:please_reuse
+
+[Plugin "shell"]
+Target = //plugins:shell
+
+[Plugin "docker"]
+Target = //plugins:docker
+
+[parse]
+preloadsubincludes = ///docker//build_defs:docker
+preloadsubincludes = ///shell//build_defs:shell
