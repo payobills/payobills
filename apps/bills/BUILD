@@ -1,4 +1,5 @@
-subinclude("@pleasings//docker")
+package_base_name=split_path(package_name())[-1]
+package=package_name()
 
 svc='API'
 
@@ -10,8 +11,14 @@ docker_image(
     build_args='--build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION}'.format(svc=svc)
 )
 
+tarball(
+    name="srcs",
+    srcs=glob(["src"]) + ["///please_reuse//docker_buildx/docker:dotnet-svc.prod.dockerfile"],
+)
+
 genrule(
   name="docker_buildx",
+  deps=[":srcs"],
   binary = True,
   pass_env=["VERSION", "DOTNET_VERSION", "DOTNET_RUNTIME_VERSION"],
   cmd='''
@@ -19,28 +26,12 @@ genrule(
     echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
     echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
     echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
-    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/apps/bills:${IMAGE_TAG_VERSION} -f common/docker/dotnet-svc.prod.dockerfile ${EXTRA_ARGS} apps/bills' >> $OUT
-  '''.format(svc=svc),
+    echo 'mkdir plz-out/gen/{package}/srcs' >> $OUT
+    echo 'tar xvf plz-out/gen/{package}/srcs.tar.gz -C plz-out/gen/{package}/srcs' >> $OUT
+    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/apps/bills:${IMAGE_TAG_VERSION} -f plz-out/gen/{package}/srcs/dotnet-svc.prod.dockerfile ${EXTRA_ARGS} plz-out/gen/{package}/srcs/' >> $OUT
+  '''.format(svc=svc, package=package),
   out="docker-buildx.sh"
 )
-
-# sh_cmd(
-#     name="local",
-#     deps=[":helm_tarball"],
-#     cmd='''
-#     tar \
-#       xvf \
-#       plz-out/gen/apps/{svc}/bills.tgz \
-#       --directory plz-out/gen/apps/{svc}/helm_tarball
-#     helm upgrade --install \
-#       --create-namespace -n ${PROJECT_NAME}-dev \
-#       --set helpers.PROJECT_ROOT=${PROJECT_ROOT} \
-#       --values plz-out/gen/apps/{svc}/helm_tarball/values.local.yaml \
-#       {svc} plz-out/gen/apps/{svc}/helm_tarball
-#     rm -r plz-out/gen/apps/{svc}/helm_tarball
-#     '''.format(svc='bills'),
-#     srcs=[":helm_tarball"],
-# )
 
 genrule(
   name="chart_yaml",
