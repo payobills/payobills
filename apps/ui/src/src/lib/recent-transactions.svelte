@@ -3,6 +3,9 @@
   import { formatRelativeDate } from "../utils/format-relative-date";
 
   export let transactions: any[] = [];
+  $: orderedTransactions = transactions.toSorted((a: any, b: any) => {
+      return new Date(b.backDate).getTime() - new Date(a.backDate).getTime();
+    });
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
 
@@ -135,7 +138,7 @@
     <div use:chart></div>
   {/if}
 
-  {#each showAllTransactions ? transactions : transactions.slice(0, 5) as transaction}
+  {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction}
     <div class="recent-transaction">
       <div>
         <span>{transaction.merchant}</span>
