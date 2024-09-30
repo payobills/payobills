@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { formatRelativeDate } from "../utils/format-relative-date";
 
   export let transactions: any[] = [];
   export let showViewAllCTA = true;
@@ -140,10 +141,7 @@
         <span>{transaction.merchant}</span>
         <span> • </span>
         <span class="paid-on"
-          >{Intl.DateTimeFormat(undefined, {
-            day: "numeric",
-            month: "short",
-          }).format(new Date(transaction.backDate).getTime())}</span
+          >{formatRelativeDate(new Date(transaction.backDate))}</span
         >
       </div>
       <span
