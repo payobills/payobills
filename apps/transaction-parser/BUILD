@@ -1,13 +1,19 @@
-subinclude("@pleasings//docker")
-
 svc=split_path(package_name())[-1]
+package_base_name=split_path(package_name())[-1]
+package=package_name()
 
-docker_image(
-    name="docker",
-    image=package_name(),
-    dockerfile="//common/docker:dotnet-svc.prod.dockerfile",
-    srcs=glob(["src"], ["src/bin/**", "src/obj/**"]),
-    build_args='--build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION}'.format(svc=svc)
+# docker_image(
+#     name="docker",
+#     image=package_name(),
+#     dockerfile="//common/docker:dotnet-svc.prod.dockerfile",
+#     srcs=glob(["src"], ["src/bin/**", "src/obj/**"]),
+#     build_args='--build-arg DOTNET_VERSION=${DOTNET_VERSION} --build-arg SVC={svc} --build-arg ARCH=${DOTNET_RUNTIME_ID} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION}'.format(svc=svc)
+# )
+
+tarball(
+    name="srcs",
+    out = "bruh.tgz",
+    srcs=glob(["src"]) + ["///please-reuse//docker-buildx/docker:rust-cron-alpine.prod.dockerfile"],
 )
 
 genrule(
@@ -19,8 +25,8 @@ genrule(
     echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
     echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
     echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
-    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg APP={svc} --build-arg RUST_VERSION=${RUST_VERSION} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/tools/transaction-parser:${IMAGE_TAG_VERSION} -f common/docker/rust-cron-alpine.prod.dockerfile ${EXTRA_ARGS} apps/transaction-parser' >> $OUT
-  '''.format(svc=svc),
+    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg APP={svc} --build-arg RUST_VERSION=${RUST_VERSION} --build-arg DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION} -t ghcr.io/payobills/tools/transaction-parser:${IMAGE_TAG_VERSION} -f rust-cron-alpine.prod.dockerfile ${EXTRA_ARGS} apps/transaction-parser' >> $OUT
+  '''.format(svc=svc, package=package),
   out="docker-buildx.sh"
 )
 
