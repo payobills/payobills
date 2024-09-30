@@ -130,9 +130,10 @@
   <div class="title">
     <h1>Recent Transactions</h1>
     {#if showViewAllCTA}
-      <a href="/transactions">view all</a>
+    <a href="/transactions">view all</a>
     {/if}
   </div>
+  <p class='disclaimer'>It might take upto an hour for latest transactions to show up here...</p>
 
   {#if (showAllTransactions && ApexCharts)}
     <div use:chart></div>
@@ -140,9 +141,8 @@
 
   {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction}
     <div class="recent-transaction">
-      <div>
+      <div class='non-amount-details'>
         <span>{transaction.merchant}</span>
-        <span> • </span>
         <span class="paid-on"
           >{formatRelativeDate(new Date(transaction.backDate))}</span
         >
@@ -170,6 +170,14 @@
     margin: 1rem 0;
   }
 
+  .recent-transaction span {
+    font-size: 0.75rem;
+  }
+  .non-amount-details {
+    display: flex;
+    flex-direction: column;
+  }
+
   .title {
     display: flex;
     justify-content: space-between;
@@ -180,5 +188,9 @@
     font-size: 0.8rem;
     color: var(--primary-color);
     font-weight: 400;
+  }
+
+  .disclaimer {
+    font-size: .75rem;
   }
 </style>
