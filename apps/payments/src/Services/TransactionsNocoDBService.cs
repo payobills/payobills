@@ -30,6 +30,18 @@ public class TransactionsNocoDBService : ITransactionsService
             "w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)&sort=-BackDate"
         );
 
+        return page?.List ?? Enumerable.Empty<Transaction>();   
+    }
+
+    public async Task<IEnumerable<Transaction>> GetTransactionsByYearAndMonthAsync(int year, int month)
+    {
+        var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
+            "payobills",
+            "transactions",
+            TRANSACTIONS_NOCODB_FIELDS,
+            $"w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)~and(BackDateYear,eq,{year})~and(BackDateMonth,eq,{month})&sort=-BackDate"
+        );
+
         return page?.List ?? Enumerable.Empty<Transaction>();
     }
 }
