@@ -13,7 +13,7 @@ public class Query
   public async Task<IEnumerable<Transaction>> Transactions([Service] ITransactionsService transactionsService)
     => await transactionsService.GetTransactionsAsync(null!);
 
-  [UsePaging]
+  [UsePaging(DefaultPageSize = 1000, MaxPageSize = 1000)]
   [UseSorting]
   public async Task<IEnumerable<Transaction>> TransactionsByYearAndMonth([Service] ITransactionsService transactionsService, int year, int month)
     => await transactionsService.GetTransactionsByYearAndMonthAsync(year, month);
