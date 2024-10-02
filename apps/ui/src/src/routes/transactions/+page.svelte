@@ -1,43 +1,10 @@
 <script lang="ts">
-    import Timeline from "$lib/timeline.svelte";
-    import RecentTransactions from "$lib/recent-transactions.svelte";
-    import { goto } from "$app/navigation";
-    import Nav from "$lib/nav.svelte";
-    import { paymentsUrql } from '$lib/stores/urql'
-  
-    import { queryStore, gql, getContextClient } from "@urql/svelte";
-  
-  
-    const currentMonth = new Date().getUTCMonth() + 1
-    const currentYear = new Date().getUTCFullYear()
-  
-    const transactionsQuery = queryStore({
-      client: $paymentsUrql,
-      query: gql`
-      {
-          transactions(order: [{ backDate: DESC }])
-          {
-            nodes
-            {
-              id
-              amount
-              merchant
-              backDate
-            }
-          }
-      }
-      `,
-    });
-  </script>
-  
-  {#if $transactionsQuery.fetching}
-    <p>Loading...</p>
-  {:else if $transactionsQuery.error}
-    <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
-  {:else}
-    <RecentTransactions transactions={$transactionsQuery.data.transactions.nodes}
-    showAllTransactions={true}
-    showViewAllCTA={false} />
-  {/if}
-  
-  
+  import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+	const currentTransactionMonth = `transactions/${new Date().getUTCFullYear()}/${new Date().getMonth()}`;
+	console.log(currentTransactionMonth)
+	goto(currentTransactionMonth);
+  });
+</script>
