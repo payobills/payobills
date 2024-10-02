@@ -9,7 +9,11 @@ A self-hosted (Bring and Keep your own Data) bill management app.
 
 ### Timeline view of bills
 
-<img src="docs/images/Home Page.png" alt="Screenshot of the current version of the App" style="width: 50%">
+<img src="docs/images/home-page.png" alt="Screenshot of the current version of the App" style="width: 50%">
+
+### Transactions page
+
+<img src="docs/images/transactions-page.png" alt="Screenshot of adding a bill manually page" style="width: 50%">
 
 ### Bill detail page
 
@@ -20,12 +24,10 @@ A self-hosted (Bring and Keep your own Data) bill management app.
 - Help me with all my bill related needs - save time and pay bills together.
 - Reminders about which bills I need to pay.
 - Analytics from all my financial data, locally.
-- Help me with all my bill related needs.
 - Learning Kubernetes
 - Contributing to the Self-Hosted open source community
 
-
-## Project setup (headed towards this setup)
+## Project structure
 - Each microservice in a folder in `apps` directory
 - A build system to help managing deployment and running the services
-- Code reuse with packages 
+- Code reuse with packages
