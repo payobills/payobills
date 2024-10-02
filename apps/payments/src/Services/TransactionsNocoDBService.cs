@@ -39,7 +39,7 @@ public class TransactionsNocoDBService : ITransactionsService
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
-            $"w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)~and(BackDateYear,eq,{year})~and(BackDateMonth,eq,{month})&sort=-BackDate"
+            $"l=1000&w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)~and(BackDateYear,eq,{year})~and(BackDateMonth,eq,{month})&sort=-BackDate"
         );
 
         return page?.List ?? Enumerable.Empty<Transaction>();
