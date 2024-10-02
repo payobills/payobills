@@ -73,3 +73,8 @@
   <Timeline items={$billsQuery.data.bills} stats={$billStatsQuery.data.billStats} />
 {/if}
 
+<style>
+  p {
+    margin: 1rem;
+  }
+</style>

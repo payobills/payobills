@@ -38,6 +38,15 @@
     padding: 0;
   }
 
+  :global(body) {
+    background-color: #5b81bb;
+  }
+
+  :global(#app) {
+     display: flex;
+     flex-direction: column;
+  }
+
   :global(*) {
     font-family:
       Montserrat,
@@ -75,6 +84,7 @@
     flex-direction: column;
     overflow-y: scroll;
     height: calc(100% - 4rem);
+    background-color: var(--primary-bg-color);
   }
 
   :global(h1) {
