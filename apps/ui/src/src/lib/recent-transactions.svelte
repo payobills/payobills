@@ -3,18 +3,25 @@
   import { formatRelativeDate } from "../utils/format-relative-date";
 
   export let transactions: any[] = [];
-  $: orderedTransactions = transactions.toSorted((a: any, b: any) => {
-      return new Date(b.backDate).getTime() - new Date(a.backDate).getTime();
-    });
+  $: orderedTransactions = transactions.reduce((agg: any[], currTransaction) => {
+    let duplicateTransaction = agg.findIndex(p => p.id === currTransaction.id);
+    if (duplicateTransaction=== -1) {
+      return [...agg, currTransaction];
+    }
+
+    return agg;
+  }, []).toSorted((a: any, b: any) => {
+    return new Date(b.backDate).getTime() - new Date(a.backDate).getTime();
+  });
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
+  export let customTitle: string | undefined = undefined;
 
-  let loaded = false;
-  $: apexCharts = null;
+  $: ApexCharts = undefined;
 
   onMount(async () => {
     if ((window as any).ApexCharts) {
-      loaded = true;
+      ApexCharts = (window as any).ApexCharts;
       return;
     }
 
@@ -24,12 +31,11 @@
   const load = async () => {
     const module = await import("apexcharts");
     (window as any).ApexCharts = module.default;
-    apexCharts = module.default as any;
-    loaded = true;
+    ApexCharts = module.default as any;
   };
 
-  const chart = (node: any) => {
-    if (!loaded) load();
+  const chart = (node: any, transactions: any[]) => {
+    if (!ApexCharts) return;
 
     const orderedData = transactions.sort((a: any, b: any) => {
       return new Date(a.backDate).getTime() - new Date(b.backDate).getTime();
@@ -38,7 +44,7 @@
     let allData = orderedData.map((p: any) => {
       return {
         x: Intl.DateTimeFormat(undefined, {
-          day: '2-digit',
+          day: "2-digit",
           month: "short",
           year: "2-digit",
         }).format(new Date(p.backDate).getTime()),
@@ -95,7 +101,7 @@
       ],
       xaxis: {
         categories: data.map((p: any) => p.x),
-        labels:{show:false}
+        labels: { show: false },
       },
       yaxis: {
         labels: {
@@ -112,7 +118,7 @@
       },
     };
 
-    let myChart = new (window as any).ApexCharts(node, options);
+    let myChart = new (ApexCharts as any)(node, options);
     myChart.render();
 
     return {
@@ -128,20 +134,26 @@
 
 <div class="container">
   <div class="title">
-    <h1>Recent Transactions</h1>
+    {#if customTitle !== undefined}
+      <h1>{customTitle}</h1>
+    {:else}
+      <h1>Recent Transactions</h1>
+    {/if}
     {#if showViewAllCTA}
-    <a href="/transactions">view all</a>
+      <a href={`/transactions`}>view all</a>
     {/if}
   </div>
-  <p class='disclaimer'>It might take upto an hour for latest transactions to show up here...</p>
+  <p class="disclaimer">
+    It might take upto an hour for latest transactions to show up here...
+  </p>
 
-  {#if (showAllTransactions && ApexCharts)}
-    <div use:chart></div>
-  {/if}
+  {#if showAllTransactions && ApexCharts}
+    <div use:chart={transactions}></div>
+  {/if} 
 
-  {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction}
+  {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
     <div class="recent-transaction">
-      <div class='non-amount-details'>
+      <div class="non-amount-details">
         <span>{transaction.merchant}</span>
         <span class="paid-on"
           >{formatRelativeDate(new Date(transaction.backDate))}</span
@@ -162,6 +174,7 @@
     padding: 1rem;
     background-color: var(--primary-bg-color);
     padding-bottom: 0;
+    flex-grow: 1;
   }
 
   .recent-transaction {
@@ -191,6 +204,6 @@
   }
 
   .disclaimer {
-    font-size: .75rem;
+    font-size: 0.75rem;
   }
 </style>
