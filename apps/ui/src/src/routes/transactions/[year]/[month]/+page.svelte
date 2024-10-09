@@ -91,6 +91,7 @@
     transactions={$transactionsQuery.data.transactionsByYearAndMonth.nodes}
     showAllTransactions={true}
     showViewAllCTA={false}
+    title=""
   />
 {/if}
 

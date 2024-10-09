@@ -3,20 +3,25 @@
   import { formatRelativeDate } from "../utils/format-relative-date";
 
   export let transactions: any[] = [];
-  $: orderedTransactions = transactions.reduce((agg: any[], currTransaction) => {
-    let duplicateTransaction = agg.findIndex(p => p.id === currTransaction.id);
-    if (duplicateTransaction=== -1) {
-      return [...agg, currTransaction];
-    }
+  $: orderedTransactions = transactions
+    .reduce((agg: any[], currTransaction) => {
+      let duplicateTransaction = agg.findIndex(
+        (p) => p.id === currTransaction.id
+      );
+      if (duplicateTransaction === -1) {
+        return [...agg, currTransaction];
+      }
 
-    return agg;
-  }, []).toSorted((a: any, b: any) => {
-    return new Date(b.backDate).getTime() - new Date(a.backDate).getTime();
-  });
+      return agg;
+    }, [])
+    .toSorted((a: any, b: any) => {
+      return new Date(b.backDate).getTime() - new Date(a.backDate).getTime();
+    });
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
-  export let customTitle: string | undefined = undefined;
+  export let title: string | undefined = undefined;
 
+  $: console.log("title rn", title);
   $: ApexCharts = undefined;
 
   onMount(async () => {
@@ -133,9 +138,9 @@
 </script>
 
 <div class="container">
-  <div class="title">
-    {#if customTitle !== undefined}
-      <h1>{customTitle}</h1>
+  <div class={`title ${title === "" ? "title--hidden" : ""}`}>
+    {#if title !== undefined}
+      <h1>{title}</h1>
     {:else}
       <h1>Recent Transactions</h1>
     {/if}
@@ -149,7 +154,7 @@
 
   {#if showAllTransactions && ApexCharts}
     <div use:chart={transactions}></div>
-  {/if} 
+  {/if}
 
   {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
     <div class="recent-transaction">
@@ -175,6 +180,10 @@
     background-color: var(--primary-bg-color);
     padding-bottom: 0;
     flex-grow: 1;
+  }
+
+  .title--hidden {
+    height: 0;
   }
 
   .recent-transaction {
