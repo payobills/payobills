@@ -98,6 +98,7 @@
   .title {
     display: flex;
     background-color: var(--primary-bg-color);
+    padding-top: 1rem;
   }
 
   .title > h1 {
