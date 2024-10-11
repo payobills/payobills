@@ -23,7 +23,7 @@ async function main() {
   /// @ts-ignore
   app.post('/files', upload.single('file'), postFile(DI))
   app.listen(port, host, () => {
-    console.log(`App listening on port ${port}`)
+    console.log(`App listening on port ${host}:${port}`)
   })
 }
 
