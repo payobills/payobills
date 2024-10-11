@@ -58,6 +58,8 @@ module.exports = class NocoDbClient {
             }
         })
 
-        if ([200, 201].findIndex(p => p === response.status) === -1) { throw await rowUploadResponse.json() }
+        if (![200, 201].includes(rowUploadResponse.status)) {
+            throw new Error(`Row upload failed with status ${rowUploadResponse.status}: ${rowUploadResponse.statusText}`);
+        }
     }
 }
