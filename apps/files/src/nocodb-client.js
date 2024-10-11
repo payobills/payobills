@@ -44,7 +44,7 @@ module.exports = class NocoDbClient {
         let response = await axios.request(config)
 
         let row = {
-            "CorelationID": tags['corelationID'],
+            "CorrelationID": tags['correlationID'],
             "Files": response.data,
             Tags: tags
         };

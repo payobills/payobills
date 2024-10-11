@@ -13,16 +13,16 @@ const postFile = ({ nocoDbClient }) => {
      */
     return async (req, res) => {
 
-        const corelationIdHeaderName = 'X-Corelation-ID'
-        const corelationID = req.headers[corelationIdHeaderName.toLowerCase()]
+        const correlationIdHeaderName = 'X-Correlation-ID'
+        const correlationID = req.headers[correlationIdHeaderName.toLowerCase()]
 
-        if(!corelationID) {
-            res.status(400).json({ detail: `Missing ${corelationIdHeaderName} header` });
+        if(!correlationID) {
+            res.status(400).json({ detail: `Missing ${correlationIdHeaderName} header` });
             return
         }
 
         const tags = {
-            corelationID,
+            correlationID,
         }
 
         await nocoDbClient.putObject(
