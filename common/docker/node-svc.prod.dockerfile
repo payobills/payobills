@@ -11,8 +11,6 @@ COPY src ./src
 
 RUN npm run build
 
-# RUN ls /app && exit 1
-
 FROM  --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine AS finalCodeEnv
 
 WORKDIR /app
@@ -36,4 +34,4 @@ COPY --from=finalCodeEnv /app .
 ENV HOST=0.0.0.0
 ENV PORT=80
 
-ENTRYPOINT node /dist/index.js
+ENTRYPOINT [ "node", "dist/index.js" ]
