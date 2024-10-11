@@ -1,7 +1,6 @@
 const http = require('http')
 const { Readable } = require('stream');
 const FormData = require('form-data');
-const fs = require('fs');
 const axios = require('axios')
 
 module.exports = class NocoDbClient {
@@ -24,7 +23,7 @@ module.exports = class NocoDbClient {
         tags
     ) {
         let formData = new FormData();
-        formData.append('file', fs.ReadStream.from(buffer), {
+        formData.append('file', Readable.from(buffer), {
             filename: fileName,
         });
 
