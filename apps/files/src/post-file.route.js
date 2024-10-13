@@ -1,5 +1,6 @@
 const { Duplex } = require('stream')
 const uuid = require('uuid')
+const { EVENT_TYPE__NEW_FILE } = require('../constants')
 
 /**
  * @param {{
@@ -16,7 +17,7 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
         const correlationIdHeaderName = 'X-Correlation-ID'
         const correlationID = req.headers[correlationIdHeaderName.toLowerCase()]
 
-        if(!correlationID) {
+        if (!correlationID) {
             res.status(400).json({ detail: `Missing ${correlationIdHeaderName} header` });
             return
         }
@@ -32,7 +33,7 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
             tags
         )
 
-        const message = { type: 'payobills.files.uploaded', args: { correlationID } }
+        const message = { type: EVENT_TYPE__NEW_FILE, args: { correlationID } }
         const messageString = JSON.stringify(message);
         rabbitChannel.sendToQueue('payobills.files', Buffer.from(messageString));
 
