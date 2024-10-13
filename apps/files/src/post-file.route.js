@@ -1,6 +1,6 @@
 const { Duplex } = require('stream')
 const uuid = require('uuid')
-const { EVENT_TYPE__NEW_FILE } = require('../constants')
+const { EVENT_TYPE__NEW_FILE } = require('./constants')
 
 /**
  * @param {{
