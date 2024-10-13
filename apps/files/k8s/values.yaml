@@ -41,6 +41,8 @@ pod:
     value: ''
   - name: STORAGE__BUCKET_NAME
     value: ''
+  - name: EVENT_QUEUE_CONNECTION_STRING
+    value: ''
 
 podSecurityContext: {}
   # fsGroup: 2000

@@ -4,6 +4,8 @@ const multer = require('multer');
 
 const NocoDbClientFactory = require('./nocodb-client.factory');
 const MongoClientFactory = require("./mongo-client.factory");
+const rabbitmqChannelFactory = require("./rabbitmq-channel.factory");
+
 const { postFile } = require("./post-file.route");
 
 async function main() {
@@ -13,10 +15,12 @@ async function main() {
 
   const upload = multer()
 
-  var nocoDbClient = NocoDbClientFactory.generate();
+  var nocoDbClient = await NocoDbClientFactory.generate();
+  var rabbitChannel = await rabbitmqChannelFactory.generate();
 
   const DI = {
-    nocoDbClient
+    nocoDbClient,
+    rabbitChannel
   };
 
   app.get('/', (_, res) => (res.send({ app: 'files-service' })))
