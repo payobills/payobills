@@ -6,7 +6,7 @@ const uuid = require('uuid')
  * minioClient: import("minio").Client
  * }}
  */
-const postFile = ({ nocoDbClient }) => {
+const postFile = ({ nocoDbClient, rabbitChannel }) => {
     /**
      * @param {import('express').Request} req
      * @param {import('express').Response} res
@@ -31,6 +31,10 @@ const postFile = ({ nocoDbClient }) => {
             req.file.buffer,
             tags
         )
+
+        const message = { type: 'payobills.files.uploaded', args: { correlationID } }
+        const messageString = JSON.stringify(message);
+        rabbitChannel.sendToQueue('payobills.files', Buffer.from(messageString));
 
         res.status(201).end()
     }

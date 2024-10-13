@@ -1,7 +1,7 @@
 const NocoDbClient = require("./nocodb-client")
 
 module.exports = {
-    generate: () => {
+    generate: async () => {
         return new NocoDbClient({
             baseUrl: process.env.NOCO_DB_BASE_URL,
             xcToken: process.env.NOCO_DB_XC_TOKEN,
