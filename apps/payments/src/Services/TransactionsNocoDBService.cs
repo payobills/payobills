@@ -5,6 +5,7 @@ using Payobills.Payments.Data.Contracts.Models;
 using Payobills.Payments.Services.Contracts;
 using Payobills.Payments.NocoDB;
 using HotChocolate.Data.Sorting;
+using Payobills.Payments.Services.Contracts.DTOs;
 
 namespace Payobills.Payments.Services;
 
@@ -13,7 +14,7 @@ public class TransactionsNocoDBService : ITransactionsService
     private readonly NocoDBClientService nocoDBClientService;
     private readonly IMapper mapper;
 
-    public const string  TRANSACTIONS_NOCODB_FIELDS= "Id,Amount,BackDate,BackDateString,Merchant,Currency";
+    public const string TRANSACTIONS_NOCODB_FIELDS = "*";
 
     public TransactionsNocoDBService(NocoDBClientService nocoDBClientService, IMapper mapper)
     {
@@ -21,7 +22,7 @@ public class TransactionsNocoDBService : ITransactionsService
         this.mapper = mapper;
     }
 
-    public async Task<IEnumerable<Transaction>> GetTransactionsAsync(SortInputType<Transaction> order)
+    public async Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> order)
     {
         var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
             "payobills",
@@ -30,10 +31,10 @@ public class TransactionsNocoDBService : ITransactionsService
             "w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)&sort=-BackDate"
         );
 
-        return page?.List ?? Enumerable.Empty<Transaction>();   
+        return mapper.Map<List<TransactionDTO>>(page?.List ?? []);
     }
 
-    public async Task<IEnumerable<Transaction>> GetTransactionsByYearAndMonthAsync(int year, int month)
+    public async Task<IEnumerable<TransactionDTO>> GetTransactionsByYearAndMonthAsync(int year, int month)
     {
         var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
             "payobills",
@@ -42,6 +43,7 @@ public class TransactionsNocoDBService : ITransactionsService
             $"l=1000&w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)~and(BackDateYear,eq,{year})~and(BackDateMonth,eq,{month})&sort=-BackDate"
         );
 
-        return page?.List ?? Enumerable.Empty<Transaction>();
+        var transactions = (page?.List ?? []).Select(p => new TransactionDTO(p) { BackDateString = string.Empty });
+        return transactions;
     }
 }
