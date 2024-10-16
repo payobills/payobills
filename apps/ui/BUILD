@@ -60,7 +60,7 @@ genrule(
     echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
     echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
     echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
-    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg NODE_VERSION="${NODE_VERSION}" -t ghcr.io/payobills/apps/ui:${IMAGE_TAG_VERSION} -f common/docker/node-svc.prod.dockerfile ${EXTRA_ARGS} apps/ui' >> $OUT
+    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg NODE_VERSION="${NODE_VERSION}" -t ghcr.io/payobills/apps/ui:${IMAGE_TAG_VERSION} -f common/docker/node-svc--svelte.prod.dockerfile ${EXTRA_ARGS} apps/ui' >> $OUT
   '''.format(svc=svc),
   out="docker-buildx.sh"
 )
