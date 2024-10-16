@@ -31,6 +31,7 @@
             amount
             merchant
             backDate
+            tags
           }
           pageInfo {
             hasNextPage
@@ -88,7 +89,7 @@
   </section>
 
   <RecentTransactions
-    transactions={$transactionsQuery.data.transactionsByYearAndMonth.nodes}
+    transactions={$transactionsQuery.data.transactionsByYearAndMonth.nodes.filter(p => !p.tags.includes("Payment"))}
     showAllTransactions={true}
     showViewAllCTA={false}
     title=""
@@ -96,6 +97,9 @@
 {/if}
 
 <style>
+  p {
+    margin: 0.75rem 1rem;
+  }
   .title {
     display: flex;
     background-color: var(--primary-bg-color);
