@@ -21,7 +21,6 @@
   export let showAllTransactions = false;
   export let title: string | undefined = undefined;
 
-  $: console.log("title rn", title);
   $: ApexCharts = undefined;
 
   onMount(async () => {

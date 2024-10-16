@@ -63,7 +63,7 @@
     let { error } = await markPaidQuery;
 
     if (error) {
-      console.log(error);
+      console.error(error);
       return;
     }
 

@@ -22,10 +22,8 @@
   let billingDate: number, payByDate: number, name: string;
 
   const addBill = () => {
-    console.log('ok')
     let client;
     try{
-      console.log('got client')
       $billsUrql
       .mutation(
         gql`
@@ -56,7 +54,7 @@
       });
     }
     catch(error) {
-      console.log('coudln\'t get client')
+      console.error("couldn't get client", error);
     }
     
   };

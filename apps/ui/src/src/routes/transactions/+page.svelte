@@ -3,8 +3,7 @@
   import { onMount } from "svelte";
 
   onMount(() => {
-	const currentTransactionMonth = `transactions/${new Date().getUTCFullYear()}/${new Date().getMonth()}`;
-	console.log(currentTransactionMonth)
-	goto(currentTransactionMonth);
+    const currentTransactionMonth = `transactions/${new Date().getUTCFullYear()}/${new Date().getMonth()}`;
+    goto(currentTransactionMonth);
   });
 </script>
