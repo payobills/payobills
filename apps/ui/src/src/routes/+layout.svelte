@@ -7,15 +7,33 @@
   import { get } from "svelte/store";
 
   onMount(async () => {
+    await goto("/timeline");
     // Guard against going to other pages without login
-    loadAuthFromLocalStorage();
-    const authState = get(auth);
-    if (authState == null) await goto("/");
+    // loadAuthFromLocalStorage();
+    // const authState = get(auth);
+    // if (authState == null) await goto("/timeline");
   });
+
+  function randomNotification () {
+    Notification.requestPermission().then((result) => {
+    if (result === "granted") {
+      const notifTitle ='Payobills';
+      const notifBody = `You have a new bill to pay...`;
+      const notifImg = `https://http.cat/images/200.jpg`;
+      const options = {
+        body: notifBody,
+        icon: notifImg,
+      };
+      new Notification(notifTitle, options);
+    }
+  });
+  }
 </script>
 
 <Nav />
+<!-- <button on:click={randomNotification}>Notification</button> -->
 <main>
+
   <slot />
 </main>
 

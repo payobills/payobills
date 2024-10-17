@@ -110,7 +110,10 @@
       yaxis: {
         labels: {
           show: false,
-          formatter: (value: number) => `₹ ${value}`,
+          formatter: (value: number) =>
+            `₹ ${Intl.NumberFormat(undefined, {
+              style: "decimal",
+            }).format(value)}`,
         },
       },
       dataLabels: {
@@ -118,7 +121,10 @@
         style: {
           colors: ["#96b7e8"],
         },
-        formatter: (value: number) => `₹ ${value}`,
+        formatter: (value: number) =>
+          `₹ ${Intl.NumberFormat(undefined, {
+            style: "decimal",
+          }).format(value)}`,
       },
     };
 
