@@ -12,7 +12,7 @@
       style="color: white; padding: 0; cursor: pointer;"
     />
   </button> -->
-  <button class="app-title" on:click={() => goto("/timeline")}>Payobills</button
+  <button class="app-title" on:click={() => goto("/timeline")}>payobills</button
   >
 </nav>
 
@@ -26,12 +26,13 @@
     height: 4rem;
   }
   .app-title {
-    font-size: 1.5rem;
+    font-size: 2.25rem;
     font-weight: 100;
     text-transform: unset;
     padding: 0;
+    padding-top: .5rem;
     margin: 0 1rem;
-    /* font-style: italic; */
+    font-family: "Vibes";
   }
 
   /* .hamburger {
