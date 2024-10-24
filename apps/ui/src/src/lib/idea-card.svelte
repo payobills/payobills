@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Icon from "svelte-awesome/components/Icon.svelte";
+  import Icon from "svelte-awesome";
   import { faLightbulb } from "@fortawesome/free-solid-svg-icons";
 
   export let idea: string;
