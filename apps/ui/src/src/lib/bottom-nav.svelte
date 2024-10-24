@@ -1,5 +1,5 @@
 <script>
-    import Icon from "svelte-awesome/components/Icon.svelte";
+    import Icon from "svelte-awesome";
     import { faBars } from "@fortawesome/free-solid-svg-icons";
     import { goto } from "$app/navigation";
   </script>
