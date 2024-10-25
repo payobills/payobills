@@ -18,7 +18,7 @@
 
 <style>
   nav {
-    background-color: #5b81bb;
+    background-color: #181818;
     display: flex;
     align-items: center;
     padding: 0;
@@ -33,6 +33,7 @@
     padding-top: .5rem;
     margin: 0 1rem;
     font-family: "Vibes";
+    background: unset;
   }
 
   /* .hamburger {
