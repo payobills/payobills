@@ -44,7 +44,8 @@
   :root {
     --color: #9f9f9f;
 
-    --primary-color: #5b81bb;
+    /* #5b81bb */
+    --primary-color: #181818;
     --primary-bg-color: #f3f3f3;
   }
 
@@ -58,7 +59,7 @@
   }
 
   :global(body) {
-    background-color: #5b81bb;
+    background-color: var(--primary-color);
   }
 
   :global(#app) {
@@ -86,7 +87,7 @@
   :global(button) {
     border: none;
     border-radius: 0.25rem;
-    background: #5b81bb;
+    background: var(--primary-color);
     color: white;
     text-transform: uppercase;
     padding: 1rem;
