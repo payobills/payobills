@@ -10,7 +10,7 @@ image:
   repository: ghcr.io/payobills/apps/files
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.2.0-alpha.2"
+  tag: "0.2.2"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -29,21 +29,18 @@ pod:
   volumes: []
   volumeMounts: []
   env:
-  - name: STORAGE__ENDPOINT
+  - name: NOCO_DB_BASE_URL
     value: ''
-  - name: STORAGE__PORT
+  - name: NOCO_DB_XC_TOKEN
     value: ''
-  - name: STORAGE__USE_SSL
+  - name: NOCO_DB_PROJECT_ID
     value: ''
-  - name: STORAGE__ACCESS_KEY
+  - name: NOCO_DB_TABLE_ID 
     value: ''
-  - name: STORAGE__SECRET_KEY
-    value: ''
-  - name: STORAGE__BUCKET_NAME
+  - name: EVENT_QUEUE_NAME 
     value: ''
   - name: EVENT_QUEUE_CONNECTION_STRING
     value: ''
-
 podSecurityContext: {}
   # fsGroup: 2000
 
