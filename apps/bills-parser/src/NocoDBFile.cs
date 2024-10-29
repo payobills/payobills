@@ -4,19 +4,22 @@ public record NocoDBFile
 {
     public string CorrelationID { get; set; } = string.Empty;
 
-    public Dictionary<string,string> Tags { get; set; } = [];
-    
+    public Dictionary<string, string> Tags { get; set; } = [];
+
     public IEnumerable<File> Files { get; set; } = Enumerable.Empty<File>();
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
+
     [JsonIgnore]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     private DateTime updatedAt;
 
+    [JsonPropertyName("ocr")]
+    public OCRFileOutput? OCR { get; set; } = null;
+
     [JsonPropertyName("updatedAt")]
-    public string UpdatedAtString 
+    public string UpdatedAtString
     {
         get => updatedAt.ToString("O");
         set
@@ -27,7 +30,8 @@ public record NocoDBFile
     }
 }
 
-public class File {
+public class File
+{
     [JsonPropertyName("path")]
     public string Path { get; set; } = string.Empty;
     [JsonPropertyName("title")]
