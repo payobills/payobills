@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Globalization;
@@ -18,134 +19,203 @@ using UglyToad.PdfPig;
 - Mark the message as processed
 */
 
-ConnectionFactory factory = new ConnectionFactory();
-factory.Uri = new Uri("amqp://user:VbWRo76sbPvC43Su@localhost");
-
-IConnection conn = factory.CreateConnection();
-IModel channel = conn.CreateModel();
-
-var nocoDbOptions = Options.Create<NocoDBOptions>(new NocoDBOptions
+class RabbitMessage
 {
-    BaseUrl = Environment.GetEnvironmentVariable("NocoDBOptions__BaseUrl") ?? throw new ArgumentNullException("NotionDB BaseUrl env is missing"),
-    XCToken = Environment.GetEnvironmentVariable("NocoDBOptions__XCToken") ?? throw new ArgumentNullException("NotionDB XCToken env is missing"),
-});
+    public string Type { get; set; }
+    public Dictionary<string, string> Args { get; set; }
+}
 
-var nocodb = new NocoDBClientService(nocoDbOptions, new HttpClient());
 
-var consumer = new EventingBasicConsumer(channel);
-consumer.Received += async (_, eventArgs) =>
+class Program
 {
-    Console.WriteLine("=============== Started message consumption ===============");
-    var body = eventArgs.Body.ToArray();
-    string message = Encoding.UTF8.GetString(body);
-    Console.WriteLine($"Received: {message}");
-
-    var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>("1", "p_uye5el98noe784", "muc28giyeqf2tqf", "*")
-        ?? throw new Exception("NocoDBFile not found");
-
-    var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
-    using var httpClient = new HttpClient();
-    using (var stream = await httpClient.GetStreamAsync($"{nocoDbOptions.Value.BaseUrl}/{fileUrl}"))
+    static void Main()
     {
-        var filePath = Path.Combine("/tmp", "test.pdf");
-        var memoryStream = new MemoryStream();
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.Uri = new Uri("amqp://user:VbWRo76sbPvC43Su@localhost");
 
-        await stream.CopyToAsync(memoryStream);
-        await System.IO.File.WriteAllBytesAsync(filePath, memoryStream.ToArray());
-    }
+        IConnection conn = factory.CreateConnection();
+        IModel channel = conn.CreateModel();
 
-    using var document = PdfDocument.Open("/tmp/test.pdf", new ParsingOptions() { ClipPaths = true });
-    var statementStringBuilder = new StringBuilder();
-    var outputFilePath = "extracted-data.txt";
-    System.IO.File.WriteAllText(outputFilePath, string.Empty);
-
-    Console.WriteLine($"\"LineNumber\",\"ParsedDate\",\"Merchant\",\"Amount\",\"Type\"");
-    foreach (var pageNumber in Enumerable.Range(1, document.NumberOfPages))
-    {
-        var stream = new Camelot.Parsers.Stream();
-        var tables = stream.ExtractTables(document.GetPage(pageNumber));
-
-        foreach (var table in tables)
+        var nocoDbOptions = Options.Create<NocoDBOptions>(new NocoDBOptions
         {
-            for (int i = 0; i < table.Rows.Count; i++)
-            {
-                for (int j = 0; j < table.Cols.Count; j++)
-                {
-                    var cellText = table.Cells[i][j].Text.Trim(new char[] { '\n', '\r' });
-                    cellText = Regex.Replace(cellText, @"[/\r\n/]", " ");
-                    statementStringBuilder.Append($" {cellText} ");
-                }
-                statementStringBuilder.AppendLine();
-            }
+            BaseUrl = Environment.GetEnvironmentVariable("NocoDBOptions__BaseUrl") ?? throw new ArgumentNullException("NotionDB BaseUrl env is missing"),
+            XCToken = Environment.GetEnvironmentVariable("NocoDBOptions__XCToken") ?? throw new ArgumentNullException("NotionDB XCToken env is missing"),
+        });
 
-            System.IO.File.AppendAllText(outputFilePath, statementStringBuilder.ToString());
+        var nocoDbBaseName = "payobills"; // Environment.GetEnvironmentVariable("NocoDBOptions__BaseName") ?? throw new ArgumentNullException("NotionDB BaseName env is missing");
+
+        var nocodb = new NocoDBClientService(nocoDbOptions, new HttpClient());
+
+        var consumer = new EventingBasicConsumer(channel);
+        consumer.Received += async (_, eventArgs) =>
+      {
+        Console.WriteLine("=============== Started message consumption ===============");
+        var body = eventArgs.Body.ToArray();
+        string messageString = Encoding.UTF8.GetString(body);
+        // {"type":"payobills.files.uploaded","args":{"correlationId":"cd654ad0-6484-459f-adfa-2a34b9baa9df"}}
+
+        var message = JsonSerializer.Deserialize<RabbitMessage>(messageString, new JsonSerializerOptions {
+            PropertyNameCaseInsensitive = true
+            });
+        Console.WriteLine($"Received: {messageString}");
+
+        var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "muc28giyeqf2tqf", "*")
+            ?? throw new Exception("NocoDBFile not found");
+        Console.WriteLine(JsonSerializer.Serialize(fileRecord));
+
+        var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
+        using var httpClient = new HttpClient();
+        using (var stream = await httpClient.GetStreamAsync($"{nocoDbOptions.Value.BaseUrl}/{fileUrl}"))
+        {
+            var filePath = Path.Combine("/tmp", "test.pdf");
+            var memoryStream = new MemoryStream();
+
+            await stream.CopyToAsync(memoryStream);
+            await System.IO.File.WriteAllBytesAsync(filePath, memoryStream.ToArray());
         }
 
-        var statementString = statementStringBuilder.ToString();
-        var lineNumber = 0;
+        using var document = PdfDocument.Open("/tmp/test.pdf", new ParsingOptions() { ClipPaths = true });
+        var statementStringBuilder = new StringBuilder();
+        var outputFilePath = "extracted-data.txt";
+        System.IO.File.WriteAllText(outputFilePath, string.Empty);
 
-        foreach (var line in statementString.Split(Environment.NewLine))
+        Console.WriteLine($"\"LineNumber\",\"ParsedDate\",\"Merchant\",\"Amount\",\"Type\"");
+        foreach (var pageNumber in Enumerable.Range(1, document.NumberOfPages))
         {
-            ++lineNumber;
-            var currentLine = line.Trim();
+            var stream = new Camelot.Parsers.Stream();
+            var tables = stream.ExtractTables(document.GetPage(pageNumber));
 
-            var columns = currentLine.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-
-            if (columns.Length < 2) continue;
-            bool allDetailsExtracted = true;
-
-            bool parseMore = false;
-            // Try to parse the first column as a date in "Month Date" format
-            DateTime parsedDate = DateTime.MinValue;
-            if (columns.Length > 0)
+            foreach (var table in tables)
             {
-                // Console.WriteLine($"trying to parse date - {columns[0]}");
-                if (DateTime.TryParseExact($"{columns[0].Trim()} {columns[1].Trim()}", "MMMM dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                for (int i = 0; i < table.Rows.Count; i++)
                 {
-                    // Successfully parsed the date
-                    parseMore = true;
+                    for (int j = 0; j < table.Cols.Count; j++)
+                    {
+                        var cellText = table.Cells[i][j].Text.Trim(new char[] { '\n', '\r' });
+                        cellText = Regex.Replace(cellText, @"[/\r\n/]", " ");
+                        statementStringBuilder.Append($" {cellText} ");
+                    }
+                    statementStringBuilder.AppendLine();
+                }
+
+                System.IO.File.AppendAllText(outputFilePath, statementStringBuilder.ToString());
+            }
+
+            var statementString = statementStringBuilder.ToString();
+            var lineNumber = 0;
+
+            foreach (var line in statementString.Split(Environment.NewLine))
+            {
+                ++lineNumber;
+                var currentLine = line.Trim();
+
+                var columns = currentLine.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (columns.Length < 2) continue;
+                bool allDetailsExtracted = true;
+
+                bool parseMore = false;
+                // Try to parse the first column as a date in "Month Date" format
+                DateTime parsedDate = DateTime.MinValue;
+                if (columns.Length > 0)
+                {
+                    // Console.WriteLine($"trying to parse date - {columns[0]}");
+                    if (DateTime.TryParseExact($"{columns[0].Trim()} {columns[1].Trim()}", "MMMM dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                    {
+                        // Successfully parsed the date
+                        parseMore = true;
+                    }
+                    else
+                    {
+                        allDetailsExtracted = false;
+                    }
                 }
                 else
                 {
                     allDetailsExtracted = false;
                 }
-            }
-            else
-            {
-                allDetailsExtracted = false;
-            }
 
-            if (!parseMore) continue;
+                if (!parseMore) continue;
 
-            float amount = 0;
-            if (columns.Length > 3)
-            {
-                if (!float.TryParse(columns.LastOrDefault() ?? "", out amount))
+                float amount = 0;
+                if (columns.Length > 3)
+                {
+                    if (!float.TryParse(columns.LastOrDefault() ?? "", out amount))
+                    {
+                        allDetailsExtracted = false;
+                    }
+                }
+                else
                 {
                     allDetailsExtracted = false;
                 }
-            }
-            else
-            {
-                allDetailsExtracted = false;
-            }
 
-            // Second column as a string (if available)
-            var merchant = string.Join(" ", columns.Skip(2).SkipLast(2));
+                // Second column as a string (if available)
+                var merchant = string.Join(" ", columns.Skip(2).SkipLast(2));
 
-            var type = merchant.Contains("payment received", StringComparison.CurrentCultureIgnoreCase) ? "CREDIT" : "DEBIT";
-            if (allDetailsExtracted)
-            {
-                Console.WriteLine($"\"{lineNumber}\",\"{parsedDate}\",\"{merchant.Trim()}\",\"{amount}\",\"{type}\"");
+                var type = merchant.Contains("payment received", StringComparison.CurrentCultureIgnoreCase) ? "CREDIT" : "DEBIT";
+                if (allDetailsExtracted)
+                {
+                    Console.WriteLine($"\"{lineNumber}\",\"{parsedDate}\",\"{merchant.Trim()}\",\"{amount}\",\"{type}\"");
+                }
             }
         }
+
+        var ocrRecord = new OCRFile
+        {
+            ExtractedRawText = statementStringBuilder.ToString(),
+    
+          File = new NocoDbFileInput
+          {
+              Id = message.Args["id"]
+          }
+        };
+    
+
+        if(fileRecord.OCR is null)
+          await nocodb.CreateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", ocrRecord);
+
+        else {
+          var updatedOcr = await nocodb.UpdateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", fileRecord.OCR.Id.ToString(), ocrRecord);
+       }
+
+        Console.WriteLine("=============== Finished message consumption ===============");
+        channel.BasicAck(eventArgs.DeliveryTag, true);
+    };
+
+        string consumerTag = channel.BasicConsume("payobills.files", false, consumer);
+
+        Console.WriteLine("Waiting on messages...");
+        Console.ReadLine();
     }
+}
+/**
+{
+    "ExtractedRawText": "Test Bill 2 - Postman",
+    "File": {
+        "Id": 8
+    }
+}
+ */
 
-    Console.WriteLine("=============== Finished message consumption ===============");
-    channel.BasicAck(eventArgs.DeliveryTag, true);
-};
+public record NocoDbFileInput
+{
+    public string Id { get; set; }
+}
+public record OCRFile
+{
+    public string ExtractedRawText { get; set; }
+    public NocoDbFileInput File { get; set; }
+}
 
-string consumerTag = channel.BasicConsume("payobills.files", false, consumer);
+public record NocoDbFileOutput
+{
+    public int Id { get; set; }
+}
+public record OCRFileOutput 
+{
+    public int Id {get;set;}
+    public string ExtractedRawText { get; set; }
+    public NocoDbFileOutput File { get; set; }
+}
 
-Console.WriteLine("Waiting on messages...");
-Console.ReadLine();
