@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using UglyToad.PdfPig;
+using Payobills.BillsParser.Data.Contracts.Models;
 
 /**
 # Summary
@@ -78,6 +79,8 @@ class Program
         var statementStringBuilder = new StringBuilder();
         var outputFilePath = "extracted-data.txt";
         System.IO.File.WriteAllText(outputFilePath, string.Empty);
+
+        var transactions = new List<TransactionInput>();
 
         Console.WriteLine($"\"LineNumber\",\"ParsedDate\",\"Merchant\",\"Amount\",\"Type\"");
         foreach (var pageNumber in Enumerable.Range(1, document.NumberOfPages))
@@ -153,10 +156,21 @@ class Program
                 // Second column as a string (if available)
                 var merchant = string.Join(" ", columns.Skip(2).SkipLast(2));
 
-                var type = merchant.Contains("payment received", StringComparison.CurrentCultureIgnoreCase) ? "CREDIT" : "DEBIT";
+                var type = merchant.Contains("payment received", StringComparison.CurrentCultureIgnoreCase) ? "Credit" : "Debit";
                 if (allDetailsExtracted)
                 {
-                    Console.WriteLine($"\"{lineNumber}\",\"{parsedDate}\",\"{merchant.Trim()}\",\"{amount}\",\"{type}\"");
+                    // Console.WriteLine($"\"{lineNumber}\",\"{parsedDate}\",\"{merchant.Trim()}\",\"{amount}\",\"{type}\"");
+                    transactions.Add(new TransactionInput {
+                      Merchant = merchant.Trim(),
+                      Amount = amount,
+                      Tags = type,
+                      BackDateString = parsedDate.ToString("o"),
+                      ParseStatus = "OcrParsedV1",
+                      // TODO: Implement different currencies 
+                      Currency = "INR",
+                      Metadata = new Dictionary<string,string> { ["lineNumber"] = lineNumber.ToString() },
+                      Bill = new TransactionBillInput { Id = int.Parse(message.Args["id"]) }
+                    });
                 }
             }
         }
@@ -170,10 +184,17 @@ class Program
               Id = message.Args["id"]
           }
         };
+
     
 
         if(fileRecord.OCR is null)
-          await nocodb.CreateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", ocrRecord);
+        {
+          var createdOcrRecord = await nocodb.CreateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", ocrRecord);
+          Console.WriteLine($"Writing parsed transactions...{transactions.Count}");
+          transactions.ForEach(p => p.OcrId = createdOcrRecord.Id.ToString());
+          System.IO.File.WriteAllText("./test.json", JsonSerializer.Serialize(transactions));
+          var createdTransactionIds = await nocodb.BulkCreateRecordsAsync<TransactionInput, NocoDbBulkRecord>(nocoDbBaseName, "transactions", transactions);  
+        }
 
         else {
           var updatedOcr = await nocodb.UpdateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", fileRecord.OCR.Id.ToString(), ocrRecord);
@@ -197,6 +218,10 @@ class Program
     }
 }
  */
+
+public record NocoDbBulkRecord {
+  public int Id { get; set; }
+}
 
 public record NocoDbFileInput
 {
