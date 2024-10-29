@@ -62,7 +62,6 @@ class Program
 
         var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "muc28giyeqf2tqf", "*")
             ?? throw new Exception("NocoDBFile not found");
-        Console.WriteLine(JsonSerializer.Serialize(fileRecord));
 
         var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
         using var httpClient = new HttpClient();
@@ -82,7 +81,7 @@ class Program
 
         var transactions = new List<TransactionInput>();
 
-        Console.WriteLine($"\"LineNumber\",\"ParsedDate\",\"Merchant\",\"Amount\",\"Type\"");
+        // Console.WriteLine($"\"LineNumber\",\"ParsedDate\",\"Merchant\",\"Amount\",\"Type\"");
         foreach (var pageNumber in Enumerable.Range(1, document.NumberOfPages))
         {
             var stream = new Camelot.Parsers.Stream();
@@ -165,7 +164,8 @@ class Program
                       Amount = amount,
                       Tags = type,
                       BackDateString = parsedDate.ToString("o"),
-                      ParseStatus = "OcrParsedV1",
+                      BackDate = parsedDate,
+                      ParseStatus = "ParsedV1",
                       // TODO: Implement different currencies 
                       Currency = "INR",
                       Metadata = new Dictionary<string,string> { ["lineNumber"] = lineNumber.ToString() },
@@ -185,20 +185,31 @@ class Program
           }
         };
 
-    
-
+        var ocrId = 0;
         if(fileRecord.OCR is null)
         {
           var createdOcrRecord = await nocodb.CreateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", ocrRecord);
+          ocrId = createdOcrRecord.Id;
           Console.WriteLine($"Writing parsed transactions...{transactions.Count}");
-          transactions.ForEach(p => p.OcrId = createdOcrRecord.Id.ToString());
-          System.IO.File.WriteAllText("./test.json", JsonSerializer.Serialize(transactions));
-          var createdTransactionIds = await nocodb.BulkCreateRecordsAsync<TransactionInput, NocoDbBulkRecord>(nocoDbBaseName, "transactions", transactions);  
         }
 
         else {
+          ocrId = fileRecord.OCR.Id;
+          var filter =$"(OcrId,eq,{fileRecord.OCR.Id.ToString()})&l=1000"; 
+          Console.WriteLine($"Filtering {filter}");
+          var transactionIds = await nocodb.GetRecordsPageAsync<Dictionary<string, int>>(nocoDbBaseName, "transactions", "Id", filter);
+          Console.WriteLine($"transcations to delete - {transactionIds?.List!.Count()}");
+          await nocodb.BulkDeleteRecordsAsync<Dictionary<string, int>, Dictionary<string, int>>(
+            nocoDbBaseName,
+            "transactions",
+            transactionIds?.List.ToList() ?? new List<Dictionary<string, int>>()
+          );
+          transactions.ForEach(p => p.OcrId = ocrId.ToString());
           var updatedOcr = await nocodb.UpdateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", fileRecord.OCR.Id.ToString(), ocrRecord);
        }
+
+          Console.WriteLine($"Creating transcation records - {transactions.Count()}");
+          var createdTransactionIds = await nocodb.BulkCreateRecordsAsync<TransactionInput, NocoDbBulkRecord>(nocoDbBaseName, "transactions", transactions);  
 
         Console.WriteLine("=============== Finished message consumption ===============");
         channel.BasicAck(eventArgs.DeliveryTag, true);

@@ -103,6 +103,33 @@ public class NocoDBClientService
         return createdRecords!;
     }
 
+    public async Task<IList<TOutput>> BulkDeleteRecordsAsync<TInput, TOutput>(string baseName, string table, IList<TInput> payload)
+    {
+        using var jsonStream = new MemoryStream();
+        await JsonSerializer.SerializeAsync(jsonStream, payload);
+        jsonStream.Seek(0, SeekOrigin.Begin);
+
+        using var contentStream = new StreamContent(jsonStream);
+        contentStream.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        using var request = new HttpRequestMessage(
+          HttpMethod.Delete,
+          $"{nocoDBOptions.BaseUrl}/api/v1/db/data/bulk/nc/{baseName}/{table}"
+        )
+        {
+            Content = contentStream
+        };
+
+        request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+
+        var response = await httpClient.SendAsync(request);
+        var responseStream = await response.Content.ReadAsStreamAsync();
+        var deletedRecords = await JsonSerializer.DeserializeAsync<List<TOutput>>(responseStream);
+
+        return deletedRecords!;
+    }
+
+
     public async Task<TOutput> CreateRecordAsync<TInput, TOutput>(string baseName, string table, TInput payload)
     {
         using var jsonStream = new MemoryStream();
