@@ -136,7 +136,7 @@
     );
 
     let options: any = {
-      colors: ['var(--primary-color)'],
+      colors: ['#7a98c5'],
       legend: {
         show: false,
       },

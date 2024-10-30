@@ -86,7 +86,7 @@
     );
 
     let options: any = {
-      colors: ["var(--primary-color)"],
+      colors: ["#7a98c5"],
       legend: {
         show: false,
       },
@@ -119,7 +119,7 @@
       dataLabels: {
         enabled: true,
         style: {
-          colors: ["#5e5e5e"],
+          colors: ["#96b7e8"],
         },
         formatter: (value: number) =>
           `₹ ${Intl.NumberFormat(undefined, {
