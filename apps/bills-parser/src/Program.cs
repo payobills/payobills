@@ -32,7 +32,8 @@ class Program
     static void Main()
     {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.Uri = new Uri("amqp://user:VbWRo76sbPvC43Su@localhost");
+        var queueConnectionStringUri = Environment.GetEnvironmentVariable("EVENT_QUEUE_CONNECTION_STRING") ?? throw new ArgumentNullException("EVENT_QUEUE_CONNECTION_STRING env is missing"); 
+        factory.Uri = new Uri(queueConnectionStringUri);
 
         IConnection conn = factory.CreateConnection();
         IModel channel = conn.CreateModel();
@@ -60,7 +61,7 @@ class Program
             });
         Console.WriteLine($"Received: {messageString}");
 
-        var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "muc28giyeqf2tqf", "*")
+        var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "files", "*")
             ?? throw new Exception("NocoDBFile not found");
 
         var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
@@ -76,8 +77,6 @@ class Program
 
         using var document = PdfDocument.Open("/tmp/test.pdf", new ParsingOptions() { ClipPaths = true });
         var statementStringBuilder = new StringBuilder();
-        var outputFilePath = "extracted-data.txt";
-        System.IO.File.WriteAllText(outputFilePath, string.Empty);
 
         var transactions = new List<TransactionInput>();
 
