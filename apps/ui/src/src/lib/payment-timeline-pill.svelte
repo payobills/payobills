@@ -59,10 +59,10 @@
     margin: 1.25rem 0 0 0;
   }
   .pill--filled {
-    background-color: #7a98c5;
+    background-color: var(--primary-color);
   }
   .pill--empty {
-    background-color: #e5ecf8;
+    background-color: #e1e1e1;
   }
   .item-title {
     font-size: 0.75rem;

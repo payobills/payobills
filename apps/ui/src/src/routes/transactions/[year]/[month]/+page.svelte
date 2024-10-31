@@ -60,7 +60,7 @@
       <Icon
         data={faChevronLeft}
         scale={1.5}
-        style={`border-radius: 4rem; color: #5B81BB; padding: 0 1rem 0 .5rem; cursor: pointer; align-self: center`}
+        style={`border-radius: 4rem; color: var(--primary-color); padding: 0 1rem 0 .5rem; cursor: pointer; align-self: center`}
       />
     </button>
     <h1>
@@ -83,7 +83,7 @@
       <Icon
         data={faChevronRight}
         scale={1.5}
-        style={`border-radius: 4rem; color: #5B81BB; padding: 0 1rem 0 .5rem; cursor: pointer; align-self: center`}
+        style={`border-radius: 4rem; color: var(--primary-color); padding: 0 1rem 0 .5rem; cursor: pointer; align-self: center`}
       />
     </button>
   </section>
