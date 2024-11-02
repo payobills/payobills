@@ -22,13 +22,25 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
             return
         }
 
+        const fileTypePropertyKey = 'Type'
+        const fileTypePropertyKeyLowered = fileTypePropertyKey.toLowerCase();
+        const fileTypePropertyKeyFromPayload = Object.keys(tagsToAdd).find(p => p.toLowerCase() === fileTypePropertyKeyLowered); 
+    
+        if (fileTypePropertyKeyFromPayload === undefined || tagsToAdd[fileTypePropertyKeyFromPayload].trim() === '') {
+            res.status(400).json({ detail: `Missing ${fileTypePropertyKey} property in tags` });
+            return
+        }
+
         const correlationId = tagsToAdd[correlationIdPropertyKeyFromPayload]
+        const fileType = tagsToAdd[fileTypePropertyKeyFromPayload]
 
         // Add all tags, and only the CorrelationId with the right casing
         const tags = {
             ...tagsToAdd,
             [correlationIdPropertyKeyFromPayload]: undefined,
             [correlationIdPropertyKey]: correlationId,
+            [fileTypePropertyKeyFromPayload]: undefined,
+            [fileTypePropertyKey]: fileType
         }
 
         await nocoDbClient.putObject(
@@ -38,7 +50,7 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
             tags
         )
 
-        const message = { type: EVENT_TYPE__NEW_FILE, args: { correlationId } }
+        const message = { type: EVENT_TYPE__NEW_FILE, args: { correlationId, type: fileType } }
         const messageString = JSON.stringify(message);
         rabbitChannel.sendToQueue('payobills.files', Buffer.from(messageString));
 
@@ -48,3 +60,4 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
 }
 
 module.exports = { postFile }
+
