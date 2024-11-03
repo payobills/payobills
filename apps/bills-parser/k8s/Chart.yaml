@@ -1,0 +1,5 @@
+apiVersion: v2
+name: bills-parser
+description: Bills statement parser service for Payobills
+type: application
+

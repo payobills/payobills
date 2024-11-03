@@ -98,8 +98,6 @@ class Program
                     }
                     statementStringBuilder.AppendLine();
                 }
-
-                System.IO.File.AppendAllText(outputFilePath, statementStringBuilder.ToString());
             }
 
             var statementString = statementStringBuilder.ToString();
