@@ -10,7 +10,7 @@
   
   <style>
     nav {
-      background-color: #5b81bb;
+      background-color: var(--primary-color);
       display: flex;
       align-items: center;
       padding: 0;
