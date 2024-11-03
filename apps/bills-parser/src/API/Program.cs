@@ -61,7 +61,7 @@ class Program
             });
         Console.WriteLine($"Received: {messageString}");
 
-        var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "files", "*")
+        var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["correlationId"], nocoDbBaseName, "files", "*")
             ?? throw new Exception("NocoDBFile not found");
 
         var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
@@ -168,7 +168,7 @@ class Program
                       // TODO: Implement different currencies 
                       Currency = "INR",
                       Metadata = new Dictionary<string,string> { ["lineNumber"] = lineNumber.ToString() },
-                      Bill = new TransactionBillInput { Id = int.Parse(message.Args["id"]) }
+                      Bill = new TransactionBillInput { Id = int.Parse(message.Args["correlationId"]) }
                     });
                 }
             }
@@ -180,7 +180,7 @@ class Program
     
           File = new NocoDbFileInput
           {
-              Id = message.Args["id"]
+              Id = message.Args["correlationId"]
           }
         };
 
