@@ -66,7 +66,7 @@ genrule(
 tarball(
   name="helm_tarball",
   subdir="chart",
-  out='bills.tgz'.format(svc=split_path(package_name())[-1]),
+  out='{svc}.tgz'.format(svc=split_path(package_name())[-1]),
   srcs=["//common/k8s"] + glob("k8s/values.yaml") + [":chart_yaml"]
 )
 
