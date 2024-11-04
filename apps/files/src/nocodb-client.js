@@ -60,5 +60,8 @@ module.exports = class NocoDbClient {
         if (![200, 201].includes(rowUploadResponse.status)) {
             throw new Error(`Row upload failed with status ${rowUploadResponse.status}: ${rowUploadResponse.statusText}`);
         }
+
+        var nocodbRow = await rowUploadResponse.json();
+        return { etag: nocodbRow.Id.toString() }
     }
 }
