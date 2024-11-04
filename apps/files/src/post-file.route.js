@@ -43,14 +43,14 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
             [fileTypePropertyKey]: fileType
         }
 
-        await nocoDbClient.putObject(
+        let objectData = await nocoDbClient.putObject(
             null,
             req.file.originalname,
             req.file.buffer,
             tags
         )
 
-        const message = { type: EVENT_TYPE__NEW_FILE, args: { correlationId, type: fileType } }
+        const message = { type: EVENT_TYPE__NEW_FILE, args: { id: objectData.etag, correlationId, type: fileType } }
         const messageString = JSON.stringify(message);
         rabbitChannel.sendToQueue('payobills.files', Buffer.from(messageString));
 
