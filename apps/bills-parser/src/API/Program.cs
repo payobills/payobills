@@ -61,7 +61,7 @@ class Program
             });
         Console.WriteLine($"Received: {messageString}");
 
-        var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["correlationId"], nocoDbBaseName, "files", "*")
+        var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "files", "*")
             ?? throw new Exception("NocoDBFile not found");
 
         var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
@@ -178,7 +178,7 @@ class Program
     
           File = new NocoDbFileInput
           {
-              Id = message.Args["correlationId"]
+              Id = message.Args["id"]
           }
         };
 
@@ -187,7 +187,7 @@ class Program
         {
           var createdOcrRecord = await nocodb.CreateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", ocrRecord);
           ocrId = createdOcrRecord.Id;
-          Console.WriteLine($"Writing parsed transactions...{transactions.Count}");
+          Console.WriteLine($"Writing parsed transactions - {transactions.Count}");
         }
 
         else {
@@ -215,7 +215,7 @@ class Program
         string consumerTag = channel.BasicConsume("payobills.files", false, consumer);
 
         Console.WriteLine("Waiting on messages...");
-        Console.ReadLine();
+        while (true) { ; }
     }
 }
 /**
