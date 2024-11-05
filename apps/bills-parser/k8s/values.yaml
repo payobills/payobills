@@ -7,10 +7,10 @@ enableOpenTelemetry: false
 replicaCount: 1
 
 image:
-  repository: ghcr.io/payobills/apps/bills
+  repository: ghcr.io/payobills/apps/bills-parser
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2.13"
+  tag: "0.1.0"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -26,19 +26,14 @@ serviceAccount:
 
 pod:
   annotations: {}
-  volumes:
-  - name: bills-data
-    hostPath:
-      pathPrefix: data/bills-data
+  volumes: []
 
-  volumeMounts:
-  - mountPath: /data
-    name: bills-data
+  volumeMounts: []
 
   env:
-  - name: NOCO_DB_BASE_URL
+  - name: NocoDBOptions__BaseUrl
     value: ''
-  - name: NOCO_DB_XC_TOKEN
+  - name: NocoDBOptions__XCToken
     value: ''
   - name: NOCO_DB_PROJECT_ID
     value: ''

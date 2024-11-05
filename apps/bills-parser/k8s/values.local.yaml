@@ -2,16 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+enableOpenTelemetry: false
+
 replicaCount: 1
 
-enableOpenTelemetry: true
-
 image:
-  repository: mcr.microsoft.com/dotnet/sdk
+  repository: ghcr.io/payobills/apps/bills-parser
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "6.0"
-
+  tag: "0.1.0"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -25,32 +24,25 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-environment: LOCAL_DEVELOPMENT
-
 pod:
-  command: ["bash", "-c", "'dotnet run --no-launch-profile | tee /var/log/app.log'"]
   annotations: {}
-  volumes:
-    - name: code
-      hostPath:
-        pathPrefix: apps/bills/src
-    - name: bills-data
-      hostPath:
-        pathPrefix: data/bills-data
-  volumeMounts:
-    - mountPath: /app
-      name: code
-    - mountPath: /data
-      name: bills-data
+  volumes: []
+
+  volumeMounts: []
+
   env:
-    - name: ASPNETCORE_ENVIRONMENT
-      value: DEVELOPMENT
-    - name: BILLS_DB_PATH
-      value: /data/bills.sqlite
-    - name: BILLS_ALLOWED_ORIGINS
-      value: "http://ui"
-    - name: ASPNETCORE_URLS
-      value: "http://0.0.0.0:80"
+  - name: NocoDBOptions__BaseUrl
+    value: ''
+  - name: NocoDBOptions__XCToken
+    value: ''
+  - name: NOCO_DB_PROJECT_ID
+    value: ''
+  - name: NOCO_DB_TABLE_ID
+    value: ''
+  - name: EVENT_QUEUE_CONNECTION_STRING
+    value: ''
+  - name: EVENT_QUEUE_NAME
+    value: ''
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -64,25 +56,15 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: NodePort
+  name: bills
+  type: ClusterIP
   port: 80
-  nodePort: 30001
+
+flags:
+  rewrite: false
 
 ingress:
   enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -103,7 +85,8 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-nodeSelector: {}
+nodeSelector:
+  kubernetes.io/hostname: pi
 
 tolerations: []
 
