@@ -164,17 +164,25 @@
   {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
     <div class="recent-transaction">
       <div class="non-amount-details">
-        <span>{transaction.merchant}</span>
+        {#if transaction.merchant !== null}
+          <span>{transaction.merchant}</span>
+        {:else}
+          <span>Unknown</span>
+        {/if}
         <span class="paid-on"
           >{formatRelativeDate(new Date(transaction.backDate))}</span
         >
       </div>
-      <span
-        >{new Intl.NumberFormat(undefined, {
-          style: "currency",
-          currency: "INR",
-        }).format(transaction.amount)}</span
-      >
+      {#if transaction.amount !== null}
+        <span
+          >{new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: "INR",
+          }).format(transaction.amount)}</span
+        >
+      {:else}
+        <span>-</span>
+      {/if}
     </div>
   {/each}
 </div>

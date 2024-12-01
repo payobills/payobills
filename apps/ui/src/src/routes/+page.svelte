@@ -5,22 +5,24 @@
     import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
     import { get } from "svelte/store";
 
-    /** @type {import('./$types').PageData} */
-    export let data: any;
+    // /** @type {import('./$types').PageData} */
+    // export let data: any;
 
-    async function login() {
-        await goto(data.urls.loginUrl);
-    }
+    // async function login() {
+    //     // await goto(data.urls.loginUrl);
+    //     await goto("/timeline");
+    // }
 
     onMount(async () => {
-        loadAuthFromLocalStorage();
-        const authState = get(auth);
-        if (authState !== null) await goto("/timeline");
+        // loadAuthFromLocalStorage();
+        // const authState = get(auth);
+        // if (authState !== null)
+         await goto("/timeline");
     });
 </script>
 
 <div class="main">
-    <section class="intro">
+    <!-- <section class="intro">
         <h1>payobills</h1>
         <p>manage your finances like a pro</p>
     </section>
@@ -32,7 +34,7 @@
                 alt="Keycloak Logo"
             />
         </button>
-    </section>
+    </section> -->
 </div>
 
 <style>

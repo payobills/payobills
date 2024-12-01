@@ -6,13 +6,13 @@
   import { onMount } from "svelte";
   import { get } from "svelte/store";
 
-  onMount(async () => {
-    await goto("/timeline");
-    // Guard against going to other pages without login
-    // loadAuthFromLocalStorage();
-    // const authState = get(auth);
-    // if (authState == null) await goto("/timeline");
-  });
+  // onMount(async () => {
+    
+  //   // Guard against going to other pages without login
+  //   // loadAuthFromLocalStorage();
+  //   // const authState = get(auth);
+  //   // if (authState == null) await goto("/timeline");
+  // });
 
   function randomNotification () {
     Notification.requestPermission().then((result) => {
@@ -33,7 +33,6 @@
 <Nav />
 <!-- <button on:click={randomNotification}>Notification</button> -->
 <main>
-
   <slot />
 </main>
 
