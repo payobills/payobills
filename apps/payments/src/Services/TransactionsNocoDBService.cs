@@ -28,7 +28,7 @@ public class TransactionsNocoDBService : ITransactionsService
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
-            "w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)&sort=-BackDate"
+            "w=(BackDate,isnotblank)&sort=-BackDate"
         );
 
         return mapper.Map<List<TransactionDTO>>(page?.List ?? []);
