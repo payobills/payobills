@@ -54,11 +54,13 @@ public class NocoDBClientService
     return recordsPage;
   }
 
-  public async Task<T?> GetRecordByIdAsync<T>(string id, string baseName, string table, string fields)
+  public async Task<T?> GetRecordByIdAsync<T>(string id, string baseName, string table, string fields, string extraArgs = "")
   {
+    var extraArgsToPassInUrl = !String.IsNullOrEmpty(extraArgs) ? $"&{extraArgs}" : String.Empty;
+    var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}/{id}?fields={fields}{extraArgsToPassInUrl}";
     using var request = new HttpRequestMessage(
       HttpMethod.Get,
-      $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}/{id}?fields={fields}"
+      url
     );
 
     request.Headers.Add("xc-token", nocoDBOptions.XCToken);
@@ -68,7 +70,7 @@ public class NocoDBClientService
     if (response.StatusCode == HttpStatusCode.NotFound)
     {
       // Return default value - null for 404 response
-      return default(T);
+      return default;
     }
 
     var responseStream = await response.Content.ReadAsStreamAsync();

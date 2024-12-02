@@ -8,4 +8,5 @@ public interface ITransactionsService
 {
   Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> order);
   Task<IEnumerable<TransactionDTO>> GetTransactionsByYearAndMonthAsync(int year, int month);
+  Task<TransactionDTO> GetTransactionByIDAsync(string id);
 }

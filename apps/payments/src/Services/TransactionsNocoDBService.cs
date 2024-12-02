@@ -46,4 +46,17 @@ public class TransactionsNocoDBService : ITransactionsService
         var transactions = (page?.List ?? []).Select(p => new TransactionDTO(p) { BackDateString = string.Empty });
         return transactions;
     }
+
+    public async Task<TransactionDTO> GetTransactionByIDAsync(string id)
+    {
+        var transaction = await nocoDBClientService.GetRecordByIdAsync<Transaction>(
+            id,
+            "payobills",
+            "transactions",
+            TRANSACTIONS_NOCODB_FIELDS,
+            "w=(BackDate,isnotblank)&sort=-BackDate"
+        );
+
+        return mapper.Map<TransactionDTO>(transaction);
+    }
 }
