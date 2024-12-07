@@ -11,6 +11,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
            Currency = parent.Currency;
            Amount = parent.Amount;
            BackDateString = parent.BackDateString;
+           TransactionText = parent.TransactionText;
            BackDate = parent.BackDate;
            CreatedAt = parent.CreatedAt;
            UpdatedAt = parent.UpdatedAt;
