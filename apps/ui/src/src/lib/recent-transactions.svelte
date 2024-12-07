@@ -162,32 +162,38 @@
   {/if}
 
   {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
+  <a class='transaction-card' href={`/transaction/${transaction.id}`}>
     <div class="recent-transaction">
-      <div class="non-amount-details">
-        {#if transaction.merchant !== null}
-          <span>{transaction.merchant}</span>
+        <div class="non-amount-details">
+          {#if transaction.merchant !== null}
+            <span>{transaction.merchant}</span>
+          {:else}
+            <span>Unknown</span>
+          {/if}
+          <span class="paid-on"
+            >{formatRelativeDate(new Date(transaction.backDate))}</span
+          >
+        </div>
+        {#if transaction.amount !== null}
+          <span
+            >{new Intl.NumberFormat(undefined, {
+              style: "currency",
+              currency: "INR",
+            }).format(transaction.amount)}</span
+          >
         {:else}
-          <span>Unknown</span>
+          <span>-</span>
         {/if}
-        <span class="paid-on"
-          >{formatRelativeDate(new Date(transaction.backDate))}</span
-        >
       </div>
-      {#if transaction.amount !== null}
-        <span
-          >{new Intl.NumberFormat(undefined, {
-            style: "currency",
-            currency: "INR",
-          }).format(transaction.amount)}</span
-        >
-      {:else}
-        <span>-</span>
-      {/if}
-    </div>
+    </a>
   {/each}
 </div>
 
 <style>
+  .transaction-card {
+    all: unset;
+  }
+
   .container {
     padding: 1rem;
     background-color: var(--primary-bg-color);
