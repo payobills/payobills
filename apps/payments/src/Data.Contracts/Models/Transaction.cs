@@ -10,7 +10,7 @@ public class Transaction
     public double? Amount { get; set; }
 
     public string TransactionText { get; set; } = string.Empty;
-    public required string BackDateString { get; set; }
+    public string BackDateString { get; set; } = string.Empty;
     public DateTime? BackDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

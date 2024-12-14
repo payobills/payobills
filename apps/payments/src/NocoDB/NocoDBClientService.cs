@@ -106,4 +106,33 @@ public class NocoDBClientService
 
     return createdRecord!;
   }
+
+  public async Task<TOutput> UpdateRecordAsync<TInput, TOutput>(string id, string baseName, string table, TInput payload)
+  {
+    using var jsonStream = new MemoryStream();
+    await JsonSerializer.SerializeAsync(jsonStream, payload);
+    jsonStream.Seek(0, SeekOrigin.Begin); 
+
+    using var contentStream = new StreamContent(jsonStream);
+    contentStream.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+    using var request = new HttpRequestMessage(
+      HttpMethod.Patch,
+      $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}/{id}"
+    )
+    {
+      Content = contentStream
+    };
+
+    request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+
+    var response = await httpClient.SendAsync(request);
+    var responseStream = await response.Content.ReadAsStreamAsync();
+
+    JsonSerializerOptions options = new();
+    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    var updatedRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
+
+    return updatedRecord!;
+  }
 }

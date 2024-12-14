@@ -59,4 +59,16 @@ public class TransactionsNocoDBService : ITransactionsService
 
         return mapper.Map<TransactionDTO>(transaction);
     }
+
+    public async Task<TransactionDTO> SetTransactionTags(string id, string tags)
+    {
+       var updatedTransaction = await nocoDBClientService.UpdateRecordAsync<TransactionTagUpdateDTO, Transaction>(
+            id,
+            "payobills",
+            "transactions",
+            new TransactionTagUpdateDTO { Tags = tags }
+        );
+
+        return mapper.Map<TransactionDTO>(updatedTransaction);
+    }
 }

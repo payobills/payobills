@@ -41,6 +41,7 @@ builder.Services
   .AddGraphQLServer()
   .AddSorting()
   .AddQueryType<Query>()
+  .AddMutationType<Mutation>()
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
   .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>();
 
