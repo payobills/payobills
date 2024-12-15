@@ -2,11 +2,11 @@ use chrono::{format, DateTime};
 use clap::{builder::TypedValueParser, Parser};
 use regex::Regex;
 use reqwest::header::HeaderMap;
+use serde::{Serialize as SerializeImpl, Serializer};
 use serde_derive::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::{error::Error, str::FromStr};
 use tokio;
-use std::collections::HashMap;
-use serde::{Serialize as SerializeImpl, Serializer};
 
 #[derive(Serialize, Deserialize)]
 struct PageInfo {
@@ -57,7 +57,7 @@ struct Transaction {
     id: i32,
     #[serde(rename = "CreatedAt")]
     created_at: Option<String>,
-    bills: Bill,
+    bills: Option<Bill>,
     #[serde(rename = "BackDateString")]
     back_date_string: Option<String>,
     #[serde(rename = "UpdatedAt")]
@@ -76,7 +76,7 @@ struct Transaction {
 enum Value {
     // Int(i32),
     F64(f64),
-    Str(String)
+    Str(String),
 }
 
 impl SerializeImpl for Value {
@@ -93,11 +93,15 @@ impl SerializeImpl for Value {
 }
 
 // Function to parse the transaction text for AMEX transactions
-async fn parse_transaction(record: Transaction, base_name: String, table_name: String) -> Result<(), Box<dyn std::error::Error>> {
+async fn parse_transaction(
+    record: Transaction,
+    base_name: String,
+    table_name: String,
+) -> Result<(), Box<dyn std::error::Error>> {
     let token =
         std::env::var("NOCODB_INTEGRATION_TOKEN").expect("NOCODB_INTEGRATION_TOKEN must be set");
-        
-    let mut parsed_date_string:String = String::new();
+
+    let mut parsed_date_string: String = String::new();
 
     let mut changes: HashMap<String, Value> = HashMap::new();
     let format = "%a, %d %b %Y %H:%M:%S %z";
@@ -107,13 +111,13 @@ async fn parse_transaction(record: Transaction, base_name: String, table_name: S
         Ok(date) => {
             println!("Parsed date: {:?}", date);
             parsed_date_string = date.clone().to_rfc3339();
-        },
+        }
         Err(_) => {
             match DateTime::parse_from_rfc3339(record.back_date_string.clone().unwrap().as_str()) {
                 Ok(date) => {
                     println!("Parsed date: {:?}", date);
                     parsed_date_string = date.clone().to_rfc3339();
-                },
+                }
                 Err(_) => {
                     // return Err("Could not parse date".into());
                 }
@@ -123,97 +127,158 @@ async fn parse_transaction(record: Transaction, base_name: String, table_name: S
 
     changes.insert("BackDate".to_string(), Value::Str(parsed_date_string));
 
-    if record.bills.name.to_string() == String::from("AMEX") {
-    let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on")
+    if record.bills.as_ref().unwrap().name.to_string() == String::from("AMEX") {
+        let re = Regex::new(
+            r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",
+        )
         .unwrap();
-    if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
+        if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
+            let amount = caps
+                .get(3)
+                .unwrap()
+                .as_str()
+                .trim()
+                .to_string()
+                .replace(',', "");
 
-        let amount = caps.get(3).unwrap().as_str().trim().to_string().replace(',', "");
-
-        changes.insert("Merchant".to_string(), Value::Str(caps.get(4).unwrap().as_str().trim().to_string()));
-        changes.insert("Currency".to_string(), Value::Str(caps.get(2).unwrap().as_str().trim().to_string()));
-        changes.insert("Amount".to_string(), Value::F64(amount.parse::<f64>().unwrap()));
-        changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
-
-    }
-    else {
-        changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
-    }
-}
-
-else if record.bills.name.to_string() == String::from("SB Account") {
-    // println!("trying to parse SB");
-    // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
-    let re = Regex::new(r"Dear UPI user A/C X6902 debited by (\d+\.\d+) on date .* trf to ([\s\w]*) Refno .*")
+            changes.insert(
+                "Merchant".to_string(),
+                Value::Str(caps.get(4).unwrap().as_str().trim().to_string()),
+            );
+            changes.insert(
+                "Currency".to_string(),
+                Value::Str(caps.get(2).unwrap().as_str().trim().to_string()),
+            );
+            changes.insert(
+                "Amount".to_string(),
+                Value::F64(amount.parse::<f64>().unwrap()),
+            );
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("ParsedV1".to_string()),
+            );
+        } else {
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("FailedV1".to_string()),
+            );
+        }
+    } else if record.bills.as_ref().unwrap().name.to_string() == String::from("SB Account") {
+        // println!("trying to parse SB");
+        // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
+        let re = Regex::new(
+            r"Dear UPI user A/C X6902 debited by (\d+\.\d+) on date .* trf to ([\s\w]*) Refno .*",
+        )
         .unwrap();
-    if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-
-        // changes.insert("Merchant".to_string(), Value::Str("".to_string()));
-        changes.insert("Merchant".to_string(), Value::Str(caps.get(2).unwrap().as_str().trim().to_string()));
-        changes.insert("Currency".to_string(), Value::Str("INR".to_string()));
-        changes.insert("Amount".to_string(), Value::F64(caps.get(1).unwrap().as_str().trim().to_string().parse::<f64>().unwrap()));
-        changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
-    }
-    else {
-            
-        changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
-    }
-}
-else  if record.bills.name.to_string() == String::from("Test Bill") {
-    println!("Parsing for test bill");
-    let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on")
+        if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
+            // changes.insert("Merchant".to_string(), Value::Str("".to_string()));
+            changes.insert(
+                "Merchant".to_string(),
+                Value::Str(caps.get(2).unwrap().as_str().trim().to_string()),
+            );
+            changes.insert("Currency".to_string(), Value::Str("INR".to_string()));
+            changes.insert(
+                "Amount".to_string(),
+                Value::F64(
+                    caps.get(1)
+                        .unwrap()
+                        .as_str()
+                        .trim()
+                        .to_string()
+                        .parse::<f64>()
+                        .unwrap(),
+                ),
+            );
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("ParsedV1".to_string()),
+            );
+        } else {
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("FailedV1".to_string()),
+            );
+        }
+    } else if record.bills.unwrap().name.to_string() == String::from("Test Bill") {
+        println!("Parsing for test bill");
+        let re = Regex::new(
+            r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",
+        )
         .unwrap();
-    if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-        println!("captured details");
-        let amount = caps.get(3).unwrap().as_str().trim().to_string().replace(',', "");
+        if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
+            println!("captured details");
+            let amount = caps
+                .get(3)
+                .unwrap()
+                .as_str()
+                .trim()
+                .to_string()
+                .replace(',', "");
 
-        changes.insert("Merchant".to_string(), Value::Str(caps.get(4).unwrap().as_str().trim().to_string()));
-        changes.insert("Currency".to_string(), Value::Str(caps.get(2).unwrap().as_str().trim().to_string()));
-        changes.insert("Amount".to_string(), Value::F64(amount.parse::<f64>().unwrap()));
-        changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
-
-    }
-    else {
-        changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
-    }
-}
-
-else {
-    changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
-}
-
-        // match serde_json::to_string(&changes) {
-        //     Ok(json_str) => {
-        //         // Print the `curl` command with the serialized JSON data.
-        //         println!("curl --location -X PATCH 'http://NOCODB_BASE_URL/api/v1/db/data/nc/payobills/transactions/{}' --header 'xc-token: {}' --header 'Content-Type: application/json' --data '{}'", record.id, token,json_str);
-        //     },
-        //     Err(e) => {
-        //         println!("Error serializing changes: {:?}", e);
-        //     },
-        // }
-
-        let mut map = HeaderMap::new();
-        map.insert("xc-token", token.parse().unwrap());
-        map.insert("Content-Type", "application/json".to_string().as_str().parse().unwrap());
-
-        let nocodb_base_url = std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
-        let url: String = format!(
-            "{}/api/v1/db/data/nc/{}/{}/{}",
-            nocodb_base_url, base_name, table_name,record.id
+            changes.insert(
+                "Merchant".to_string(),
+                Value::Str(caps.get(4).unwrap().as_str().trim().to_string()),
+            );
+            changes.insert(
+                "Currency".to_string(),
+                Value::Str(caps.get(2).unwrap().as_str().trim().to_string()),
+            );
+            changes.insert(
+                "Amount".to_string(),
+                Value::F64(amount.parse::<f64>().unwrap()),
+            );
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("ParsedV1".to_string()),
+            );
+        } else {
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("FailedV1".to_string()),
+            );
+        }
+    } else {
+        changes.insert(
+            "ParseStatus".to_string(),
+            Value::Str("FailedV1".to_string()),
         );
+    }
 
-        // let response: NocoBDResponse
-        let response = reqwest::Client::new()
-            .patch(url)
-            .body(serde_json::to_string(&changes)?)
-            .headers(map)
-            .send()
-            .await?
-            .text()
-            .await?;
+    // match serde_json::to_string(&changes) {
+    //     Ok(json_str) => {
+    //         // Print the `curl` command with the serialized JSON data.
+    //         println!("curl --location -X PATCH 'http://NOCODB_BASE_URL/api/v1/db/data/nc/payobills/transactions/{}' --header 'xc-token: {}' --header 'Content-Type: application/json' --data '{}'", record.id, token,json_str);
+    //     },
+    //     Err(e) => {
+    //         println!("Error serializing changes: {:?}", e);
+    //     },
+    // }
 
-        println!("parse update resp {:?}", response);
-        Ok(())
+    let mut map = HeaderMap::new();
+    map.insert("xc-token", token.parse().unwrap());
+    map.insert(
+        "Content-Type",
+        "application/json".to_string().as_str().parse().unwrap(),
+    );
+
+    let nocodb_base_url = std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
+    let url: String = format!(
+        "{}/api/v1/db/data/nc/{}/{}/{}",
+        nocodb_base_url, base_name, table_name, record.id
+    );
+
+    // let response: NocoBDResponse
+    let response = reqwest::Client::new()
+        .patch(url)
+        .body(serde_json::to_string(&changes)?)
+        .headers(map)
+        .send()
+        .await?
+        .text()
+        .await?;
+
+    println!("parse update resp {:?}", response);
+    Ok(())
 }
 
 // Function to process the CSV transactions
@@ -228,10 +293,13 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
         let mut map = HeaderMap::new();
         map.insert("xc-token", token.parse().unwrap());
 
-        let nocodb_base_url = std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
+        let nocodb_base_url =
+            std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
         let url: String = format!(
             "{}/api/v1/db/data/nc/{}/{}?w=(ParseStatus,eq,NotStarted)&l=1000&fields=*",
-            nocodb_base_url, base_name.clone(), table_name.clone()
+            nocodb_base_url,
+            base_name.clone(),
+            table_name.clone()
         );
 
         println!("{}", url.clone());
@@ -244,15 +312,21 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
             .await?
             .json::<NocoBDResponse>()
             .await?;
-        
+
         println!("retrieved transactions to parse");
         // println!("{}", serde_json::to_string(&response)?);
         // parse_more = !response.page_info.is_last_page;
         // println!("parse_more: {}", parse_more);
         // offset = offset + response.page_info.page_size;
 
+        // Parse transactions only if it is attached to a bill
         for transaction in response.list {
-            parse_transaction(transaction, base_name.clone(), table_name.clone()).await?
+            match transaction.bills {
+                Some(_) => {
+                    parse_transaction(transaction.clone(), base_name.clone(), table_name.clone()).await?
+                }
+                None => {}
+            }
         }
 
         parse_more = false;
