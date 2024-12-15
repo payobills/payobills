@@ -6,6 +6,7 @@ using Payobills.Payments.Services.Contracts;
 using Payobills.Payments.NocoDB;
 using HotChocolate.Data.Sorting;
 using Payobills.Payments.Services.Contracts.DTOs;
+using System.Net.WebSockets;
 
 namespace Payobills.Payments.Services;
 
@@ -62,13 +63,34 @@ public class TransactionsNocoDBService : ITransactionsService
 
     public async Task<TransactionDTO> SetTransactionTags(string id, string tags)
     {
-       var updatedTransaction = await nocoDBClientService.UpdateRecordAsync<TransactionTagUpdateDTO, Transaction>(
-            id,
-            "payobills",
-            "transactions",
-            new TransactionTagUpdateDTO { Tags = tags }
-        );
+        var updatedTransaction = await nocoDBClientService.UpdateRecordAsync<TransactionTagUpdateDTO, Transaction>(
+             id,
+             "payobills",
+             "transactions",
+             new TransactionTagUpdateDTO { Tags = tags }
+         );
 
         return mapper.Map<TransactionDTO>(updatedTransaction);
+    }
+
+    public async Task<IEnumerable<TransactionTagDTO>> GetTransactionTagsAsync()
+    {
+        // TODO: Paginate over projects to search as NocoDB Meta APIs don't have project search API
+        var getProjectsMetaUrl = "api/v1/db/meta/projects/";
+        var projects = await nocoDBClientService.GetMetaResourceDataAsync<NocoDBPage<NocoDBMetaResourceIdWithTitle>>(getProjectsMetaUrl);
+        var projectId = projects.List.Where(p => p.Title == "payobills").FirstOrDefault()?.Id ??
+        throw new Exception("Could not find project");
+
+        var getTablesMetaUrl = $"api/v1/db/meta/projects/{projectId}/tables";
+        var tables = await nocoDBClientService.GetMetaResourceDataAsync<NocoDBPage<NocoDBMetaResourceIdWithTitle>>(getTablesMetaUrl);
+        var tableId = tables.List.Where(p => p.Title == "transactions").FirstOrDefault()?.Id ??
+        throw new Exception("Could not find table");
+
+        var getTableDataMetaUrl = $"api/v1/db/meta/tables/{tableId}";
+        var tableData = await nocoDBClientService.GetMetaResourceDataAsync<NocoDBTable>(getTableDataMetaUrl);
+        var tagsColumn = tableData?.Columns.Where(c => c.Title == "Tags").FirstOrDefault() ?? throw new Exception("Could not find tags column");
+        var tags = tagsColumn.ColOptions.Deserialize<NocoDBColOptions>()?.Options ?? [];
+
+        return tags.Select(t => new TransactionTagDTO { Id = t.Id, Title = t.Title });
     }
 }

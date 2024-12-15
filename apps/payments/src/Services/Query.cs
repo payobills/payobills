@@ -21,4 +21,7 @@ public class Query
   [UseSorting]
   public async Task<IEnumerable<TransactionDTO>> TransactionsByYearAndMonth([Service] ITransactionsService transactionsService, int year, int month)
     => await transactionsService.GetTransactionsByYearAndMonthAsync(year, month);
+
+  public async Task<IEnumerable<TransactionTagDTO>> TransactionTags([Service] ITransactionsService transactionsService)
+    => await transactionsService.GetTransactionTagsAsync();
 }

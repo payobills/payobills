@@ -135,4 +135,29 @@ public class NocoDBClientService
 
     return updatedRecord!;
   }
+
+  public async Task<TOutput> GetMetaResourceDataAsync<TOutput>(string metaUrl)
+  {
+    using var request = new HttpRequestMessage(
+      HttpMethod.Get,
+      $"{nocoDBOptions.BaseUrl}/{metaUrl}"
+    );
+
+    request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+    var response = await httpClient.SendAsync(request);
+
+    // Note: Kept for easy logging when debugging
+    // var responseText = await response.Content.ReadAsStringAsync();
+    // Console.WriteLine(responseText);
+    // JsonSerializerOptions options = new JsonSerializerOptions();
+    // options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    // var metaResourceData = JsonSerializer.Deserialize<TOutput>(responseText, options);
+    // return metaResourceData!;
+
+    var responseStream = await response.Content.ReadAsStreamAsync();
+    JsonSerializerOptions options = new JsonSerializerOptions();
+    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    var metaResourceData = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
+    return metaResourceData!;
+  }
 }
