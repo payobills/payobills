@@ -53,7 +53,7 @@
             }).format($transactionsQuery.data.transactionByID.amount)}</span
           >
         {:else}
-          <span>Unknown amount</span>
+          <span class="value">Unknown Amount</span>
         {/if}
       </div>
       <div class="transaction-detail">
@@ -71,10 +71,11 @@
     </section>
     <section class="content">
       {#if $transactionsQuery.data.transactionByID.merchant !== null}
-        <h1>Merchant</h1>
+        <h1>Recipient</h1>
         <h2>{$transactionsQuery.data.transactionByID.merchant}</h2>
       {:else}
-        <h1>Unknown Merchant</h1>
+        <h1>Recipient</h1>
+        <h2>Unknown</h2>
       {/if}
 
       {#if $transactionsQuery.data.transactionByID.transactionText !== ""}
@@ -101,7 +102,7 @@
   }
 
   .transaction-detail {
-    font-size: 1rem;
+    font-size: .75rem;
     font-weight: 400;
     margin: 1rem auto;
   }
@@ -119,6 +120,8 @@
     flex-grow: 1;
     margin: 0;
   }
+
+  h2{font-size: 1rem;}
 
   .amount {
     margin: 1rem 0;
