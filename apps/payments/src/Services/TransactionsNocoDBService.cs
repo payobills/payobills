@@ -44,7 +44,11 @@ public class TransactionsNocoDBService : ITransactionsService
             $"l=1000&w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)~and(BackDateYear,eq,{year})~and(BackDateMonth,eq,{month})&sort=-BackDate"
         );
 
-        var transactions = (page?.List ?? []).Select(p => new TransactionDTO(p) { BackDateString = string.Empty });
+        var transactions = (page?.List ?? []).Select(p => new TransactionDTO(p)
+        {
+            BackDateString = string.Empty,
+            Notes = p.Notes
+        });
         return transactions;
     }
 
