@@ -59,10 +59,10 @@ public class TransactionsNocoDBService : ITransactionsService
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
-            "w=(BackDate,isnotblank)&sort=-BackDate"
+            "w=(BackDate,isnotblank)"
         );
 
-        return mapper.Map<TransactionDTO>(transaction);
+        return new TransactionDTO(transaction!) { Notes = transaction!.Notes };
     }
 
     public async Task<TransactionDTO> SetTransactionTags(string id, string tags)

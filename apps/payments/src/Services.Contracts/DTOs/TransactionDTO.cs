@@ -16,6 +16,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
            CreatedAt = parent.CreatedAt;
            UpdatedAt = parent.UpdatedAt;
            Tags = parent.Tags.Split(",");
+           Notes = parent.Notes;
         }
 
         public new IEnumerable<string> Tags { get => base.Tags?.Split(',') ?? []; set => base.Tags = string.Join(',', value); }
