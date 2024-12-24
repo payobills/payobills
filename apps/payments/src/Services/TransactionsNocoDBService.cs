@@ -59,10 +59,10 @@ public class TransactionsNocoDBService : ITransactionsService
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
-            "w=(BackDate,isnotblank)&sort=-BackDate"
+            "w=(BackDate,isnotblank)"
         );
 
-        return mapper.Map<TransactionDTO>(transaction);
+        return new TransactionDTO(transaction!) { Notes = transaction!.Notes };
     }
 
     public async Task<TransactionDTO> SetTransactionTags(string id, string tags)
@@ -96,5 +96,23 @@ public class TransactionsNocoDBService : ITransactionsService
         var tags = tagsColumn.ColOptions.Deserialize<NocoDBColOptions>()?.Options ?? [];
 
         return tags.Select(t => new TransactionTagDTO { Id = t.Id, Title = t.Title });
+    }
+
+    public async Task<TransactionDTO> UpdateTransactionAsync(string id, TransactionUpdateDTO updateDTO)
+    {
+        var payloadSerializeOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
+        };
+
+        var transactionUpdateResult = await nocoDBClientService.UpdateRecordAsync<TransactionUpdateDTO, Transaction>(
+            id,
+            "payobills",
+            "transactions",
+            updateDTO,
+            payloadSerializeOptions);
+
+        var mappedTransactionDTO = new TransactionDTO(transactionUpdateResult);
+        return mappedTransactionDTO;
     }
 }
