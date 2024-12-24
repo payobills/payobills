@@ -97,4 +97,22 @@ public class TransactionsNocoDBService : ITransactionsService
 
         return tags.Select(t => new TransactionTagDTO { Id = t.Id, Title = t.Title });
     }
+
+    public async Task<TransactionDTO> UpdateTransactionAsync(string id, TransactionUpdateDTO updateDTO)
+    {
+        var payloadSerializeOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault
+        };
+
+        var transactionUpdateResult = await nocoDBClientService.UpdateRecordAsync<TransactionUpdateDTO, Transaction>(
+            id,
+            "payobills",
+            "transactions",
+            updateDTO,
+            payloadSerializeOptions);
+
+        var mappedTransactionDTO = new TransactionDTO(transactionUpdateResult);
+        return mappedTransactionDTO;
+    }
 }

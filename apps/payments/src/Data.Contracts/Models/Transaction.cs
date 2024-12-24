@@ -9,7 +9,7 @@ public class Transaction
     public string? Currency { get; set; }
     public double? Amount { get; set; }
 
-    public required string Notes { get { return notes; } set { notes = value ?? string.Empty; } }
+    public string Notes { get { return notes; } set { notes = value ?? string.Empty; } }
     private string notes = string.Empty;
     public string TransactionText { get; set; } = string.Empty;
     public string BackDateString { get; set; } = string.Empty;

@@ -107,7 +107,7 @@ public class NocoDBClientService
     return createdRecord!;
   }
 
-  public async Task<TOutput> UpdateRecordAsync<TInput, TOutput>(string id, string baseName, string table, TInput payload)
+  public async Task<TOutput> UpdateRecordAsync<TInput, TOutput>(string id, string baseName, string table, TInput payload, JsonSerializerOptions? jsonSerializerOptions = default)
   {
     using var jsonStream = new MemoryStream();
     await JsonSerializer.SerializeAsync(jsonStream, payload);
@@ -129,7 +129,7 @@ public class NocoDBClientService
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
 
-    JsonSerializerOptions options = new();
+    JsonSerializerOptions options = jsonSerializerOptions ?? new();
     options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
     var updatedRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
 
