@@ -173,13 +173,11 @@
       <!-- REGION: EDIT -->
     {:else}
       <section class="title title__edit">
-        {#if $transactionForm.data?.amount !== null}
           <input
             class="amount amount__edit"
             placeholder="Unknown Amount"
             bind:value={$transactionForm.data.amount}
           />
-        {/if}
         <div class="transaction-detail">
           {formatRelativeDate(new Date(transaction.backDate))} • {new Intl.DateTimeFormat(
             "en-GB",
