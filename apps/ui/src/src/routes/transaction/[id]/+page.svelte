@@ -9,7 +9,8 @@
     faPencil,
   } from "@fortawesome/free-solid-svg-icons";
 
-  import { queryStore, gql } from "@urql/svelte";
+  import { queryStore, gql, mutationStore } from "@urql/svelte";
+  import type { OperationResultStore } from "@urql/svelte";
   import { onMount } from "svelte";
   import { Icon } from "svelte-awesome";
   import { formatRelativeDate } from "../../../utils/format-relative-date";
@@ -19,58 +20,100 @@
   import type { Transaction } from "$lib/types/transaction";
 
   let transactionID: string | null = null;
-  let transactionForm: Writable<FormStore<Transaction>>;
-
   let pageMode: "VIEW" | "EDIT" = "VIEW";
+  let transaction: any;
+  let transactionsQuery: OperationResultStore;
+  let transactionForm: Writable<FormStore<Transaction>> =
+    formStoreGenerator("transactionById");
 
   onMount(() => {
     let path = window.location.pathname;
     transactionID = path.split("/")[2];
-    transactionForm = formStoreGenerator("transactionById");
-  });
-
-  $: transactionsQuery = queryStore({
-    client: $paymentsUrql,
-    variables: { id: transactionID },
-    query: gql`
-      query ($id: String!) {
-        transactionByID(id: $id) {
-          id
-          amount
-          merchant
-          backDate
-          transactionText
-          tags
-          notes
+    transactionsQuery = queryStore({
+      client: $paymentsUrql,
+      variables: { id: transactionID },
+      query: gql`
+        query ($id: String!) {
+          transactionByID(id: $id) {
+            id
+            amount
+            merchant
+            backDate
+            transactionText
+            tags
+            notes
+          }
         }
-      }
-    `,
+      `,
+    });
+
+    transactionsQuery.subscribe((res) => {
+      if (!res.data) return;
+      transaction = res.data?.transactionByID;
+      transactionForm.set({
+        data: {
+          amount: res.data.transactionByID.amount,
+          merchant: res.data.transactionByID.merchant,
+          notes: res.data.transactionByID.notes,
+        },
+        isDirty: false,
+      });
+    });
   });
 
-  $: {
-    if ($transactionsQuery?.data?.transactionByID)
-      {
-        console.log('updated transcation form store')
-        transactionForm.set({data: $transactionsQuery.data.transactionByID, isDirty: false});
-      }
-  }
+  const updateTransaction = () => {
+    const updateTransactionOp = mutationStore({
+      client: $paymentsUrql,
+      variables: {
+        id: transactionID,
+        updateDTO: {
+          ...$transactionForm.data,
+          amount: +$transactionForm.data.amount,
+        },
+      },
+      query: gql`
+        mutation TransactionUpdate(
+          $id: String!
+          $updateDTO: TransactionUpdateDTOInput!
+        ) {
+          transactionUpdate(id: $id, updateDTO: $updateDTO) {
+            currency
+            id
+            amount
+            transactionText
+            tags
+            merchant
+          }
+        }
+      `,
+    });
+
+    updateTransactionOp.subscribe(() => {
+      pageMode = "VIEW";
+      transaction = {
+        ...transaction,
+        ...$transactionForm.data,
+        amount: +$transactionForm.data.amount,
+      };
+    });
+  };
 </script>
 
-{#if $transactionsQuery.fetching}
+{#if ($transactionsQuery === undefined || $transactionsQuery.fetching) && !transaction}
   <p>Loading...</p>
 {:else if $transactionsQuery.error}
   <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
-{:else}
+{:else if transaction}
   <div class="transaction">
     {#if pageMode === "VIEW"}
       <section class="title">
         <div class="amount">
-          {#if $transactionsQuery.data.transactionByID.amount !== null}
+          {#if transaction.amount !== null}
             <span class="value"
               >{new Intl.NumberFormat(undefined, {
                 style: "currency",
                 currency: "INR",
-              }).format($transactionsQuery.data.transactionByID.amount)}</span
+              }).format(transaction.amount)}</span
             >
           {:else}
             <span class="value">Unknown Amount</span>
@@ -85,45 +128,46 @@
           />
         </div>
         <div class="transaction-detail">
-          {formatRelativeDate(
-            new Date($transactionsQuery.data.transactionByID.backDate)
-          )} • {new Intl.DateTimeFormat("en-GB", {
-            year: "2-digit",
-            month: "long",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          }).format(new Date($transactionsQuery.data.transactionByID.backDate))}
+          {formatRelativeDate(new Date(transaction.backDate))} • {new Intl.DateTimeFormat(
+            "en-GB",
+            {
+              year: "2-digit",
+              month: "long",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }
+          ).format(new Date(transaction.backDate))}
         </div>
       </section>
       <section class="content">
-        {#if $transactionsQuery.data.transactionByID.merchant !== null}
-          <h1>Recipient</h1>
-          <h2>{$transactionsQuery.data.transactionByID.merchant}</h2>
-        {:else}
-          <h1>Recipient</h1>
-          <h2>Unknown</h2>
-        {/if}
+        <h1>Recipient</h1>
+        <h2>{transaction.merchant ?? "Unknown"}</h2>
 
-        {#if $transactionsQuery.data.transactionByID.transactionText !== ""}
+        {#if transaction.transactionText !== ""}
           <h1 class="subheader">Original Transaction Detail</h1>
           <div class="transaction-detail">
-            {$transactionsQuery.data.transactionByID.transactionText}
+            {transaction.transactionText}
           </div>
         {/if}
 
         <h1 class="subheader">Tags</h1>
-        <div class="tags">
-          {#each $transactionsQuery.data.transactionByID.tags as tag}
-            <div class="tag">{tag}</div>
-          {/each}
+        <div class="tags_description">
+          This transaction doesn't have any tags.
         </div>
+        <!-- {#if transaction.tags?.length === 0}
+        {:else}
+          <div class="tags">
+            {#each transaction.tags as tag}
+              <div class="tag">{tag}</div>
+            {/each}
+          </div>
+        {/if} -->
 
         <h1 class="subheader">Notes</h1>
         <p class="note note__view">
-          {$transactionsQuery.data.transactionByID.notes ||
-            "This transaction doesn't have a note."}
+          {transaction.notes || "This transaction doesn't have a note."}
         </p>
       </section>
       <!-- REGION: EDIT -->
@@ -133,45 +177,56 @@
           <input
             class="amount amount__edit"
             placeholder="Unknown Amount"
-            bind:value={($transactionForm.data as Transaction).amount}
+            bind:value={$transactionForm.data.amount}
           />
         {/if}
         <div class="transaction-detail">
-          {formatRelativeDate(
-            new Date($transactionsQuery.data.transactionByID.backDate)
-          )} • {new Intl.DateTimeFormat("en-GB", {
-            year: "2-digit",
-            month: "long",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          }).format(new Date($transactionsQuery.data.transactionByID.backDate))}
+          {formatRelativeDate(new Date(transaction.backDate))} • {new Intl.DateTimeFormat(
+            "en-GB",
+            {
+              year: "2-digit",
+              month: "long",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }
+          ).format(new Date(transaction.backDate))}
         </div>
       </section>
       <section class="content">
         <h1>Recipient</h1>
-        <input bind:value={($transactionForm.data as Transaction).merchant} />
+        <input
+          class="merchant merchant__edit"
+          bind:value={$transactionForm.data.merchant}
+        />
 
         <h1 class="subheader">Original Transaction Detail</h1>
         <div class="transaction-detail">
-          {$transactionsQuery.data.transactionByID.transactionText}
+          {transaction.transactionText}
         </div>
 
         <h1 class="subheader">Tags</h1>
-        <div class="tags">
-          {#each $transactionsQuery.data.transactionByID.tags as tag}
-            <div class="tag">{tag}</div>
-          {/each}
-        </div>
+        {#if transaction.tags?.length === 0}
+          <div class="tags_description">
+            This transaction doesn't have any tags.
+          </div>
+        {:else}
+          <div class="tags">
+            {#each transaction.tags as tag}
+              <div class="tag">{tag}</div>
+            {/each}
+          </div>
+        {/if}
 
         <h1 class="subheader">Notes</h1>
         <textarea
           class="note note__edit"
-          value={$transactionsQuery.data.transactionByID.notes}
+          bind:value={$transactionForm.data.notes}
           placeholder="This transaction doesn't have a note. Click here to add one."
         ></textarea>
-        <button class="submit">save</button>
+        <button class="submit" on:click={() => updateTransaction()}>save</button
+        >
         <button class="submit" on:click={() => (pageMode = "VIEW")}
           >cancel</button
         >
@@ -185,10 +240,15 @@
     margin-top: 1rem;
   }
 
+  input {
+    background-color: #e2e2e2;
+    border: none;
+  }
+
   .note {
     margin: 0;
     margin-top: 1rem;
-    font-size: 0.75rem;
+    font-size: 1rem;
     border-radius: 0.25rem;
     align-self: stretch;
     flex-grow: 1;
@@ -249,6 +309,14 @@
   .amount__edit {
     width: 100%;
   }
+
+  .merchant {
+    margin: 1rem 0;
+  }
+  .merchant__edit {
+    font-size: 1rem;
+  }
+
   .tags {
     display: flex;
     margin: 1rem 0;
@@ -262,5 +330,9 @@
     border-radius: 5px;
     color: white;
     padding: 0.25rem;
+  }
+
+  .tags_description {
+    margin: 1rem 0;
   }
 </style>

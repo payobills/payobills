@@ -1,7 +1,7 @@
 import { writable, type Writable } from "svelte/store";
 
 export type FormStore<T> = {
-    data: T | null,
+    data: T,
     isDirty: boolean
 }
 
