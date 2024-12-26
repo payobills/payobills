@@ -49,14 +49,14 @@
     client: $paymentsUrql,
     query: gql`
     {
-      transactions(order: [{ backDate: DESC }])
+      transactions
       {
         nodes
         {
           id
           amount
           merchant
-          backDate
+          backDate: paidAt
         }
       }
     }
