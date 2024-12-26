@@ -41,6 +41,7 @@
             backDate
             transactionText
             tags
+            parseStatus
             notes
           }
         }
@@ -145,6 +146,11 @@
         <h1>Recipient</h1>
         <h2>{transaction.merchant ?? "Unknown"}</h2>
 
+        <h1 class="subheader">Parsing Status</h1>
+        <h2>
+          {transaction.parseStatus}
+        </h2>
+
         {#if transaction.transactionText !== ""}
           <h1 class="subheader">Original Transaction Detail</h1>
           <div class="transaction-detail">
@@ -173,11 +179,11 @@
       <!-- REGION: EDIT -->
     {:else}
       <section class="title title__edit">
-          <input
-            class="amount amount__edit"
-            placeholder="Unknown Amount"
-            bind:value={$transactionForm.data.amount}
-          />
+        <input
+          class="amount amount__edit"
+          placeholder="Unknown Amount"
+          bind:value={$transactionForm.data.amount}
+        />
         <div class="transaction-detail">
           {formatRelativeDate(new Date(transaction.backDate))} • {new Intl.DateTimeFormat(
             "en-GB",
@@ -198,6 +204,11 @@
           class="merchant merchant__edit"
           bind:value={$transactionForm.data.merchant}
         />
+
+        <h1 class="subheader">Parsing Status</h1>
+        <h2>
+          {transaction.parseStatus}
+        </h2>
 
         <h1 class="subheader">Original Transaction Detail</h1>
         <div class="transaction-detail">
