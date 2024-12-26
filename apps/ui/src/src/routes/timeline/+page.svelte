@@ -3,7 +3,7 @@
   import RecentTransactions from "$lib/recent-transactions.svelte";
   import { goto } from "$app/navigation";
   import Nav from "$lib/nav.svelte";
-  import {billsUrql, paymentsUrql } from '$lib/stores/urql'
+  import { billsUrql, paymentsUrql } from "$lib/stores/urql";
 
   import { queryStore, gql, getContextClient } from "@urql/svelte";
 
@@ -22,8 +22,8 @@
     `,
   });
 
-  const currentMonth = new Date().getUTCMonth() + 1
-  const currentYear = new Date().getUTCFullYear()
+  const currentMonth = new Date().getUTCMonth() + 1;
+  const currentYear = new Date().getUTCFullYear();
 
   const billStatsQuery = queryStore({
     client: $billsUrql,
@@ -45,36 +45,50 @@
     `,
   });
 
-  const transactionsQuery = queryStore({
+  $: transactionsQuery = queryStore({
     client: $paymentsUrql,
+    variables: { year: currentYear, month: currentMonth },
     query: gql`
-    {
-      transactions
-      {
-        nodes
-        {
-          id
-          amount
-          merchant
-          backDate: paidAt
+      query ($year: Int!, $month: Int!) {
+        transactions: transactionsByYearAndMonth(year: $year, month: $month) {
+          nodes {
+            id
+            amount
+            merchant
+            backDate
+            tags
+          }
+          pageInfo {
+            hasNextPage
+            startCursor
+            endCursor
+          }
         }
       }
-    }
     `,
   });
 </script>
 
-{#if $billsQuery.fetching || $billStatsQuery.fetching || $transactionsQuery.fetching}
-  <p>Loading...</p>
-{:else if $billsQuery.error || $billStatsQuery.error || $transactionsQuery.error}
-  <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
-{:else}
-  <RecentTransactions transactions={$transactionsQuery.data.transactions.nodes} />
-  <Timeline items={$billsQuery.data.bills} stats={$billStatsQuery.data.billStats} />
-{/if}
+<section class="timeline-page">
+  {#if $billsQuery.fetching || $billStatsQuery.fetching || $transactionsQuery.fetching}
+    <p>Loading...</p>
+  {:else if $billsQuery.error || $billStatsQuery.error || $transactionsQuery.error}
+    <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
+  {:else}
+    <Timeline
+      items={$billsQuery.data.bills}
+      stats={$billStatsQuery.data.billStats}
+      transactions={$transactionsQuery.data.transactions.nodes}
+    />
+  {/if}
+</section>
 
 <style>
-  p {
+  .timeline-page {
     margin: 1rem;
+  }
+
+  p {
+    margin: 0;
   }
 </style>
