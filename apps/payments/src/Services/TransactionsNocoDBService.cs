@@ -23,13 +23,13 @@ public class TransactionsNocoDBService : ITransactionsService
         this.mapper = mapper;
     }
 
-    public async Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> order)
+    public async Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> _)
     {
         var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
-            "w=(BackDate,isnotblank)&sort=-BackDate"
+            "sort=-PaidAt"
         );
 
         return mapper.Map<List<TransactionDTO>>(page?.List ?? []);

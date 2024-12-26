@@ -13,10 +13,12 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             BackDateString = parent.BackDateString;
             TransactionText = parent.TransactionText;
             BackDate = parent.BackDate;
+            PaidAt = parent.PaidAt;
             CreatedAt = parent.CreatedAt;
             UpdatedAt = parent.UpdatedAt;
             Tags = parent.Tags?.Split(",", StringSplitOptions.RemoveEmptyEntries) ?? [];
             Notes = parent.Notes;
+            ParseStatus = parent.ParseStatus;
         }
 
         public new IEnumerable<string> Tags { get; set; } = [];
