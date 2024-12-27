@@ -32,4 +32,7 @@ public class Transaction
         }
     }
     public string Tags { get; set; } = string.Empty;
+
+    [JsonPropertyName("bills")]
+    public Bill Bill { get; set; } = default!;
 }
