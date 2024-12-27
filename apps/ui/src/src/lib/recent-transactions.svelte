@@ -19,6 +19,7 @@
     });
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
+  export let showGraph = false;
   export let title: string | undefined = undefined;
 
   $: ApexCharts = undefined;
@@ -153,13 +154,14 @@
       <a href={`/transactions`}>view all</a>
     {/if}
   </div>
+  
+  {#if showGraph && ApexCharts}
+  <div use:chart={transactions}></div>
+  {/if}
+
   <p class="disclaimer">
     It might take upto an hour for latest transactions to show up here...
   </p>
-
-  {#if showAllTransactions && ApexCharts}
-    <div use:chart={transactions}></div>
-  {/if}
 
   {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
   <a class='transaction-card' href={`/transaction/${transaction.id}`}>
@@ -195,7 +197,6 @@
   }
 
   .container {
-    padding: 1rem;
     background-color: var(--primary-bg-color);
     padding-bottom: 0;
     flex-grow: 1;

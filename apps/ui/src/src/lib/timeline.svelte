@@ -3,15 +3,19 @@
   import { onMount } from "svelte";
   import PaymentTimelinePill from "./payment-timeline-pill.svelte";
   import IdeaCard from "./idea-card.svelte";
+  import RecentTransactions from "./recent-transactions.svelte";
   export let title: string = "";
   export let items: any[] = [];
   export let stats: any = {};
+  export let transactions: any[] = [];
 
   let lastDay = 31;
   let fullPaymentDates: any[] = [];
   let month = "";
 
-  $: itemsFilteredByName = items.toSorted((p: any, q: any) => p.name > q.name ? 1 : -1);
+  $: itemsFilteredByName = items.toSorted((p: any, q: any) =>
+    p.name > q.name ? 1 : -1
+  );
   $: filteredItems = itemsFilteredByName.toSorted((p: any, q: any) => {
     if (
       p.billingDate !== null &&
@@ -43,10 +47,7 @@
 
 <div class="timeline">
   <div class="timeline-data">
-    <div class="title">
-      <h1>{title}</h1>
-
-      <!-- <button
+    <!-- <button
         class="button--no-style"
         on:click={() =>
           (filteringCriteria =
@@ -59,16 +60,23 @@
         />
         <p class="button-label">{filteringCriteria === 'ALL' ? "ALL": "only enabled"}</p>
       </button> -->
+    <RecentTransactions {transactions} showGraph={true} {title} />
+
+    <div class="legend legend-top">
+      <span>1</span>
+      <span>{lastDay}</span>
     </div>
+
     {#if fullPaymentDates.length > 0}
       <IdeaCard
         idea={`Pay all bills together by paying between ${month} ${fullPaymentDates[0].dateRanges[0].start} and ${month} ${fullPaymentDates[0].dateRanges[0].end}!`}
       />
     {/if}
-    <div class="legend legend-top">
-      <span>1</span>
-      <span>{lastDay}</span>
-    </div>
+
+    {#if filteredItems.length > 0}
+      <h1 class='title_bill'>Your bills</h1>
+    {/if}
+
     <div class="items">
       {#each filteredItems as item}
         <button class="bill" on:click={() => goto(`bills?id=${item.id}`)}>
@@ -97,21 +105,12 @@
     justify-content: space-between;
     flex-grow: 1;
     background-color: #f3f3f3;
-    padding: 1rem;
     padding-top: 0;
   }
 
-  .title {
-    display: flex;
+  .title_bill {
+    margin-top: 1rem;
   }
-
-  .title > h1 {
-    flex-grow: 1;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--primary-color);
-  }
-
   .bill {
     all: unset;
     width: calc(100% - 1rem);
