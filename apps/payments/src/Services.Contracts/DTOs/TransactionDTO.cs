@@ -19,6 +19,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             Tags = parent.Tags?.Split(",", StringSplitOptions.RemoveEmptyEntries) ?? [];
             Notes = parent.Notes;
             ParseStatus = parent.ParseStatus;
+            Bill = parent.Bill;
         }
 
         public new IEnumerable<string> Tags { get; set; } = [];
