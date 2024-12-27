@@ -43,6 +43,10 @@
             tags
             parseStatus
             notes
+            bill {
+              id
+              name
+            }
           }
         }
       `,
@@ -151,6 +155,11 @@
           {transaction.parseStatus}
         </h2>
 
+        <h1 class="subheader">Associated Billing Account</h1>
+        <h2>
+          {transaction.bill.name}
+        </h2>
+
         {#if transaction.transactionText !== ""}
           <h1 class="subheader">Original Transaction Detail</h1>
           <div class="transaction-detail">
@@ -210,6 +219,11 @@
           {transaction.parseStatus}
         </h2>
 
+        <h1 class="subheader">Associated Billing Account</h1>
+        <h2>
+          {transaction.bill.name}
+        </h2>
+
         <h1 class="subheader">Original Transaction Detail</h1>
         <div class="transaction-detail">
           {transaction.transactionText}
@@ -257,7 +271,7 @@
   .note {
     margin: 0;
     margin-top: 1rem;
-    font-size: 1rem;
+    font-size: .75rem;
     border-radius: 0.25rem;
     align-self: stretch;
     flex-grow: 1;
@@ -343,5 +357,6 @@
 
   .tags_description {
     margin: 1rem 0;
+    font-size: .75rem;
   }
 </style>
