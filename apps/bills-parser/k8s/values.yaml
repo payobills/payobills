@@ -3,14 +3,14 @@
 # Declare variables to be passed into your templates.
 
 enableOpenTelemetry: false
+disableProbes: true
 
 replicaCount: 1
 
 image:
   repository: ghcr.io/payobills/apps/bills-parser
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.1.0"
+  tag: "0.4.1"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -32,17 +32,17 @@ pod:
 
   env:
   - name: NocoDBOptions__BaseUrl
-    value: ''
+    value: 'http://nocodb.homelab.svc.cluster.local:8080'
   - name: NocoDBOptions__XCToken
-    value: ''
+    value: 'ULmI7g0hQZq6oYGrFmbzwAk6mlt52ashrH5g82cJ'
   - name: NOCO_DB_PROJECT_ID
-    value: ''
+    value: 'p_uye5el98noe784'
   - name: NOCO_DB_TABLE_ID
-    value: ''
+    value: 'muc28giyeqf2tqf'
   - name: EVENT_QUEUE_CONNECTION_STRING
-    value: ''
+    value: 'amqp://user:8AcLhbmkH2f75Wif@rabbitmq.homelab.svc.cluster.local'
   - name: EVENT_QUEUE_NAME
-    value: ''
+    value: 'payobills.files'
 
 podSecurityContext: {}
   # fsGroup: 2000

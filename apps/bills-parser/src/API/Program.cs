@@ -195,7 +195,7 @@ class Program
           var filter =$"(OcrId,eq,{fileRecord.OCR.Id.ToString()})&l=1000"; 
           Console.WriteLine($"Filtering {filter}");
           var transactionIds = await nocodb.GetRecordsPageAsync<Dictionary<string, int>>(nocoDbBaseName, "transactions", "Id", filter);
-          Console.WriteLine($"transcations to delete - {transactionIds?.List!.Count()}");
+          Console.WriteLine($"transactions to delete - {transactionIds?.List!.Count()}");
           await nocodb.BulkDeleteRecordsAsync<Dictionary<string, int>, Dictionary<string, int>>(
             nocoDbBaseName,
             "transactions",
@@ -205,7 +205,7 @@ class Program
           var updatedOcr = await nocodb.UpdateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", fileRecord.OCR.Id.ToString(), ocrRecord);
        }
 
-          Console.WriteLine($"Creating transcation records - {transactions.Count()}");
+          Console.WriteLine($"Creating transaction records - {transactions.Count()}");
           var createdTransactionIds = await nocodb.BulkCreateRecordsAsync<TransactionInput, NocoDbBulkRecord>(nocoDbBaseName, "transactions", transactions);  
 
         Console.WriteLine("=============== Finished message consumption ===============");
@@ -215,7 +215,22 @@ class Program
         string consumerTag = channel.BasicConsume("payobills.files", false, consumer);
 
         Console.WriteLine("Waiting on messages...");
-        while (true) { ; }
+
+        var cancellationTokenSource = new CancellationTokenSource();
+        Console.CancelKeyPress += (sender, eventArgs) =>
+        {
+            eventArgs.Cancel = true;
+            cancellationTokenSource.Cancel();
+        };
+
+        try
+        {
+            cancellationTokenSource.Token.WaitHandle.WaitOne();
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Shutting down gracefully...");
+        }
     }
 }
 /**
