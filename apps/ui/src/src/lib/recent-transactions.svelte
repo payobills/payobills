@@ -14,9 +14,6 @@
 
       return agg;
     }, [])
-    .toSorted((a: any, b: any) => {
-      return new Date(b.backDate).getTime() - new Date(a.backDate).getTime();
-    });
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
   export let showGraph = false;
