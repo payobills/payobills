@@ -37,7 +37,7 @@ public class NocoDBClientService
   public async Task<NocoDBPage<T>?> GetRecordsPageAsync<T>(string baseName, string table, string fields, string extraArgs = "")
   {
     var extraArgsToPassInUrl = !String.IsNullOrEmpty(extraArgs) ? $"&{extraArgs}" : String.Empty;
-    var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}?fields={fields}{extraArgsToPassInUrl}";
+    var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}?fields={fields}&{extraArgsToPassInUrl}";
     using var request = new HttpRequestMessage(
       HttpMethod.Get,
       url

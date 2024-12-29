@@ -29,7 +29,7 @@ public class TransactionsNocoDBService : ITransactionsService
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
-            "sort=-PaidAt"
+            "s=-PaidAt"
         );
 
         return mapper.Map<List<TransactionDTO>>(page?.List ?? []);
@@ -41,7 +41,7 @@ public class TransactionsNocoDBService : ITransactionsService
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
-            $"l=1000&w=(ParseStatus,eq,ParsedV1)~and(BackDate,isnotblank)~and(BackDateYear,eq,{year})~and(BackDateMonth,eq,{month})&sort=-BackDate"
+            $"l=1000&w=(PaidYear,eq,{year})~and(PaidMonth,eq,{month})&s=-PaidAt"
         );
 
         var transactions = (page?.List ?? []).Select(p => new TransactionDTO(p)
