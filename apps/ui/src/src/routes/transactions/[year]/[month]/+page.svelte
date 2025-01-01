@@ -53,8 +53,8 @@
     <section class="title">
       <button
         on:click={() => {
-          currentYear = currentMonth == 1 ? currentYear - 1 : currentYear;
-          currentMonth = currentMonth == 1 ? 12 : currentMonth - 1;
+          currentYear = currentMonth == 0 ? currentYear - 1 : currentYear;
+          currentMonth = currentMonth == 0 ? 11 : currentMonth - 1;
           goto(`/transactions/${currentYear}/${currentMonth}`);
         }}
       >
