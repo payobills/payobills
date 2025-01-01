@@ -20,6 +20,7 @@
   export let showAllTransactions = false;
   export let showGraph = false;
   export let title: string | undefined = undefined;
+  export let totalSpend = 0;
 
   $: ApexCharts = undefined;
 
@@ -84,6 +85,8 @@
       },
       []
     );
+
+    totalSpend = data.reduce((acc: number, p: any) => acc + p.y, 0);
 
     let options: any = {
       colors: ["var(--primary-color)"],
@@ -165,6 +168,21 @@
       It might take upto an hour for latest transactions to show up here...
     </p>
   {/if}
+
+  <div class="transaction-card">
+    <div class="recent-transaction">
+      <div class="non-amount-details">
+        <span>Total spend</span>
+      </div>
+      <span
+        >{new Intl.NumberFormat(undefined, {
+          style: "currency",
+          currency: "INR",
+        }).format(totalSpend)}</span
+      >
+    </div>
+  </div>
+  <hr>
 
   {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
     <a class="transaction-card" href={`/transaction/${transaction.id}`}>
