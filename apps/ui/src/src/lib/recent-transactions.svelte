@@ -43,7 +43,7 @@
     if (!ApexCharts) return;
 
     const orderedData = transactions.sort((a: any, b: any) => {
-      return new Date(a.backDate).getTime() - new Date(b.backDate).getTime();
+      return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
     });
 
     let allData = orderedData.map((p: any) => {
@@ -52,7 +52,7 @@
           day: "2-digit",
           month: "short",
           year: "2-digit",
-        }).format(new Date(p.backDate).getTime()),
+        }).format(new Date(p.paidAt).getTime()),
         y: p.amount,
         note: `${p.amount}`,
       };
@@ -194,7 +194,7 @@
             <span>Unknown</span>
           {/if}
           <span class="paid-on"
-            >{formatRelativeDate(new Date(transaction.backDate))}</span
+            >{formatRelativeDate(new Date(transaction.paidAt))}</span
           >
         </div>
         {#if transaction.amount !== null}
