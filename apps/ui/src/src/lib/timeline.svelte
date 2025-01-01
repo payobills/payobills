@@ -47,25 +47,11 @@
 
 <div class="timeline">
   <div class="timeline-data">
-    <!-- <button
-        class="button--no-style"
-        on:click={() =>
-          (filteringCriteria =
-            filteringCriteria === "ALL" ? "IS_ENABLED" : "ALL")}
-      >
-        <Icon
-          data={filterIcon}
-          scale={1.5}
-          style={`color: ${filteringCriteria === 'ALL' ? 'grey': 'green'}; padding: 0 .5rem 0 .5rem; cursor: pointer;`}
-        />
-        <p class="button-label">{filteringCriteria === 'ALL' ? "ALL": "only enabled"}</p>
-      </button> -->
     <RecentTransactions {transactions} showGraph={true} {title} />
 
-    <div class="legend legend-top">
-      <span>1</span>
-      <span>{lastDay}</span>
-    </div>
+    {#if filteredItems.length > 0}
+      <h1 class="title_bill">Your bills</h1>
+    {/if}
 
     {#if fullPaymentDates.length > 0}
       <IdeaCard
@@ -73,9 +59,10 @@
       />
     {/if}
 
-    {#if filteredItems.length > 0}
-      <h1 class='title_bill'>Your bills</h1>
-    {/if}
+    <div class="legend legend-top">
+      <span>1</span>
+      <span>{lastDay}</span>
+    </div>
 
     <div class="items">
       {#each filteredItems as item}

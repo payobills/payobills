@@ -3,8 +3,8 @@
   import { formatRelativeDate } from "../utils/format-relative-date";
 
   export let transactions: any[] = [];
-  $: orderedTransactions = transactions
-    .reduce((agg: any[], currTransaction) => {
+  $: orderedTransactions = transactions.reduce(
+    (agg: any[], currTransaction) => {
       let duplicateTransaction = agg.findIndex(
         (p) => p.id === currTransaction.id
       );
@@ -13,7 +13,9 @@
       }
 
       return agg;
-    }, [])
+    },
+    []
+  );
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
   export let showGraph = false;
@@ -151,18 +153,22 @@
       <a href={`/transactions`}>view all</a>
     {/if}
   </div>
-  
-  {#if showGraph && ApexCharts}
-  <div use:chart={transactions}></div>
+
+  {#if transactions.length === 0}
+    <p>We don't see any transactions this month so far...</p>
   {/if}
 
-  <p class="disclaimer">
-    It might take upto an hour for latest transactions to show up here...
-  </p>
+  {#if showGraph && transactions.length > 0 && ApexCharts}
+    <div use:chart={transactions}></div>
+
+    <p class="disclaimer">
+      It might take upto an hour for latest transactions to show up here...
+    </p>
+  {/if}
 
   {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
-  <a class='transaction-card' href={`/transaction/${transaction.id}`}>
-    <div class="recent-transaction">
+    <a class="transaction-card" href={`/transaction/${transaction.id}`}>
+      <div class="recent-transaction">
         <div class="non-amount-details">
           {#if transaction.merchant !== null}
             <span>{transaction.merchant}</span>
