@@ -91,10 +91,11 @@
   const chart = (node: any) => {
     if (!loaded) load();
 
-    const orderedData  = $billByIdQuery.data.billById.payments.sort((a:any,b:any) => {
-        return  new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime()
-    });
-
+    const orderedData = $billByIdQuery.data.billById.payments.sort(
+      (a: any, b: any) => {
+        return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
+      }
+    );
 
     let allData = orderedData.map((p: any) => {
       return {
@@ -118,7 +119,7 @@
             {
               y: last.y + current.y,
               x: last.x,
-              note: `${last.note} - + ${current.y}`
+              note: `${last.note} - + ${current.y}`,
             },
           ];
         }
@@ -128,7 +129,7 @@
           {
             x: current.x,
             y: current.y,
-            note: current.note
+            note: current.note,
           },
         ];
       },
@@ -136,7 +137,7 @@
     );
 
     let options: any = {
-      colors: ['var(--primary-color)'],
+      colors: ["var(--primary-color)"],
       legend: {
         show: false,
       },
@@ -158,18 +159,18 @@
       },
       yaxis: {
         labels: {
-          show:false,
-          formatter: (value: number) => `₹ ${value}`
-        }
+          show: false,
+          formatter: (value: number) => `₹ ${value}`,
+        },
       },
       dataLabels: {
-              enabled: true,
-              // textAnchor: 'start',
-              style: {
-                colors: ['#96b7e8']
-              },
-               formatter: (value: number) => `₹ ${value}`,
-            },
+        enabled: true,
+        // textAnchor: 'start',
+        style: {
+          colors: ["#96b7e8"],
+        },
+        formatter: (value: number) => `₹ ${value}`,
+      },
     };
 
     let myChart = new (window as any).ApexCharts(node, options);
@@ -225,6 +226,7 @@
     {/if}
 
     <div class="actions">
+      <button on:click={async () => await markPaid()}>upload statement</button>
       <button class="markPaid" on:click={async () => await markPaid()}
         >mark as paid</button
       >
@@ -253,14 +255,24 @@
     display: flex;
     flex-grow: 1;
     justify-content: flex-end;
+    flex-direction: column;
+  }
+
+  .actions > button {
+    margin: 0.25rem 0;
+    width: 100%;
   }
 
   .markPaid {
     align-self: flex-end;
   }
 
-  .payment {display: flex;}
-  .amount,.amount--unknown {
+  .payment {
+    display: flex;
+  }
+
+  .amount,
+  .amount--unknown {
     flex-grow: 1;
   }
 </style>
