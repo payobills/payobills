@@ -6,10 +6,13 @@
   import Nav from "$lib/nav.svelte";
   import Card from "$lib/card.svelte";
   import { onMount } from "svelte";
+  import BillUploadStatement from "$lib/bill-upload-statement.svelte";
 
   let billId: any;
   let billByIdQuery: any;
   let refreshKey: number = Date.now();
+
+  let showUploadStatementSection = false;
 
   billId = $page.url.searchParams.get("id");
   $: billByIdQuery = queryStore({
@@ -225,8 +228,16 @@
       {/if}
     {/if}
 
+    {#if showUploadStatementSection}
+      <BillUploadStatement bill={billId} />
+    {/if}
+
     <div class="actions">
-      <button on:click={async () => await markPaid()}>upload statement</button>
+      {#if !showUploadStatementSection}
+        <button on:click={() => showUploadStatementSection = true}
+          >upload statement</button
+        >
+      {/if}
       <button class="markPaid" on:click={async () => await markPaid()}
         >mark as paid</button
       >
