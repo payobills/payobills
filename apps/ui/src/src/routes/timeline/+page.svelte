@@ -55,7 +55,7 @@
             id
             amount
             merchant
-            backDate
+            paidAt
             tags
           }
           pageInfo {

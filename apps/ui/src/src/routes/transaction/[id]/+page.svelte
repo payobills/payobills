@@ -38,7 +38,7 @@
             id
             amount
             merchant
-            backDate
+            paidAt
             transactionText
             tags
             parseStatus
@@ -133,7 +133,7 @@
           />
         </div>
         <div class="transaction-detail">
-          {formatRelativeDate(new Date(transaction.backDate))} • {new Intl.DateTimeFormat(
+          {formatRelativeDate(new Date(transaction.paidAt))} • {new Intl.DateTimeFormat(
             "en-GB",
             {
               year: "2-digit",
@@ -143,7 +143,7 @@
               minute: "2-digit",
               second: "2-digit",
             }
-          ).format(new Date(transaction.backDate))}
+          ).format(new Date(transaction.paidAt))}
         </div>
       </section>
       <section class="content">
@@ -194,7 +194,7 @@
           bind:value={$transactionForm.data.amount}
         />
         <div class="transaction-detail">
-          {formatRelativeDate(new Date(transaction.backDate))} • {new Intl.DateTimeFormat(
+          {formatRelativeDate(new Date(transaction.paidAt))} • {new Intl.DateTimeFormat(
             "en-GB",
             {
               year: "2-digit",
@@ -204,7 +204,7 @@
               minute: "2-digit",
               second: "2-digit",
             }
-          ).format(new Date(transaction.backDate))}
+          ).format(new Date(transaction.paidAt))}
         </div>
       </section>
       <section class="content">

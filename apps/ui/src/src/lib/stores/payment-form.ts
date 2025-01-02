@@ -5,7 +5,7 @@ export const paymentForm = writable({
       billId: null,
       amount: null,
       billMonthYear: null,
-      backDate: null,
+      paidAt: null,
       notes: null
     },
     calculatedValues: {
