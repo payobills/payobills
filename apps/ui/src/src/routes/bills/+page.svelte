@@ -6,6 +6,7 @@
   import Nav from "$lib/nav.svelte";
   import Card from "$lib/card.svelte";
   import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
 
   let billId: any;
   let billByIdQuery: any;
@@ -225,8 +226,8 @@
     {/if}
 
     <div class="actions">
-      <button class="markPaid" on:click={async () => await markPaid()}
-        >mark as paid</button
+      <button class="markPaid" on:click={async () => await goto(`/mark-payment?bill-id=${billId}`)}
+        >mark payment</button
       >
     </div>
   </div>
