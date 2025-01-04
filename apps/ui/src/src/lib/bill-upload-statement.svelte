@@ -26,8 +26,7 @@
 <form on:submit|preventDefault={onSubmit}>
   <label
     >Choose file:
-    <input type="file" bind:files={selectedFiles} /></label
-  >
+    <input type="file" bind:files={selectedFiles} /></label>
   {#if selectedFiles}
     Selected file: {selectedFiles.name}
   {:else}
