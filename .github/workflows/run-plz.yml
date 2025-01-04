@@ -30,7 +30,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Run plz command
-        run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' | xargs); plz ${PLZ_SUBCOMMAND} ${PLZ_SUBCOMMAND_ARGS}"
+        run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' | xargs export); plz ${PLZ_SUBCOMMAND} ${PLZ_SUBCOMMAND_ARGS}"
         env:
           PROJECT_NAME: ${{ vars.PROJECT_NAME }}
           DOTNET_RUNTIME_VERSION: ${{ vars.DOTNET_RUNTIME_VERSION }}
