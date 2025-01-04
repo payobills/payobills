@@ -25,6 +25,7 @@ builder.Services.Configure<NocoDBOptions>(builder.Configuration.GetRequiredSecti
 builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddScoped<NocoDBClientService>();
 builder.Services.AddScoped<IBillsService, BillsNocoDBService>();
+builder.Services.AddScoped<IBillStatementsService, BillStatementsNocoDBService>();
 builder.Services.AddScoped<StatsQueryService>();
 
 // utils
