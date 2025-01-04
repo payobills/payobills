@@ -13,6 +13,6 @@ public class Query
     public async Task<BillStatsDTO> BillStats([Service] StatsQueryService statsQueryService, int year, int month)
     => await statsQueryService.BillStats(year, month);
 
-    public async Task<IEnumerable<BillStatementDTO>> BillStatements([Service] IBillStatementsService billStatementsService)
-    => await billStatementsService.GetBillStatementsAsync();
+    public async Task<IEnumerable<BillStatementDTO>> BillStatements([Service] IBillStatementsService billStatementsService, string billId)
+    => await billStatementsService.GetBillStatementsAsync(billId);
 }

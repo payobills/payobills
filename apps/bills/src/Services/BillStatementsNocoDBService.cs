@@ -5,7 +5,7 @@ using Payobills.Bills.Data.Contracts;
 using Payobills.Bills.Data.Contracts.Models;
 using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services.Contracts.DTOs;
-using Payobills.Bills.NocoDB;
+using Payobills.NocoDB;
 
 namespace Payobills.Bills.Services;
 
@@ -22,12 +22,13 @@ public class BillStatementsNocoDBService : IBillStatementsService
         this.mapper = mapper;
     }
 
-    public async Task<IEnumerable<BillStatementDTO>> GetBillStatementsAsync()
+    public async Task<IEnumerable<BillStatementDTO>> GetBillStatementsAsync(string billId)
     {
         var page = await nocoDBClientService.GetRecordsPageAsync<BillStatement>(
             "payobills",
             "bill-statements",
-            BILLS_NOCODB_FIELDS
+            BILLS_NOCODB_FIELDS,
+            $"(nc_14ri__bills_id,eq,{billId})"
         );
 
         return (page?.List ?? []).Select(p => new BillStatementDTO(p));

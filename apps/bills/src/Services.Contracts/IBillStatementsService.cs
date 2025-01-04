@@ -4,5 +4,5 @@ namespace Payobills.Bills.Services.Contracts;
 
 public interface IBillStatementsService
 {
-  Task<IEnumerable<BillStatementDTO>> GetBillStatementsAsync();
+  Task<IEnumerable<BillStatementDTO>> GetBillStatementsAsync(string billId);
 }

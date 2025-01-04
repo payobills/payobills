@@ -1,6 +1,6 @@
 using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services;
-using Payobills.Bills.NocoDB;
+using Payobills.NocoDB;
 using AutoMapper;
 using System.Text.Json;
 
