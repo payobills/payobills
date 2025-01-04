@@ -1,5 +1,5 @@
 const { Duplex } = require('stream')
-const { EVENT_TYPE__NEW_FILE } = require('./constants')
+const { EVENT_TYPE__NEW_FILE, HEADER__PAYOBILLS_ID } = require('./constants')
 
 /**
  * @param {{
@@ -15,8 +15,8 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
         const correlationIdPropertyKey = 'CorrelationId'
         const tagsToAdd = JSON.parse(req.body?.tags || '{}');
         const correlationIdPropertyKeyLowered = correlationIdPropertyKey.toLowerCase();
-        const correlationIdPropertyKeyFromPayload = Object.keys(tagsToAdd).find(p => p.toLowerCase() === correlationIdPropertyKeyLowered); 
-    
+        const correlationIdPropertyKeyFromPayload = Object.keys(tagsToAdd).find(p => p.toLowerCase() === correlationIdPropertyKeyLowered);
+
         if (correlationIdPropertyKeyFromPayload === undefined) {
             res.status(400).json({ detail: `Missing ${correlationIdPropertyKey} property in tags` });
             return
@@ -24,8 +24,8 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
 
         const fileTypePropertyKey = 'Type'
         const fileTypePropertyKeyLowered = fileTypePropertyKey.toLowerCase();
-        const fileTypePropertyKeyFromPayload = Object.keys(tagsToAdd).find(p => p.toLowerCase() === fileTypePropertyKeyLowered); 
-    
+        const fileTypePropertyKeyFromPayload = Object.keys(tagsToAdd).find(p => p.toLowerCase() === fileTypePropertyKeyLowered);
+
         if (fileTypePropertyKeyFromPayload === undefined || tagsToAdd[fileTypePropertyKeyFromPayload].trim() === '') {
             res.status(400).json({ detail: `Missing ${fileTypePropertyKey} property in tags` });
             return
@@ -54,8 +54,9 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
         const messageString = JSON.stringify(message);
         rabbitChannel.sendToQueue('payobills.files', Buffer.from(messageString));
 
+
         // TODO: Return link to get by ID for the file as header as specified by REST Spec
-        res.status(201).end()
+        res.header(HEADER__PAYOBILLS_ID, objectData.etag).status(201).end()
     }
 }
 
