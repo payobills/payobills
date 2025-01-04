@@ -32,7 +32,7 @@ class Program
     static void Main()
     {
         ConnectionFactory factory = new ConnectionFactory();
-        var queueConnectionStringUri = Environment.GetEnvironmentVariable("EVENT_QUEUE_CONNECTION_STRING") ?? throw new ArgumentNullException("EVENT_QUEUE_CONNECTION_STRING env is missing"); 
+        var queueConnectionStringUri = Environment.GetEnvironmentVariable("EVENT_QUEUE_CONNECTION_STRING") ?? throw new ArgumentNullException("EVENT_QUEUE_CONNECTION_STRING env is missing");
         factory.Uri = new Uri(queueConnectionStringUri);
 
         IConnection conn = factory.CreateConnection();
@@ -51,166 +51,171 @@ class Program
         var consumer = new EventingBasicConsumer(channel);
         consumer.Received += async (_, eventArgs) =>
       {
-        Console.WriteLine("=============== Started message consumption ===============");
-        var body = eventArgs.Body.ToArray();
-        string messageString = Encoding.UTF8.GetString(body);
-        // {"type":"payobills.files.uploaded","args":{"correlationId":"cd654ad0-6484-459f-adfa-2a34b9baa9df"}}
+          Console.WriteLine("=============== Started message consumption ===============");
+          var body = eventArgs.Body.ToArray();
+          string messageString = Encoding.UTF8.GetString(body);
+          // {"type":"payobills.files.uploaded","args":{"correlationId":"cd654ad0-6484-459f-adfa-2a34b9baa9df"}}
 
-        var message = JsonSerializer.Deserialize<RabbitMessage>(messageString, new JsonSerializerOptions {
-            PropertyNameCaseInsensitive = true
-            });
-        Console.WriteLine($"Received: {messageString}");
-
-        var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "files", "*")
-            ?? throw new Exception("NocoDBFile not found");
-
-        var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
-        using var httpClient = new HttpClient();
-        using (var stream = await httpClient.GetStreamAsync($"{nocoDbOptions.Value.BaseUrl}/{fileUrl}"))
-        {
-            var filePath = Path.Combine("/tmp", "test.pdf");
-            var memoryStream = new MemoryStream();
-
-            await stream.CopyToAsync(memoryStream);
-            await System.IO.File.WriteAllBytesAsync(filePath, memoryStream.ToArray());
-        }
-
-        using var document = PdfDocument.Open("/tmp/test.pdf", new ParsingOptions() { ClipPaths = true });
-        var statementStringBuilder = new StringBuilder();
-
-        var transactions = new List<TransactionInput>();
-
-        // Console.WriteLine($"\"LineNumber\",\"ParsedDate\",\"Merchant\",\"Amount\",\"Type\"");
-        foreach (var pageNumber in Enumerable.Range(1, document.NumberOfPages))
-        {
-            var stream = new Camelot.Parsers.Stream();
-            var tables = stream.ExtractTables(document.GetPage(pageNumber));
-
-            foreach (var table in tables)
-            {
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    for (int j = 0; j < table.Cols.Count; j++)
-                    {
-                        var cellText = table.Cells[i][j].Text.Trim(new char[] { '\n', '\r' });
-                        cellText = Regex.Replace(cellText, @"[/\r\n/]", " ");
-                        statementStringBuilder.Append($" {cellText} ");
-                    }
-                    statementStringBuilder.AppendLine();
-                }
-            }
-
-            var statementString = statementStringBuilder.ToString();
-            var lineNumber = 0;
-
-            foreach (var line in statementString.Split(Environment.NewLine))
-            {
-                ++lineNumber;
-                var currentLine = line.Trim();
-
-                var columns = currentLine.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (columns.Length < 2) continue;
-                bool allDetailsExtracted = true;
-
-                bool parseMore = false;
-                // Try to parse the first column as a date in "Month Date" format
-                DateTime parsedDate = DateTime.MinValue;
-                if (columns.Length > 0)
-                {
-                    // Console.WriteLine($"trying to parse date - {columns[0]}");
-                    if (DateTime.TryParseExact($"{columns[0].Trim()} {columns[1].Trim()}", "MMMM dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
-                    {
-                        // Successfully parsed the date
-                        parseMore = true;
-                    }
-                    else
-                    {
-                        allDetailsExtracted = false;
-                    }
-                }
-                else
-                {
-                    allDetailsExtracted = false;
-                }
-
-                if (!parseMore) continue;
-
-                float amount = 0;
-                if (columns.Length > 3)
-                {
-                    if (!float.TryParse(columns.LastOrDefault() ?? "", out amount))
-                    {
-                        allDetailsExtracted = false;
-                    }
-                }
-                else
-                {
-                    allDetailsExtracted = false;
-                }
-
-                // Second column as a string (if available)
-                var merchant = string.Join(" ", columns.Skip(2).SkipLast(2));
-
-                var type = merchant.Contains("payment received", StringComparison.CurrentCultureIgnoreCase) ? "Credit" : "Debit";
-                if (allDetailsExtracted)
-                {
-                    // Console.WriteLine($"\"{lineNumber}\",\"{parsedDate}\",\"{merchant.Trim()}\",\"{amount}\",\"{type}\"");
-                    transactions.Add(new TransactionInput {
-                      Merchant = merchant.Trim(),
-                      Amount = amount,
-                      Tags = type,
-                      BackDateString = parsedDate.ToString("o"),
-                      BackDate = parsedDate,
-                      ParseStatus = "ParsedV1",
-                      // TODO: Implement different currencies 
-                      Currency = "INR",
-                      Metadata = new Dictionary<string,string> { ["lineNumber"] = lineNumber.ToString() },
-                      Bill = new TransactionBillInput { Id = int.Parse(message.Args["correlationId"]) }
-                    });
-                }
-            }
-        }
-
-        var ocrRecord = new OCRFile
-        {
-            ExtractedRawText = statementStringBuilder.ToString(),
-    
-          File = new NocoDbFileInput
+          var message = JsonSerializer.Deserialize<RabbitMessage>(messageString, new JsonSerializerOptions
           {
-              Id = message.Args["id"]
+              PropertyNameCaseInsensitive = true
+          });
+          Console.WriteLine($"Received: {messageString}");
+
+          var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "files", "*")
+              ?? throw new Exception("NocoDBFile not found");
+
+          var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
+          using var httpClient = new HttpClient();
+          using (var stream = await httpClient.GetStreamAsync($"{nocoDbOptions.Value.BaseUrl}/{fileUrl}"))
+          {
+              var filePath = Path.Combine("/tmp", "test.pdf");
+              var memoryStream = new MemoryStream();
+
+              await stream.CopyToAsync(memoryStream);
+              await System.IO.File.WriteAllBytesAsync(filePath, memoryStream.ToArray());
           }
-        };
 
-        var ocrId = 0;
-        if(fileRecord.OCR is null)
-        {
-          var createdOcrRecord = await nocodb.CreateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", ocrRecord);
-          ocrId = createdOcrRecord.Id;
-          Console.WriteLine($"Writing parsed transactions - {transactions.Count}");
-        }
+          using var document = PdfDocument.Open("/tmp/test.pdf", new ParsingOptions() { ClipPaths = true });
+          var statementStringBuilder = new StringBuilder();
 
-        else {
-          ocrId = fileRecord.OCR.Id;
-          var filter =$"(OcrId,eq,{fileRecord.OCR.Id.ToString()})&l=1000"; 
-          Console.WriteLine($"Filtering {filter}");
-          var transactionIds = await nocodb.GetRecordsPageAsync<Dictionary<string, int>>(nocoDbBaseName, "transactions", "Id", filter);
-          Console.WriteLine($"transactions to delete - {transactionIds?.List!.Count()}");
-          await nocodb.BulkDeleteRecordsAsync<Dictionary<string, int>, Dictionary<string, int>>(
-            nocoDbBaseName,
-            "transactions",
-            transactionIds?.List.ToList() ?? new List<Dictionary<string, int>>()
-          );
+          var transactions = new List<TransactionInput>();
+
+          // Console.WriteLine($"\"LineNumber\",\"ParsedDate\",\"Merchant\",\"Amount\",\"Type\"");
+          foreach (var pageNumber in Enumerable.Range(1, document.NumberOfPages))
+          {
+              var stream = new Camelot.Parsers.Stream();
+              var tables = stream.ExtractTables(document.GetPage(pageNumber));
+
+              foreach (var table in tables)
+              {
+                  for (int i = 0; i < table.Rows.Count; i++)
+                  {
+                      for (int j = 0; j < table.Cols.Count; j++)
+                      {
+                          var cellText = table.Cells[i][j].Text.Trim(new char[] { '\n', '\r' });
+                          cellText = Regex.Replace(cellText, @"[/\r\n/]", " ");
+                          statementStringBuilder.Append($" {cellText} ");
+                      }
+                      statementStringBuilder.AppendLine();
+                  }
+              }
+
+              var statementString = statementStringBuilder.ToString();
+              var lineNumber = 0;
+
+              foreach (var line in statementString.Split(Environment.NewLine))
+              {
+                  ++lineNumber;
+                  var currentLine = line.Trim();
+
+                  var columns = currentLine.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+
+                  if (columns.Length < 2) continue;
+                  bool allDetailsExtracted = true;
+
+                  bool parseMore = false;
+                  // Try to parse the first column as a date in "Month Date" format
+                  DateTime parsedDate = DateTime.MinValue;
+                  if (columns.Length > 0)
+                  {
+                      // Console.WriteLine($"trying to parse date - {columns[0]}");
+                      if (DateTime.TryParseExact($"{columns[0].Trim()} {columns[1].Trim()}", "MMMM dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
+                      {
+                          // Successfully parsed the date
+                          parseMore = true;
+                      }
+                      else
+                      {
+                          allDetailsExtracted = false;
+                      }
+                  }
+                  else
+                  {
+                      allDetailsExtracted = false;
+                  }
+
+                  if (!parseMore) continue;
+
+                  float amount = 0;
+                  if (columns.Length > 3)
+                  {
+                      if (!float.TryParse(columns.LastOrDefault() ?? "", out amount))
+                      {
+                          allDetailsExtracted = false;
+                      }
+                  }
+                  else
+                  {
+                      allDetailsExtracted = false;
+                  }
+
+                  // Second column as a string (if available)
+                  var merchant = string.Join(" ", columns.Skip(2).SkipLast(2));
+
+                  var type = merchant.Contains("payment received", StringComparison.CurrentCultureIgnoreCase) ? "Credit" : "Debit";
+                  if (allDetailsExtracted)
+                  {
+                      // Console.WriteLine($"\"{lineNumber}\",\"{parsedDate}\",\"{merchant.Trim()}\",\"{amount}\",\"{type}\"");
+                      transactions.Add(new TransactionInput
+                      {
+                          Merchant = merchant.Trim(),
+                          Amount = amount,
+                          Tags = type,
+                          BackDateString = parsedDate.ToString("o"),
+                          BackDate = parsedDate,
+                          ParseStatus = "ParsedV1",
+                          // TODO: Implement different currencies 
+                          Currency = "INR",
+                          Metadata = new Dictionary<string, string> { ["lineNumber"] = lineNumber.ToString() },
+                          Bill = new TransactionBillInput { Id = int.Parse(message.Args["correlationId"]) }
+                      });
+                  }
+              }
+          }
+
+          var ocrRecord = new OCRFile
+          {
+              ExtractedRawText = statementStringBuilder.ToString(),
+
+              File = new NocoDbFileInput
+              {
+                  Id = message.Args["id"]
+              }
+          };
+
+          var ocrId = 0;
+          if (fileRecord.OCR is null)
+          {
+              var createdOcrRecord = await nocodb.CreateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", ocrRecord);
+              ocrId = createdOcrRecord.Id;
+              Console.WriteLine($"Writing parsed transactions - {transactions.Count}");
+          }
+          else
+          {
+              ocrId = fileRecord.OCR.Id;
+              var filter = $"w=(OcrId,eq,{fileRecord.OCR.Id.ToString()})&l=1000";
+              Console.WriteLine($"Filtering {filter}");
+              var transactionIds = await nocodb.GetRecordsPageAsync<Dictionary<string, int>>(nocoDbBaseName, "transactions", "Id", filter);
+              Console.WriteLine($"Transactions to delete - {transactionIds?.List!.Count()}");
+              await nocodb.BulkDeleteRecordsAsync<Dictionary<string, int>, Dictionary<string, int>>(
+                nocoDbBaseName,
+                "transactions",
+                transactionIds?.List.ToList() ?? new List<Dictionary<string, int>>()
+              );
+
+              Console.WriteLine("Deleted transactions");
+          }
+
           transactions.ForEach(p => p.OcrId = ocrId.ToString());
           var updatedOcr = await nocodb.UpdateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", fileRecord.OCR.Id.ToString(), ocrRecord);
-       }
 
           Console.WriteLine($"Creating transaction records - {transactions.Count()}");
-          var createdTransactionIds = await nocodb.BulkCreateRecordsAsync<TransactionInput, NocoDbBulkRecord>(nocoDbBaseName, "transactions", transactions);  
+          var createdTransactionIds = await nocodb.BulkCreateRecordsAsync<TransactionInput, NocoDbBulkRecord>(nocoDbBaseName, "transactions", transactions);
 
-        Console.WriteLine("=============== Finished message consumption ===============");
-        channel.BasicAck(eventArgs.DeliveryTag, true);
-    };
+          Console.WriteLine("=============== Finished message consumption ===============");
+          channel.BasicAck(eventArgs.DeliveryTag, true);
+      };
 
         string consumerTag = channel.BasicConsume("payobills.files", false, consumer);
 
@@ -218,10 +223,10 @@ class Program
 
         var cancellationTokenSource = new CancellationTokenSource();
         Console.CancelKeyPress += (sender, eventArgs) =>
-        {
-            eventArgs.Cancel = true;
-            cancellationTokenSource.Cancel();
-        };
+            {
+                eventArgs.Cancel = true;
+                cancellationTokenSource.Cancel();
+            };
 
         try
         {
@@ -242,8 +247,9 @@ class Program
 }
  */
 
-public record NocoDbBulkRecord {
-  public int Id { get; set; }
+public record NocoDbBulkRecord
+{
+    public int Id { get; set; }
 }
 
 public record NocoDbFileInput
@@ -260,9 +266,9 @@ public record NocoDbFileOutput
 {
     public int Id { get; set; }
 }
-public record OCRFileOutput 
+public record OCRFileOutput
 {
-    public int Id {get;set;}
+    public int Id { get; set; }
     public string ExtractedRawText { get; set; }
     public NocoDbFileOutput File { get; set; }
 }
