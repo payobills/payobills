@@ -10,7 +10,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/payobills/apps/bills-parser
   pullPolicy: IfNotPresent
-  tag: "0.4.1"
+  tag: "0.4.2"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
