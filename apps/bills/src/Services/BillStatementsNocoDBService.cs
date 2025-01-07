@@ -14,7 +14,7 @@ public class BillStatementsNocoDBService : IBillStatementsService
     private readonly NocoDBClientService nocoDBClientService;
     private readonly IMapper mapper;
 
-    public const string  BILLS_NOCODB_FIELDS= "*";
+    public const string BILLS_NOCODB_FIELDS = "*";
 
     public BillStatementsNocoDBService(NocoDBClientService nocoDBClientService, IMapper mapper)
     {
@@ -27,10 +27,22 @@ public class BillStatementsNocoDBService : IBillStatementsService
         var page = await nocoDBClientService.GetRecordsPageAsync<BillStatement>(
             "payobills",
             "bill-statements",
-            BILLS_NOCODB_FIELDS,
+            "*",
             $"(nc_14ri__bills_id,eq,{billId})"
         );
 
         return (page?.List ?? []).Select(p => new BillStatementDTO(p));
+    }
+
+    public async Task<BillStatementDTO?> GetBillStatementByIdAsync(string billStatementId)
+    {
+        var billStatement = await nocoDBClientService.GetRecordByIdAsync<BillStatement>(
+            billStatementId,
+            "payobills",
+            "bill-statements",
+            "*"
+        );
+
+        return billStatement is not null ? new BillStatementDTO(billStatement) : null;
     }
 }
