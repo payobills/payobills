@@ -72,7 +72,7 @@ public class NocoDBClientService
         }
 
         var responseStream = await response.Content.ReadAsStreamAsync();
-        JsonSerializerOptions options = new JsonSerializerOptions();
+        var options = new JsonSerializerOptions();
         options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
         var recordsPage = await JsonSerializer.DeserializeAsync<T>(responseStream, options);
 
@@ -137,7 +137,7 @@ public class NocoDBClientService
         using var jsonStream = new MemoryStream();
         await JsonSerializer.SerializeAsync(jsonStream, payload);
         jsonStream.Seek(0, SeekOrigin.Begin);
-
+        
         using var contentStream = new StreamContent(jsonStream);
         contentStream.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
@@ -153,7 +153,10 @@ public class NocoDBClientService
 
         var response = await httpClient.SendAsync(request);
         var responseStream = await response.Content.ReadAsStreamAsync();
-        var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream);
+
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+        var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
 
         return createdRecord!;
     }

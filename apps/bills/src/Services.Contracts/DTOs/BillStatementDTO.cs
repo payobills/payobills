@@ -12,6 +12,7 @@ public class BillStatementDTO
         Notes = from.Notes ?? string.Empty;
         CreatedAt = from.CreatedAt;
         UpdatedAt = from.UpdatedAt;
+        Bill = from.Bill;
     }
 
     public string Id { get; set; }
@@ -20,4 +21,6 @@ public class BillStatementDTO
     public string Notes { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public BillConnection Bill { get; set; }
 }
+

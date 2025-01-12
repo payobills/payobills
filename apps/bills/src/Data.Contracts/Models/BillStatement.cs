@@ -5,10 +5,11 @@ namespace Payobills.Bills.Data.Contracts.Models;
 public class BillStatement
 {
     public long Id { get; set; }
-    public string StartDate { get; set; }
-    public string EndDate { get; set; }
+    public string StartDate { get; set; } = default!;
+    public string EndDate { get; set; } = default!;
     public string Notes { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public BillConnection Bill { get; set; } = default!;
     
     [JsonIgnore]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
