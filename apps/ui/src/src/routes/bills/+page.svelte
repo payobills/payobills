@@ -7,6 +7,7 @@
   import Card from "$lib/card.svelte";
   import { onMount } from "svelte";
   import BillUploadStatement from "$lib/bill-upload-statement.svelte";
+  import BillStatements from "$lib/bills/bill-statements.svelte";
 
   let billId: any;
   let billByIdQuery: any;
@@ -19,6 +20,12 @@
     client: $billsUrql,
     query: gql`
       query billById($billId: String!) {
+        billStatements(billId: $billId) {
+          id
+          startDate
+          endDate
+          notes
+        }
         billById(id: $billId) {
           id
           name
@@ -170,7 +177,7 @@
         enabled: true,
         // textAnchor: 'start',
         style: {
-          colors: ["#96b7e8"],
+          colors: ["#000"],
         },
         formatter: (value: number) => `₹ ${value}`,
       },
@@ -225,23 +232,28 @@
             >
           </p>
         {/each}
+
+        <BillStatements
+        bill={{ id: billId }}
+        statements={$billByIdQuery.data.billStatements}
+        />
+        
+        {#if showUploadStatementSection}
+          <BillUploadStatement bill={{ id: billId }} />
+        {/if}
+        
+        <div class="actions">
+          {#if !showUploadStatementSection}
+            <button on:click={() => (showUploadStatementSection = true)}
+              >upload statement</button
+            >
+          {/if}
+          <button class="markPaid" on:click={async () => await markPaid()}
+            >mark as paid</button
+          >
+        </div>
       {/if}
     {/if}
-
-    {#if showUploadStatementSection}
-      <BillUploadStatement bill={billId} />
-    {/if}
-
-    <div class="actions">
-      {#if !showUploadStatementSection}
-        <button on:click={() => showUploadStatementSection = true}
-          >upload statement</button
-        >
-      {/if}
-      <button class="markPaid" on:click={async () => await markPaid()}
-        >mark as paid</button
-      >
-    </div>
   </div>
 </Card>
 
@@ -251,9 +263,7 @@
     font-size: 1.2rem;
     font-weight: 600;
   }
-  h2 {
-    font-size: 1rem;
-  }
+
   p {
     font-size: 0.8rem;
   }
