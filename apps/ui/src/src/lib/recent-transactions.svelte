@@ -182,7 +182,7 @@
       >
     </div>
   </div>
-  <hr>
+  <hr />
 
   {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
     <a class="transaction-card" href={`/transaction/${transaction.id}`}>
@@ -210,9 +210,20 @@
       </div>
     </a>
   {/each}
+
+  {#if showViewAllCTA}
+    <p>
+      Not seeing a transaction here? You can
+      <a href={`/transactions/add`} class='transaction-add-cta'>add one</a> manually too.
+    </p>
+  {/if}
 </div>
 
 <style>
+  .transaction-add-cta {
+    font-weight: 800;
+  }
+
   .transaction-card {
     all: unset;
   }
