@@ -214,7 +214,7 @@
   {#if showViewAllCTA}
     <p>
       Not seeing a transaction here? You can
-      <a href={`/transactions/add`} class='transaction-add-cta'>add one</a> manually too.
+      <a href={`/transaction/add`} class='transaction-add-cta'>add one</a> manually too.
     </p>
   {/if}
 </div>

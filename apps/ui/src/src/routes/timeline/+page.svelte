@@ -73,7 +73,7 @@
   {#if $billsQuery.fetching || $billStatsQuery.fetching || $transactionsQuery.fetching}
     <p>Loading...</p>
   {:else if $billsQuery.error || $billStatsQuery.error || $transactionsQuery.error}
-    <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
+    <p>🙆 Uh oh! Unable to fetch your bills!</p>
   {:else}
     <Timeline
       items={$billsQuery.data.bills}
