@@ -33,7 +33,10 @@ builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 // mapper
 builder.Services.AddSingleton<IMapper>((_) =>
 {
-  var config = new MapperConfiguration(cfg => { });
+  var config = new MapperConfiguration(cfg =>
+  {
+  });
+
   return new Mapper(config);
 });
 

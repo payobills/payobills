@@ -15,4 +15,8 @@ public class Mutation
 
   public async Task<TransactionDTO> TransactionUpdate([Service] ITransactionsService transactionsService, string id, TransactionUpdateDTO updateDTO)
     => await transactionsService.UpdateTransactionAsync(id, updateDTO);
+
+  public async Task<TransactionDTO> TransactionAdd([Service] ITransactionsService transactionsService, TransactionAddDTO input)
+    => await transactionsService.AddTransactionAsync(input);
+
 }
