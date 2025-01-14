@@ -118,6 +118,9 @@ public class TransactionsNocoDBService : ITransactionsService
 
     public async Task<TransactionDTO> AddTransactionAsync(TransactionAddDTO addDTO)
     {
+        addDTO.SourceSystemID = "";
+        addDTO.BackDateString = "";
+
         var addedTransaction = await nocoDBClientService.CreateRecordAsync<TransactionAddDTO, Transaction>(
             "payobills",
             "transactions",

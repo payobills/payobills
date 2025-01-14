@@ -13,6 +13,14 @@ namespace Payobills.Payments.Services.Contracts.DTOs
       [JsonPropertyName("bills")]
       public IdDTO<long> Bill { get; set; } = default!;
 
+      [GraphQLIgnore]
+      public string BackDateString { get; set; }
+
+      [GraphQLIgnore]
+      public string SourceSystemID { get; set; }
+
+      [GraphQLIgnore]
+      public string SourceType { get; set; } = "PAYOBILLS_APP";
         // public string? Merchant { get; set; }
         // public string? Currency { get; set; }
         // public double? Amount { get; set; }
