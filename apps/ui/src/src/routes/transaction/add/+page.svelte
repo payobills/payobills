@@ -1,9 +1,10 @@
 <script lang="ts">
   import { gql, queryStore } from "@urql/svelte";
+  import { goto, afterNavigate } from "$app/navigation";
+  import { billsUrql, paymentsUrql } from "$lib/stores/urql";
 
-  const onSubmit = () => {};
-
-  import { billsUrql } from "$lib/stores/urql";
+  let transactionText = '';
+  let billId = undefined;
 
   const billsQuery = queryStore({
     client: $billsUrql,
@@ -19,6 +20,31 @@
       }
     `,
   });
+
+  const addTransaction = () => {
+    let client;
+    try{
+      $paymentsUrql
+      .mutation(
+        gql`
+          mutation ($input: TransactionAddDTOInput!) {
+            transactionAdd(input: $input) {
+              id
+            }
+          }
+        `,
+        { input: { transactionText, parseStatus: "NotStarted", bill: { id: +billId } } }
+      )
+      .toPromise()
+      .then(() => {
+        goto("/");
+      });
+    }
+    catch(error) {
+      console.error("couldn't get client", error);
+    }
+    
+  };
 </script>
 
 <section class="add-transaction">
@@ -29,15 +55,22 @@
   {:else}
     <h1 class="title">Add a transaction</h1>
 
-    <form on:submit|preventDefault={onSubmit}>
+    <form on:submit|preventDefault={addTransaction}>
       <label for="bill"
         >Which bill should this transaction be associated to?</label
       >
-      <select class="bill-select" id="bill">
+      <select bind:value={billId} class="bill-select" id="bill">
         {#each $billsQuery.data.bills as bill}
           <option value={bill.id}>{bill.name}</option>
         {/each}
       </select>
+
+      <label for="notes"> Transaction Text </label>
+      <textarea
+        id="notes"
+        placeholder="Paste the transaction confirmation text from SMS (optional)"
+        bind:value={transactionText}
+      ></textarea>
 
       <label for="amount"> Amount </label>
       <input type="number" id="amount" placeholder="100" />
@@ -55,7 +88,11 @@
 
 <style>
   .add-transaction {
-    margin: 1rem;
+    padding: 1rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
   }
   .title {
     margin: 0;
@@ -68,6 +105,7 @@
   form {
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
   }
 
   form > * {
@@ -84,7 +122,14 @@
     border: none;
   }
 
+
+    textarea{flex-grow: 1;
+    min-height: 10rem;
+    max-height: 15rem;
+  resize:none;}
   button {
     color: var(--primary-bg-color);
+    /* display: flex; */
+    /* justify-self: flex-end; */
   }
 </style>
