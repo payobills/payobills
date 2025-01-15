@@ -111,6 +111,7 @@ async fn parse_transaction(
         Ok(date) => {
             println!("Parsed date: {:?}", date);
             parsed_date_string = date.clone().to_rfc3339();
+            changes.insert("BackDate".to_string(), Value::Str(parsed_date_string));
         }
         Err(_) => {
             match DateTime::parse_from_rfc3339(record.back_date_string.clone().unwrap().as_str()) {
@@ -125,7 +126,6 @@ async fn parse_transaction(
         }
     }
 
-    changes.insert("BackDate".to_string(), Value::Str(parsed_date_string));
 
     if record.bills.as_ref().unwrap().name.to_string() == String::from("AMEX") {
         let re = Regex::new(
