@@ -58,7 +58,7 @@ struct Transaction {
     #[serde(rename = "CreatedAt")]
     created_at: Option<String>,
     bills: Option<Bill>,
-    #[serde(rename = "BackDateString")]
+    #[serde(rename = "BackDateString", skip_serializing_if = "Option::is_none")]
     back_date_string: Option<String>,
     #[serde(rename = "UpdatedAt")]
     updated_at: Option<String>,

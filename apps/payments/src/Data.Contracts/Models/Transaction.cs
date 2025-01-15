@@ -15,6 +15,7 @@ public class Transaction
     public string ParseStatus { get; set; } = string.Empty;
     public DateTime? BackDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     [JsonIgnore]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     private DateTime updatedAt;

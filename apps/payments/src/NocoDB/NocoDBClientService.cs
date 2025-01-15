@@ -102,7 +102,10 @@ public class NocoDBClientService
 
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
-    var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream);
+    
+    JsonSerializerOptions options = new();
+    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
 
     return createdRecord!;
   }

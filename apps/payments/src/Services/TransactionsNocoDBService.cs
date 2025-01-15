@@ -115,4 +115,19 @@ public class TransactionsNocoDBService : ITransactionsService
         var mappedTransactionDTO = new TransactionDTO(transactionUpdateResult);
         return mappedTransactionDTO;
     }
+
+    public async Task<TransactionDTO> AddTransactionAsync(TransactionAddDTO addDTO)
+    {
+        addDTO.SourceSystemID = "";
+        addDTO.BackDateString = "";
+
+        var addedTransaction = await nocoDBClientService.CreateRecordAsync<TransactionAddDTO, Transaction>(
+            "payobills",
+            "transactions",
+            addDTO
+        );
+
+        var transactionDTO = new TransactionDTO(addedTransaction);
+        return transactionDTO;
+    }
 }
