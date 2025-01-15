@@ -107,7 +107,9 @@ async fn parse_transaction(
     let format = "%a, %d %b %Y %H:%M:%S %z";
 
     println!("Trying to parse {:?}", record.back_date_string.clone());
-    match DateTime::parse_from_str(record.back_date_string.clone().unwrap().as_str(), format) {
+    if record.back_date_string != None
+    {
+        match DateTime::parse_from_str(record.back_date_string.clone().unwrap().as_str(), format) {
         Ok(date) => {
             println!("Parsed date: {:?}", date);
             parsed_date_string = date.clone().to_rfc3339();
@@ -124,8 +126,8 @@ async fn parse_transaction(
                 }
             }
         }
+        }
     }
-
 
     if record.bills.as_ref().unwrap().name.to_string() == String::from("AMEX") {
         let re = Regex::new(
