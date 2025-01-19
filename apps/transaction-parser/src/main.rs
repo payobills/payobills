@@ -8,6 +8,10 @@ use std::collections::HashMap;
 use std::{error::Error, str::FromStr};
 use tokio;
 
+const BILL_TYPE_AMEX: &str = "Amex";
+const BILL_TYPE_SAVINGS_ACCOUNT: &str = "SavingsAccount";
+const BILL_TYPE_TESTING: &str = "Testing";
+
 #[derive(Serialize, Deserialize)]
 struct PageInfo {
     #[serde(rename = "totalRows")]
@@ -71,6 +75,8 @@ struct Transaction {
     notes: Option<String>,
     #[serde(rename = "ParseStatus")]
     parse_status: Option<String>,
+    #[serde(rename = "BillType")]
+    bill_type: String,
 }
 
 enum Value {
@@ -129,7 +135,7 @@ async fn parse_transaction(
         }
     }
 
-    if record.bills.as_ref().unwrap().name.to_string() == String::from("AMEX") {
+    if record.bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
             r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",
         )
@@ -165,7 +171,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bills.as_ref().unwrap().name.to_string() == String::from("SB Account") {
+    } else if record.bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
         let re = Regex::new(
@@ -201,7 +207,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bills.unwrap().name.to_string() == String::from("Test Bill") {
+    } else if record.bill_type == BILL_TYPE_TESTING {
         println!("Parsing for test bill");
         let re = Regex::new(
             r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",
