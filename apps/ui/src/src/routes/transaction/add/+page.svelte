@@ -3,8 +3,10 @@
   import { goto, afterNavigate } from "$app/navigation";
   import { billsUrql, paymentsUrql } from "$lib/stores/urql";
 
-  let transactionText = '';
-  let billId = undefined;
+  let transactionText = "";
+  let billId = "";
+  let amount: number | null = null;
+  let merchant = "";
 
   const billsQuery = queryStore({
     client: $billsUrql,
@@ -23,27 +25,33 @@
 
   const addTransaction = () => {
     let client;
-    try{
+    try {
       $paymentsUrql
-      .mutation(
-        gql`
-          mutation ($input: TransactionAddDTOInput!) {
-            transactionAdd(input: $input) {
-              id
+        .mutation(
+          gql`
+            mutation ($input: TransactionAddDTOInput!) {
+              transactionAdd(input: $input) {
+                id
+              }
             }
+          `,
+          {
+            input: {
+              ...(amount && { amount }),
+              transactionText,
+              parseStatus: "NotStarted",
+              merchant,
+              bill: { id: +billId },
+            },
           }
-        `,
-        { input: { transactionText, parseStatus: "NotStarted", bill: { id: +billId } } }
-      )
-      .toPromise()
-      .then(() => {
-        goto("/");
-      });
-    }
-    catch(error) {
+        )
+        .toPromise()
+        .then(() => {
+          goto("/");
+        });
+    } catch (error) {
       console.error("couldn't get client", error);
     }
-    
   };
 </script>
 
@@ -73,7 +81,15 @@
       ></textarea>
 
       <label for="amount"> Amount </label>
-      <input type="number" id="amount" placeholder="100" />
+      <input bind:value={amount} type="number" id="amount" placeholder="100" />
+
+      <label for="merchant"> Merchant </label>
+      <input
+        bind:value={merchant}
+        type="text"
+        id="merchant"
+        placeholder="Thirdwave Coffee"
+      />
 
       <label for="notes"> Additional notes </label>
       <textarea
@@ -122,11 +138,12 @@
     border: none;
   }
 
-
-    textarea{flex-grow: 1;
+  textarea {
+    flex-grow: 1;
     min-height: 10rem;
     max-height: 15rem;
-  resize:none;}
+    resize: none;
+  }
   button {
     color: var(--primary-bg-color);
     /* display: flex; */
