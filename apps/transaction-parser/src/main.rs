@@ -71,6 +71,8 @@ struct Transaction {
     notes: Option<String>,
     #[serde(rename = "ParseStatus")]
     parse_status: Option<String>,
+    #[serde(rename = "BillType")]
+    billType: String,
 }
 
 enum Value {
@@ -129,7 +131,7 @@ async fn parse_transaction(
         }
     }
 
-    if record.bills.as_ref().unwrap().name.to_string() == String::from("AMEX") {
+    if record.billType == String::from("Amex") {
         let re = Regex::new(
             r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",
         )
@@ -165,7 +167,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bills.as_ref().unwrap().name.to_string() == String::from("SB Account") {
+    } else if record.billType == String::from("SavingsAccount") {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
         let re = Regex::new(
@@ -201,7 +203,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bills.unwrap().name.to_string() == String::from("Test Bill") {
+    } else if record.billType == String::from("Testing") {
         println!("Parsing for test bill");
         let re = Regex::new(
             r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",
