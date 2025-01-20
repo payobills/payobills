@@ -125,7 +125,11 @@ async fn parse_transaction(
 
     // println!("Trying to parse {:?}", record.back_date_string.clone());
     if record.back_date_string != None {
-        match parse_custom_date(record.back_date_string.clone().unwrap().as_str(), format, false) {
+        match parse_custom_date(
+            record.back_date_string.clone().unwrap().as_str(),
+            format,
+            false,
+        ) {
             Ok(date_string) => {
                 // println!("Parsed date: {:?}", date_string);
                 changes.insert("BackDate".to_string(), Value::Str(date_string));
@@ -163,7 +167,7 @@ async fn parse_transaction(
             match parse_custom_date(
                 full_back_date_capture.clone().as_str(),
                 TRANSACTION_DATE_FORMAT_AMEX,
-                false
+                false,
             ) {
                 Ok(date_string) => {
                     println!("Parsed date: {:?}", date_string);
@@ -228,7 +232,7 @@ async fn parse_transaction(
             match parse_custom_date(
                 full_back_date_capture.clone().as_str(),
                 TRANSACTION_DATE_FORMAT_JUPITER,
-                true
+                true,
             ) {
                 Ok(date_string) => {
                     println!("Parsed date: {:?}", date_string);
@@ -246,13 +250,16 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    }
-    else if record.bill_type == BILL_TYPE_SBI_PRIME {
+    } else if record.bill_type == BILL_TYPE_SBI_PRIME {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
-        let re = Regex::new(r"([\w\.]*)(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\*]*) on ([\d\/]*)\.").unwrap();
+        let re = Regex::new(r"([\w\.]*)(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\*]*) on ([\d\/]*)\.")
+            .unwrap();
         if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-            changes.insert("Currency".to_string(), Value::Str(caps.get(1).unwrap().as_str().trim().to_string()));
+            changes.insert(
+                "Currency".to_string(),
+                Value::Str(caps.get(1).unwrap().as_str().trim().to_string()),
+            );
             // println!("amount cpature {}", caps.get(1).unwrap().as_str());
             changes.insert(
                 "Amount".to_string(),
@@ -271,16 +278,16 @@ async fn parse_transaction(
             changes.insert(
                 "Merchant".to_string(),
                 Value::Str(caps.get(3).unwrap().as_str().trim().to_string()),
-            ); 
+            );
 
             let date_string_capture = caps.get(4).unwrap().as_str().trim().to_string();
             let full_back_date_capture = format!("{} 00:00 +0530", date_string_capture);
             println!("Date string captured {}", full_back_date_capture);
-            
+
             match parse_custom_date(
                 full_back_date_capture.clone().as_str(),
                 TRANSACTION_DATE_FORMAT_SBI_PRIME,
-                true
+                true,
             ) {
                 Ok(date_string) => {
                     println!("Parsed date: {:?}", date_string);
@@ -302,8 +309,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    }
-     else if record.bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
+    } else if record.bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
         let re = Regex::new(
@@ -548,8 +554,6 @@ fn get_timezone_offset_map() -> HashMap<&'static str, i32> {
     map
 }
 
-// ===================
-
 #[tokio::main]
 async fn main() {
     let base_name = std::env::var("NOCODB_BASE_NAME").expect("NOCODB_BASE_NAME must be set");
@@ -559,27 +563,3 @@ async fn main() {
         .await
         .expect("Unable to parse transactions");
 }
-
-// fn main() {
-//     test().expect("LOL");
-// }
-
-// fn test() -> Result<String, Box<dyn Error>> {
-
-// }
-
-// use jiff::Timestamp;
-// use jiff::Zoned;
-
-// fn test() -> Result<String, Box<dyn Error>> {
-// //    let time: Timestamp = "2024-07-11T01:14:00Z".parse()?;
-//   //  let time: Timestamp = "1/9/25, 4:19 PM".parse()?;
-//   let zdt = Timestamp::strptime(
-//     "%-m/%-d/%y, %I:%M %p %z",
-//     "1/14/25, 4:37 PM +0530"
-// )?;
-// // "1/9/25, 4:19 PM +0530",
-
-//     println!("{}",zdt);
-//     Ok(zdt.to_string())
-// }
