@@ -12,9 +12,14 @@ const BILL_TYPE_AMEX: &str = "Amex";
 const BILL_TYPE_SAVINGS_ACCOUNT: &str = "SavingsAccount";
 const BILL_TYPE_TESTING: &str = "Testing";
 const BILL_TYPE_JUPITER: &str = "Jupiter";
+const BILL_TYPE_SBI_PRIME: &str = "SBI-Prime";
 
+// References
+// https://docs.rs/jiff/latest/jiff/#parsing-an-rfc-2822-datetime-string
+// https://docs.rs/strptime/latest/strptime/struct.Parser.html
 const TRANSACTION_DATE_FORMAT_AMEX: &str = "%d %B, %Y at %I:%M %p %z";
 const TRANSACTION_DATE_FORMAT_JUPITER: &str = "%-m/%-d/%y, %I:%M %p %z";
+const TRANSACTION_DATE_FORMAT_SBI_PRIME: &str = "%d/%m/%y %H:%M %z";
 
 #[derive(Serialize, Deserialize)]
 struct PageInfo {
@@ -241,7 +246,64 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
+    }
+    else if record.bill_type == BILL_TYPE_SBI_PRIME {
+        // println!("trying to parse SB");
+        // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
+        let re = Regex::new(r"Rs\.(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\s]*) on ([\d/-]*)\.").unwrap();
+        if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
+            // changes.insert("Currency".to_string(), Value::Str("INR".to_string()));
+            // println!("amount cpature {}", caps.get(1).unwrap().as_str());
+            changes.insert(
+                "Amount".to_string(),
+                Value::F64(
+                    caps.get(1)
+                        .unwrap()
+                        .as_str()
+                        .trim()
+                        .to_string()
+                        .replace(',', "")
+                        .parse::<f64>()
+                        .unwrap(),
+                ),
+            );
+
+            changes.insert(
+                "Merchant".to_string(),
+                Value::Str(caps.get(2).unwrap().as_str().trim().to_string()),
+            ); 
+
+            let date_string_capture = caps.get(3).unwrap().as_str().trim().to_string();
+            let full_back_date_capture = format!("{} 00:00 +0530", date_string_capture);
+            println!("Date string captured {}", full_back_date_capture);
+            
+            match parse_custom_date(
+                full_back_date_capture.clone().as_str(),
+                TRANSACTION_DATE_FORMAT_SBI_PRIME,
+                true
+            ) {
+                Ok(date_string) => {
+                    println!("Parsed date: {:?}", date_string);
+                    changes.insert("BackDate".to_string(), Value::Str(date_string));
+                }
+                Err(e) => {
+                    // No worries if parsing failed, other fallbacks are present
+                    // Ignore this error
+                    eprintln!("Unable to parse date from transaction text - {}", e);
+                }
+            }
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("ParsedV1".to_string()),
+            );
+        } else {
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("FailedV1".to_string()),
+            );
+        }
+    }
+     else if record.bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
         let re = Regex::new(
@@ -352,12 +414,12 @@ async fn parse_transaction(
         .headers(map)
         .send()
         .await?
-        .text()
-        // .json::<Transaction>()
+        // .text()
+        .json::<Transaction>()
         .await?;
 
-    println!("Transaction updated - {}", response);
-    // println!("Transaction updated - {}", response.id);
+    // println!("Transaction updated - {}", response);
+    println!("Transaction updated - {}", response.id);
     Ok(())
 }
 
