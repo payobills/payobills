@@ -143,7 +143,7 @@ async fn parse_transaction(
 
     if record.bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
-            r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX [a-zA-Z\s]*[Cc]ard .* at (.*)\s* on ([^\.]*)(\w{3,4})\.",
+            r"^(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX [a-zA-Z\s]*[Cc]ard .*(at )?(.*) on ([^\.]*)(\w{3,4})\.",
         )
         .unwrap();
         if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
@@ -155,9 +155,9 @@ async fn parse_transaction(
                 .to_string()
                 .replace(',', "");
 
-            let date_string_capture = caps.get(5).unwrap().as_str().trim().to_string();
+            let date_string_capture = caps.get(6).unwrap().as_str().trim().to_string();
 
-            let time_zone_capture = caps.get(6).unwrap().as_str();
+            let time_zone_capture = caps.get(7).unwrap().as_str();
             let time_zone_percentage_z_format = timezone_to_offset(time_zone_capture);
 
             let full_back_date_capture =
@@ -173,16 +173,16 @@ async fn parse_transaction(
                     println!("Parsed date: {:?}", date_string);
                     changes.insert("BackDate".to_string(), Value::Str(date_string));
                 }
-                Err(_) => {
+                Err(e) => {
                     // No worries if parsing failed, other fallbacks are present
                     // Ignore this error
-                    println!("Unable to parse date from transaction text");
+                    eprintln!("Unable to parse date from transaction text - {}", e);
                 }
             }
 
             changes.insert(
                 "Merchant".to_string(),
-                Value::Str(caps.get(4).unwrap().as_str().trim().to_string()),
+                Value::Str(caps.get(5).unwrap().as_str().trim().to_string()),
             );
             changes.insert(
                 "Currency".to_string(),
@@ -220,10 +220,6 @@ async fn parse_transaction(
                         .unwrap(),
                 ),
             );
-            changes.insert(
-                "ParseStatus".to_string(),
-                Value::Str("ParsedV1".to_string()),
-            );
 
             let date_string_capture = caps.get(2).unwrap().as_str().trim().to_string();
             let full_back_date_capture = format!("{} +0530", date_string_capture);
@@ -244,6 +240,11 @@ async fn parse_transaction(
                     eprintln!("Unable to parse date from transaction text - {}", e);
                 }
             }
+
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("ParsedV1".to_string()),
+            );
         } else {
             changes.insert(
                 "ParseStatus".to_string(),
