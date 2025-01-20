@@ -139,7 +139,7 @@ async fn parse_transaction(
 
     if record.bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
-            r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on ([^\.]*)(\w{3})\.",
+            r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX [a-zA-Z\s]*[Cc]ard .* at (.*)\s* on ([^\.]*)(\w{3,4})\.",
         )
         .unwrap();
         if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
@@ -250,14 +250,14 @@ async fn parse_transaction(
     else if record.bill_type == BILL_TYPE_SBI_PRIME {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
-        let re = Regex::new(r"Rs\.(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\s]*) on ([\d/-]*)\.").unwrap();
+        let re = Regex::new(r"([\w\.]*)(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\*]*) on ([\d\/]*)\.").unwrap();
         if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-            // changes.insert("Currency".to_string(), Value::Str("INR".to_string()));
+            changes.insert("Currency".to_string(), Value::Str(caps.get(1).unwrap().as_str().trim().to_string()));
             // println!("amount cpature {}", caps.get(1).unwrap().as_str());
             changes.insert(
                 "Amount".to_string(),
                 Value::F64(
-                    caps.get(1)
+                    caps.get(2)
                         .unwrap()
                         .as_str()
                         .trim()
@@ -270,10 +270,10 @@ async fn parse_transaction(
 
             changes.insert(
                 "Merchant".to_string(),
-                Value::Str(caps.get(2).unwrap().as_str().trim().to_string()),
+                Value::Str(caps.get(3).unwrap().as_str().trim().to_string()),
             ); 
 
-            let date_string_capture = caps.get(3).unwrap().as_str().trim().to_string();
+            let date_string_capture = caps.get(4).unwrap().as_str().trim().to_string();
             let full_back_date_capture = format!("{} 00:00 +0530", date_string_capture);
             println!("Date string captured {}", full_back_date_capture);
             
