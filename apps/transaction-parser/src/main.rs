@@ -1,18 +1,25 @@
-use chrono::{format, DateTime};
-use clap::{builder::TypedValueParser, Parser};
+use chrono::DateTime;
+use clap::Parser;
 use regex::Regex;
 use reqwest::header::HeaderMap;
 use serde::{Serialize as SerializeImpl, Serializer};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::{error::Error, str::FromStr};
+use std::error::Error;
 use tokio;
 
 const BILL_TYPE_AMEX: &str = "Amex";
 const BILL_TYPE_SAVINGS_ACCOUNT: &str = "SavingsAccount";
 const BILL_TYPE_TESTING: &str = "Testing";
+const BILL_TYPE_JUPITER: &str = "Jupiter";
+const BILL_TYPE_SBI_PRIME: &str = "SBI-Prime";
 
+// References
+// https://docs.rs/jiff/latest/jiff/#parsing-an-rfc-2822-datetime-string
+// https://docs.rs/strptime/latest/strptime/struct.Parser.html
 const TRANSACTION_DATE_FORMAT_AMEX: &str = "%d %B, %Y at %I:%M %p %z";
+const TRANSACTION_DATE_FORMAT_JUPITER: &str = "%-m/%-d/%y, %I:%M %p %z";
+const TRANSACTION_DATE_FORMAT_SBI_PRIME: &str = "%d/%m/%y %H:%M %z";
 
 #[derive(Serialize, Deserialize)]
 struct PageInfo {
@@ -116,11 +123,15 @@ async fn parse_transaction(
     // This is near real time time so it's a good fallback
     let format = "%a, %d %b %Y %H:%M:%S %z";
 
-    println!("Trying to parse {:?}", record.back_date_string.clone());
+    // println!("Trying to parse {:?}", record.back_date_string.clone());
     if record.back_date_string != None {
-        match parse_custom_date(record.back_date_string.clone().unwrap().as_str(), format) {
+        match parse_custom_date(
+            record.back_date_string.clone().unwrap().as_str(),
+            format,
+            false,
+        ) {
             Ok(date_string) => {
-                println!("Parsed date: {:?}", date_string);
+                // println!("Parsed date: {:?}", date_string);
                 changes.insert("BackDate".to_string(), Value::Str(date_string));
             }
             Err(_) => {
@@ -132,7 +143,7 @@ async fn parse_transaction(
 
     if record.bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
-            r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on ([^\.]*)(\w{3})\.",
+            r"^(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX [a-zA-Z\s]*[Cc]ard .*(at )?(.*) on ([^\.]*)(\w{3,4})\.",
         )
         .unwrap();
         if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
@@ -144,32 +155,34 @@ async fn parse_transaction(
                 .to_string()
                 .replace(',', "");
 
-            let date_string_capture = caps.get(5).unwrap().as_str().trim().to_string();
+            let date_string_capture = caps.get(6).unwrap().as_str().trim().to_string();
 
-            let time_zone_capture = caps.get(6).unwrap().as_str();
+            let time_zone_capture = caps.get(7).unwrap().as_str();
             let time_zone_percentage_z_format = timezone_to_offset(time_zone_capture);
 
-            let full_back_date_capture = format!("{} {}", date_string_capture, time_zone_percentage_z_format);
+            let full_back_date_capture =
+                format!("{} {}", date_string_capture, time_zone_percentage_z_format);
 
             println!("captured date string - {}", date_string_capture.clone());
             match parse_custom_date(
                 full_back_date_capture.clone().as_str(),
                 TRANSACTION_DATE_FORMAT_AMEX,
+                false,
             ) {
                 Ok(date_string) => {
                     println!("Parsed date: {:?}", date_string);
                     changes.insert("BackDate".to_string(), Value::Str(date_string));
                 }
-                Err(_) => {
+                Err(e) => {
                     // No worries if parsing failed, other fallbacks are present
                     // Ignore this error
-                    println!("Unable to parse date from transaction text");
+                    eprintln!("Unable to parse date from transaction text - {}", e);
                 }
             }
 
             changes.insert(
                 "Merchant".to_string(),
-                Value::Str(caps.get(4).unwrap().as_str().trim().to_string()),
+                Value::Str(caps.get(5).unwrap().as_str().trim().to_string()),
             );
             changes.insert(
                 "Currency".to_string(),
@@ -179,6 +192,114 @@ async fn parse_transaction(
                 "Amount".to_string(),
                 Value::F64(amount.parse::<f64>().unwrap()),
             );
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("ParsedV1".to_string()),
+            );
+        } else {
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("FailedV1".to_string()),
+            );
+        }
+    } else if record.bill_type == BILL_TYPE_JUPITER {
+        // println!("trying to parse SB");
+        // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
+        let re = Regex::new(r"Rs (\d+\.\d+) debited .* on ([^-]*) -").unwrap();
+        if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
+            // changes.insert("Currency".to_string(), Value::Str("INR".to_string()));
+            changes.insert(
+                "Amount".to_string(),
+                Value::F64(
+                    caps.get(1)
+                        .unwrap()
+                        .as_str()
+                        .trim()
+                        .to_string()
+                        .parse::<f64>()
+                        .unwrap(),
+                ),
+            );
+
+            let date_string_capture = caps.get(2).unwrap().as_str().trim().to_string();
+            let full_back_date_capture = format!("{} +0530", date_string_capture);
+            println!("Date string captured {}", full_back_date_capture);
+
+            match parse_custom_date(
+                full_back_date_capture.clone().as_str(),
+                TRANSACTION_DATE_FORMAT_JUPITER,
+                true,
+            ) {
+                Ok(date_string) => {
+                    println!("Parsed date: {:?}", date_string);
+                    changes.insert("BackDate".to_string(), Value::Str(date_string));
+                }
+                Err(e) => {
+                    // No worries if parsing failed, other fallbacks are present
+                    // Ignore this error
+                    eprintln!("Unable to parse date from transaction text - {}", e);
+                }
+            }
+
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("ParsedV1".to_string()),
+            );
+        } else {
+            changes.insert(
+                "ParseStatus".to_string(),
+                Value::Str("FailedV1".to_string()),
+            );
+        }
+    } else if record.bill_type == BILL_TYPE_SBI_PRIME {
+        // println!("trying to parse SB");
+        // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
+        let re = Regex::new(r"([\w\.]*)(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\*]*) on ([\d\/]*)\.")
+            .unwrap();
+        if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
+            changes.insert(
+                "Currency".to_string(),
+                Value::Str(caps.get(1).unwrap().as_str().trim().to_string()),
+            );
+            // println!("amount cpature {}", caps.get(1).unwrap().as_str());
+            changes.insert(
+                "Amount".to_string(),
+                Value::F64(
+                    caps.get(2)
+                        .unwrap()
+                        .as_str()
+                        .trim()
+                        .to_string()
+                        .replace(',', "")
+                        .parse::<f64>()
+                        .unwrap(),
+                ),
+            );
+
+            changes.insert(
+                "Merchant".to_string(),
+                Value::Str(caps.get(3).unwrap().as_str().trim().to_string()),
+            );
+
+            let date_string_capture = caps.get(4).unwrap().as_str().trim().to_string();
+            let full_back_date_capture = format!("{} 00:00 +0530", date_string_capture);
+            println!("Date string captured {}", full_back_date_capture);
+
+            match parse_custom_date(
+                full_back_date_capture.clone().as_str(),
+                TRANSACTION_DATE_FORMAT_SBI_PRIME,
+                true,
+            ) {
+                Ok(date_string) => {
+                    println!("Parsed date: {:?}", date_string);
+                    changes.insert("BackDate".to_string(), Value::Str(date_string));
+                }
+                Err(e) => {
+                    // No worries if parsing failed, other fallbacks are present
+                    // Ignore this error
+                    eprintln!("Unable to parse date from transaction text - {}", e);
+                }
+            }
             changes.insert(
                 "ParseStatus".to_string(),
                 Value::Str("ParsedV1".to_string()),
@@ -300,12 +421,12 @@ async fn parse_transaction(
         .headers(map)
         .send()
         .await?
-        .text()
-        // .json::<Transaction>()
+        // .text()
+        .json::<Transaction>()
         .await?;
 
-    println!("Transaction updated - {}", response);
-    // println!("Transaction updated - {}", response.id);
+    // println!("Transaction updated - {}", response);
+    println!("Transaction updated - {}", response.id);
     Ok(())
 }
 
@@ -341,7 +462,10 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
             .json::<NocoBDResponse>()
             .await?;
 
-        println!("Retrieved transactions. Transaction Count - {}", response.list.len());
+        println!(
+            "Retrieved transactions. Transaction Count - {}",
+            response.list.len()
+        );
         // println!("{}", serde_json::to_string(&response)?);
         // parse_more = !response.page_info.is_last_page;
         // println!("parse_more: {}", parse_more);
@@ -368,17 +492,24 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
 fn parse_custom_date(
     input_date: &str,
     date_format: &str,
+    use_jiff: bool,
 ) -> Result<String, Box<dyn std::error::Error>> {
+    if use_jiff {
+        let zdt = jiff::Timestamp::strptime(date_format, input_date)?;
+        println!("{}", zdt);
+        return Ok(zdt.to_string());
+    }
+
     // Parse the date without timezone into NaiveDateTime
     match DateTime::parse_from_str(input_date, date_format) {
         Ok(date) => {
-            println!("Parsed date: {:?}", date);
+            // println!("Parsed date: {:?}", date);
             let parsed_date_time_string = date.clone().to_rfc3339();
             return Ok(parsed_date_time_string);
         }
         Err(_) => match DateTime::parse_from_rfc3339(input_date) {
             Ok(date) => {
-                println!("Parsed date from RFC 3339 Fallback: {:?}", date);
+                // println!("Parsed date from RFC 3339 Fallback: {:?}", date);
                 let parsed_date_string = date.clone().to_rfc3339();
                 return Ok(parsed_date_string);
             }
@@ -412,19 +543,17 @@ fn get_timezone_offset_map() -> HashMap<&'static str, i32> {
 
     // Common timezones (add more as needed)
     map.insert("IST", 5 * 3600 + 30 * 60); // Indian Standard Time: +0530
-    map.insert("PST", -8 * 3600);          // Pacific Standard Time: -0800
-    map.insert("EST", -5 * 3600);          // Eastern Standard Time: -0500
-    map.insert("CST", -6 * 3600);          // Central Standard Time: -0600
-    map.insert("GMT", 0);                  // Greenwich Mean Time: +0000
-    map.insert("UTC", 0);                  // Coordinated Universal Time: +0000
-    map.insert("MST", -7 * 3600);          // Mountain Standard Time: -0700
-    map.insert("AEDT", 11 * 3600);         // Australian Eastern Daylight Time: +1100
+    map.insert("PST", -8 * 3600); // Pacific Standard Time: -0800
+    map.insert("EST", -5 * 3600); // Eastern Standard Time: -0500
+    map.insert("CST", -6 * 3600); // Central Standard Time: -0600
+    map.insert("GMT", 0); // Greenwich Mean Time: +0000
+    map.insert("UTC", 0); // Coordinated Universal Time: +0000
+    map.insert("MST", -7 * 3600); // Mountain Standard Time: -0700
+    map.insert("AEDT", 11 * 3600); // Australian Eastern Daylight Time: +1100
     map.insert("ACST", 9 * 3600 + 30 * 60); // Australian Central Standard Time: +0930
 
     map
 }
-
-// ===================
 
 #[tokio::main]
 async fn main() {
