@@ -1,5 +1,6 @@
 subinclude("@pleasings//docker")
 
+app_name=split_path(package_name())[-1]
 svc='API'
 
 docker_image(
@@ -48,7 +49,7 @@ genrule(
   pass_env = ["VERSION"],
   cmd = [
     "cat $SRCS >> $OUT",
-    "echo version: \"${HELMCHART_VERSION}\" >> $OUT",
+    "echo version: \"${VERSION}\" >> $OUT",
     "echo appVersion: \"${VERSION}\" >> $OUT"
   ],
   out = "Chart.yaml"
@@ -65,7 +66,7 @@ genrule(
 
 tarball(
   name="helm_tarball",
-  subdir="chart",
+  subdir=app_name,
   out='payments.tgz'.format(svc=split_path(package_name())[-1]),
   srcs=["//common/k8s"] + glob("k8s/values.yaml") + [":chart_yaml"]
 )

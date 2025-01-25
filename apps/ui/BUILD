@@ -1,5 +1,6 @@
 subinclude("@pleasings//docker")
 
+app_name=split_path(package_name())[-1]
 svc=split_path(package_name())[-1]
 
 docker_image(
@@ -18,8 +19,8 @@ sh_cmd(
 )
 
 tarball(
+  subdir = app_name,
   name="helm_tarball",
-  subdir="chart",
   deps = [":version"],
   out='{svc}.tgz'.format(svc=svc),
   srcs=["//common/k8s"] + glob("k8s/values.yaml") + [":chart_yaml"]
@@ -28,10 +29,10 @@ tarball(
 genrule(
   name="chart_yaml",
   srcs = ["k8s/Chart.yaml"],
-  pass_env = ["HELMCHART_VERSION"],
+  pass_env = ["VERSION"],
   cmd = [
     "cat $SRCS >> $OUT",
-    "echo version: \"${HELMCHART_VERSION}\" >> $OUT",
+    "echo version: \"${VERSION}\" >> $OUT",
     "echo appVersion: \"${VERSION}\" >> $OUT"
   ],
   out = "Chart.yaml"
