@@ -40,12 +40,12 @@ pod:
     valueFrom:
       configMapKeyRef:
         key: NOCO_DB_PROJECT_ID
-        name: payments
+        name: files
   - name: NOCO_DB_TABLE_ID
     valueFrom:
       configMapKeyRef:
         key: NOCO_DB_TABLE_ID
-        name: payments
+        name: files
   - name: EVENT_QUEUE_NAME
     value: 'payobills.files'
   - name: EVENT_QUEUE_CONNECTION_STRING
