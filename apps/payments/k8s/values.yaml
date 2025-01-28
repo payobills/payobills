@@ -35,7 +35,10 @@ pod:
   - name: ENV
     value: PRODUCTION
   - name: NocoDBOptions__XCToken
-    value: ULmI7g0hQZq6oYGrFmbzwAk6mlt52ashrH5g82cJ
+    valueFrom:
+      secretKeyRef:
+        key: token
+        name: nocodb-token
   - name: NocoDBOptions__BaseUrl
     value: http://nocodb.homelab.svc.cluster.local:8080
 
