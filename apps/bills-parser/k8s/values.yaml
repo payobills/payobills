@@ -34,13 +34,25 @@ pod:
   - name: NocoDBOptions__BaseUrl
     value: 'http://nocodb.homelab.svc.cluster.local:8080'
   - name: NocoDBOptions__XCToken
-    value: 'ULmI7g0hQZq6oYGrFmbzwAk6mlt52ashrH5g82cJ'
+    valueFrom:
+      secretKeyRef:
+        key: token
+        name: nocodb-token
   - name: NOCO_DB_PROJECT_ID
-    value: 'p_uye5el98noe784'
+    valueFrom:
+      configMapKeyRef:
+        key: NOCO_DB_PROJECT_ID
+        name: files
   - name: NOCO_DB_TABLE_ID
-    value: 'muc28giyeqf2tqf'
+    valueFrom:
+      configMapKeyRef:
+        key: NOCO_DB_TABLE_ID
+        name: files
   - name: EVENT_QUEUE_CONNECTION_STRING
-    value: 'amqp://user:8AcLhbmkH2f75Wif@rabbitmq.homelab.svc.cluster.local'
+    valueFrom:
+      secretKeyRef:
+        key: connection-string
+        name: rabbitmq
   - name: EVENT_QUEUE_NAME
     value: 'payobills.files'
 
