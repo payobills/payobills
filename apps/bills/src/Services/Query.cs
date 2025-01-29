@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services.Contracts.DTOs;
 
+// [ExtendObjectType("Query")]
 public class Query
 {
   public async Task<IEnumerable<BillDTO>> Bills([Service] IBillsService billsService)
