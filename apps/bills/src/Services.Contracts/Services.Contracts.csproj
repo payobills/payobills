@@ -11,4 +11,8 @@
     <RootNamespace>Payobills.Bills.Services.Contracts</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.Types" Version="12.22.6" />
+  </ItemGroup>
+
 </Project>

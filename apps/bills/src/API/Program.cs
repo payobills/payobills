@@ -46,6 +46,7 @@ builder.Services.AddSingleton<IMapper>((_) =>
 // gql
 builder.Services
   .AddGraphQLServer()
+  .AddApolloFederation()
   .AddQueryType<Query>()
   .AddMutationType<Mutation>()
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
@@ -56,4 +57,4 @@ var app = builder.Build();
 app.MapGet("/", () => (new { app = "payobills.bills" }));
 app.MapGraphQL();
 
-app.Run();
+await app.RunWithGraphQLCommandsAsync(args);

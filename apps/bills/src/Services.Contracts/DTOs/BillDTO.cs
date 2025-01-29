@@ -1,3 +1,5 @@
+using HotChocolate.Types;
+
 namespace Payobills.Bills.Services.Contracts.DTOs;
 
 public class BillDTO
