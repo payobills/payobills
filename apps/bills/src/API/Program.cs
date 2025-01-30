@@ -1,4 +1,5 @@
 using Payobills.Bills.Services.Contracts;
+using Payobills.Bills.Services.Contracts.DTOs;
 using Payobills.Bills.Services;
 using Payobills.Bills.NocoDB;
 using AutoMapper;
@@ -31,6 +32,8 @@ builder.Services.AddScoped<StatsQueryService>();
 builder.Services.AddSingleton<IGuidService, GuidService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 
+// builder.Services.AddSingleton<BillDTOType>();
+
 // mapper
 builder.Services.AddSingleton<IMapper>((_) =>
 {
@@ -47,9 +50,10 @@ builder.Services
   .AddGraphQLServer()
   .AddApolloFederation()
   .AddQueryType<Query>()
-  .AddMutationType<Mutation>()
+  // .AddMutationType<Mutation>()
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
-  .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>();
+  .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
+  .AddType<BillDTOType>();
 
 var app = builder.Build();
 
