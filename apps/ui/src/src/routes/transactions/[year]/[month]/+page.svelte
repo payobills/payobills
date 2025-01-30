@@ -22,7 +22,7 @@
 
   $: transactionsQuery = queryStore({
     client: $paymentsUrql,
-    variables: { year: currentYear, month: currentMonth + 1 },
+    variables: { year: currentYear, month: currentMonth },
     query: gql`
       query ($year: Int!, $month: Int!) {
         transactionsByYearAndMonth(year: $year, month: $month) {
@@ -53,8 +53,8 @@
     <section class="title">
       <button
         on:click={() => {
-          currentYear = currentMonth == 0 ? currentYear - 1 : currentYear;
-          currentMonth = currentMonth == 0 ? 11 : currentMonth - 1;
+          currentYear = currentMonth == 1 ? currentYear - 1 : currentYear;
+          currentMonth = currentMonth == 1 ? 12 : currentMonth - 1;
           goto(`/transactions/${currentYear}/${currentMonth}`);
         }}
       >
@@ -68,10 +68,10 @@
         {`Transactions for ${Intl.DateTimeFormat(undefined, {
           month: "short",
         }).format(
-          new Date(currentYear, currentMonth, 1)
+          new Date(currentYear, currentMonth - 1, 1)
         )} '${Intl.DateTimeFormat(undefined, {
           year: "2-digit",
-        }).format(new Date(currentYear, currentMonth, 1))}`}
+        }).format(new Date(currentYear, currentMonth-1, 1))}`}
       </h1>
       <button
         on:click={() => {
