@@ -1,10 +1,12 @@
 using System.Text.Json.Nodes;
 using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services.Contracts.DTOs;
+using HotChocolate.ApolloFederation.Resolvers;
 
-// [ExtendObjectType("Query")]
+
 public class Query
 {
+  [NodeResolver]
   public async Task<IEnumerable<BillDTO>> Bills([Service] IBillsService billsService)
     => await billsService.GetBillsAsync();
 
