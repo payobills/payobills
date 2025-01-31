@@ -19,8 +19,8 @@ sh_cmd(
 )
 
 tarball(
-  subdir = app_name,
   name="helm_tarball",
+  subdir=app_name,
   deps = [":version"],
   out='{svc}.tgz'.format(svc=svc),
   srcs=["//common/k8s"] + glob("k8s/values.yaml") + [":chart_yaml"]
@@ -29,10 +29,10 @@ tarball(
 genrule(
   name="chart_yaml",
   srcs = ["k8s/Chart.yaml"],
-  pass_env = ["VERSION"],
+  pass_env = ["HELMCHART_VERSION"],
   cmd = [
     "cat $SRCS >> $OUT",
-    "echo version: \"${VERSION}\" >> $OUT",
+    "echo version: \"${HELMCHART_VERSION}\" >> $OUT",
     "echo appVersion: \"${VERSION}\" >> $OUT"
   ],
   out = "Chart.yaml"
