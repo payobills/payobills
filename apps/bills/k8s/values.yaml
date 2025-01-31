@@ -10,7 +10,7 @@ image:
   repository: ghcr.io/payobills/apps/bills
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2.15"
+  tag: "0.2.17"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -27,14 +27,6 @@ serviceAccount:
 pod:
   annotations: {}
   # command: ["tail", "-f", "/dev/null"]
-  volumes:
-  - name: bills-data
-    hostPath:
-      pathPrefix: data/bills-data
-
-  volumeMounts:
-  - mountPath: /data
-    name: bills-data
 
   env:
   - name: ASPNETCORE_ENVIRONMENT
