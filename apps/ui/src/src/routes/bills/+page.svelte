@@ -6,16 +6,26 @@
   import Nav from "$lib/nav.svelte";
   import Card from "$lib/card.svelte";
   import { onMount } from "svelte";
+  import BillUploadStatement from "$lib/bill-upload-statement.svelte";
+  import BillStatements from "$lib/bills/bill-statements.svelte";
 
   let billId: any;
   let billByIdQuery: any;
   let refreshKey: number = Date.now();
+
+  let showUploadStatementSection = false;
 
   billId = $page.url.searchParams.get("id");
   $: billByIdQuery = queryStore({
     client: $billsUrql,
     query: gql`
       query billById($billId: String!) {
+        billStatements(billId: $billId) {
+          id
+          startDate
+          endDate
+          notes
+        }
         billById(id: $billId) {
           id
           name
@@ -91,10 +101,11 @@
   const chart = (node: any) => {
     if (!loaded) load();
 
-    const orderedData  = $billByIdQuery.data.billById.payments.sort((a:any,b:any) => {
-        return  new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime()
-    });
-
+    const orderedData = $billByIdQuery.data.billById.payments.sort(
+      (a: any, b: any) => {
+        return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
+      }
+    );
 
     let allData = orderedData.map((p: any) => {
       return {
@@ -118,7 +129,7 @@
             {
               y: last.y + current.y,
               x: last.x,
-              note: `${last.note} - + ${current.y}`
+              note: `${last.note} - + ${current.y}`,
             },
           ];
         }
@@ -128,7 +139,7 @@
           {
             x: current.x,
             y: current.y,
-            note: current.note
+            note: current.note,
           },
         ];
       },
@@ -136,7 +147,7 @@
     );
 
     let options: any = {
-      colors: ['var(--primary-color)'],
+      colors: ["var(--primary-color)"],
       legend: {
         show: false,
       },
@@ -158,18 +169,18 @@
       },
       yaxis: {
         labels: {
-          show:false,
-          formatter: (value: number) => `₹ ${value}`
-        }
+          show: false,
+          formatter: (value: number) => `₹ ${value}`,
+        },
       },
       dataLabels: {
-              enabled: true,
-              // textAnchor: 'start',
-              style: {
-                colors: ['#96b7e8']
-              },
-               formatter: (value: number) => `₹ ${value}`,
-            },
+        enabled: true,
+        // textAnchor: 'start',
+        style: {
+          colors: ["#000"],
+        },
+        formatter: (value: number) => `₹ ${value}`,
+      },
     };
 
     let myChart = new (window as any).ApexCharts(node, options);
@@ -221,14 +232,28 @@
             >
           </p>
         {/each}
+
+        <BillStatements
+        bill={{ id: billId }}
+        statements={$billByIdQuery.data.billStatements}
+        />
+        
+        {#if showUploadStatementSection}
+          <BillUploadStatement bill={{ id: billId }} />
+        {/if}
+        
+        <div class="actions">
+          {#if !showUploadStatementSection}
+            <button on:click={() => (showUploadStatementSection = true)}
+              >upload statement</button
+            >
+          {/if}
+          <button class="markPaid" on:click={async () => await markPaid()}
+            >mark as paid</button
+          >
+        </div>
       {/if}
     {/if}
-
-    <div class="actions">
-      <button class="markPaid" on:click={async () => await markPaid()}
-        >mark as paid</button
-      >
-    </div>
   </div>
 </Card>
 
@@ -238,9 +263,7 @@
     font-size: 1.2rem;
     font-weight: 600;
   }
-  h2 {
-    font-size: 1rem;
-  }
+
   p {
     font-size: 0.8rem;
   }
@@ -253,14 +276,24 @@
     display: flex;
     flex-grow: 1;
     justify-content: flex-end;
+    flex-direction: column;
+  }
+
+  .actions > button {
+    margin: 0.25rem 0;
+    width: 100%;
   }
 
   .markPaid {
     align-self: flex-end;
   }
 
-  .payment {display: flex;}
-  .amount,.amount--unknown {
+  .payment {
+    display: flex;
+  }
+
+  .amount,
+  .amount--unknown {
     flex-grow: 1;
   }
 </style>
