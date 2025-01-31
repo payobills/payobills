@@ -1,6 +1,6 @@
 using Payobills.Bills.Services.Contracts;
 using Payobills.Bills.Services;
-using Payobills.Bills.NocoDB;
+using Payobills.NocoDB;
 using AutoMapper;
 using System.Text.Json;
 
@@ -25,6 +25,7 @@ builder.Services.Configure<NocoDBOptions>(builder.Configuration.GetRequiredSecti
 builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddScoped<NocoDBClientService>();
 builder.Services.AddScoped<IBillsService, BillsNocoDBService>();
+builder.Services.AddScoped<IBillStatementsService, BillStatementsNocoDBService>();
 builder.Services.AddScoped<StatsQueryService>();
 
 // utils

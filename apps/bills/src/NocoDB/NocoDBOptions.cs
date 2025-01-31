@@ -1,4 +1,4 @@
-namespace Payobills.Bills.NocoDB;
+namespace Payobills.NocoDB;
 
 public record NocoDBOptions
 {

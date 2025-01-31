@@ -1,6 +1,5 @@
 subinclude("@pleasings//docker")
 
-app_name = split_path(package_name())[-1] 
 svc='API'
 
 docker_image(
@@ -66,8 +65,8 @@ genrule(
 
 tarball(
   name="helm_tarball",
-  subdir=app_name,
-  out='{app_name}.tgz'.format(app_name=app_name),
+  subdir="chart",
+  out='bills.tgz'.format(svc=split_path(package_name())[-1]),
   srcs=["//common/k8s"] + glob("k8s/values.yaml") + [":chart_yaml"]
 )
 
