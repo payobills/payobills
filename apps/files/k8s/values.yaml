@@ -30,17 +30,29 @@ pod:
   volumeMounts: []
   env:
   - name: NOCO_DB_BASE_URL
-    value: ''
+    value: 'http://nocodb.homelab.svc.cluster.local:8080'
   - name: NOCO_DB_XC_TOKEN
-    value: ''
+    valueFrom:
+      secretKeyRef:
+        key: token
+        name: nocodb-token
   - name: NOCO_DB_PROJECT_ID
-    value: ''
-  - name: NOCO_DB_TABLE_ID 
-    value: ''
-  - name: EVENT_QUEUE_NAME 
-    value: ''
+    valueFrom:
+      configMapKeyRef:
+        key: NOCO_DB_PROJECT_ID
+        name: files
+  - name: NOCO_DB_TABLE_ID
+    valueFrom:
+      configMapKeyRef:
+        key: NOCO_DB_TABLE_ID
+        name: files
+  - name: EVENT_QUEUE_NAME
+    value: 'payobills.files'
   - name: EVENT_QUEUE_CONNECTION_STRING
-    value: ''
+    valueFrom:
+      secretKeyRef:
+        key: connection-string
+        name: rabbitmq
 podSecurityContext: {}
   # fsGroup: 2000
 
