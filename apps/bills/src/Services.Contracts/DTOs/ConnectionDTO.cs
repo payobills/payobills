@@ -1,7 +1,6 @@
 namespace Payobills.Bills.Services.Contracts.DTOs;
 
-public class BillConnectionDTO 
+public class ConnectionDTO
 {
   public int Id { get; set; }
 }
-
