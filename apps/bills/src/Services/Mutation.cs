@@ -7,4 +7,7 @@ public class Mutation
 
   public async Task<PaymentDTO> MarkPayment([Service] IBillsService billsService, MarkPaymentForBillDTO dto)
     => await billsService.MarkPaymentForBillAsync(dto);
+
+  public async Task<BillStatementDTO> AddBillStatement([Service] IBillStatementsService billStatementsService, AddBillStatementDTO dto)
+    => await billStatementsService.AddBillStatementAsync(dto);
 }
