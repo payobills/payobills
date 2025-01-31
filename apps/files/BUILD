@@ -1,5 +1,6 @@
 subinclude("@pleasings//docker")
 
+app_name = split_path(package_name())[-1]
 svc=split_path(package_name())[-1]
 
 docker_image(
@@ -19,9 +20,9 @@ sh_cmd(
 
 tarball(
   name="helm_tarball",
-  subdir="chart",
+  subdir=app_name,
   deps = [":version"],
-  out='{svc}.tgz'.format(svc=svc),
+  out='{app_name}.tgz'.format(app_name=app_name),
   srcs=["//common/k8s"] + glob("k8s/values.yaml") + [":chart_yaml"]
 )
 

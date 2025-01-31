@@ -7,26 +7,26 @@
   import { get } from "svelte/store";
 
   // onMount(async () => {
-    
+
   //   // Guard against going to other pages without login
   //   // loadAuthFromLocalStorage();
   //   // const authState = get(auth);
   //   // if (authState == null) await goto("/timeline");
   // });
 
-  function randomNotification () {
+  function randomNotification() {
     Notification.requestPermission().then((result) => {
-    if (result === "granted") {
-      const notifTitle ='Payobills';
-      const notifBody = `You have a new bill to pay...`;
-      const notifImg = `https://http.cat/images/200.jpg`;
-      const options = {
-        body: notifBody,
-        icon: notifImg,
-      };
-      new Notification(notifTitle, options);
-    }
-  });
+      if (result === "granted") {
+        const notifTitle = "Payobills";
+        const notifBody = `You have a new bill to pay...`;
+        const notifImg = `https://http.cat/images/200.jpg`;
+        const options = {
+          body: notifBody,
+          icon: notifImg,
+        };
+        new Notification(notifTitle, options);
+      }
+    });
   }
 </script>
 
@@ -38,7 +38,7 @@
 
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-  @import url('https://fonts.googleapis.com/css2?family=Vibes&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Vibes&display=swap");
 
   :root {
     --color: #9f9f9f;
@@ -46,6 +46,16 @@
     /* #5b81bb */
     --primary-color: #181818;
     --primary-bg-color: #f3f3f3;
+  }
+
+  :global(a) {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 400;
+  }
+
+  :global(p) {
+    font-size: 0.75rem;
   }
 
   :global(div#app) {
@@ -62,8 +72,8 @@
   }
 
   :global(#app) {
-     display: flex;
-     flex-direction: column;
+    display: flex;
+    flex-direction: column;
   }
 
   :global(*) {

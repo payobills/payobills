@@ -11,4 +11,5 @@ public interface ITransactionsService
   Task<TransactionDTO> SetTransactionTags(string id, string tags);
   Task<IEnumerable<TransactionTagDTO>> GetTransactionTagsAsync();
   Task<TransactionDTO> UpdateTransactionAsync(string id, TransactionUpdateDTO updateDTO);
+  Task<TransactionDTO> AddTransactionAsync(TransactionAddDTO addDTO);
 }
