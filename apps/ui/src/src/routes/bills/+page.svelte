@@ -14,6 +14,7 @@
   let refreshKey: number = Date.now();
 
   let showUploadStatementSection = false;
+  let uploadStatementResult = undefined;
 
   billId = $page.url.searchParams.get("id");
   $: billByIdQuery = queryStore({
@@ -91,6 +92,66 @@
 
     await load();
   });
+
+  const onBillStatementFormUpload = (inputs: any) => {
+    const formdata = new FormData();
+    formdata.append(
+      "tags",
+      JSON.stringify({
+        CorrelationID: inputs.bill.id,
+        Type: "BILL_STATEMENT",
+        Note: "",
+      })
+    );
+
+    formdata.append(
+      "file",
+      inputs.billStatementFile,
+      inputs.billStatementFile.name
+    );
+
+    fetch("/files", {
+      method: "POST",
+      body: formdata,
+    })
+      .then(res => res.json())
+      .then((fileUploadResult) =>
+        $billsUrql
+          .mutation(
+            gql`
+              mutation ($fileId: Int!, $billId: Int!) {
+                addBillStatement(
+                  dto: {
+                    notes: "",
+                    startDate: null,
+                    endDate: null,
+                    file: { id: $fileId }
+                    bill: { id: $billId }
+                  }
+                ) {
+                    id
+                    startDate
+                    endDate
+                    notes
+                    bill {
+                        id name
+                    }
+                }
+              }
+            `,
+            {
+              billId: +inputs.bill.id,
+              fileId: +fileUploadResult.data.id,
+            }
+          )
+          .toPromise()
+      )
+      .then(() => (uploadStatementResult = true))
+      .catch((error) => {
+        console.error("Error:", error);
+        uploadStatementResult = false;
+      });
+  };
 
   const load = async () => {
     const module = await import("apexcharts");
@@ -234,14 +295,17 @@
         {/each}
 
         <BillStatements
-        bill={{ id: billId }}
-        statements={$billByIdQuery.data.billStatements}
+          bill={{ id: billId }}
+          statements={$billByIdQuery.data.billStatements}
         />
-        
+
         {#if showUploadStatementSection}
-          <BillUploadStatement bill={{ id: billId }} />
+          <BillUploadStatement
+            bill={{ id: billId }}
+            {onBillStatementFormUpload}
+          />
         {/if}
-        
+
         <div class="actions">
           {#if !showUploadStatementSection}
             <button on:click={() => (showUploadStatementSection = true)}
