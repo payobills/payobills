@@ -29,6 +29,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Create Buildx Builder with Platforms
+        run: |
+          # Create a new buildx builder and set it as the default
+          docker buildx create --use --name cross --driver docker-container --platform linux/amd64,linux/arm64
+
       - name: Run plz command
         run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "export \(.key)=\(.value)"' | xargs); plz ${PLZ_SUBCOMMAND} ${PLZ_SUBCOMMAND_ARGS}"
         env:
