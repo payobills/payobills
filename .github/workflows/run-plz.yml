@@ -5,8 +5,12 @@ on:
     inputs:
       PLZ_SUBCOMMAND:
         description: 'plz subcommand to run'
-        required: false
-        default: ''
+        required: true
+        default: 'run'
+        type: choice
+        options:
+          - run
+          - build
       ENV_VARS:
         description: 'JSON string of environment variables'
         default: '{ "CI": "true" }'
