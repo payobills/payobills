@@ -12,12 +12,12 @@ version = 16.27.5
 default-docker-repo=ghcr.io/payobills
 
 [build]
+passenv=ARCH
 passenv=PROJECT_ROOT
 passenv=PROJECT_NAME
-passenv=ARCH
 passenv=DOTNET_VERSION
-passenv=NODE_VERSION
 passenv=DOTNET_RUNTIME_VERSION
-passenv=VERSION
-passenv=KUBECONFIG
 passenv=RUST_VERSION
+passenv=NODE_VERSION
+passenv=KUBECONFIG
+passenv=VERSION
