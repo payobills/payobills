@@ -45,9 +45,6 @@ jobs:
         run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "export \(.key)=\(.value)"' | xargs); plz ${PLZ_SUBCOMMAND} ${PLZ_SUBCOMMAND_ARGS}"
         env:
           PROJECT_NAME: ${{ vars.PROJECT_NAME }}
-          DOTNET_RUNTIME_VERSION: ${{ vars.DOTNET_RUNTIME_VERSION }}
-          DOTNET_VERSION: ${{ vars.DOTNET_VERSION }}
-          NODE_VERSION: ${{ vars.NODE_VERSION }}
           PASSED_ENV_VARS: ${{ github.event.inputs.ENV_VARS }}
           PLZ_SUBCOMMAND: ${{ github.event.inputs.PLZ_SUBCOMMAND }}
           PLZ_SUBCOMMAND_ARGS: ${{ github.event.inputs.PLZ_SUBCOMMAND_ARGS }}
