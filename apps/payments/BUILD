@@ -14,7 +14,6 @@ docker_image(
 genrule(
   name="docker_buildx",
   binary = True,
-  pass_env=["VERSION", "DOTNET_VERSION", "DOTNET_RUNTIME_VERSION"],
   cmd='''
     echo '#!/bin/sh' > $OUT
     echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
