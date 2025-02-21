@@ -1,9 +1,8 @@
 # https://devblogs.microsoft.com/dotnet/improving-multiplatform-container-support/
 
-ARG DOTNET_VERSION=8.0.406-noble
-ARG DOTNET_RUNTIME_VERSION=8.0.13-bookworm-slim
+ARG IMAGE__BUILD=mcr.microsoft.com/dotnet/sdk:8.0.406-noble
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:$DOTNET_VERSION AS build-env
+FROM --platform=$BUILDPLATFORM $IMAGE__BUILD AS build-env
 
 WORKDIR /app
 
@@ -16,10 +15,9 @@ RUN dotnet publish -c Release --self-contained -a $TARGETARCH -o out API/API.csp
 
 # build runtime image
 
-ARG DOTNET_VERSION=8.0.406-noble
-ARG DOTNET_RUNTIME_VERSION=8.0.13-bookworm-slim
+ARG IMAGE__RUNTIME=mcr.microsoft.com/dotnet/runtime:8.0.13-bookworm-slim
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/runtime:$DOTNET_RUNTIME_VERSION
+FROM --platform=$BUILDPLATFORM $IMAGE__RUNTIME
 
 WORKDIR /app
 
