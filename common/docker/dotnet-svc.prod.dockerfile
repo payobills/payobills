@@ -3,7 +3,7 @@
 ARG DOTNET_VERSION=8.0.406-noble
 ARG DOTNET_RUNTIME_VERSION=8.0.13-bookworm-slim
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build-env
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:$DOTNET_VERSION AS build-env
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ RUN dotnet publish -c Release --self-contained -a $TARGETARCH -o out API/API.csp
 ARG DOTNET_VERSION=8.0.406-noble
 ARG DOTNET_RUNTIME_VERSION=8.0.13-bookworm-slim
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/runtime:${DOTNET_RUNTIME_VERSION}
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/runtime:$DOTNET_RUNTIME_VERSION
 
 WORKDIR /app
 
