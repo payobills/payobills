@@ -2,7 +2,7 @@
 
 ARG IMAGE__BUILD=mcr.microsoft.com/dotnet/sdk:8.0.406-noble
 
-FROM --platform=$BUILDPLATFORM $IMAGE__BUILD AS build-env
+FROM --platform=$BUILDPLATFORM ${IMAGE__BUILD} AS build-env
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN dotnet publish -c Release --self-contained -a $TARGETARCH -o out API/API.csp
 
 ARG IMAGE__RUNTIME=mcr.microsoft.com/dotnet/runtime:8.0.13-bookworm-slim
 
-FROM --platform=$BUILDPLATFORM $IMAGE__RUNTIME
+FROM --platform=$BUILDPLATFORM ${IMAGE__RUNTIME}
 
 WORKDIR /app
 
