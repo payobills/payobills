@@ -16,6 +16,7 @@ RUN dotnet publish -c Release --self-contained -a $TARGETARCH -o out API/API.csp
 
 # build runtime image
 
+ARG TARGETARCH
 ARG IMAGE__RUNTIME
 
 FROM --platform=$BUILDPLATFORM ${IMAGE__RUNTIME}
@@ -28,6 +29,7 @@ EXPOSE 80
 
 ARG SVC
 ENV SVC=${SVC}
+ENV TARGETARCH=${TARGETARCH}
 
 ENV DOTNET_URLS='http://0.0.0.0:80'
 
