@@ -2,6 +2,7 @@
 
 ARG IMAGE__BUILD='mcr.microsoft.com/dotnet/sdk:8.0.406-noble'
 ARG IMAGE__RUNTIME='mcr.microsoft.com/dotnet/runtime:8.0.13-bookworm-slim'
+ARG TARGETARCH
 
 FROM --platform=$BUILDPLATFORM ${IMAGE__BUILD} AS build-env
 
