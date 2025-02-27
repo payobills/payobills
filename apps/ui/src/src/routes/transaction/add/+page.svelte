@@ -7,6 +7,7 @@
   let billId = "";
   let amount: number | null = null;
   let merchant = "";
+  let notes: string | null = null;
 
   const billsQuery = queryStore({
     client: $billsUrql,
@@ -42,6 +43,7 @@
               parseStatus: "NotStarted",
               merchant,
               bill: { id: +billId },
+              notes: notes || ""
             },
           }
         )
@@ -95,6 +97,7 @@
       <textarea
         id="notes"
         placeholder="Add more details to remember about this transaction."
+        bind:value={notes}
       ></textarea>
 
       <button type="submit">Add transaction</button>
