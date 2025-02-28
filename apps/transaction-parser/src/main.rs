@@ -445,7 +445,7 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
         let nocodb_base_url =
             std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
         let url: String = format!(
-            "{}/api/v1/db/data/nc/{}/{}?w=(ParseStatus,eq,NotStarted)&l=1000&fields=*",
+            "{}/api/v1/db/data/nc/{}/{}?w=(ParseStatus,eq,ReParse)~or(ParseStatus,eq,NotStarted)&l=1000&fields=*",
             nocodb_base_url,
             base_name.clone(),
             table_name.clone()
