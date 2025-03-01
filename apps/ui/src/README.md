@@ -8,6 +8,10 @@ helm upgrade --create-namespace --install -n payobills --set service.type=NodePo
 
 k port-forward -n payobills svc/ui 8080:80
 
+## changelog
+
+- 0.2.50: fix: amount decimal places when creating transactions manually
+
 ## Creating a project
 
 If you're seeing this, you've probably already done this step. Congrats!

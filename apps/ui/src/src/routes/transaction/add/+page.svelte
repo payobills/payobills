@@ -83,7 +83,7 @@
       ></textarea>
 
       <label for="amount"> Amount </label>
-      <input bind:value={amount} type="number" id="amount" placeholder="100" />
+      <input bind:value={amount} type="number" step="0.000001" id="amount" placeholder="100" />
 
       <label for="merchant"> Merchant </label>
       <input
