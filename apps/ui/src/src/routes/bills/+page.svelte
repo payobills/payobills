@@ -93,14 +93,21 @@
     await load();
   });
 
-  const onBillStatementFormUpload = (inputs: any) => {
+interface FileUploadResult {
+  data: {
+    id: string;
+  };
+}
+
+const onBillStatementFormUpload = async (inputs: { bill: Bill; billStatementFile: File }) => {
+  try {
     const formdata = new FormData();
     formdata.append(
       "tags",
       JSON.stringify({
         CorrelationID: inputs.bill.id,
         Type: "BILL_STATEMENT",
-        Note: "",
+        Note: inputs.billStatementFile.name,
       })
     );
 
@@ -110,48 +117,59 @@
       inputs.billStatementFile.name
     );
 
-    fetch("/files", {
+    const response = await fetch("/files", {
       method: "POST",
       body: formdata,
-    })
-      .then(res => res.json())
-      .then((fileUploadResult) =>
-        $billsUrql
-          .mutation(
-            gql`
-              mutation ($fileId: Int!, $billId: Int!) {
-                addBillStatement(
-                  dto: {
-                    notes: "",
-                    startDate: null,
-                    endDate: null,
-                    file: { id: $fileId }
-                    bill: { id: $billId }
-                  }
-                ) {
-                    id
-                    startDate
-                    endDate
-                    notes
-                    bill {
-                        id name
-                    }
-                }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`File upload failed: ${response.statusText}`);
+    }
+    
+    const fileUploadResult = (await response.json()) as FileUploadResult;
+    
+    const { error } = await $billsUrql
+      .mutation(
+        gql`
+          mutation ($fileId: Int!, $billId: Int!) {
+            addBillStatement(
+              dto: {
+                notes: "",
+                startDate: null,
+                endDate: null,
+                file: { id: $fileId }
+                bill: { id: $billId }
               }
-            `,
-            {
-              billId: +inputs.bill.id,
-              fileId: +fileUploadResult.data.id,
+            ) {
+              id
+              startDate
+              endDate
+              notes
+              bill {
+                id name
+              }
             }
-          )
-          .toPromise()
+          }
+        `,
+        {
+          billId: +inputs.bill.id,
+          fileId: +fileUploadResult.data.id,
+        }
       )
-      .then(() => (uploadStatementResult = true))
-      .catch((error) => {
-        console.error("Error:", error);
-        uploadStatementResult = false;
-      });
-  };
+      .toPromise();
+      
+    if (error) {
+      throw error;
+    }
+    
+    uploadStatementResult = true;
+    refreshKey = Date.now(); // Refresh the query to show the new statement
+  } catch (error) {
+    console.error("Error:", error);
+    uploadStatementResult = false;
+    throw error;
+  }
+};
 
   const load = async () => {
     const module = await import("apexcharts");
