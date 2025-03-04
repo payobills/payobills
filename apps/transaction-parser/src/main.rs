@@ -143,21 +143,26 @@ async fn parse_transaction(
 
     if record.bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
-            r"^(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX [a-zA-Z\s]*[Cc]ard .*(at )?(.*) on ([^\.]*)(\w{3,4})\.",
+            r"^Alert: You've spent (?P<currency>\w+) (?P<amount>\d+\.?\d+) on your AMEX card \*\* (?P<card>\d+) at (?P<merchant>[a-zA-Z0-9\s]*) on (?P<date>[\d]{1,2} \w+, [\d]{4} at \d{2,2}:\d{2,2} [A-Z]{2,2}) (?P<timezone>[A-Z]{2,3})\..*$",
         )
         .unwrap();
         if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
             let amount = caps
-                .get(3)
-                .unwrap()
+                .name("amount")
+                .expect("CAPTURE TO BE PRESENT")
                 .as_str()
                 .trim()
                 .to_string()
                 .replace(',', "");
 
-            let date_string_capture = caps.get(6).unwrap().as_str().trim().to_string();
+            let date_string_capture = caps
+                .name("date")
+                .expect("CAPTURE TO BE PRESENT")
+                .as_str()
+                .trim()
+                .to_string();
 
-            let time_zone_capture = caps.get(7).unwrap().as_str();
+            let time_zone_capture = caps.name("timezone").expect("CAPTURE TO BE PRESENT").as_str();
             let time_zone_percentage_z_format = timezone_to_offset(time_zone_capture);
 
             let full_back_date_capture =
