@@ -143,7 +143,7 @@ async fn parse_transaction(
 
     if record.bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
-            r"^Alert: You've spent (?P<currency>\w+) (?P<amount>\d+\.?\d+) on your AMEX card \*\* (?P<card>\d+) at (?P<merchant>[a-zA-Z0-9\s]*) on (?P<date>[\d]{1,2} \w+, [\d]{4} at \d{2,2}:\d{2,2} [A-Z]{2,2}) (?P<timezone>[A-Z]{2,3})\..*$",
+            r"^Alert: You've spent (?P<currency>[^\d\s]+)\s{0,1}(?P<amount>\d+\.?\d+) on your AMEX card \*\* (?P<card>\d+)( at ){0,1}(?P<merchant>[a-zA-Z0-9\s]*) on (?P<date>[\d]{1,2} \w+, [\d]{4} at \d{2,2}:\d{2,2} [A-Z]{2,2}) (?P<timezone>[A-Z]{2,3})\..*$",
         )
         .unwrap();
         if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
@@ -187,11 +187,11 @@ async fn parse_transaction(
 
             changes.insert(
                 "Merchant".to_string(),
-                Value::Str(caps.get(5).unwrap().as_str().trim().to_string()),
+                Value::Str(caps.name("merchant").expect("CAPTURE").as_str().trim().to_string()),
             );
             changes.insert(
                 "Currency".to_string(),
-                Value::Str(caps.get(2).unwrap().as_str().trim().to_string()),
+                Value::Str(caps.name("currency").expect("CAPTURE").as_str().trim().to_string()),
             );
             changes.insert(
                 "Amount".to_string(),
