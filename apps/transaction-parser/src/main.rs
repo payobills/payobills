@@ -22,6 +22,27 @@ const TRANSACTION_DATE_FORMAT_JUPITER: &str = "%-m/%-d/%y, %I:%M %p %z";
 const TRANSACTION_DATE_FORMAT_SBI_PRIME: &str = "%d/%m/%y %H:%M %z";
 
 #[derive(Serialize, Deserialize)]
+struct CurrencyExchangeData {
+    rates: HashMap<String, f64>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct HistoricalCurrencyExchangeRateRecord {
+    date: String,
+    exchange_data: CurrencyExchangeData,
+}
+
+#[derive(Clone)]
+struct NocoDBEnv {
+    base_url: String,
+    api_key: String,
+    base_name_currencies: String,
+    base_name_payobills: String,
+    table_name_currencies_historical: String,
+    table_name_payobills_transactions: String,
+}
+
+#[derive(Serialize, Deserialize)]
 struct PageInfo {
     #[serde(rename = "totalRows")]
     total_rows: i32,
@@ -35,8 +56,8 @@ struct PageInfo {
 }
 
 #[derive(Serialize, Deserialize)]
-struct NocoBDResponse {
-    list: Vec<Transaction>,
+struct NocoDBResponse<T> {
+    list: Vec<T>,
     #[serde(rename = "pageInfo")]
     page_info: PageInfo,
 }
@@ -66,6 +87,8 @@ struct Transaction {
     transaction_text: Option<String>,
     #[serde(rename = "SourceSystemID")]
     source_system_id: Option<String>,
+    #[serde(rename = "Currency")]
+    currency: String,
     #[serde(rename = "Id")]
     id: i32,
     #[serde(rename = "CreatedAt")]
@@ -75,10 +98,10 @@ struct Transaction {
     back_date_string: Option<String>,
     #[serde(rename = "UpdatedAt")]
     updated_at: Option<String>,
-    // #[serde(rename = "Image")]
-    // image: Option<String>,
     #[serde(rename = "Amount")]
     amount: Option<f64>,
+    #[serde(rename = "NormalizedAmount")]
+    normalized_amount: Option<f64>,
     #[serde(rename = "nc_14ri__bills_id")]
     bills_id: Option<i32>,
     notes: Option<String>,
@@ -110,8 +133,7 @@ impl SerializeImpl for Value {
 // Function to parse the transaction text for AMEX transactions
 async fn parse_transaction(
     record: Transaction,
-    base_name: String,
-    table_name: String,
+    nocodb_env: NocoDBEnv,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let token =
         std::env::var("NOCODB_INTEGRATION_TOKEN").expect("NOCODB_INTEGRATION_TOKEN must be set");
@@ -141,6 +163,35 @@ async fn parse_transaction(
         }
     }
 
+    if record.currency != "INR" {
+        let exchange_records: NocoDBResponse<HistoricalCurrencyExchangeRateRecord> = get_nocodb_records(
+                nocodb_env.clone(),
+                nocodb_env.base_name_currencies,
+                nocodb_env.table_name_currencies_historical,
+                "(Date,eq,exactDate,2025-02-14)&l=1",
+            ).await?;
+
+        let exchange_rates: HashMap<String, f64> = exchange_records.list.get(0).unwrap().exchange_data.rates.clone();
+        
+        match record.amount {
+            Some(amount) => {
+                let exchange_rate_usd_to_source: f64 =
+                    exchange_rates.get(record.currency.as_str()).unwrap().clone();
+                let exchange_rate_usd_to_inr: f64 = exchange_rates.get("USD").unwrap().clone();
+                let normalized_amount =
+                    amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
+                changes.insert(
+                    "NormalizedAmount".to_string(),
+                    Value::F64(normalized_amount),
+                );
+            }
+            None => {
+                eprintln!("no amount")
+            }
+        }
+        // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
+    }
+
     if record.bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
             r"^Alert: You've spent (?P<currency>[^\d\s]+)\s{0,1}(?P<amount>[\d,]+\.?\d+) on your AMEX card \*\* (?P<card>\d+)( at ){0,1}(?P<merchant>.*) on (?P<date>[\d]{1,2} \w+, [\d]{4} at \d{2,2}:\d{2,2} [A-Z]{2,2}) (?P<timezone>[A-Z]{2,3})\..*$",
@@ -162,7 +213,10 @@ async fn parse_transaction(
                 .trim()
                 .to_string();
 
-            let time_zone_capture = caps.name("timezone").expect("CAPTURE TO BE PRESENT").as_str();
+            let time_zone_capture = caps
+                .name("timezone")
+                .expect("CAPTURE TO BE PRESENT")
+                .as_str();
             let time_zone_percentage_z_format = timezone_to_offset(time_zone_capture);
 
             let full_back_date_capture =
@@ -187,11 +241,23 @@ async fn parse_transaction(
 
             changes.insert(
                 "Merchant".to_string(),
-                Value::Str(caps.name("merchant").expect("CAPTURE").as_str().trim().to_string()),
+                Value::Str(
+                    caps.name("merchant")
+                        .expect("CAPTURE")
+                        .as_str()
+                        .trim()
+                        .to_string(),
+                ),
             );
             changes.insert(
                 "Currency".to_string(),
-                Value::Str(caps.name("currency").expect("CAPTURE").as_str().trim().to_string()),
+                Value::Str(
+                    caps.name("currency")
+                        .expect("CAPTURE")
+                        .as_str()
+                        .trim()
+                        .to_string(),
+                ),
             );
             changes.insert(
                 "Amount".to_string(),
@@ -396,16 +462,6 @@ async fn parse_transaction(
         );
     }
 
-    // match serde_json::to_string(&changes) {
-    //     Ok(json_str) => {
-    //         // Print the `curl` command with the serialized JSON data.
-    //         println!("curl --location -X PATCH 'http://NOCODB_BASE_URL/api/v1/db/data/nc/payobills/transactions/{}' --header 'xc-token: {}' --header 'Content-Type: application/json' --data '{}'", record.id, token,json_str);
-    //     },
-    //     Err(e) => {
-    //         println!("Error serializing changes: {:?}", e);
-    //     },
-    // }
-
     let mut map = HeaderMap::new();
     map.insert("xc-token", token.parse().unwrap());
     map.insert(
@@ -413,13 +469,14 @@ async fn parse_transaction(
         "application/json".to_string().as_str().parse().unwrap(),
     );
 
-    let nocodb_base_url = std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
     let url: String = format!(
         "{}/api/v1/db/data/nc/{}/{}/{}",
-        nocodb_base_url, base_name, table_name, record.id
+        nocodb_env.base_url,
+        nocodb_env.base_name_payobills,
+        nocodb_env.table_name_payobills_transactions,
+        record.id
     );
 
-    // let response: NocoBDResponse
     let response = reqwest::Client::new()
         .patch(url)
         .body(serde_json::to_string(&changes)?)
@@ -435,25 +492,51 @@ async fn parse_transaction(
     Ok(())
 }
 
-// Function to process the CSV transactions
-async fn process_transactions(base_name: String, table_name: String) -> Result<(), Box<dyn Error>> {
+async fn get_nocodb_records<T>(
+    nocodb_env: NocoDBEnv,
+    base_name: String,
+    table_name: String,
+    filter: &str,
+) -> Result<NocoDBResponse<T>, Box<dyn Error>>
+where
+    T: serde::de::DeserializeOwned,
+{
+    let mut map = HeaderMap::new();
+    map.insert("xc-token", nocodb_env.api_key.as_str().parse().unwrap());
+
+    let nocodb_base_url = std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
+    let url: String = format!(
+        "{}/api/v1/db/data/nc/{}/{}?w={}&l=1000&fields=*",
+        nocodb_base_url,
+        base_name,
+        table_name,
+        filter
+    );
+
+    let response = reqwest::Client::new()
+        .get(&url)
+        .headers(map)
+        .send()
+        .await?
+        .json::<NocoDBResponse<T>>()
+        .await?;
+
+    Ok(response)
+}
+
+async fn process_transactions(nocodb_env: NocoDBEnv) -> Result<(), Box<dyn Error>> {
     // let mut offset = 0;
     let mut parse_more = true;
 
-    let token =
-        std::env::var("NOCODB_INTEGRATION_TOKEN").expect("NOCODB_INTEGRATION_TOKEN must be set");
-
     while parse_more == true {
         let mut map = HeaderMap::new();
-        map.insert("xc-token", token.parse().unwrap());
+        map.insert("xc-token", nocodb_env.api_key.parse().unwrap());
 
-        let nocodb_base_url =
-            std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
         let url: String = format!(
             "{}/api/v1/db/data/nc/{}/{}?w=(ParseStatus,eq,ReParse)~or(ParseStatus,eq,NotStarted)&l=1000&fields=*",
-            nocodb_base_url,
-            base_name.clone(),
-            table_name.clone()
+            nocodb_env.base_url,
+            nocodb_env.base_name_payobills,
+            nocodb_env.table_name_payobills_transactions
         );
 
         println!("{}", url.clone());
@@ -464,7 +547,7 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
             .headers(map)
             .send()
             .await?
-            .json::<NocoBDResponse>()
+            .json::<NocoDBResponse<Transaction>>()
             .await?;
 
         println!(
@@ -479,10 +562,7 @@ async fn process_transactions(base_name: String, table_name: String) -> Result<(
         // Parse transactions only if it is attached to a bill
         for transaction in response.list {
             match transaction.bills {
-                Some(_) => {
-                    parse_transaction(transaction.clone(), base_name.clone(), table_name.clone())
-                        .await?
-                }
+                Some(_) => parse_transaction(transaction.clone(), nocodb_env.clone()).await?,
                 None => {}
             }
         }
@@ -562,10 +642,19 @@ fn get_timezone_offset_map() -> HashMap<&'static str, i32> {
 
 #[tokio::main]
 async fn main() {
-    let base_name = std::env::var("NOCODB_BASE_NAME").expect("NOCODB_BASE_NAME must be set");
-    let table_name = std::env::var("NOCODB_TABLE_NAME").expect("NOCODB_TABLE_NAME must be set");
+    let nocodb_env = NocoDBEnv {
+        base_url: std::env::var("NOCODB__BASE_URL").expect("NOCODB__BASE_URL must be set"),
+        base_name_payobills: String::from("payobills"),
+        table_name_payobills_transactions: String::from("transactions"), // std::env::var("NOCODB_TABLE_NAME").expect("NOCODB_TABLE_NAME must be set")
+        base_name_currencies: std::env::var("NOCODB_BASE_NAME__CURRENCIES")
+            .expect("NOCODB__BASENAME_CURRENCIES must be set"),
+        table_name_currencies_historical: std::env::var("NOCODB_TABLE_NAME_CURRENCIES_HISTORICAL")
+            .expect("NOCODB_TABLE_NAME_CURRENCIES_HISTORICAL must be set"),
+        api_key: std::env::var("NOCODB_INTEGRATION_TOKEN")
+            .expect("NOCODB_INTEGRATION_TOKEN must be set"),
+    };
 
-    process_transactions(base_name, table_name)
+    process_transactions(nocodb_env.clone())
         .await
         .expect("Unable to parse transactions");
 }
