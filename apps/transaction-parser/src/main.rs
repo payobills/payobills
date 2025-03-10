@@ -135,9 +135,6 @@ async fn parse_transaction(
     record: Transaction,
     nocodb_env: NocoDBEnv,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let token =
-        std::env::var("NOCODB_INTEGRATION_TOKEN").expect("NOCODB_INTEGRATION_TOKEN must be set");
-
     // Bag to keep all changes to be made to the transaction during parsing
     let mut changes: HashMap<String, Value> = HashMap::new();
 
@@ -463,7 +460,7 @@ async fn parse_transaction(
     }
 
     let mut map = HeaderMap::new();
-    map.insert("xc-token", token.parse().unwrap());
+    map.insert("xc-token", nocodb_env.api_key.parse().unwrap());
     map.insert(
         "Content-Type",
         "application/json".to_string().as_str().parse().unwrap(),
@@ -504,10 +501,9 @@ where
     let mut map = HeaderMap::new();
     map.insert("xc-token", nocodb_env.api_key.as_str().parse().unwrap());
 
-    let nocodb_base_url = std::env::var("NOCODB_BASE_URL").expect("NOCODB_BASE_URL should be set");
     let url: String = format!(
         "{}/api/v1/db/data/nc/{}/{}?w={}&l=1000&fields=*",
-        nocodb_base_url,
+        nocodb_env.base_url,
         base_name,
         table_name,
         filter
@@ -646,12 +642,12 @@ async fn main() {
         base_url: std::env::var("NOCODB__BASE_URL").expect("NOCODB__BASE_URL must be set"),
         base_name_payobills: String::from("payobills"),
         table_name_payobills_transactions: String::from("transactions"), // std::env::var("NOCODB_TABLE_NAME").expect("NOCODB_TABLE_NAME must be set")
-        base_name_currencies: std::env::var("NOCODB_BASE_NAME__CURRENCIES")
+        base_name_currencies: std::env::var("NOCODB__BASE_NAME__CURRENCIES")
             .expect("NOCODB__BASENAME_CURRENCIES must be set"),
         table_name_currencies_historical: std::env::var("NOCODB_TABLE_NAME_CURRENCIES_HISTORICAL")
-            .expect("NOCODB_TABLE_NAME_CURRENCIES_HISTORICAL must be set"),
-        api_key: std::env::var("NOCODB_INTEGRATION_TOKEN")
-            .expect("NOCODB_INTEGRATION_TOKEN must be set"),
+            .expect("NOCODB__TABLE_NAME_CURRENCIES_HISTORICAL must be set"),
+        api_key: std::env::var("NOCODB__INTEGRATION_TOKEN")
+            .expect("NOCODB__INTEGRATION_TOKEN must be set"),
     };
 
     process_transactions(nocodb_env.clone())
