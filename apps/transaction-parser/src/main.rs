@@ -88,7 +88,7 @@ struct Transaction {
     #[serde(rename = "SourceSystemID")]
     source_system_id: Option<String>,
     #[serde(rename = "Currency")]
-    currency: String,
+    currency: Option<String>,
     #[serde(rename = "Id")]
     id: i32,
     #[serde(rename = "CreatedAt")]
@@ -160,33 +160,47 @@ async fn parse_transaction(
         }
     }
 
-    if record.currency != "INR" {
-        let exchange_records: NocoDBResponse<HistoricalCurrencyExchangeRateRecord> = get_nocodb_records(
-                nocodb_env.clone(),
-                nocodb_env.base_name_currencies,
-                nocodb_env.table_name_currencies_historical,
-                "(Date,eq,exactDate,2025-02-14)&l=1",
-            ).await?;
+    match record.currency {
+        Some(currency) => {
+            if currency != "INR" {
+                let exchange_records: NocoDBResponse<HistoricalCurrencyExchangeRateRecord> =
+                    get_nocodb_records(
+                        nocodb_env.clone(),
+                        nocodb_env.base_name_currencies,
+                        nocodb_env.table_name_currencies_historical,
+                        "(Date,eq,exactDate,2025-02-14)&l=1",
+                    )
+                    .await?;
 
-        let exchange_rates: HashMap<String, f64> = exchange_records.list.get(0).unwrap().exchange_data.rates.clone();
-        
-        match record.amount {
-            Some(amount) => {
-                let exchange_rate_usd_to_source: f64 =
-                    exchange_rates.get(record.currency.as_str()).unwrap().clone();
-                let exchange_rate_usd_to_inr: f64 = exchange_rates.get("USD").unwrap().clone();
-                let normalized_amount =
-                    amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
-                changes.insert(
-                    "NormalizedAmount".to_string(),
-                    Value::F64(normalized_amount),
-                );
+                let exchange_rates: HashMap<String, f64> = exchange_records
+                    .list
+                    .get(0)
+                    .unwrap()
+                    .exchange_data
+                    .rates
+                    .clone();
+
+                match record.amount {
+                    Some(amount) => {
+                        let exchange_rate_usd_to_source: f64 = exchange_rates
+                            .get(currency.as_str())
+                            .unwrap()
+                            .clone();
+                        let exchange_rate_usd_to_inr: f64 =
+                            exchange_rates.get("USD").unwrap().clone();
+                        let normalized_amount =
+                            amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
+                        changes.insert(
+                            "NormalizedAmount".to_string(),
+                            Value::F64(normalized_amount),
+                        );
+                    }
+                    None => { }
+                }
             }
-            None => {
-                eprintln!("no amount")
-            }
+            // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
         }
-        // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
+        None => {}
     }
 
     if record.bill_type == BILL_TYPE_AMEX {
@@ -503,10 +517,7 @@ where
 
     let url: String = format!(
         "{}/api/v1/db/data/nc/{}/{}?w={}&l=1000&fields=*",
-        nocodb_env.base_url,
-        base_name,
-        table_name,
-        filter
+        nocodb_env.base_url, base_name, table_name, filter
     );
 
     let response = reqwest::Client::new()
@@ -644,8 +655,10 @@ async fn main() {
         table_name_payobills_transactions: String::from("transactions"), // std::env::var("NOCODB_TABLE_NAME").expect("NOCODB_TABLE_NAME must be set")
         base_name_currencies: std::env::var("NOCODB__BASE_NAME__CURRENCIES")
             .expect("NOCODB__BASE_NAME__CURRENCIES must be set"),
-        table_name_currencies_historical: std::env::var("NOCODB__TABLE_NAME__CURRENCIES__HISTORICAL")
-            .expect("NOCODB__TABLE_NAME__CURRENCIES__HISTORICAL must be set"),
+        table_name_currencies_historical: std::env::var(
+            "NOCODB__TABLE_NAME__CURRENCIES__HISTORICAL",
+        )
+        .expect("NOCODB__TABLE_NAME__CURRENCIES__HISTORICAL must be set"),
         api_key: std::env::var("NOCODB__INTEGRATION_TOKEN")
             .expect("NOCODB__INTEGRATION_TOKEN must be set"),
     };
