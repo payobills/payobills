@@ -91,13 +91,15 @@ struct Transaction {
     currency: Option<String>,
     #[serde(rename = "Id")]
     id: i32,
-    #[serde(rename = "CreatedAt")]
-    created_at: Option<String>,
+    // #[serde(rename = "CreatedAt")]
+    // created_at: Option<String>,
+    #[serde(rename = "PaidAt")]
+    paid_at: Option<String>,
     bills: Option<Bill>,
     #[serde(rename = "BackDateString", skip_serializing_if = "Option::is_none")]
     back_date_string: Option<String>,
-    #[serde(rename = "UpdatedAt")]
-    updated_at: Option<String>,
+    // #[serde(rename = "UpdatedAt")]
+    // updated_at: Option<String>,
     #[serde(rename = "Amount")]
     amount: Option<f64>,
     #[serde(rename = "NormalizedAmount")]
