@@ -28,7 +28,9 @@ struct CurrencyExchangeData {
 
 #[derive(Serialize, Deserialize)]
 struct HistoricalCurrencyExchangeRateRecord {
+    #[serde(rename = "Date")]
     date: String,
+    #[serde(rename = "ExchangeData")]
     exchange_data: CurrencyExchangeData,
 }
 
