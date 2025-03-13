@@ -191,10 +191,10 @@ async fn parse_transaction(
                             .unwrap()
                             .clone();
                         let exchange_rate_usd_to_inr: f64 =
-                            exchange_rates.get("USD").unwrap().clone();
+                            exchange_rates.get("INR").unwrap().clone();
                         let normalized_amount =
                             amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
-                        println!("{:?} / {:?} * {:?}", amount, exchange_rate_usd_to_source, exchange_rate_usd_to_inr);
+                        // println!("{:?} / {:?} * {:?}", amount, exchange_rate_usd_to_source, exchange_rate_usd_to_inr);
                         changes.insert(
                             "NormalizedAmount".to_string(),
                             Value::F64(normalized_amount),
