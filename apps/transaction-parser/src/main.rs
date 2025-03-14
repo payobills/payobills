@@ -21,6 +21,16 @@ const TRANSACTION_DATE_FORMAT_AMEX: &str = "%d %B, %Y at %I:%M %p %z";
 const TRANSACTION_DATE_FORMAT_JUPITER: &str = "%-m/%-d/%y, %I:%M %p %z";
 const TRANSACTION_DATE_FORMAT_SBI_PRIME: &str = "%d/%m/%y %H:%M %z";
 
+#[derive(Serialize, Deserialize, Clone)]
+struct CurrencyRecord {
+    #[serde(rename = "Symbol")]
+    symbol: String,
+    #[serde(rename = "Name")]
+    name: String,
+    #[serde(rename = "Code")]
+    code: String,
+}
+
 #[derive(Serialize, Deserialize)]
 struct CurrencyExchangeData {
     rates: HashMap<String, f64>,
@@ -41,6 +51,7 @@ struct NocoDBEnv {
     base_name_currencies: String,
     base_name_payobills: String,
     table_name_currencies_historical: String,
+    table_name_currencies_currencies: String,
     table_name_payobills_transactions: String,
 }
 
@@ -164,62 +175,6 @@ async fn parse_transaction(
         }
     }
 
-    match record.currency {
-        Some(currency) => {
-            if currency != "INR" {
-                let paid_at =
-                    DateTime::parse_from_rfc3339(record.paid_at.clone().unwrap().as_str()).unwrap();
-                let transaction_date_string = paid_at.format("%Y-%m-%d").to_string(); // Extract the date part
-                                                                                      // println!("{:?}", date_str); // Output: "2022-07-25"
-
-                println!("(Date,eq,exactDate,{})&l=1", transaction_date_string);
-                let exchange_records: NocoDBResponse<HistoricalCurrencyExchangeRateRecord> =
-                    get_nocodb_records(
-                        nocodb_env.clone(),
-                        nocodb_env.base_name_currencies,
-                        nocodb_env.table_name_currencies_historical,
-                        format!("(Date,eq,exactDate,{})&l=1", transaction_date_string).as_str(),
-                    )
-                    .await?;
-
-                if exchange_records.list.len() > 0 {
-                    let exchange_rates: HashMap<String, f64> = exchange_records
-                        .list
-                        .get(0)
-                        .unwrap()
-                        .exchange_data
-                        .rates
-                        .clone();
-
-                    match record.amount {
-                        Some(amount) => {
-                            let exchange_rate_usd_to_source: f64 =
-                                exchange_rates.get(currency.as_str()).unwrap().clone();
-                            let exchange_rate_usd_to_inr: f64 =
-                                exchange_rates.get("INR").unwrap().clone();
-                            let normalized_amount =
-                                amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
-                            // println!("{:?} / {:?} * {:?}", amount, exchange_rate_usd_to_source, exchange_rate_usd_to_inr);
-                            changes.insert(
-                                "NormalizedAmount".to_string(),
-                                Value::F64(normalized_amount),
-                            );
-                        }
-                        None => {}
-                    }
-                }
-                else {
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str(String::from("ReParse")),
-                    );
-                }
-            }
-            // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
-        }
-        None => {}
-    }
-
     if record.bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
             r"^Alert: You've spent (?P<currency>[^\d\s]+)\s{0,1}(?P<amount>[\d,]+\.?\d+) on your AMEX card \*\* (?P<card>\d+)( at ){0,1}(?P<merchant>.*) on (?P<date>[\d]{1,2} \w+, [\d]{4} at \d{2,2}:\d{2,2} [A-Z]{2,2}) (?P<timezone>[A-Z]{2,3})\..*$",
@@ -250,14 +205,14 @@ async fn parse_transaction(
             let full_back_date_capture =
                 format!("{} {}", date_string_capture, time_zone_percentage_z_format);
 
-            println!("captured date string - {}", date_string_capture.clone());
+            // println!("captured date string - {}", date_string_capture.clone());
             match parse_custom_date(
                 full_back_date_capture.clone().as_str(),
                 TRANSACTION_DATE_FORMAT_AMEX,
                 false,
             ) {
                 Ok(date_string) => {
-                    println!("Parsed date: {:?}", date_string);
+                    // println!("Parsed date: {:?}", date_string);
                     changes.insert("BackDate".to_string(), Value::Str(date_string));
                 }
                 Err(e) => {
@@ -490,6 +445,85 @@ async fn parse_transaction(
         );
     }
 
+    match record.currency {
+        Some(currency) => {
+            if currency != "INR" {
+                let paid_at =
+                    DateTime::parse_from_rfc3339(record.paid_at.clone().unwrap().as_str()).unwrap();
+                let transaction_date_string = paid_at.format("%Y-%m-%d").to_string(); // Extract the date part
+                                                                                      // println!("{:?}", date_str); // Output: "2022-07-25"
+                                                                                      // println!("(Date,eq,exactDate,{})&l=1", transaction_date_string);
+                let exchange_records: NocoDBResponse<HistoricalCurrencyExchangeRateRecord> =
+                    get_nocodb_records(
+                        nocodb_env.clone(),
+                        nocodb_env.clone().base_name_currencies,
+                        nocodb_env.clone().table_name_currencies_historical,
+                        format!("(Date,eq,exactDate,{})&l=1", transaction_date_string).as_str(),
+                    )
+                    .await?;
+
+                if exchange_records.list.len() > 0 {
+                    let exchange_rates: HashMap<String, f64> = exchange_records
+                        .list
+                        .get(0)
+                        .unwrap()
+                        .exchange_data
+                        .rates
+                        .clone();
+
+                    match record.amount {
+                        Some(amount) => {
+                            let currencies: Vec<CurrencyRecord> = get_nocodb_records(
+                                nocodb_env.clone(),
+                                nocodb_env.clone().base_name_currencies,
+                                nocodb_env.clone().table_name_currencies_currencies,
+                                "(Code,neq,'')",
+                            )
+                            .await?
+                            .list;
+
+                            let matching_currency_records: Vec<&CurrencyRecord> = currencies
+                                .iter()
+                                .filter(|curr| currency == curr.code || currency == curr.symbol)
+                                .clone()
+                                .collect();
+
+                            if matching_currency_records.len() > 0 {
+                                let matching_currency_record = matching_currency_records[0];
+
+                                let exchange_rate_usd_to_source: f64 = exchange_rates
+                                    .get(matching_currency_record.code.as_str())
+                                    .unwrap()
+                                    .clone();
+                                let exchange_rate_usd_to_inr: f64 =
+                                    exchange_rates.get("INR").unwrap().clone();
+                                let normalized_amount =
+                                    amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
+
+                                changes.insert(
+                                    "Currency".to_string(),
+                                    Value::Str(matching_currency_record.code.as_str().to_string()),
+                                );
+                                changes.insert(
+                                    "NormalizedAmount".to_string(),
+                                    Value::F64(normalized_amount),
+                                );
+                            }
+                        }
+                        None => {}
+                    }
+                } else {
+                    changes.insert(
+                        "ParseStatus".to_string(),
+                        Value::Str(String::from("ReParse")),
+                    );
+                }
+            }
+            // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
+        }
+        None => {}
+    }
+
     let mut map = HeaderMap::new();
     map.insert("xc-token", nocodb_env.api_key.parse().unwrap());
     map.insert(
@@ -668,14 +702,24 @@ fn get_timezone_offset_map() -> HashMap<&'static str, i32> {
 async fn main() {
     let nocodb_env = NocoDBEnv {
         base_url: std::env::var("NOCODB__BASE_URL").expect("NOCODB__BASE_URL must be set"),
+
         base_name_payobills: String::from("payobills"),
+
         table_name_payobills_transactions: String::from("transactions"), // std::env::var("NOCODB_TABLE_NAME").expect("NOCODB_TABLE_NAME must be set")
+
         base_name_currencies: std::env::var("NOCODB__BASE_NAME__CURRENCIES")
             .expect("NOCODB__BASE_NAME__CURRENCIES must be set"),
+
         table_name_currencies_historical: std::env::var(
             "NOCODB__TABLE_NAME__CURRENCIES__HISTORICAL",
         )
         .expect("NOCODB__TABLE_NAME__CURRENCIES__HISTORICAL must be set"),
+
+        table_name_currencies_currencies: std::env::var(
+            "NOCODB__TABLE_NAME__CURRENCIES__CURRENCIES",
+        )
+        .expect("NOCODB__TABLE_NAME__CURRENCIES__CURRENCIES must be set"),
+
         api_key: std::env::var("NOCODB__INTEGRATION_TOKEN")
             .expect("NOCODB__INTEGRATION_TOKEN must be set"),
     };
