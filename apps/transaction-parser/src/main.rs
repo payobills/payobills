@@ -208,6 +208,12 @@ async fn parse_transaction(
                         None => {}
                     }
                 }
+                else {
+                    changes.insert(
+                        "ParseStatus".to_string(),
+                        Value::Str(String::from("ReParse")),
+                    );
+                }
             }
             // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
         }
