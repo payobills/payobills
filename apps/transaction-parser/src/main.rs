@@ -167,40 +167,46 @@ async fn parse_transaction(
     match record.currency {
         Some(currency) => {
             if currency != "INR" {
+                let paid_at =
+                    DateTime::parse_from_rfc3339(record.paid_at.clone().unwrap().as_str()).unwrap();
+                let transaction_date_string = paid_at.format("%Y-%m-%d").to_string(); // Extract the date part
+                                                                                      // println!("{:?}", date_str); // Output: "2022-07-25"
+
+                println!("(Date,eq,exactDate,{})&l=1", transaction_date_string);
                 let exchange_records: NocoDBResponse<HistoricalCurrencyExchangeRateRecord> =
                     get_nocodb_records(
                         nocodb_env.clone(),
                         nocodb_env.base_name_currencies,
                         nocodb_env.table_name_currencies_historical,
-                        "(Date,eq,exactDate,2025-02-14)&l=1",
+                        format!("(Date,eq,exactDate,{})&l=1", transaction_date_string).as_str(),
                     )
                     .await?;
 
-                let exchange_rates: HashMap<String, f64> = exchange_records
-                    .list
-                    .get(0)
-                    .unwrap()
-                    .exchange_data
-                    .rates
-                    .clone();
+                if exchange_records.list.len() > 0 {
+                    let exchange_rates: HashMap<String, f64> = exchange_records
+                        .list
+                        .get(0)
+                        .unwrap()
+                        .exchange_data
+                        .rates
+                        .clone();
 
-                match record.amount {
-                    Some(amount) => {
-                        let exchange_rate_usd_to_source: f64 = exchange_rates
-                            .get(currency.as_str())
-                            .unwrap()
-                            .clone();
-                        let exchange_rate_usd_to_inr: f64 =
-                            exchange_rates.get("INR").unwrap().clone();
-                        let normalized_amount =
-                            amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
-                        // println!("{:?} / {:?} * {:?}", amount, exchange_rate_usd_to_source, exchange_rate_usd_to_inr);
-                        changes.insert(
-                            "NormalizedAmount".to_string(),
-                            Value::F64(normalized_amount),
-                        );
+                    match record.amount {
+                        Some(amount) => {
+                            let exchange_rate_usd_to_source: f64 =
+                                exchange_rates.get(currency.as_str()).unwrap().clone();
+                            let exchange_rate_usd_to_inr: f64 =
+                                exchange_rates.get("INR").unwrap().clone();
+                            let normalized_amount =
+                                amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
+                            // println!("{:?} / {:?} * {:?}", amount, exchange_rate_usd_to_source, exchange_rate_usd_to_inr);
+                            changes.insert(
+                                "NormalizedAmount".to_string(),
+                                Value::F64(normalized_amount),
+                            );
+                        }
+                        None => {}
                     }
-                    None => { }
                 }
             }
             // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
