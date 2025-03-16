@@ -7,6 +7,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UglyToad.PdfPig;
 using Payobills.BillsParser.Data.Contracts.Models;
+using UglyToad.PdfPig.Content;
+using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 
 /**
 # Summary
@@ -88,20 +90,31 @@ class Program
           foreach (var pageNumber in Enumerable.Range(1, document.NumberOfPages))
           {
               var stream = new Camelot.Parsers.Stream();
-              var tables = stream.ExtractTables(document.GetPage(pageNumber));
 
-              foreach (var table in tables)
+              List<Camelot.Core.Table> tables;
+
+              try
               {
-                  for (int i = 0; i < table.Rows.Count; i++)
+                  Page page = document.GetPage(pageNumber);
+                  tables = stream.ExtractTables(page);
+                  foreach (var table in tables)
                   {
-                      for (int j = 0; j < table.Cols.Count; j++)
+                      for (int i = 0; i < table.Rows.Count; i++)
                       {
-                          var cellText = table.Cells[i][j].Text.Trim(new char[] { '\n', '\r' });
-                          cellText = Regex.Replace(cellText, @"[/\r\n/]", " ");
-                          statementStringBuilder.Append($" {cellText} ");
+                          for (int j = 0; j < table.Cols.Count; j++)
+                          {
+                              var cellText = table.Cells[i][j].Text.Trim(new char[] { '\n', '\r' });
+                              cellText = Regex.Replace(cellText, @"[/\r\n/]", " ");
+                              statementStringBuilder.Append($" {cellText} ");
+                          }
+                          statementStringBuilder.AppendLine();
                       }
-                      statementStringBuilder.AppendLine();
                   }
+              }
+              catch (Exception e)
+              {
+                  Console.Error.WriteLine($"Error: {e}");
+                  continue;
               }
           }
 
