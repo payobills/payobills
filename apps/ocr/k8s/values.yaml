@@ -10,7 +10,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/payobills/apps/ocr
   pullPolicy: IfNotPresent
-  tag: "0.0.1-9d8b2060"
+  tag: "0.0.2"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
