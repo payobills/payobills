@@ -9,3 +9,6 @@ plz-out
 /worktrees
 
 .scannerwork
+
+# Ignore git worktree folder
+/w
