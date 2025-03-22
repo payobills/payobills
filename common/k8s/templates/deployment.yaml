@@ -34,12 +34,12 @@ spec:
           hostPath:
             path: {{ printf "%s/%s" $.Values.helpers.PROJECT_ROOT .hostPath.pathPrefix }}
         {{- end }}
-        {{- if .Values.enableOpenTelemetry }}
+        {{- if .Values.openTelemetry.enabled }}
         - name: varlog
           emptyDir: {}
         - name: opentelemetry-collector-configmap
           configMap:
-            name: opentelemetry-collector
+            name: otel-config-{{ .Release.Name }}
             items:
               - key: relay
                 path: relay.yaml
@@ -67,7 +67,7 @@ spec:
             {{- if ne .Values.pod.volumeMounts nil }}
             {{- toYaml .Values.pod.volumeMounts | nindent 12 }}
             {{- end}}
-            {{- if .Values.enableOpenTelemetry }}
+            {{- if .Values.openTelemetry.enabled }}
             - name: varlog
               mountPath: /var/log
             {{ end }}
@@ -87,7 +87,7 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        {{- if .Values.enableOpenTelemetry }}
+        {{- if .Values.openTelemetry.enabled }}
         - name: opentelemetry-collector
           image: otel/opentelemetry-collector-contrib:0.98.0
           command:
