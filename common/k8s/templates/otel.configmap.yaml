@@ -1,0 +1,86 @@
+{{- if .Values.openTelemetry.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-config-{{ .Release.Name }}
+data:
+  relay: |
+    exporters:
+      debug: {}
+      logging:
+        loglevel: debug
+      loki:
+        default_labels_enabled:
+          exporter: false
+          job: true
+        endpoint: http://loki-stack.homelab.svc.cluster.local:3100/loki/api/v1/push
+    extensions:
+      health_check:
+        endpoint: ${env:MY_POD_IP}:13133
+    processors:
+      attributes:
+        actions:
+        - action: insert
+          from_attribute: log.file.name
+          key: log_file_name
+        - action: insert
+          key: loki.attribute.labels
+          value: log_file_name
+      batch: {}
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+    receivers:
+      filelog:
+        include:
+        - /var/log/*.log
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:14250
+          thrift_compact:
+            endpoint: ${env:MY_POD_IP}:6831
+          thrift_http:
+            endpoint: ${env:MY_POD_IP}:14268
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:4317
+          http:
+            endpoint: ${env:MY_POD_IP}:4318
+      prometheus:
+        config:
+          scrape_configs:
+          - job_name: opentelemetry-collector
+            scrape_interval: 10s
+            static_configs:
+            - targets:
+              - ${env:MY_POD_IP}:8888
+      zipkin:
+        endpoint: ${env:MY_POD_IP}:9411
+    service:
+      extensions:
+      - health_check
+      pipelines:
+        logs:
+          exporters:
+          - loki
+          processors:
+          - attributes
+          receivers:
+          - filelog
+        traces:
+          exporters:
+          - debug
+          processors:
+          - memory_limiter
+          - batch
+          receivers:
+          - otlp
+          - jaeger
+          - zipkin
+      telemetry:
+        metrics:
+          address: ${env:MY_POD_IP}:8888
+{{- end }}
