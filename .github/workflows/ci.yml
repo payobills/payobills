@@ -70,7 +70,8 @@ jobs:
         echo "SERVICES='${SERVICES[@]}'"
 
         DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
-        DOCKER_BUILDX_APP_TARGETS=$(echo "${SERVICES[@]}" | grep '^apps/' | xargs printf "//%s:docker_buildx")
+        DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker_buildx "))
+        # DOCKER_BUILDX_APP_TARGETS=$(echo "${SERVICES[@]}" | grep '^apps/' | xargs printf "//%s:docker_buildx")
         IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan "))
 
         echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
