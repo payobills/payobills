@@ -69,6 +69,8 @@ jobs:
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
         echo "SERVICES='${SERVICES[@]}'"
 
+
+
         if [ -z "${SERVICES}" ]; then
             DOCKER_BUILD_TARGETS=''
             DOCKER_BUILDX_APP_TARGETS=''
@@ -87,6 +89,9 @@ jobs:
 
         echo "[DEBUG] CHANGED_APP_TARGETS='${DOCKER_BUILDX_APP_TARGETS[@]}'"
         echo "CHANGED_APP_TARGETS='${DOCKER_BUILDX_APP_TARGETS[@]}'" >> $GITHUB_OUTPUT
+
+        echo "[DEBUG] SERVICES='${SERVICES[@]}'"
+        echo "SERVICES='${SERVICES[@]}'" >> $GITHUB_OUTPUT
 
 
     # - name: lint targets
