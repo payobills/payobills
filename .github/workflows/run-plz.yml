@@ -71,7 +71,7 @@ jobs:
           password: ${{ secrets.GHCR_CI_TOKEN }}
 
       - name: Run plz command
-        run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "export \(.key)=\(.value)"' | xargs); echo plz ${PLZ_SUBCOMMAND} ${PLZ_SUBCOMMAND_ARGS}"
+        run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "export \(.key)=\(.value)"' | xargs); plz ${PLZ_SUBCOMMAND} ${PLZ_SUBCOMMAND_ARGS}"
         env:
           PROJECT_NAME: "payobills"
           PASSED_ENV_VARS: ${{ inputs.ENV_VARS }}

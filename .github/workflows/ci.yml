@@ -21,7 +21,7 @@ jobs:
     name: ci
     runs-on: ubuntu-22.04
     outputs:
-      CHANGED_APP_TARGETS: ${{ steps.calculate_service_versions.outputs.CHANGED_APP_TARGETS }} 
+      CHANGED_APP_TARGETS: ${{ steps.generate_other_targets.outputs.CHANGED_APP_TARGETS }} 
     steps:
     - name: Setup please.build
       uses: sagikazarmark/setup-please-action@v0
