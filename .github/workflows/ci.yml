@@ -67,17 +67,16 @@ jobs:
       run: |
         echo "SERVICES_RAW='${SERVICES_RAW}'"
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
-        echo "SERVICES='${SERVICES[@]}'"
 
         if [ "${#SERVICES[@]}" == "0" ]; then
-            DOCKER_BUILD_TARGETS=''
-            DOCKER_BUILDX_APP_TARGETS=''
-            IMAGE_SCAN_TARGETS=''
-          else
-            DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
-            DOCKER_BUILDX_APP_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker_buildx "))
-            IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan "))
-          fi
+          DOCKER_BUILD_TARGETS=''
+          DOCKER_BUILDX_APP_TARGETS=''
+          IMAGE_SCAN_TARGETS=''
+        else
+          DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
+          DOCKER_BUILDX_APP_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker_buildx "))
+          IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan "))
+        fi
 
         echo "[DEBUG] DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
         echo "DOCKER_BUILD_TARGETS=\"${DOCKER_BUILD_TARGETS[@]}\"" >> $GITHUB_OUTPUT
