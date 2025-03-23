@@ -120,16 +120,12 @@ jobs:
         diff_dest: ${{ steps.calculate_changed_services.outputs.diff_dest }}
 
     - name: Trigger run-plz workflow for apps
-      uses: githubactions/trigger-workflow@v1.0.4
+      uses: ./.github/workflows/run-plz.yaml
       if: ${{ github.event_name == 'pull_request' }}
       with:
-        workflow: 'run-plz.yml'
-        params: |
-          {
-            "PLZ_SUBCOMMAND": "run",
-            "PLZ_SUBCOMMAND_ARGS": "${{ steps.calculate_service_versions.outputs.CHANGED_APP_TARGETS }}",
-            "ENV_VARS": "{ \"VERSION\":\"tmp-pr-${{ github.event.pull_request.number }}}}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}",
-          }
+        PLZ_SUBCOMMAND: "run"
+        PLZ_SUBCOMMAND_ARGS: "${{ steps.calculate_service_versions.outputs.CHANGED_APP_TARGETS }}"
+        ENV_VARS: "{ \"VERSION\":\"tmp-pr-${{ github.event.pull_request.number }}}}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
 
     - name: Update PR description
       env:
