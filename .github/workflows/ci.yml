@@ -159,7 +159,8 @@ jobs:
 
   deploy-tmp-pr-docker-buildx-images:
     name: deploy-tmp-pr-docker-buildx-images
-    if: ${{ github.event_name == 'pull_request' && needs.ci.outputs.CHANGED_APP_TARGETS_COUNT != '0' }}
+    # TODO: Fix empty buildx triggering the workflow
+    if: ${{ github.event_name == 'pull_request' }}
     needs: ci
     uses: ./.github/workflows/run-plz.yml
     secrets: 
