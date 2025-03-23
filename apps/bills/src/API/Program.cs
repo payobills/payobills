@@ -3,19 +3,36 @@ using Payobills.Bills.Services;
 using Payobills.NocoDB;
 using AutoMapper;
 using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using OpenTelemetry;
+using OpenTelemetry.Logs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Doc: How to write all logs in JSON format
 // https://learn.microsoft.com/en-us/dotnet/core/extensions/console-log-formatter#json
-builder.Logging.AddJsonConsole(options =>
+// builder.Logging.AddJsonConsole(options =>
+// {
+//     options.IncludeScopes = false;
+//     options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
+//     options.JsonWriterOptions = new JsonWriterOptions
+//     {
+//         Indented = false
+//     };
+// });
+builder.Logging.ClearProviders();
+builder.Logging.AddOpenTelemetry(options =>
 {
-    options.IncludeScopes = false;
-    options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
-    options.JsonWriterOptions = new JsonWriterOptions
+    options.IncludeFormattedMessage = true;
+    options.IncludeScopes = true;
+
+    // Send logs directly to the OpenTelemetry sidecar
+    options.AddOtlpExporter(otlpOptions =>
     {
-        Indented = false
-    };
+        otlpOptions.Endpoint = new Uri("http://localhost:4317"); // gRPC
+    });
 });
 
 // options
