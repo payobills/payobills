@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-22.04-arm
     outputs:
       CHANGED_APP_TARGETS: ${{ steps.generate_other_targets.outputs.CHANGED_APP_TARGETS }} 
+      CHANGED_APP_TARGETS_COUNT: ${{ steps.generate_other_targets.outputs.CHANGED_APP_TARGETS_COUNT }} 
     steps:
     - name: Setup please.build
       uses: sagikazarmark/setup-please-action@v0
@@ -67,6 +68,9 @@ jobs:
       run: |
         echo "SERVICES_RAW='${SERVICES_RAW}'"
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
+
+        echo "CHANGED_APP_TARGETS_COUNT=\"${#SERVICES[@]}\" >> $GITHUB_OUTPUT"
+        echo "[DEBUG] CHANGED_APP_TARGETS_COUNT=\"${#SERVICES[@]}\"
 
         if [ "${#SERVICES[@]}" == "0" ]; then
           # echo '[DEBUG] No changed services'
@@ -154,7 +158,7 @@ jobs:
 
   deploy-tmp-pr-docker-buildx-images:
     name: deploy-tmp-pr-docker-buildx-images
-    if: ${{ github.event_name == 'pull_request' && needs.ci.outputs.CHANGED_APP_TARGETS != '' }}
+    if: ${{ github.event_name == 'pull_request' && needs.ci.outputs.CHANGED_APP_TARGETS_COUNT != '0' }}
     needs: ci
     uses: ./.github/workflows/run-plz.yml
     secrets: 
