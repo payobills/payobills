@@ -1,6 +1,27 @@
 name: 'Run plz Command'
 
 on:
+  workflow_call: 
+    inputs:
+      PLZ_SUBCOMMAND:
+        description: 'plz subcommand to run'
+        required: true
+        default: 'run'
+        type: string
+        # type: choice
+        # options:
+        #   - run
+        #   - build
+      ENV_VARS:
+        description: 'JSON string of environment variables'
+        default: '{ "CI": "true", "EXTRA_ARGS":"--push", "DOTNET_VERSION":"8.0.404","DOTNET_RUNTIME_VERSION":"8.0.3-bookworm-slim"}'
+        type: string
+      PLZ_SUBCOMMAND_ARGS:
+        description: 'Arguments for plz command'
+        required: false
+        type: string
+        default: ''
+
   workflow_dispatch:
     inputs:
       PLZ_SUBCOMMAND:
