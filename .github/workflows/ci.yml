@@ -148,7 +148,9 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     needs: ci
     uses: ./.github/workflows/run-plz.yml
+    secrets: 
+      GHCR_CI_TOKEN: ${{ secrets.GHCR_CI_TOKEN }}
     with:
-        PLZ_SUBCOMMAND: "run"
-        PLZ_SUBCOMMAND_ARGS: "${{ needs.ci.outputs.CHANGED_APP_TARGETS }}"
-        ENV_VARS: "{ \"VERSION\":\"tmp-pr-${{ github.event.pull_request.number }}}}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
+      PLZ_SUBCOMMAND: "run"
+      PLZ_SUBCOMMAND_ARGS: "${{ needs.ci.outputs.CHANGED_APP_TARGETS }}"
+      ENV_VARS: "{ \"VERSION\":\"tmp-pr-${{ github.event.pull_request.number }}}}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"

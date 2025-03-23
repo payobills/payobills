@@ -2,6 +2,10 @@ name: 'Run plz Command'
 
 on:
   workflow_call: 
+    secrets:
+      GHCR_CI_TOKEN:
+        description: 'ci token to login to ghcr'
+        required: true
     inputs:
       PLZ_SUBCOMMAND:
         description: 'plz subcommand to run'
