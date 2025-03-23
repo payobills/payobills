@@ -68,7 +68,7 @@ jobs:
         echo "SERVICES='${SERVICES[@]}'"
 
         DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
-        DOCKER_BUILDX_APP_TARGETS=$(echo "${SERVICES[@]}" | grep '^apps/' | xargs printf "//%s:docker_buildx, " | sed 's/,$//')
+        DOCKER_BUILDX_APP_TARGETS=$(echo "${SERVICES[@]}" | grep '^apps/' | xargs printf "//%s:docker_buildx")
         IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan "))
 
         echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
@@ -81,6 +81,7 @@ jobs:
         echo "SERVICES='${SERVICES[@]}'" >> $GITHUB_OUTPUT
 
         changed_app_targets=$(printf '%s' "$DOCKER_BUILDX_APP_TARGETS" | jq --raw-input --slurp '.')
+        echo "CHANGED_APP_TARGETS='${changed_app_targets[@]}'"
         echo "CHANGED_APP_TARGETS='${changed_app_targets[@]}'" >> $GITHUB_OUTPUT
 
 
