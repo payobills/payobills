@@ -69,14 +69,19 @@ jobs:
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
 
         if [ "${#SERVICES[@]}" == "0" ]; then
+          echo '[DEBUG] No changed services'
           DOCKER_BUILD_TARGETS=''
-          DOCKER_BUILDX_APP_TARGETS=''
           IMAGE_SCAN_TARGETS=''
+          CHANGED_APP_TARGETS=''
         else
+          echo "[DEBUG] ${#SERVICES[@]} changed services"
           DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
-          DOCKER_BUILDX_APP_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker_buildx "))
           IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan "))
+          CHANGED_APP_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker_buildx "))
         fi
+
+        echo "[DEBUG] SERVICES='${SERVICES[@]}'"
+        echo "SERVICES='${SERVICES[@]}'" >> $GITHUB_OUTPUT
 
         echo "[DEBUG] DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
         echo "DOCKER_BUILD_TARGETS=\"${DOCKER_BUILD_TARGETS[@]}\"" >> $GITHUB_OUTPUT
@@ -84,12 +89,8 @@ jobs:
         echo "[DEBUG] IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS[@]}'"
         echo "IMAGE_SCAN_TARGETS=\"${IMAGE_SCAN_TARGETS[@]}\"" >> $GITHUB_OUTPUT
 
-        echo "[DEBUG] CHANGED_APP_TARGETS='${DOCKER_BUILDX_APP_TARGETS[@]}'"
-        echo "CHANGED_APP_TARGETS='${DOCKER_BUILDX_APP_TARGETS[@]}'" >> $GITHUB_OUTPUT
-
-        echo "[DEBUG] SERVICES='${SERVICES[@]}'"
-        echo "SERVICES='${SERVICES[@]}'" >> $GITHUB_OUTPUT
-
+        echo "[DEBUG] CHANGED_APP_TARGETS='${CHANGED_APP_TARGETS[@]}'"
+        echo "CHANGED_APP_TARGETS='${CHANGED_APP_TARGETS[@]}'" >> $GITHUB_OUTPUT
 
     # - name: lint targets
     #   if: steps.generate_other_targets.outputs.SERVICES != ''
