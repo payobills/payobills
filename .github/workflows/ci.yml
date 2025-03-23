@@ -20,6 +20,8 @@ jobs:
   ci:
     name: ci
     runs-on: ubuntu-22.04
+    outputs:
+      CHANGED_APP_TARGETS: ${{ steps.calculate_service_versions.outputs.CHANGED_APP_TARGETS }} 
     steps:
     - name: Setup please.build
       uses: sagikazarmark/setup-please-action@v0
@@ -119,14 +121,6 @@ jobs:
         diff_source: ${{ steps.calculate_changed_services.outputs.diff_source }}
         diff_dest: ${{ steps.calculate_changed_services.outputs.diff_dest }}
 
-    - name: Trigger run-plz workflow for apps
-      uses: ./.github/workflows/run-plz.yaml
-      if: ${{ github.event_name == 'pull_request' }}
-      with:
-        PLZ_SUBCOMMAND: "run"
-        PLZ_SUBCOMMAND_ARGS: "${{ steps.calculate_service_versions.outputs.CHANGED_APP_TARGETS }}"
-        ENV_VARS: "{ \"VERSION\":\"tmp-pr-${{ github.event.pull_request.number }}}}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
-
     - name: Update PR description
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -149,3 +143,12 @@ jobs:
         repo-type: MONOREPO
         mode: tag
         diff_dest: ${{ steps.calculate_changed_services.outputs.diff_dest }}
+
+  deploy-tmp-pr-docker-buildx-images:
+    if: ${{ github.event_name == 'pull_request' }}
+    needs: ci
+    uses: ./.github/workflows/run-plz.yaml
+    with:
+        PLZ_SUBCOMMAND: "run"
+        PLZ_SUBCOMMAND_ARGS: "${{ needs.ci.outputs.CHANGED_APP_TARGETS }}"
+        ENV_VARS: "{ \"VERSION\":\"tmp-pr-${{ github.event.pull_request.number }}}}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
