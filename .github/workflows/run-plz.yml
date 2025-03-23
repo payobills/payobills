@@ -46,8 +46,7 @@ on:
 
 jobs:
   run_plz_command:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04-arm
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

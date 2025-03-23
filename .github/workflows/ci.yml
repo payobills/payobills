@@ -19,7 +19,7 @@ env:
 jobs:
   ci:
     name: ci
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-arm
     outputs:
       CHANGED_APP_TARGETS: ${{ steps.generate_other_targets.outputs.CHANGED_APP_TARGETS }} 
     steps:
@@ -144,6 +144,7 @@ jobs:
         diff_dest: ${{ steps.calculate_changed_services.outputs.diff_dest }}
 
   deploy-tmp-pr-docker-buildx-images:
+    name: deploy-tmp-pr-docker-buildx-images
     if: ${{ github.event_name == 'pull_request' }}
     needs: ci
     uses: ./.github/workflows/run-plz.yml
