@@ -19,7 +19,10 @@ env:
 jobs:
   ci:
     name: ci
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-arm
+    outputs:
+      CHANGED_APP_TARGETS: ${{ steps.generate_other_targets.outputs.CHANGED_APP_TARGETS }} 
+      CHANGED_APP_TARGETS_COUNT: ${{ steps.generate_other_targets.outputs.CHANGED_APP_TARGETS_COUNT }} 
     steps:
     - name: Setup please.build
       uses: sagikazarmark/setup-please-action@v0
@@ -65,19 +68,37 @@ jobs:
       run: |
         echo "SERVICES_RAW='${SERVICES_RAW}'"
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
-        echo "SERVICES='${SERVICES[@]}'"
 
-        DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
-        IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan "))
+        CHANGED_APP_TARGETS_COUNT=$(echo "${SERVICES_RAW}" | jq -r '.value | length')
+        echo "CHANGED_APP_TARGETS_COUNT='${CHANGED_APP_TARGETS_COUNT}' >> $GITHUB_OUTPUT"
+        echo "[DEBUG] CHANGED_APP_TARGETS_COUNT='${CHANGED_APP_TARGETS_COUNT}'"
 
-        echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
-        echo "IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS[@]}'"
+        if [ "${#SERVICES[@]}" == "0" ]; then
+          # echo '[DEBUG] No changed services'
 
-        echo "DOCKER_BUILD_TARGETS=\"${DOCKER_BUILD_TARGETS[@]}\"" >> $GITHUB_OUTPUT
-        echo "IMAGE_SCAN_TARGETS=\"${IMAGE_SCAN_TARGETS[@]}\"" >> $GITHUB_OUTPUT
+          echo "SERVICES=''" >> $GITHUB_OUTPUT
+          echo "DOCKER_BUILD_TARGETS=''" >> $GITHUB_OUTPUT
+          echo "IMAGE_SCAN_TARGETS=''" >> $GITHUB_OUTPUT
+          echo "CHANGED_APP_TARGETS=''" >> $GITHUB_OUTPUT
 
-        changed_services=$(printf '%s' "$SERVICES" | jq --raw-input --slurp '.')
-        echo "SERVICES='${SERVICES[@]}'" >> $GITHUB_OUTPUT
+        else
+          # echo "[DEBUG] ${#SERVICES[@]} changed services"
+          DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
+          IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan "))
+          CHANGED_APP_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker_buildx "))
+          
+          echo "[DEBUG] SERVICES='${SERVICES[@]}'"
+          echo "SERVICES='${SERVICES[@]}'" >> $GITHUB_OUTPUT
+          
+          echo "[DEBUG] DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
+          echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'" >> $GITHUB_OUTPUT
+          
+          echo "[DEBUG] IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS[@]}'"
+          echo "IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS[@]}'" >> $GITHUB_OUTPUT
+          
+          echo "[DEBUG] CHANGED_APP_TARGETS='${CHANGED_APP_TARGETS[@]}'"
+          echo "CHANGED_APP_TARGETS='${CHANGED_APP_TARGETS[@]}'" >> $GITHUB_OUTPUT
+        fi
 
     # - name: lint targets
     #   if: steps.generate_other_targets.outputs.SERVICES != ''
@@ -117,7 +138,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SEMVERY_YEASY_PR_BODY: ${{ steps.calculate_service_versions.outputs.PR_BODY }}
-        if: ${{ github.event_name == 'pull_request' }}
+      if: ${{ github.event_name == 'pull_request' }}
       uses: mrsauravsahu/monotools/apps/semver-yeasy@main
       with: 
         repo-type: MONOREPO
@@ -135,3 +156,15 @@ jobs:
         repo-type: MONOREPO
         mode: tag
         diff_dest: ${{ steps.calculate_changed_services.outputs.diff_dest }}
+
+  deploy-tmp-pr-docker-buildx-images:
+    name: deploy-tmp-pr-docker-buildx-images
+    if: ${{ github.event_name == 'pull_request' && needs.ci.outputs.CHANGED_APP_TARGETS_COUNT != '0' }}
+    needs: ci
+    uses: ./.github/workflows/run-plz.yml
+    secrets: 
+      GHCR_CI_TOKEN: ${{ secrets.GHCR_CI_TOKEN }}
+    with:
+      PLZ_SUBCOMMAND: "run"
+      PLZ_SUBCOMMAND_ARGS: "${{ needs.ci.outputs.CHANGED_APP_TARGETS }}"
+      ENV_VARS: "{ \"VERSION\":\"0.0.0-pr.${{ github.event.pull_request.number }}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"

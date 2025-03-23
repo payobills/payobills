@@ -1,6 +1,31 @@
 name: 'Run plz Command'
 
 on:
+  workflow_call: 
+    secrets:
+      GHCR_CI_TOKEN:
+        description: 'ci token to login to ghcr'
+        required: true
+    inputs:
+      PLZ_SUBCOMMAND:
+        description: 'plz subcommand to run'
+        required: true
+        default: 'run'
+        type: string
+        # type: choice
+        # options:
+        #   - run
+        #   - build
+      ENV_VARS:
+        description: 'JSON string of environment variables'
+        default: '{ "CI": "true", "EXTRA_ARGS":"--push", "DOTNET_VERSION":"8.0.404","DOTNET_RUNTIME_VERSION":"8.0.3-bookworm-slim"}'
+        type: string
+      PLZ_SUBCOMMAND_ARGS:
+        description: 'Arguments for plz command'
+        required: false
+        type: string
+        default: ''
+
   workflow_dispatch:
     inputs:
       PLZ_SUBCOMMAND:
@@ -21,8 +46,7 @@ on:
 
 jobs:
   run_plz_command:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-22.04-arm
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -48,7 +72,7 @@ jobs:
       - name: Run plz command
         run: bash -c "$(echo "${PASSED_ENV_VARS}" | jq -r 'to_entries | .[] | "export \(.key)=\(.value)"' | xargs); plz ${PLZ_SUBCOMMAND} ${PLZ_SUBCOMMAND_ARGS}"
         env:
-          PROJECT_NAME: ${{ vars.PROJECT_NAME }}
-          PASSED_ENV_VARS: ${{ github.event.inputs.ENV_VARS }}
-          PLZ_SUBCOMMAND: ${{ github.event.inputs.PLZ_SUBCOMMAND }}
-          PLZ_SUBCOMMAND_ARGS: ${{ github.event.inputs.PLZ_SUBCOMMAND_ARGS }}
+          PROJECT_NAME: "payobills"
+          PASSED_ENV_VARS: ${{ inputs.ENV_VARS }}
+          PLZ_SUBCOMMAND: ${{ inputs.PLZ_SUBCOMMAND }}
+          PLZ_SUBCOMMAND_ARGS: ${{ inputs.PLZ_SUBCOMMAND_ARGS }}
