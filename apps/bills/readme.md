@@ -16,5 +16,3 @@ helm upgrade --create-namespace --install -n payobills-dev \
     --set helpers.PROJECT_ROOT=`pwd` --set service.type=NodePort \
     --values apps/bills/k8s/values.local.yaml \
     bills apps/bills/k8s
-
-test: force change bills app
