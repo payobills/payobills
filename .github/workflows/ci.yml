@@ -147,7 +147,7 @@ jobs:
   deploy-tmp-pr-docker-buildx-images:
     if: ${{ github.event_name == 'pull_request' }}
     needs: ci
-    uses: ./.github/workflows/run-plz.yaml@main
+    uses: ./.github/workflows/run-plz.yml
     with:
         PLZ_SUBCOMMAND: "run"
         PLZ_SUBCOMMAND_ARGS: "${{ needs.ci.outputs.CHANGED_APP_TARGETS }}"
