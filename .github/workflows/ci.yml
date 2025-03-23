@@ -70,9 +70,9 @@ jobs:
 
         if [ "${#SERVICES[@]}" == "0" ]; then
           echo '[DEBUG] No changed services'
-          DOCKER_BUILD_TARGETS=''
-          IMAGE_SCAN_TARGETS=''
-          CHANGED_APP_TARGETS=''
+          DOCKER_BUILD_TARGETS=()
+          IMAGE_SCAN_TARGETS=()
+          CHANGED_APP_TARGETS=()
         else
           echo "[DEBUG] ${#SERVICES[@]} changed services"
           DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
