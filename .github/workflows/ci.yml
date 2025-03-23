@@ -69,8 +69,9 @@ jobs:
         echo "SERVICES_RAW='${SERVICES_RAW}'"
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
 
-        echo "CHANGED_APP_TARGETS_COUNT=\"${#SERVICES[@]}\"" >> $GITHUB_OUTPUT"
-        echo "[DEBUG] CHANGED_APP_TARGETS_COUNT=\"${#SERVICES[@]}\""
+        CHANGED_APP_TARGETS_COUNT=$(echo "${SERVICES_RAW}" | jq -r '.value | length')
+        echo "CHANGED_APP_TARGETS_COUNT=\"${CHANGED_APP_TARGETS_COUNT}\"" >> $GITHUB_OUTPUT"
+        echo "[DEBUG] CHANGED_APP_TARGETS_COUNT=\"${CHANGED_APP_TARGETS_COUNT}\""
 
         if [ "${#SERVICES[@]}" == "0" ]; then
           # echo '[DEBUG] No changed services'
@@ -90,10 +91,10 @@ jobs:
           echo "SERVICES='${SERVICES[@]}'" >> $GITHUB_OUTPUT
           
           echo "[DEBUG] DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
-          echo "DOCKER_BUILD_TARGETS=\"${DOCKER_BUILD_TARGETS[@]}\"" >> $GITHUB_OUTPUT
+          echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'" >> $GITHUB_OUTPUT
           
           echo "[DEBUG] IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS[@]}'"
-          echo "IMAGE_SCAN_TARGETS=\"${IMAGE_SCAN_TARGETS[@]}\"" >> $GITHUB_OUTPUT
+          echo "IMAGE_SCAN_TARGETS='${IMAGE_SCAN_TARGETS[@]}'" >> $GITHUB_OUTPUT
           
           echo "[DEBUG] CHANGED_APP_TARGETS='${CHANGED_APP_TARGETS[@]}'"
           echo "CHANGED_APP_TARGETS='${CHANGED_APP_TARGETS[@]}'" >> $GITHUB_OUTPUT
