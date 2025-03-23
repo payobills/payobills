@@ -69,9 +69,7 @@ jobs:
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
         echo "SERVICES='${SERVICES[@]}'"
 
-
-
-        if [ -z "${SERVICES}" ]; then
+        if [ "${#SERVICES[@]}" == "0" ]; then
             DOCKER_BUILD_TARGETS=''
             DOCKER_BUILDX_APP_TARGETS=''
             IMAGE_SCAN_TARGETS=''
