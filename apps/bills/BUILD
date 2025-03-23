@@ -25,24 +25,6 @@ genrule(
   out="docker-buildx.sh"
 )
 
-# sh_cmd(
-#     name="local",
-#     deps=[":helm_tarball"],
-#     cmd='''
-#     tar \
-#       xvf \
-#       plz-out/gen/apps/{svc}/bills.tgz \
-#       --directory plz-out/gen/apps/{svc}/helm_tarball
-#     helm upgrade --install \
-#       --create-namespace -n ${PROJECT_NAME}-dev \
-#       --set helpers.PROJECT_ROOT=${PROJECT_ROOT} \
-#       --values plz-out/gen/apps/{svc}/helm_tarball/values.local.yaml \
-#       {svc} plz-out/gen/apps/{svc}/helm_tarball
-#     rm -r plz-out/gen/apps/{svc}/helm_tarball
-#     '''.format(svc='bills'),
-#     srcs=[":helm_tarball"],
-# )
-
 genrule(
   name="chart_yaml",
   srcs = ["k8s/Chart.yaml"],
