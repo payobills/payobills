@@ -72,9 +72,9 @@ jobs:
           # echo '[DEBUG] No changed services'
 
           echo "SERVICES=\"\"" >> $GITHUB_OUTPUT
-          echo "DOCKER_BUILD_TARGETS=\"\" >> $GITHUB_OUTPUT
-          echo "IMAGE_SCAN_TARGETS=\"\" >> $GITHUB_OUTPUT
-          echo "CHANGED_APP_TARGETS=\"\" >> $GITHUB_OUTPUT
+          echo "DOCKER_BUILD_TARGETS=\"\"" >> $GITHUB_OUTPUT
+          echo "IMAGE_SCAN_TARGETS=\"\"" >> $GITHUB_OUTPUT
+          echo "CHANGED_APP_TARGETS=\"\"" >> $GITHUB_OUTPUT
 
         else
           # echo "[DEBUG] ${#SERVICES[@]} changed services"
