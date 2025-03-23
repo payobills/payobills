@@ -68,6 +68,7 @@ jobs:
         echo "SERVICES='${SERVICES[@]}'"
 
         DOCKER_BUILD_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:docker "))
+        DOCKER_BUILDX_APP_TARGETS=$(echo "${SERVICES[@]}" | grep '^apps/' | xargs printf "//%s:docker_buildx, " | sed 's/,$//')
         IMAGE_SCAN_TARGETS=($(echo "${SERVICES[@]}" | xargs printf "//%s:image_scan "))
 
         echo "DOCKER_BUILD_TARGETS='${DOCKER_BUILD_TARGETS[@]}'"
@@ -78,6 +79,10 @@ jobs:
 
         changed_services=$(printf '%s' "$SERVICES" | jq --raw-input --slurp '.')
         echo "SERVICES='${SERVICES[@]}'" >> $GITHUB_OUTPUT
+
+        changed_app_targets=$(printf '%s' "$DOCKER_BUILDX_APP_TARGETS" | jq --raw-input --slurp '.')
+        echo "CHANGED_APP_TARGETS='${changed_app_targets[@]}'" >> $GITHUB_OUTPUT
+
 
     # - name: lint targets
     #   if: steps.generate_other_targets.outputs.SERVICES != ''
@@ -113,11 +118,23 @@ jobs:
         diff_source: ${{ steps.calculate_changed_services.outputs.diff_source }}
         diff_dest: ${{ steps.calculate_changed_services.outputs.diff_dest }}
 
+    - name: Trigger run-plz workflow for apps
+      uses: githubactions/trigger-workflow@v1.0.4
+      if: ${{ github.event_name == 'pull_request' }}
+      with:
+        workflow: 'run-plz.yml'
+        params: |
+          {
+            "PLZ_SUBCOMMAND": "run",
+            "PLZ_SUBCOMMAND_ARGS": "${{ steps.calculate_service_versions.outputs.CHANGED_APP_TARGETS }}",
+            "ENV_VARS": "{ \"VERSION\":\"tmp-pr-${{ github.event.pull_request.number }}}}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}",
+          }
+
     - name: Update PR description
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SEMVERY_YEASY_PR_BODY: ${{ steps.calculate_service_versions.outputs.PR_BODY }}
-        if: ${{ github.event_name == 'pull_request' }}
+      if: ${{ github.event_name == 'pull_request' }}
       uses: mrsauravsahu/monotools/apps/semver-yeasy@main
       with: 
         repo-type: MONOREPO
