@@ -70,16 +70,16 @@ jobs:
         SERVICES=($(echo "${SERVICES_RAW}" | jq -r '.value[]'))
 
         CHANGED_APP_TARGETS_COUNT=$(echo "${SERVICES_RAW}" | jq -r '.value | length')
-        echo "CHANGED_APP_TARGETS_COUNT=\"${CHANGED_APP_TARGETS_COUNT}\"" >> $GITHUB_OUTPUT"
-        echo "[DEBUG] CHANGED_APP_TARGETS_COUNT=\"${CHANGED_APP_TARGETS_COUNT}\""
+        echo "CHANGED_APP_TARGETS_COUNT='${CHANGED_APP_TARGETS_COUNT}' >> $GITHUB_OUTPUT"
+        echo "[DEBUG] CHANGED_APP_TARGETS_COUNT='${CHANGED_APP_TARGETS_COUNT}'"
 
         if [ "${#SERVICES[@]}" == "0" ]; then
           # echo '[DEBUG] No changed services'
 
-          echo "SERVICES=\"\"" >> $GITHUB_OUTPUT
-          echo "DOCKER_BUILD_TARGETS=\"\"" >> $GITHUB_OUTPUT
-          echo "IMAGE_SCAN_TARGETS=\"\"" >> $GITHUB_OUTPUT
-          echo "CHANGED_APP_TARGETS=\"\"" >> $GITHUB_OUTPUT
+          echo "SERVICES=''" >> $GITHUB_OUTPUT
+          echo "DOCKER_BUILD_TARGETS=''" >> $GITHUB_OUTPUT
+          echo "IMAGE_SCAN_TARGETS=''" >> $GITHUB_OUTPUT
+          echo "CHANGED_APP_TARGETS=''" >> $GITHUB_OUTPUT
 
         else
           # echo "[DEBUG] ${#SERVICES[@]} changed services"
