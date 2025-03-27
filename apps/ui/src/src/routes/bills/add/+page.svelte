@@ -74,7 +74,6 @@
     <IconButton
       icon={faCancel}
       backgroundColor="#d96c59"
-      rounded={true}
       on:click={() => {
         window.history.back();
       }}
@@ -82,7 +81,7 @@
     <!-- {#if !isAddingBill} -->
     <button on:click={addBill}>save</button>
     <!-- {:else}
-      <IconButton icon={faEllipsis} backgroundColor={'white'} rounded={false} />
+      <IconButton icon={faEllipsis} backgroundColor={'white'} />
     {/if} -->
   </div>
 </Card>
