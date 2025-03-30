@@ -51,7 +51,7 @@ builder.Services
   .AddGraphQLServer()
   .AddApolloFederation()
   .AddQueryType<Query>()
-  // .AddMutationType<Mutation>()
+  .AddMutationType<Mutation>()
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
   .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
   .AddType<BillDTOType>();
