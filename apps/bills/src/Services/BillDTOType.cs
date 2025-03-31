@@ -7,16 +7,11 @@ using HotChocolate.ApolloFederation.Types;
 using Payobills.Bills.Data.Contracts.Models;
 
 public class BillDTOType : ObjectType<BillDTO>
-// public class BillDTOType(IBillsService billsService) : ObjectType<BillDTO>
 {
-    // private readonly IBillsService billsService = billsService;
-
     protected override void Configure(IObjectTypeDescriptor<BillDTO> descriptor)
     {
         descriptor.Field(bill => bill.Id).ID();
-
         descriptor.Key("id").ResolveReferenceWith(_ => ResolveByIdAsync(default!));
-       
     }
 
     [ReferenceResolver]
@@ -24,8 +19,6 @@ public class BillDTOType : ObjectType<BillDTO>
             // Represents the value that would be in the Id property of a Product
             string id)
     {
-        // if bill
-        // return await this.billsService.GetBillByIdAsync(id);
         return await Task.FromResult(new BillDTO
         {
             Id = id

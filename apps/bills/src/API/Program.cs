@@ -33,8 +33,6 @@ builder.Services.AddScoped<StatsQueryService>();
 builder.Services.AddSingleton<IGuidService, GuidService>();
 builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
 
-// builder.Services.AddSingleton<BillDTOType>();
-
 // mapper
 builder.Services.AddSingleton<IMapper>((_) =>
 {
