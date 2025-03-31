@@ -6,6 +6,7 @@ public interface IBillsService
 {
   Task<BillDTO> AddBillAsync(CreateBillDTO dto);
   Task<IEnumerable<BillDTO>> GetBillsAsync();
+  Task<IEnumerable<BillDTO>> GetBillsByIdsAsync(IEnumerable<string> ids);
   Task<BillDTO?> GetBillByIdAsync(string id);
   Task<PaymentDTO> MarkPaymentForBillAsync(MarkPaymentForBillDTO dto);
 }
