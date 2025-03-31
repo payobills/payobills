@@ -29,11 +29,14 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        {{- range .Values.pod.volumes }}
+      {{- toYaml .Values.pod.volumes | nindent 8 }}
+      {{- if eq .Values.environment "LOCAL_DEVELOPMENT" }}
+        {{- range .Values.pod.projectVolumes }}
         - name: {{ .name }}
           hostPath:
             path: {{ printf "%s/%s" $.Values.helpers.PROJECT_ROOT .hostPath.pathPrefix }}
         {{- end }}
+      {{- end }}
         {{- if .Values.openTelemetry.enabled }}
         - name: varlog
           emptyDir: {}
@@ -43,7 +46,7 @@ spec:
             items:
               - key: relay
                 path: relay.yaml
-        {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -58,7 +61,7 @@ spec:
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{- toYaml .Values.pod.env | nindent 12 }}
+          {{- toYaml .Values.pod.env | nindent 12 }}
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -75,7 +78,9 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
-          {{- if and (ne .Values.environment "LOCAL_DEVELOPMENT") (not .Values.disableProbes) }}
+          {{- if ne .Values.healthProbes nil }}
+          {{- toYaml .Values.healthProbes | nindent 10 }}
+          {{- else if not .Values.disableProbes }}
           livenessProbe:
             httpGet:
               path: /
@@ -84,7 +89,7 @@ spec:
             httpGet:
               path: /
               port: http
-          {{- end }}
+          {{- end}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
         {{- if .Values.openTelemetry.enabled }}
