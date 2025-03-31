@@ -11,4 +11,9 @@
     <RootNamespace>Payobills.Bills.Services.Contracts</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="HotChocolate.ApolloFederation" Version="14.3.0" />
+    <PackageReference Include="HotChocolate.Data" Version="14.3.0" />
+  </ItemGroup>
+
 </Project>

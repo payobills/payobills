@@ -1,4 +1,5 @@
 using Payobills.Bills.Services.Contracts;
+using Payobills.Bills.Services.Contracts.DTOs;
 using Payobills.Bills.Services;
 using Payobills.NocoDB;
 using AutoMapper;
@@ -46,14 +47,16 @@ builder.Services.AddSingleton<IMapper>((_) =>
 // gql
 builder.Services
   .AddGraphQLServer()
+  .AddApolloFederation()
   .AddQueryType<Query>()
   .AddMutationType<Mutation>()
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
-  .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>();
+  .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
+  .AddType<BillDTOType>();
 
 var app = builder.Build();
 
 app.MapGet("/", () => (new { app = "payobills.bills" }));
 app.MapGraphQL();
 
-app.Run();
+await app.RunWithGraphQLCommandsAsync(args);
