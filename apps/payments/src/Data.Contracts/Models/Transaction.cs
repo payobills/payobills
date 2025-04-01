@@ -1,9 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Payobills.Payments.Data.Contracts.Models;
 
 public class Transaction
 {
+    [Key]
     public long Id { get; set; }
     public string? Merchant { get; set; }
     public string? Currency { get; set; }
