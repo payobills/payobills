@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="HotChocolate.Data" Version="12.15.2" />
+    <PackageReference Include="HotChocolate.ApolloFederation" Version="14.3.0" />
+    <PackageReference Include="HotChocolate.Data" Version="14.3.0" />
   </ItemGroup>
 
   <PropertyGroup>
