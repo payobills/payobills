@@ -1,8 +1,4 @@
-using System.Text.Json.Nodes;
 using Payobills.Payments.Services.Contracts;
-using Payobills.Payments.Data.Contracts.Models;
-using HotChocolate.Types.Pagination;
-using HotChocolate.Data.Sorting;
 using Payobills.Payments.Services.Contracts.DTOs;
 
 namespace Payobills.Payments.Services;
@@ -11,6 +7,7 @@ public class Query
 {
   [UsePaging]
   [UseSorting]
+  [NodeResolver]
   public async Task<IEnumerable<TransactionDTO>> Transactions([Service] ITransactionsService transactionsService)
     => await transactionsService.GetTransactionsAsync(null!);
 

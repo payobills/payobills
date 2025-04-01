@@ -130,4 +130,17 @@ public class TransactionsNocoDBService : ITransactionsService
         var transactionDTO = new TransactionDTO(addedTransaction);
         return transactionDTO;
     }
+
+    public async Task<IEnumerable<TransactionDTO>> GetTransactionsByIDsAsync(IEnumerable<string> ids)
+    {
+        var idFilterString = string.Join("~or", ids.Select(p => $"(Id,eq,{p})"));
+        var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
+            "payobills",
+            "transactions",
+            TRANSACTIONS_NOCODB_FIELDS,
+            $"&w={idFilterString}&s=-PaidAt"
+        );
+
+        return mapper.Map<List<TransactionDTO>>(page?.List ?? []);
+    }
 }
