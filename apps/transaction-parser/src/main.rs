@@ -123,7 +123,7 @@ struct Transaction {
     #[serde(rename = "ParseStatus")]
     parse_status: Option<String>,
     #[serde(rename = "BillType")]
-    bill_type: String,
+    bill_type: Option<String>,
 }
 
 enum Value {
@@ -175,7 +175,10 @@ async fn parse_transaction(
         }
     }
 
-    if record.bill_type == BILL_TYPE_AMEX {
+    match record.bill_type {
+        Some(ref bill_type) => {
+
+    if bill_type == BILL_TYPE_AMEX {
         let re = Regex::new(
             r"^Alert: You've spent (?P<currency>[^\d\s]+)\s{0,1}(?P<amount>[\d,]+\.?\d+) on your AMEX card \*\* (?P<card>\d+)( at ){0,1}(?P<merchant>.*) on (?P<date>[\d]{1,2} \w+, [\d]{4} at \d{2,2}:\d{2,2} [A-Z]{2,2}) (?P<timezone>[A-Z]{2,3})\..*$",
         )
@@ -256,7 +259,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bill_type == BILL_TYPE_JUPITER {
+    } else if bill_type == BILL_TYPE_JUPITER {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
         let re = Regex::new(r"Rs (\d+\.\d+) debited .* on ([^-]*) -").unwrap();
@@ -305,7 +308,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bill_type == BILL_TYPE_SBI_PRIME {
+    } else if bill_type == BILL_TYPE_SBI_PRIME {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
         let re = Regex::new(r"([\w\.]*)(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\*]*) on ([\d\/]*)\.")
@@ -364,7 +367,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
+    } else if bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
         // println!("trying to parse SB");
         // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
         let re = Regex::new(
@@ -400,7 +403,7 @@ async fn parse_transaction(
                 Value::Str("FailedV1".to_string()),
             );
         }
-    } else if record.bill_type == BILL_TYPE_TESTING {
+    } else if bill_type == BILL_TYPE_TESTING {
         println!("Parsing for test bill");
         let re = Regex::new(
             r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",
@@ -443,6 +446,9 @@ async fn parse_transaction(
             "ParseStatus".to_string(),
             Value::Str("FailedV1".to_string()),
         );
+    }
+        }
+        None => {}
     }
 
     match record.currency {
