@@ -19,6 +19,7 @@ serde_json = "1.0.125"
 notion = "0.6.0"
 chrono = "0.4.38"
 jiff = "0.1.24"
+isahc = "1.7.2"
 
 [dev-dependencies]
 mockito = "1.7.0"
