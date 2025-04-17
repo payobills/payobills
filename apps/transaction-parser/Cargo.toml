@@ -1,5 +1,5 @@
 [package]
-name = "payobills_transaction_parser"
+name = "payobills"
 version = "0.1.0"
 edition = "2021"
 
@@ -22,5 +22,6 @@ jiff = "0.1.24"
 isahc = "1.7.2"
 
 [dev-dependencies]
+httpmock = "0.7.0"
 mockito = "1.7.0"
 test-case = "3.3.1"
