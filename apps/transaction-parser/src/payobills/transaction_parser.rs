@@ -16,7 +16,7 @@ const BILL_TYPE_SBI_PRIME: &str = "SBI-Prime";
 // References
 // https://docs.rs/jiff/latest/jiff/#parsing-an-rfc-2822-datetime-string
 // https://docs.rs/strptime/latest/strptime/struct.Parser.html
-const TRANSACTION_DATE_FORMAT_AMEX: &str = "%d %B, %Y at %I:%M %p %z";
+const TRANSACTION_DATE_FORMAT_AMEX: &str = "%d %B %Y at %I:%M %p %z";
 const TRANSACTION_DATE_FORMAT_JUPITER: &str = "%-m/%-d/%y, %I:%M %p %z";
 const TRANSACTION_DATE_FORMAT_SBI_PRIME: &str = "%d/%m/%y %H:%M %z";
 
@@ -194,6 +194,7 @@ async fn parse_transaction(
                         .name("date")
                         .expect("CAPTURE TO BE PRESENT")
                         .as_str()
+                        .replace(',', "")
                         .trim()
                         .to_string();
 
