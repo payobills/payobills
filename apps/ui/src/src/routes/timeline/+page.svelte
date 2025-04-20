@@ -74,11 +74,6 @@
     <p>Loading...</p>
   {:else if $billsQuery.error || $billStatsQuery.error || $transactionsQuery.error}
     <p>🙆 Uh oh! Unable to fetch your bills!</p>
-    {
-      JSON.stringify($billsQuery.error) ||
-      JSON.stringify($billStatsQuery.error) ||
-      JSON.stringify($transactionsQuery.error)
-    }
   {:else}
     <Timeline
       items={$billsQuery.data.bills}
