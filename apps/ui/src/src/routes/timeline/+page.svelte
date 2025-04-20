@@ -50,7 +50,7 @@
     variables: { year: currentYear, month: currentMonth },
     query: gql`
       query ($year: Int!, $month: Int!) {
-        transactions: transactionsByYearAndMonth(year: $year, month: $month) {
+        transactions: transactionsByYearAndMonth(year: $year, month: $month, first: 900) {
           nodes {
             id
             amount
@@ -74,6 +74,11 @@
     <p>Loading...</p>
   {:else if $billsQuery.error || $billStatsQuery.error || $transactionsQuery.error}
     <p>🙆 Uh oh! Unable to fetch your bills!</p>
+    {
+      JSON.stringify($billsQuery.error) ||
+      JSON.stringify($billStatsQuery.error) ||
+      JSON.stringify($transactionsQuery.error)
+    }
   {:else}
     <Timeline
       items={$billsQuery.data.bills}
