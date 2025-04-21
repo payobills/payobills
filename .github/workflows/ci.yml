@@ -168,4 +168,4 @@ jobs:
     with:
       PLZ_SUBCOMMAND: "run"
       PLZ_SUBCOMMAND_ARGS: "${{ needs.ci.outputs.CHANGED_APP_TARGETS }}"
-      ENV_VARS: "{ \"VERSION\":\"0.0.0-pr.${{ github.event.pull_request.number }}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"RUST_VERSION\":\"1.79.0-alpine3.20\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
+      ENV_VARS: "{ \"VERSION\":\"0.0.0-pr.${{ github.event.pull_request.number }}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"NODE_VERSION\":\"20.11.1\", \"RUST_VERSION\":\"1.79.0-alpine3.20\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"

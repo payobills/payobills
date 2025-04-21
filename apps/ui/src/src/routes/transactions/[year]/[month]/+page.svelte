@@ -25,7 +25,7 @@
     variables: { year: currentYear, month: currentMonth },
     query: gql`
       query ($year: Int!, $month: Int!) {
-        transactionsByYearAndMonth(year: $year, month: $month) {
+        transactionsByYearAndMonth(year: $year, month: $month, first: 900) {
           nodes {
             id
             amount
