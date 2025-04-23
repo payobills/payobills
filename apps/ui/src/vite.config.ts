@@ -10,7 +10,7 @@ const config: UserConfig = {
 	server: {
 		proxy: {
 			// https://stackoverflow.com/questions/64677212/how-to-configure-proxy-in-vite
-			'/graphql': `${process.env.GATEWAY}/graphql`,
+			'/gateway/graphql': `${process.env.GATEWAY}/graphql`,
 		}
 	}
 };
