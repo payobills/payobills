@@ -18,7 +18,7 @@ on:
         #   - build
       ENV_VARS:
         description: 'JSON string of environment variables'
-        default: '{ "CI": "true", "EXTRA_ARGS":"--push", "DOTNET_VERSION":"8.0.404","DOTNET_RUNTIME_VERSION":"8.0.3-bookworm-slim"}'
+        default: '{ "CI": "true", "EXTRA_ARGS":"--push", "DOTNET_VERSION":"8.0.404","DOTNET_RUNTIME_VERSION":"8.0.3-bookworm-slim", "NODE_VERSION": "20.11.1", "RUST_VERSION": "1.79.0-alpine3.20" }'  
         type: string
       PLZ_SUBCOMMAND_ARGS:
         description: 'Arguments for plz command'
