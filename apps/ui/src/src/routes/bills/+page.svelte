@@ -99,7 +99,7 @@ interface FileUploadResult {
   };
 }
 
-const onBillStatementFormUpload = async (inputs: { bill: Bill; billStatementFile: File }) => {
+const onBillStatementFormUpload = async (inputs: { bill: Bill, billStatementFile: File , billPeriodDetails: any }) => {
   try {
     const formdata = new FormData();
     formdata.append(
@@ -131,12 +131,12 @@ const onBillStatementFormUpload = async (inputs: { bill: Bill; billStatementFile
     const { error } = await $billsUrql
       .mutation(
         gql`
-          mutation ($fileId: Int!, $billId: Int!) {
+          mutation ($fileId: Int!, $billId: Int!, $billPeriodStartDate: String!, $billPeriodEndDate: String!) {
             addBillStatement(
               dto: {
                 notes: "",
-                startDate: null,
-                endDate: null,
+                startDate: $billPeriodStartDate,
+                endDate: $billPeriodEndDate,
                 file: { id: $fileId }
                 bill: { id: $billId }
               }
@@ -154,6 +154,8 @@ const onBillStatementFormUpload = async (inputs: { bill: Bill; billStatementFile
         {
           billId: +inputs.bill.id,
           fileId: +fileUploadResult.data.id,
+          billPeriodStartDate:  Intl.DateTimeFormat("en-CA", {year: "numeric",month: "2-digit",day: "2-digit", }).format(inputs.billPeriodDetails.billStartDate.getTime()),
+          billPeriodEndDate: Intl.DateTimeFormat("en-CA", {year: "numeric",month: "2-digit",day: "2-digit", }).format(inputs.billPeriodDetails.billEndDate.getTime()),
         }
       )
       .toPromise();
@@ -319,7 +321,7 @@ const onBillStatementFormUpload = async (inputs: { bill: Bill; billStatementFile
 
         {#if showUploadStatementSection}
           <BillUploadStatement
-            bill={{ id: billId }}
+            bill={$billByIdQuery.data.billById}
             {onBillStatementFormUpload}
           />
         {/if}

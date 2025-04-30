@@ -11,6 +11,7 @@ const config: UserConfig = {
 		proxy: {
 			// https://stackoverflow.com/questions/64677212/how-to-configure-proxy-in-vite
 			'/gateway/graphql': `${process.env.GATEWAY}/graphql`,
+			'/files': process.env.MODE === 'local' ? `${process.env.FILES_SERVICE}` : `${process.env.GATEWAY}`,
 		}
 	}
 };
