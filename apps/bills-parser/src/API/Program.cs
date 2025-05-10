@@ -65,6 +65,15 @@ class Program
           var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "files", "*")
               ?? throw new Exception("NocoDBFile not found");
 
+          fileRecord.Tags.TryGetValue("CorrelationId", out var billId);
+
+          if (billId == null) return;
+
+          var bill = await nocodb.GetRecordByIdAsync<NocoDBBill>(billId, nocoDbBaseName, "bills", "*")
+              ?? throw new Exception("Bill not found");
+
+          if (bill.Type is not "AMEX") return;
+
           var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
           using var httpClient = new HttpClient();
           using (var stream = await httpClient.GetStreamAsync($"{nocoDbOptions.Value.BaseUrl}/{fileUrl}"))
@@ -75,6 +84,7 @@ class Program
               await stream.CopyToAsync(memoryStream);
               await System.IO.File.WriteAllBytesAsync(filePath, memoryStream.ToArray());
           }
+
 
           using var document = PdfDocument.Open("/tmp/test.pdf", new ParsingOptions() { ClipPaths = true });
           var statementStringBuilder = new StringBuilder();
