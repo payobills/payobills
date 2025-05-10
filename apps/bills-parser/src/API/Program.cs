@@ -72,7 +72,7 @@ class Program
           var bill = await nocodb.GetRecordByIdAsync<NocoDBBill>(billId, nocoDbBaseName, "bills", "*")
               ?? throw new Exception("Bill not found");
 
-          if (bill.Type is not "AMEX") return;
+          if (bill.Type is not "Amex") return;
 
           var fileUrl = fileRecord.Files.ElementAt(0).SignedPath;
           using var httpClient = new HttpClient();
