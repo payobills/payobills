@@ -9,15 +9,16 @@
 {:else}
   {#each statements as statement}
     {#if statement.startDate === null || statement.endDate === null}
-    <p>Unknown billing period</p>
+    <a href={`/bills/${bill.id}/bill-statements/${statement.id}`}>Unknown billing period</a>
     {:else}
-    <p>{statement.startDate} - {statement.endDate}</p>
+    <a href={`/bills/${bill.id}/bill-statements/${statement.id}`}>{statement.startDate} - {statement.endDate}</a>
     {/if}
   {/each}
 {/if}
 
 <style>
-  p {
+  a {
     font-size: 0.75rem;
+    margin-bottom: 1rem;
   }
 </style>
