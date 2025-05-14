@@ -53,6 +53,7 @@ const postFile = ({ nocoDbClient, rabbitChannel }) => {
         const message = { type: EVENT_TYPE__NEW_FILE, args: { id: objectData.etag, correlationId, type: fileType } }
         const messageString = JSON.stringify(message);
         rabbitChannel.sendToQueue('payobills.files', Buffer.from(messageString));
+        console.log('Publishing file upload message to Rabbit', messageString);
 
         // TODO: Return link to get by ID for the file as header as specified by REST Spec
         res.status(201).send({ data: { id: objectData.etag, correlationId, type: fileType } })
