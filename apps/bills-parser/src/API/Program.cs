@@ -199,6 +199,7 @@ class Program
           {
               var createdOcrRecord = await nocodb.CreateRecordAsync<OCRFile, OCRFileOutput>(nocoDbBaseName, "ocr", ocrRecord);
               ocrId = createdOcrRecord.Id;
+              fileRecord.OCR = createdOcrRecord;
               Console.WriteLine($"Writing parsed transactions - {transactions.Count}");
           }
           else
