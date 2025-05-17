@@ -38,6 +38,10 @@ public class NocoDBClientService
   {
     var extraArgsToPassInUrl = !String.IsNullOrEmpty(extraArgs) ? $"&{extraArgs}" : String.Empty;
     var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}?fields={fields}&{extraArgsToPassInUrl}";
+
+    Console.WriteLine($"Fetching transactions from NocoDB: {url}");
+    // Console.WriteLine($"Fetching transactions from NocoDB: {extraArgs}");
+
     using var request = new HttpRequestMessage(
       HttpMethod.Get,
       url

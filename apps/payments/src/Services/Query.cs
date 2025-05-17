@@ -8,8 +8,9 @@ public class Query
   [UsePaging]
   [UseSorting]
   [NodeResolver]
-  public async Task<IEnumerable<TransactionDTO>> Transactions([Service] ITransactionsService transactionsService)
-    => await transactionsService.GetTransactionsAsync(null!);
+  public async Task<IEnumerable<TransactionDTO>> Transactions([Service] ITransactionsService transactionsService,
+  TransactionFiltersInput? filters = null)
+    => await transactionsService.GetTransactionsAsync(null!, filters);
 
   public async Task<TransactionDTO> TransactionByID([Service] ITransactionsService transactionsService, string id)
     => await transactionsService.GetTransactionByIDAsync(id);
