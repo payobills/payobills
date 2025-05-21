@@ -42,15 +42,17 @@ builder.Services.AddSingleton<IMapper>((_) =>
 
 builder.Services
   .AddGraphQLServer()
+  .AddApolloFederation()
   .AddSorting()
   .AddQueryType<Query>()
   .AddMutationType<Mutation>()
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
-  .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>();
+  .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
+  .AddType<TransactionDTOType>();
 
 var app = builder.Build();
 
 app.MapGet("/", () => (new { app = "payobills.payments" }));
 app.MapGraphQL();
 
-app.Run();
+await app.RunWithGraphQLCommandsAsync(args);

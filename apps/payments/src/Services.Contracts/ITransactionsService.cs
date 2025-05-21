@@ -5,7 +5,8 @@ namespace Payobills.Payments.Services.Contracts;
 
 public interface ITransactionsService
 {
-  Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> order);
+  Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> order, TransactionFiltersInput? filters = null!);
+  Task<IEnumerable<TransactionDTO>> GetTransactionsByIDsAsync(IEnumerable<string> ids);
   Task<IEnumerable<TransactionDTO>> GetTransactionsByYearAndMonthAsync(int year, int month);
   Task<TransactionDTO> GetTransactionByIDAsync(string id);
   Task<TransactionDTO> SetTransactionTags(string id, string tags);

@@ -23,13 +23,19 @@ public class TransactionsNocoDBService : ITransactionsService
         this.mapper = mapper;
     }
 
-    public async Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> _)
+    public async Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> _, TransactionFiltersInput? filters = null!)
     {
+        var ocrId = filters?.OcrId ?? string.Empty;
+
+        var sortUrlParam = "s=-PaidAt";
+        var filterUrlParam = string.IsNullOrEmpty(ocrId) ? string.Empty : $"w=(OcrId,eq,{ocrId})";
+        var urlParams = string.Join("&", sortUrlParam, filterUrlParam);
+
         var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
-            "s=-PaidAt"
+            urlParams
         );
 
         return mapper.Map<List<TransactionDTO>>(page?.List ?? []);
@@ -129,5 +135,18 @@ public class TransactionsNocoDBService : ITransactionsService
 
         var transactionDTO = new TransactionDTO(addedTransaction);
         return transactionDTO;
+    }
+
+    public async Task<IEnumerable<TransactionDTO>> GetTransactionsByIDsAsync(IEnumerable<string> ids)
+    {
+        var idFilterString = string.Join("~or", ids.Select(p => $"(Id,eq,{p})"));
+        var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
+            "payobills",
+            "transactions",
+            TRANSACTIONS_NOCODB_FIELDS,
+            $"&w={idFilterString}&s=-PaidAt"
+        );
+
+        return mapper.Map<List<TransactionDTO>>(page?.List ?? []);
     }
 }

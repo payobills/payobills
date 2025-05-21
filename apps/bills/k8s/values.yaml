@@ -2,15 +2,15 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-enableOpenTelemetry: false
+openTelemetry:
+  enabled: true
 
 replicaCount: 1
 
 image:
   repository: ghcr.io/payobills/apps/bills
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "0.2.17"
+  tag: "0.2.18"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -26,7 +26,7 @@ serviceAccount:
 
 pod:
   annotations: {}
-  # command: ["tail", "-f", "/dev/null"]
+  command: ["sh", "-c", "/app/API | tee /var/log/index.log"]
 
   env:
   - name: ASPNETCORE_ENVIRONMENT

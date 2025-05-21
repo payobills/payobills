@@ -29,55 +29,53 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
-        {{- range $value := .Values.pod.volumes }}
-          - name: {{ $value.name }}
-            hostPath:
-              path: {{ printf "%s/%s" $.Values.helpers.PROJECT_ROOT $value.hostPath.pathPrefix }}
+        {{- range .Values.pod.volumes }}
+        - name: {{ .name }}
+          hostPath:
+            path: {{ printf "%s/%s" $.Values.helpers.PROJECT_ROOT .hostPath.pathPrefix }}
         {{- end }}
-        {{- if .Values.enableOpenTelemetry }}
-          - name: varlog
-            emptyDir: {}
-          - name: opentelemetry-collector-configmap
-            configMap:
-              defaultMode: 420
-              items:
+        {{- if .Values.openTelemetry.enabled }}
+        - name: varlog
+          emptyDir: {}
+        - name: opentelemetry-collector-configmap
+          configMap:
+            name: otel-config-{{ .Release.Name }}
+            items:
               - key: relay
                 path: relay.yaml
-              name: opentelemetry-collector
         {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          {{- if .Values.pod.command }}
+          {{- with .Values.pod.command }}
           command:
-            {{- range .Values.pod.command }}
-              - {{ . }}
-            {{- end }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- if eq .Values.environment "LOCAL_DEVELOPMENT" }}
           workingDir: "/app"
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            {{- toYaml .Values.pod.env | nindent 12 }}
             - name: POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            {{- toYaml .Values.pod.env | nindent 12 }}
           volumeMounts:
+            {{- if ne .Values.pod.volumeMounts nil }}
             {{- toYaml .Values.pod.volumeMounts | nindent 12 }}
-            {{- if .Values.enableOpenTelemetry }}
+            {{- end}}
+            {{- if .Values.openTelemetry.enabled }}
             - name: varlog
               mountPath: /var/log
-            {{- end }}
+            {{ end }}
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
-          {{- if ne .Values.environment "LOCAL_DEVELOPMENT" }}
-          {{- if eq .Values.disableProbes false }}
+          {{- if and (ne .Values.environment "LOCAL_DEVELOPMENT") (not .Values.disableProbes) }}
           livenessProbe:
             httpGet:
               path: /
@@ -87,22 +85,21 @@ spec:
               path: /
               port: http
           {{- end }}
-          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        {{- if .Values.enableOpenTelemetry }}
+        {{- if .Values.openTelemetry.enabled }}
         - name: opentelemetry-collector
           image: otel/opentelemetry-collector-contrib:0.98.0
           command:
-          - /otelcol-contrib
-          - --config=/conf/relay.yaml
+            - /otelcol-contrib
+            - --config=/conf/relay.yaml
           volumeMounts:
-          - mountPath: /conf
-            name: opentelemetry-collector-configmap
-          - name: varlog
-            mountPath: /var/log
+            - mountPath: /conf
+              name: opentelemetry-collector-configmap
+            - name: varlog
+              mountPath: /var/log
           env:
-            - name: OTEL_RESOURCE_ATTRIBUTES_POD_NAME # set pod name as resource attribute for k8s metadata processor
+            - name: OTEL_RESOURCE_ATTRIBUTES_POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name

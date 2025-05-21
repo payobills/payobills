@@ -10,8 +10,8 @@ const config: UserConfig = {
 	server: {
 		proxy: {
 			// https://stackoverflow.com/questions/64677212/how-to-configure-proxy-in-vite
-			'/bills-graphql/graphql': process.env.MODE === 'local' ? `${process.env.BILLS_SERVICE}/graphql` : `${process.env.GATEWAY}/bills-graphql/graphql`,
-			'/payments-graphql/graphql': process.env.MODE === 'local' ? `${process.env.PAYMENTS_SERVICE}/graphql` : `${process.env.GATEWAY}/payments-graphql/graphql`,
+			'/gateway/graphql': `${process.env.GATEWAY}/graphql`,
+			'/files': process.env.MODE === 'local' ? `${process.env.FILES_SERVICE}` : `${process.env.GATEWAY}`,
 		}
 	}
 };

@@ -45,6 +45,19 @@ public class BillsNocoDBService : IBillsService
         return bills;
     }
 
+    public async Task<IEnumerable<BillDTO>> GetBillsByIdsAsync(IEnumerable<string> ids)
+    {
+        var idFilterString = string.Join("~or", ids.Select(p => $"(Id,eq,{p})"));
+        var page = await nocoDBClientService.GetRecordsPageAsync<Bill>(
+            "payobills",
+            "bills",
+            $"{BILLS_NOCODB_FIELDS},Payments&nested[Payments][fields]=*&w={idFilterString}"
+        );
+        
+        var bills = mapper.Map<List<BillDTO>>(page?.List);
+        return bills;
+    }
+
     public async Task<BillDTO?> GetBillByIdAsync(string id)
     {
         var bill = await nocoDBClientService.GetRecordByIdAsync<Bill>(

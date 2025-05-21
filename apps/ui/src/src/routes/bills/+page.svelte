@@ -6,16 +6,27 @@
   import Nav from "$lib/nav.svelte";
   import Card from "$lib/card.svelte";
   import { onMount } from "svelte";
+  import BillUploadStatement from "$lib/bill-upload-statement.svelte";
+  import BillStatements from "$lib/bills/bill-statements.svelte";
 
   let billId: any;
   let billByIdQuery: any;
   let refreshKey: number = Date.now();
+
+  let showUploadStatementSection = false;
+  let uploadStatementResult = undefined;
 
   billId = $page.url.searchParams.get("id");
   $: billByIdQuery = queryStore({
     client: $billsUrql,
     query: gql`
       query billById($billId: String!) {
+        billStatements(billId: $billId) {
+          id
+          startDate
+          endDate
+          notes
+        }
         billById(id: $billId) {
           id
           name
@@ -82,6 +93,86 @@
     await load();
   });
 
+interface FileUploadResult {
+  data: {
+    id: string;
+  };
+}
+
+const onBillStatementFormUpload = async (inputs: { bill: Bill, billStatementFile: File , billPeriodDetails: any }) => {
+  try {
+    const formdata = new FormData();
+    formdata.append(
+      "tags",
+      JSON.stringify({
+        CorrelationID: inputs.bill.id,
+        Type: "BILL_STATEMENT",
+        Note: inputs.billStatementFile.name,
+      })
+    );
+
+    formdata.append(
+      "file",
+      inputs.billStatementFile,
+      inputs.billStatementFile.name
+    );
+
+    const response = await fetch("/files", {
+      method: "POST",
+      body: formdata,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`File upload failed: ${response.statusText}`);
+    }
+    
+    const fileUploadResult = (await response.json()) as FileUploadResult;
+    
+    const { error } = await $billsUrql
+      .mutation(
+        gql`
+          mutation ($fileId: Int!, $billId: Int!, $billPeriodStartDate: String!, $billPeriodEndDate: String!) {
+            addBillStatement(
+              dto: {
+                notes: "",
+                startDate: $billPeriodStartDate,
+                endDate: $billPeriodEndDate,
+                file: { id: $fileId }
+                bill: { id: $billId }
+              }
+            ) {
+              id
+              startDate
+              endDate
+              notes
+              bill {
+                id name
+              }
+            }
+          }
+        `,
+        {
+          billId: +inputs.bill.id,
+          fileId: +fileUploadResult.data.id,
+          billPeriodStartDate:  Intl.DateTimeFormat("en-CA", {year: "numeric",month: "2-digit",day: "2-digit", }).format(inputs.billPeriodDetails.billStartDate.getTime()),
+          billPeriodEndDate: Intl.DateTimeFormat("en-CA", {year: "numeric",month: "2-digit",day: "2-digit", }).format(inputs.billPeriodDetails.billEndDate.getTime()),
+        }
+      )
+      .toPromise();
+      
+    if (error) {
+      throw error;
+    }
+    
+    uploadStatementResult = true;
+    refreshKey = Date.now(); // Refresh the query to show the new statement
+  } catch (error) {
+    console.error("Error:", error);
+    uploadStatementResult = false;
+    throw error;
+  }
+};
+
   const load = async () => {
     const module = await import("apexcharts");
     ApexCharts = module.default;
@@ -91,10 +182,11 @@
   const chart = (node: any) => {
     if (!loaded) load();
 
-    const orderedData  = $billByIdQuery.data.billById.payments.sort((a:any,b:any) => {
-        return  new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime()
-    });
-
+    const orderedData = $billByIdQuery.data.billById.payments.sort(
+      (a: any, b: any) => {
+        return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
+      }
+    );
 
     let allData = orderedData.map((p: any) => {
       return {
@@ -118,7 +210,7 @@
             {
               y: last.y + current.y,
               x: last.x,
-              note: `${last.note} - + ${current.y}`
+              note: `${last.note} - + ${current.y}`,
             },
           ];
         }
@@ -128,7 +220,7 @@
           {
             x: current.x,
             y: current.y,
-            note: current.note
+            note: current.note,
           },
         ];
       },
@@ -136,7 +228,7 @@
     );
 
     let options: any = {
-      colors: ['var(--primary-color)'],
+      colors: ["var(--primary-color)"],
       legend: {
         show: false,
       },
@@ -158,18 +250,18 @@
       },
       yaxis: {
         labels: {
-          show:false,
-          formatter: (value: number) => `₹ ${value}`
-        }
+          show: false,
+          formatter: (value: number) => `₹ ${value}`,
+        },
       },
       dataLabels: {
-              enabled: true,
-              // textAnchor: 'start',
-              style: {
-                colors: ['#96b7e8']
-              },
-               formatter: (value: number) => `₹ ${value}`,
-            },
+        enabled: true,
+        // textAnchor: 'start',
+        style: {
+          colors: ["#000"],
+        },
+        formatter: (value: number) => `₹ ${value}`,
+      },
     };
 
     let myChart = new (window as any).ApexCharts(node, options);
@@ -221,14 +313,31 @@
             >
           </p>
         {/each}
+
+        <BillStatements
+          bill={{ id: billId }}
+          statements={$billByIdQuery.data.billStatements}
+        />
+
+        {#if showUploadStatementSection}
+          <BillUploadStatement
+            bill={$billByIdQuery.data.billById}
+            {onBillStatementFormUpload}
+          />
+        {/if}
+
+        <div class="actions">
+          {#if !showUploadStatementSection}
+            <button on:click={() => (showUploadStatementSection = true)}
+              >upload statement</button
+            >
+          {/if}
+          <button class="markPaid" on:click={async () => await markPaid()}
+            >mark as paid</button
+          >
+        </div>
       {/if}
     {/if}
-
-    <div class="actions">
-      <button class="markPaid" on:click={async () => await markPaid()}
-        >mark as paid</button
-      >
-    </div>
   </div>
 </Card>
 
@@ -238,9 +347,7 @@
     font-size: 1.2rem;
     font-weight: 600;
   }
-  h2 {
-    font-size: 1rem;
-  }
+
   p {
     font-size: 0.8rem;
   }
@@ -253,14 +360,24 @@
     display: flex;
     flex-grow: 1;
     justify-content: flex-end;
+    flex-direction: column;
+  }
+
+  .actions > button {
+    margin: 0.25rem 0;
+    width: 100%;
   }
 
   .markPaid {
     align-self: flex-end;
   }
 
-  .payment {display: flex;}
-  .amount,.amount--unknown {
+  .payment {
+    display: flex;
+  }
+
+  .amount,
+  .amount--unknown {
     flex-grow: 1;
   }
 </style>
