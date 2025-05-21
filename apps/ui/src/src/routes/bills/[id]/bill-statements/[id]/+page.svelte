@@ -74,12 +74,12 @@
     {:else if $billStatementsQuery.error}
       <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
     {:else}
-      <h2>
+      <h1>
         {$billStatementsQuery.data.bill.name} / {!currentBillStatement.startDate ||
         !currentBillStatement.endDate
           ? "Unknown billing period"
-          : `${currentBillStatement.startDate} - ${currentBillStatement.endDate}`}
-      </h2>
+          : `${currentBillStatement.startDate} to ${currentBillStatement.endDate}`}
+      </h1>
       <pre> {JSON.stringify($billStatementsQuery.data.billStatements, undefined, 1)}</pre>
     {/if}
   </div>
