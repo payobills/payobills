@@ -64,11 +64,6 @@
 
 <Card>
   <div class="content">
-    <!-- <h2>bill statement</h2> -->
-
-    <!-- <p>bill {billId}</p>
-    <p>billStatementId {billStatementId}</p> -->
-
     {#if $billStatementsQuery.fetching}
       <p>Loading...</p>
     {:else if $billStatementsQuery.error}
