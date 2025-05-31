@@ -13,8 +13,8 @@ Example payload published to the queue `payobills.files.uploaded`
 {
     "type": "payobills.files.uploaded",
     "args": {
-        "id": "58",
-        "correlationId": "28",
+        "id": "54",
+        "correlationId": "1",
         "type": "BILL_STATEMENT"
     }
 }
