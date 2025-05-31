@@ -1,8 +1,10 @@
 module.exports = {
     getFile: ({ nocoDbClient }) => async (file) => {
+        const projectId = process.env.NOCODB_PROJECT_ID || "payobills";
+        const tableId = process.env.NOCODB_FILES_TABLE_ID || "files";
         const record = await nocoDbClient.getRecord(
-            "payobills",
-            "files",
+            projectId,
+            tableId,
             file.id
         );
         return {
