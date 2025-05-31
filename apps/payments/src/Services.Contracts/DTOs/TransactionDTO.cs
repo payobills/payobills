@@ -1,9 +1,13 @@
+using HotChocolate.ApolloFederation.Types;
 using Payobills.Payments.Data.Contracts.Models;
 
 namespace Payobills.Payments.Services.Contracts.DTOs
 {
     public class TransactionDTO : Transaction
     {
+        [Key]
+        public new long Id { get; set; }
+
         public TransactionDTO(Transaction parent)
         {
             Id = parent.Id;
