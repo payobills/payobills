@@ -15,7 +15,7 @@ const rabbitmqChannelFactory = require("./rabbitmq-channel.factory");
 const { postFile } = require("./post-file.route");
 const { default: gql } = require('graphql-tag');
 
-const fileResolver = require('./resolvers/file');
+const fileResolver = require('./file.resolver');
 
 async function main() {
   let app = Express();
