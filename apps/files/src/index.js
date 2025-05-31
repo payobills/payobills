@@ -16,6 +16,7 @@ const { postFile } = require("./post-file.route");
 const { default: gql } = require('graphql-tag');
 
 const fileResolver = require('./file.resolver');
+const { ApolloServerPluginInlineTraceDisabled } = require('@apollo/server/plugin/disabled');
 
 async function main() {
   let app = Express();
@@ -35,6 +36,10 @@ async function main() {
   const typeDefs = gql`
   scalar DateTimeISO
 
+  type Query {
+    files(input: FilesInput): FilesReponse!
+  }
+
   extend schema
     @link(
       url: "https://specs.apollo.dev/federation/v2.0"
@@ -49,9 +54,27 @@ async function main() {
     createdAt: DateTimeISO!
     updatedAt: DateTimeISO
   }
+
+  type FilesReponse {
+    results: [File!]!
+  }
+
+  input FilesInput {
+    ids: [ID!]
+  }
 `;
 
   const resolvers = {
+    Query: {
+      files(_, args)  {
+        const getFilePromises = args.input?.ids.map((id) => fileResolver.getFile(DI)({ id })) || [];
+        const files = Promise.all(getFilePromises);
+
+        return {
+          results: files,
+        }
+      },
+    },
     File: {
       __resolveReference(file, _) {
         return fileResolver.getFile(DI)(file);
@@ -70,6 +93,7 @@ async function main() {
     // resolvers,
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
+      ApolloServerPluginInlineTraceDisabled(),
       // ApolloServerPluginLandingPageDisabled()
       //  ApolloServerPluginLandingPageLocalDefault()
     ],
@@ -84,6 +108,7 @@ async function main() {
     expressMiddleware(apolloServer),
   );
 
+  /// @ts-ignore
   app.get('/', (_, res) => (res.send({ app: 'files-service' })))
   /// @ts-ignore
   app.post('/files', upload.single('file'), postFile(DI))
