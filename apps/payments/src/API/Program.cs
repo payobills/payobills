@@ -42,6 +42,7 @@ builder.Services.AddSingleton<IMapper>((_) =>
 
 builder.Services
   .AddGraphQLServer()
+  .DisableIntrospection(false)
   .AddApolloFederation()
   .AddSorting()
   .AddQueryType<Query>()
