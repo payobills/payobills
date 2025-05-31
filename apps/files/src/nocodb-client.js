@@ -16,6 +16,26 @@ module.exports = class NocoDbClient {
         this.opts = opts;
     }
 
+    async getRecord(projectId, tableId, id) {
+        if (!projectId || !tableId || !id) {
+            throw new Error("Project ID, Table ID and Record ID are required to fetch a record.");
+        }
+
+        const url = `${this.opts.baseUrl}/api/v1/db/data/nc/${projectId}/${tableId}/${id}?fields=*`;
+        console.log(`Fetching record from NocoDB: URL=${url}`);
+        const res = await axios({
+            method: 'get',
+            url,
+            headers: {
+                'xc-token': this.opts.xcToken,
+            },
+        });
+        if (res.status !== 200) {
+            throw new Error(`Failed to fetch record: ${res.status} ${res.statusText}`);
+        }
+
+        return res.data;
+    }
     async putObject(
         _,
         fileName,
