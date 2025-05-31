@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-using HotChocolate.ApolloFederation.Resolvers;
-using HotChocolate.Types.Relay;
+using HotChocolate.ApolloFederation.Types;
 
 namespace Payobills.Bills.Services.Contracts.DTOs;
 
