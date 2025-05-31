@@ -4,7 +4,7 @@ namespace Payobills.Bills.Services.Contracts.DTOs;
 
 public class BillDTO
 {
-    [Key]
+    [ID]
     public required string Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public int? BillingDate { get; set; }
