@@ -13,6 +13,7 @@ const NocoDbClientFactory = require('./nocodb-client.factory');
 const rabbitmqChannelFactory = require("./rabbitmq-channel.factory");
 
 const { postFile } = require("./post-file.route");
+const { getFile } = require("./get-file.route");
 const { default: gql } = require('graphql-tag');
 
 const fileResolver = require('./file.resolver');
@@ -112,6 +113,8 @@ async function main() {
   app.get('/', (_, res) => (res.send({ app: 'files-service' })))
   /// @ts-ignore
   app.post('/files', upload.single('file'), postFile(DI))
+  /// @ts-ignore
+  app.get('/files/:id', upload.single('file'), getFile(DI))
 
   console.log(`App listening on port ${host}:${port}`)
   await new Promise((resolve) => httpServer.listen({ port, host, resolve }));

@@ -16,6 +16,14 @@ module.exports = class NocoDbClient {
         this.opts = opts;
     }
 
+    /**
+     * Returns the base URL of the NocoDB instance.
+     * @returns {string} The base URL of the NocoDB instance.
+     */
+    getBaseUrl() {
+        return this.opts.baseUrl;
+    }
+
     async getRecord(projectId, tableId, id) {
         if (!projectId || !tableId || !id) {
             throw new Error("Project ID, Table ID and Record ID are required to fetch a record.");
