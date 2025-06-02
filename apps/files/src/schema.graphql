@@ -1,0 +1,28 @@
+scalar DateTimeISO
+
+type Query {
+files(input: FilesInput): FilesReponse!
+}
+
+extend schema
+@link(
+    url: "https://specs.apollo.dev/federation/v2.0"
+    import: ["@key", "@shareable"]
+)
+
+type File
+@key(fields: "id") {
+id: ID!
+downloadPath: String
+fileName: String
+createdAt: DateTimeISO!
+updatedAt: DateTimeISO
+}
+
+type FilesReponse {
+results: [File!]!
+}
+
+input FilesInput {
+ids: [ID!]
+}

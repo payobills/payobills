@@ -7,7 +7,10 @@ const { buildSubgraphSchema } = require('@apollo/subgraph');
 const Express = require("express");
 const multer = require('multer');
 const http = require('http');
-const { typeDefs: scalarTypeDefs }= require('graphql-scalars')
+const { typeDefs: scalarTypeDefs }= require('graphql-scalars');
+
+// @ts-ignore
+require('graphql-import-node/register');
 
 const NocoDbClientFactory = require('./nocodb-client.factory');
 const rabbitmqChannelFactory = require("./rabbitmq-channel.factory");
@@ -34,36 +37,7 @@ async function main() {
     rabbitChannel
   };
 
-  const typeDefs = gql`
-  scalar DateTimeISO
-
-  type Query {
-    files(input: FilesInput): FilesReponse!
-  }
-
-  extend schema
-    @link(
-      url: "https://specs.apollo.dev/federation/v2.0"
-      import: ["@key", "@shareable"]
-    )
-
-  type File
-    @key(fields: "id") {
-    id: ID!
-    downloadPath: String
-    fileName: String
-    createdAt: DateTimeISO!
-    updatedAt: DateTimeISO
-  }
-
-  type FilesReponse {
-    results: [File!]!
-  }
-
-  input FilesInput {
-    ids: [ID!]
-  }
-`;
+  const typeDefs = require('./schema.graphql');
 
   const resolvers = {
     Query: {
