@@ -18,6 +18,7 @@
   import IconButton from "$lib/icon-button.svelte";
   import type { Writable } from "svelte/store";
   import type { Transaction } from "$lib/types/transaction";
+  import FileUploader from "../../../lib/file-uploader.svelte";
 
   let transactionID: string | null = null;
   let pageMode: "VIEW" | "EDIT" = "VIEW";
@@ -65,6 +66,38 @@
       });
     });
   });
+
+  const onTransactionReceiptAdded = async ({transaction, files}: any) => {
+    if(files?.length === 0) {
+      return;
+    }
+
+    const formdata = new FormData();
+    formdata.append(
+      "tags",
+      JSON.stringify({
+        CorrelationID: transaction.id,
+        Type: "TRANSACTION_RECEIPT",
+        TransactionID: transactionID,
+        Note: "",
+      })
+    );
+
+    formdata.append(
+      "file",
+      files[0],
+      files[0].name
+    );
+
+    const response = await fetch("/files", {
+      method: "POST",
+      body: formdata,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`File upload failed: ${response.statusText}`);
+    }
+  }
 
   const updateTransaction = () => {
     const updateTransactionOp = mutationStore({
@@ -229,6 +262,14 @@
           {transaction.transactionText}
         </div>
 
+        <h1 class="subheader">Transaction receipt</h1>
+        <div class="transaction-file-input">
+          <FileUploader
+            onFileAdded={({ files }) =>
+              onTransactionReceiptAdded({ transaction, files })}
+          />
+        </div>
+
         <h1 class="subheader">Tags</h1>
         {#if transaction.tags?.length === 0}
           <div class="tags_description">
@@ -271,7 +312,7 @@
   .note {
     margin: 0;
     margin-top: 1rem;
-    font-size: .75rem;
+    font-size: 0.75rem;
     border-radius: 0.25rem;
     align-self: stretch;
     flex-grow: 1;
@@ -302,6 +343,10 @@
     font-size: 0.75rem;
     font-weight: 400;
     margin: 1rem auto;
+  }
+
+  .transaction-file-input {
+    margin: 1rem 0;
   }
 
   p {
@@ -357,6 +402,6 @@
 
   .tags_description {
     margin: 1rem 0;
-    font-size: .75rem;
+    font-size: 0.75rem;
   }
 </style>
