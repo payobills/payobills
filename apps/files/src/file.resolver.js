@@ -9,7 +9,7 @@ module.exports = {
         );
         return {
             id: record.Id,
-            downloadPath: record.Files?.[0]?.signedPath || null,
+            downloadPath: `/files/${file.id}`,
             fileName: record.Files?.[0]?.title || null,
             createdAt: record.CreatedAt,
             updatedAt: record.UpdatedAt || null,
