@@ -70,18 +70,18 @@
       <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
     {:else}
       <h1>
-        {$billStatementsQuery.data.bill.name} / {!currentBillStatement.startDate ||
+        <a href={`/bills/${$billStatementsQuery.data.bill.id}`}>{$billStatementsQuery.data.bill.name}</a> / {!currentBillStatement.startDate ||
         !currentBillStatement.endDate
           ? "Unknown billing period"
           : `${currentBillStatement.startDate} to ${currentBillStatement.endDate}`}
       </h1>
-      <pre> {JSON.stringify($billStatementsQuery.data.billStatements, undefined, 1)}</pre>
+      <!-- <pre> {JSON.stringify($billStatementsQuery.data.billStatements, undefined, 1)}</pre> -->
     {/if}
   </div>
 </Card>
 
 <style>
-  h1 {
+  h1,a {
     color: var(--primary-color);
     font-size: 1.2rem;
     font-weight: 600;
