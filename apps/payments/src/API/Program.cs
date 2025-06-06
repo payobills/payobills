@@ -49,6 +49,7 @@ builder.Services
   .AddMutationType<Mutation>()
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
   .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
+  .AddType<Payobills.Payments.Services.Contracts.DTOs.File>()
   .AddType<TransactionDTOType>();
 
 var app = builder.Build();
