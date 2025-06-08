@@ -36,4 +36,6 @@ public class Transaction
 
     [JsonPropertyName("bills")]
     public Bill Bill { get; set; } = default!;
+
+    public File? Receipt { get; set; } = null;
 }
