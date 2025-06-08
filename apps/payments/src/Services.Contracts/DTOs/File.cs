@@ -3,7 +3,7 @@ using HotChocolate.Types.Relay;
 
 namespace Payobills.Payments.Services.Contracts.DTOs;
 
-[External]
+[ExtendServiceType]
 public class File
 {
     [ID]
