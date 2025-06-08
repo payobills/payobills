@@ -59,6 +59,8 @@ type File @key(fields: "id") {
   """
   id: ID!
   downloadPath: String
+  mimeType: String!
+  extension: String!
   fileName: String
   createdAt: DateTimeISO!
   updatedAt: DateTimeISO
