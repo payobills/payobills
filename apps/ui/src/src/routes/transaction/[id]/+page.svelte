@@ -207,36 +207,34 @@
           </div>
         {/if}
 
+        {#if transaction.receipts}
         <h1 class="subheader">Receipts</h1>
         <div class="receipts">
-          <p>{transaction.receipts.length === 0? "This transaction doesn't have any receipts. Edit transaction to add receipts." : ""}</p>
-
-          <ul class="transaction-receipts-list">
-          {#each transaction.receipts as receipt}
-          <li>
-            <p>
-              Receipt Uploaded  {new Intl.DateTimeFormat(
-            "en-GB",
-            {
-              year: "2-digit",
-              month: "long",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            }
-          ).format(new Date(receipt.createdAt))} ({receipt.extension}) - <a
-                href={receipt.downloadPath}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Download Receipt
-              </a>
-            </p>
-            </li>
-          {/each}
-          </ul>
+          {#if transaction.receipts.length === 0}
+            <p>This transaction doesn't have any receipts. Edit transaction to add receipts.</p>
+          {:else}
+            <ul class="transaction-receipts-list">
+              {#each transaction.receipts as receipt}
+                <li>
+                  <p>
+                    Receipt Uploaded {new Intl.DateTimeFormat("en-GB", {
+                      year: "2-digit",
+                      month: "long",
+                      day: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    }).format(new Date(receipt.createdAt))} ({receipt.extension}) - 
+                    <a href={receipt.downloadPath} target="_blank" rel="noopener noreferrer">
+                      Download Receipt
+                    </a>
+                  </p>
+                </li>
+              {/each}
+            </ul>
+          {/if}
         </div>
+        {/if}
 
         <h1 class="subheader">Tags</h1>
         <div class="tags_description">
