@@ -446,7 +446,6 @@
   }
 
   .transaction-receipts-list {
-    /* list-style: ; */
     margin: 0 1rem;
     padding: 0;
   }
