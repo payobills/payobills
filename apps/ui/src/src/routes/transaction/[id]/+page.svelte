@@ -44,6 +44,13 @@
             tags
             parseStatus
             notes
+            receipts {
+              id
+              createdAt
+              downloadPath
+              updatedAt
+              extension
+            }
             bill {
               id
               name
@@ -196,9 +203,40 @@
         {#if transaction.transactionText !== ""}
           <h1 class="subheader">Original Transaction Detail</h1>
           <div class="transaction-detail">
-            {transaction.transactionText}
+            <p>{transaction.transactionText}</p>
           </div>
         {/if}
+
+        <h1 class="subheader">Receipts</h1>
+        <div class="receipts">
+          <p>{transaction.receipts.length === 0? "This transaction doesn't have any receipts. Edit transaction to add receipts." : ""}</p>
+
+          <ul class="transaction-receipts-list">
+          {#each transaction.receipts as receipt}
+          <li>
+            <p>
+              Receipt Uploaded  {new Intl.DateTimeFormat(
+            "en-GB",
+            {
+              year: "2-digit",
+              month: "long",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            }
+          ).format(new Date(receipt.createdAt))} ({receipt.extension}) - <a
+                href={receipt.downloadPath}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download Receipt
+              </a>
+            </p>
+            </li>
+          {/each}
+          </ul>
+        </div>
 
         <h1 class="subheader">Tags</h1>
         <div class="tags_description">
@@ -259,7 +297,7 @@
 
         <h1 class="subheader">Original Transaction Detail</h1>
         <div class="transaction-detail">
-          {transaction.transactionText}
+          <p>{transaction.transactionText}</p>
         </div>
 
         <h1 class="subheader">Transaction receipt</h1>
@@ -342,7 +380,7 @@
   .transaction-detail {
     font-size: 0.75rem;
     font-weight: 400;
-    margin: 1rem auto;
+    /* margin: 1rem auto; */
   }
 
   .transaction-file-input {
@@ -350,7 +388,7 @@
   }
 
   p {
-    margin: 0.75rem 1rem;
+    margin: 1rem 0;
   }
 
   .title {
@@ -403,5 +441,15 @@
   .tags_description {
     margin: 1rem 0;
     font-size: 0.75rem;
+  }
+
+  .receipts > p {
+    margin: 1rem 0;
+  }
+
+  .transaction-receipts-list {
+    /* list-style: ; */
+    margin: 0 1rem;
+    padding: 0;
   }
 </style>
