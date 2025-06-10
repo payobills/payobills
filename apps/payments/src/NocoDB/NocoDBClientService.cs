@@ -85,11 +85,34 @@ public class NocoDBClientService
     return recordsPage;
   }
 
+  public async Task<string?> GetRecordByIdAsync(string id, string baseName, string table, string fields, string extraArgs = "")
+  {
+    var extraArgsToPassInUrl = !String.IsNullOrEmpty(extraArgs) ? $"&{extraArgs}" : String.Empty;
+    var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}/{id}?fields={fields}{extraArgsToPassInUrl}";
+    using var request = new HttpRequestMessage(
+      HttpMethod.Get,
+      url
+    );
+
+    request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+
+    var response = await httpClient.SendAsync(request);
+
+    if (response.StatusCode == HttpStatusCode.NotFound)
+    {
+      // Return default value - null for 404 response
+      return default;
+    }
+
+    var responseJsonString = await response.Content.ReadAsStringAsync();
+    return responseJsonString;
+  }
+
   public async Task<TOutput> CreateRecordAsync<TInput, TOutput>(string baseName, string table, TInput payload)
   {
     using var jsonStream = new MemoryStream();
     await JsonSerializer.SerializeAsync(jsonStream, payload);
-    jsonStream.Seek(0, SeekOrigin.Begin); 
+    jsonStream.Seek(0, SeekOrigin.Begin);
 
     using var contentStream = new StreamContent(jsonStream);
     contentStream.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
@@ -106,7 +129,7 @@ public class NocoDBClientService
 
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
-    
+
     JsonSerializerOptions options = new();
     options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
     var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
@@ -118,7 +141,7 @@ public class NocoDBClientService
   {
     using var jsonStream = new MemoryStream();
     await JsonSerializer.SerializeAsync(jsonStream, payload);
-    jsonStream.Seek(0, SeekOrigin.Begin); 
+    jsonStream.Seek(0, SeekOrigin.Begin);
 
     using var contentStream = new StreamContent(jsonStream);
     contentStream.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
@@ -166,5 +189,22 @@ public class NocoDBClientService
     options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
     var metaResourceData = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
     return metaResourceData!;
+  }
+  
+  public async Task<T?> ParseJsonToNocoDBRecordAsync<T>(string jsonString)
+  {
+    if (string.IsNullOrEmpty(jsonString))
+    {
+      return default;
+    }
+
+    using var jsonStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonString));
+    jsonStream.Seek(0, SeekOrigin.Begin);
+
+    JsonSerializerOptions options = new JsonSerializerOptions();
+    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    
+    var record = await JsonSerializer.DeserializeAsync<T>(jsonStream, options);
+    return record;
   }
 }
