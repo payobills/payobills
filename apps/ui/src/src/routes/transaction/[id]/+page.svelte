@@ -1,18 +1,12 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import RecentTransactions from "$lib/recent-transactions.svelte";
   import { paymentsUrql } from "$lib/stores/urql";
   import {
-    faChevronLeft,
-    faChevronRight,
     faEdit,
-    faPencil,
   } from "@fortawesome/free-solid-svg-icons";
 
   import { queryStore, gql, mutationStore } from "@urql/svelte";
   import type { OperationResultStore } from "@urql/svelte";
   import { onMount } from "svelte";
-  import { Icon } from "svelte-awesome";
   import { formatRelativeDate } from "../../../utils/format-relative-date";
   import { formStoreGenerator, type FormStore } from "$lib/stores/form";
   import IconButton from "$lib/icon-button.svelte";
@@ -301,7 +295,7 @@
         <h1 class="subheader">Transaction receipt</h1>
         <div class="transaction-file-input">
           <FileUploader
-            onFileAdded={({ files }) =>
+            onFilesChanges={({ files }) =>
               onTransactionReceiptAdded({ transaction, files })}
           />
         </div>
@@ -327,7 +321,7 @@
         ></textarea>
         <button class="submit" on:click={() => updateTransaction()}>save</button
         >
-        <button class="submit" on:click={() => (pageMode = "VIEW")}
+        <button class="submit cta--cancel" on:click={() => (pageMode = "VIEW")}
           >cancel</button
         >
       </section>
@@ -338,6 +332,9 @@
 <style>
   .submit {
     margin-top: 1rem;
+  }
+  .cta--cancel {
+    background-color: var(--secondary-bg-color);
   }
 
   input {

@@ -46,6 +46,7 @@
     /* #5b81bb */
     --primary-color: #181818;
     --primary-bg-color: #f3f3f3;
+    --secondary-bg-color: #bbbbbb;
   }
 
   :global(a) {
