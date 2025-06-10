@@ -43,6 +43,7 @@
               createdAt
               downloadPath
               updatedAt
+              mimeType
               extension
             }
             bill {
@@ -215,30 +216,16 @@
                 add receipts.
               </p>
             {:else}
-              <ul class="transaction-receipts-list">
-                {#each transaction.receipts as receipt}
-                  <li>
-                    <p>
-                      Receipt Uploaded {new Intl.DateTimeFormat("en-GB", {
-                        year: "2-digit",
-                        month: "long",
-                        day: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                      }).format(new Date(receipt.createdAt))} ({receipt.extension})
-                      -
-                      <a
-                        href={receipt.downloadPath}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Download Receipt
-                      </a>
-                    </p>
-                  </li>
-                {/each}
-              </ul>
+              <div class="transaction-file-input">
+                <FileUploader
+                  editable={false}
+                  files={transaction.receipts.map((receipt: any) => ({
+                    fileName: receipt.fileName,
+                    mimeType: receipt.mimeType,
+                    downloadPath: receipt.downloadPath,
+                  }))}
+                />
+              </div>
             {/if}
           </div>
         {/if}
@@ -308,6 +295,12 @@
         <h1 class="subheader">Transaction receipt</h1>
         <div class="transaction-file-input">
           <FileUploader
+            editable={true}
+            files={transaction.receipts.map((receipt: any) => ({
+              fileName: receipt.fileName,
+              mimeType: receipt.mimeType,
+              downloadPath: receipt.downloadPath,
+            }))}
             onFilesChanges={({ files }) =>
               onTransactionReceiptAdded({ transaction, files })}
           />

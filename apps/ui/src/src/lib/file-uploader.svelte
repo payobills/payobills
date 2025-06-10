@@ -3,6 +3,8 @@
   import IconButton from "./icon-button.svelte";
 
   export let onFilesChanges: (input: { files: FileList }) => void = (_) => {};
+  export let editable = false;
+  export let files: any[] = [];
 
   // let state:
   //   | "WAITING_FOR_INPUT"
@@ -12,41 +14,63 @@
   //   | "FILE_UPLOAD_FAILED" = "WAITING_FOR_INPUT";
   let selectedFileList: FileList;
 
-  $: console.log("Selected files:", selectedFileList);
+  // $: console.log("Selected files:", selectedFileList);
 </script>
 
 <form
   on:submit|preventDefault={() => onFilesChanges({ files: selectedFileList })}
 >
-  <div class="tile-item">
-    <input
-      id="file-input"
-      type="file"
-      bind:files={selectedFileList}
-      hidden
-      multiple
-    />
-    <label class="upload-label" for="file-input"><span>+</span></label>
-  </div>
-
-  {#each selectedFileList as selectedFile}
-    <div class="tile-item tile-item--file">
-      {#if selectedFile.type.startsWith("image/")}
-        <img
-          src={URL.createObjectURL(selectedFile)}
-          alt={selectedFile.name}
-          style="width: 100%; height: 100%; object-fit: cover;"
-        />
-      {:else}
-        <IconButton
-          icon={faFile}
-          backgroundColor="var(--primary-bg-color)"
-          color="black"
-          scale={2}
-        />
-      {/if}
+  {#if editable}
+    <div class="tile-item">
+      <input
+        id="file-input"
+        type="file"
+        bind:files={selectedFileList}
+        hidden
+        multiple
+      />
+      <label class="upload-label" for="file-input"><span>+</span></label>
     </div>
-  {/each}
+    {#each selectedFileList as selectedFile}
+      <div class="tile-item tile-item--file">
+        {#if selectedFile.type.startsWith("image/")}
+          <img
+            src={URL.createObjectURL(selectedFile)}
+            alt={selectedFile.name}
+            style="width: 100%; height: 100%; object-fit: cover;"
+          />
+        {:else}
+          <IconButton
+            icon={faFile}
+            backgroundColor="var(--primary-bg-color)"
+            color="black"
+            scale={2}
+          />
+        {/if}
+      </div>
+    {/each}
+  {/if}
+  
+  {#if files.length > 0}
+    {#each files as selectedFile}
+      <div class="tile-item tile-item--file">
+        {#if selectedFile.mimeType.startsWith("image/")}
+          <img
+            src={selectedFile.downloadPath}
+            alt={selectedFile.fileName}
+            style="width: 100%; height: 100%; object-fit: cover;"
+          />
+        {:else}
+          <IconButton
+            icon={faFile}
+            backgroundColor="var(--primary-bg-color)"
+            color="black"
+            scale={2}
+          />
+        {/if}
+      </div>
+    {/each}
+  {/if}
 </form>
 
 <style>
