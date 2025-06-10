@@ -1,8 +1,6 @@
 <script lang="ts">
   import { paymentsUrql } from "$lib/stores/urql";
-  import {
-    faEdit,
-  } from "@fortawesome/free-solid-svg-icons";
+  import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
   import { queryStore, gql, mutationStore } from "@urql/svelte";
   import type { OperationResultStore } from "@urql/svelte";
@@ -16,7 +14,9 @@
 
   let transactionID: string | null = null;
   let pageMode: "VIEW" | "EDIT" = "VIEW";
+  let editCta = "Save";
   let transaction: any;
+  let cancelCtaButton: HTMLButtonElement, saveCtaButton: HTMLButtonElement;
   let transactionsQuery: OperationResultStore;
   let transactionForm: Writable<FormStore<Transaction>> =
     formStoreGenerator("transactionById");
@@ -68,8 +68,8 @@
     });
   });
 
-  const onTransactionReceiptAdded = async ({transaction, files}: any) => {
-    if(files?.length === 0) {
+  const onTransactionReceiptAdded = async ({ transaction, files }: any) => {
+    if (files?.length === 0) {
       return;
     }
 
@@ -84,23 +84,24 @@
       })
     );
 
-    formdata.append(
-      "file",
-      files[0],
-      files[0].name
-    );
+    formdata.append("file", files[0], files[0].name);
 
     const response = await fetch("/files", {
       method: "POST",
       body: formdata,
     });
-    
+
     if (!response.ok) {
       throw new Error(`File upload failed: ${response.statusText}`);
     }
-  }
+  };
 
   const updateTransaction = () => {
+    editCta = "Saving...";
+
+    cancelCtaButton.disabled = true;
+    saveCtaButton.disabled = true;
+
     const updateTransactionOp = mutationStore({
       client: $paymentsUrql,
       variables: {
@@ -129,6 +130,10 @@
 
     updateTransactionOp.subscribe(() => {
       pageMode = "VIEW";
+      saveCtaButton.disabled = false;
+      cancelCtaButton.disabled = false;
+      editCta = "Save";
+
       transaction = {
         ...transaction,
         ...$transactionForm.data,
@@ -202,32 +207,40 @@
         {/if}
 
         {#if transaction.receipts}
-        <h1 class="subheader">Receipts</h1>
-        <div class="receipts">
-          {#if transaction.receipts.length === 0}
-            <p>This transaction doesn't have any receipts. Edit transaction to add receipts.</p>
-          {:else}
-            <ul class="transaction-receipts-list">
-              {#each transaction.receipts as receipt}
-                <li>
-                  <p>
-                    Receipt Uploaded {new Intl.DateTimeFormat("en-GB", {
-                      year: "2-digit",
-                      month: "long",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    }).format(new Date(receipt.createdAt))} ({receipt.extension}) - 
-                    <a href={receipt.downloadPath} target="_blank" rel="noopener noreferrer">
-                      Download Receipt
-                    </a>
-                  </p>
-                </li>
-              {/each}
-            </ul>
-          {/if}
-        </div>
+          <h1 class="subheader">Receipts</h1>
+          <div class="receipts">
+            {#if transaction.receipts.length === 0}
+              <p>
+                This transaction doesn't have any receipts. Edit transaction to
+                add receipts.
+              </p>
+            {:else}
+              <ul class="transaction-receipts-list">
+                {#each transaction.receipts as receipt}
+                  <li>
+                    <p>
+                      Receipt Uploaded {new Intl.DateTimeFormat("en-GB", {
+                        year: "2-digit",
+                        month: "long",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      }).format(new Date(receipt.createdAt))} ({receipt.extension})
+                      -
+                      <a
+                        href={receipt.downloadPath}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Download Receipt
+                      </a>
+                    </p>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </div>
         {/if}
 
         <h1 class="subheader">Tags</h1>
@@ -319,10 +332,15 @@
           bind:value={$transactionForm.data.notes}
           placeholder="This transaction doesn't have a note. Click here to add one."
         ></textarea>
-        <button class="submit" on:click={() => updateTransaction()}>save</button
+        <button
+          class="submit"
+          bind:this={saveCtaButton}
+          on:click={() => updateTransaction()}>{editCta}</button
         >
-        <button class="submit cta--cancel" on:click={() => (pageMode = "VIEW")}
-          >cancel</button
+        <button
+          class="submit cta--cancel"
+          bind:this={cancelCtaButton}
+          on:click={() => (pageMode = "VIEW")}>cancel</button
         >
       </section>
     {/if}
