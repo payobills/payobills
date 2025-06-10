@@ -54,7 +54,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             Notes = parent.Notes;
             ParseStatus = parent.ParseStatus;
             Bill = parent.Bill;
-            Receipts = parent.Receipt is not null ? [new File { Id = parent.Receipt.Id.ToString() }] : [];
+            Receipts = parent.Receipts.Select(p => new File { Id = p.Id.ToString() });
         }
     }
 }

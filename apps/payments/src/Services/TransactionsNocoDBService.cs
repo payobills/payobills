@@ -60,13 +60,19 @@ public class TransactionsNocoDBService : ITransactionsService
 
     public async Task<TransactionDTO> GetTransactionByIDAsync(string id)
     {
-        var transaction = await nocoDBClientService.GetRecordByIdAsync<Transaction>(
+        var transactionJsonString = await nocoDBClientService.GetRecordByIdAsync(
             id,
             "payobills",
             "transactions",
             TRANSACTIONS_NOCODB_FIELDS,
             "w=(BackDate,isnotblank)"
         );
+
+        var transactionReceiptIds = parseFileIdsFromTransactionJsonString(transactionJsonString);
+        var transaction = await nocoDBClientService.ParseJsonToNocoDBRecordAsync<Transaction>(transactionJsonString);
+
+        transaction.Receipts = transactionReceiptIds
+            .Select(receiptId => new Data.Contracts.Models.File { Id = receiptId });
 
         return new TransactionDTO(transaction!) { Notes = transaction!.Notes };
     }
@@ -148,5 +154,34 @@ public class TransactionsNocoDBService : ITransactionsService
         );
 
         return mapper.Map<List<TransactionDTO>>(page?.List ?? []);
+    }
+
+    private int[] parseFileIdsFromTransactionJsonString(string? transactionJsonString)
+    {
+        if (string.IsNullOrEmpty(transactionJsonString))
+        {
+            return [];
+        }
+
+        using JsonDocument doc = JsonDocument.Parse(transactionJsonString);
+        JsonElement root = doc.RootElement;
+
+        var transactionFileIds = new List<int>();
+
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (property.Value.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in property.Value.EnumerateArray())
+                {
+                    if (item.TryGetProperty("files", out JsonElement filesProperty))
+                    {
+                        transactionFileIds.Add(filesProperty.GetProperty("Id").GetInt32());
+                    }
+                }
+            }
+        }
+
+        return [.. transactionFileIds];
     }
 }

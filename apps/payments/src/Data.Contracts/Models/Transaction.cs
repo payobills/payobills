@@ -38,4 +38,7 @@ public class Transaction
     public Bill Bill { get; set; } = default!;
 
     public File? Receipt { get; set; } = null;
+
+    [JsonIgnore]
+    public IEnumerable<File> Receipts { get; set; } = [];
 }
