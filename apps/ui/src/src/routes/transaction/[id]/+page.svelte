@@ -63,45 +63,159 @@
           amount: res.data.transactionByID.amount,
           merchant: res.data.transactionByID.merchant,
           notes: res.data.transactionByID.notes,
+          receipts: res.data.transactionByID.receipts.map((receipt: any) => ({
+            fileName: receipt.id,
+            mimeType: receipt.mimeType,
+            downloadPath: receipt.downloadPath,
+          })),
+          updatedReceipts: res.data.transactionByID.receipts.map(
+            (receipt: any) => ({
+              fileName: receipt.id,
+              mimeType: receipt.mimeType,
+              downloadPath: receipt.downloadPath,
+            })
+          ),
         },
         isDirty: false,
       });
     });
   });
 
-  const onTransactionReceiptAdded = async ({ transaction, files }: any) => {
-    if (files?.length === 0) {
-      return;
-    }
-
-    const formdata = new FormData();
-    formdata.append(
-      "tags",
-      JSON.stringify({
-        CorrelationID: transaction.id,
-        Type: "TRANSACTION_RECEIPT",
-        TransactionID: transactionID,
-        Note: "",
-      })
-    );
-
-    formdata.append("file", files[0], files[0].name);
-
-    const response = await fetch("/files", {
-      method: "POST",
-      body: formdata,
-    });
-
-    if (!response.ok) {
-      throw new Error(`File upload failed: ${response.statusText}`);
-    }
+  const onTransactionReceiptAdded = ({ file }: { file: File }) => {
+    console.log("file added:", file);
+    transactionForm.update((form) => ({
+      data: {
+        amount: form.data.amount,
+        merchant: form.data.merchant,
+        notes: form.data.notes,
+        receipts: form.data.receipts,
+        updatedReceipts: [...form.data.updatedReceipts, file],
+      },
+      isDirty: false,
+    }));
   };
 
-  const updateTransaction = () => {
+  const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
+    console.log("removing file:", file);
+    transactionForm.update((form) => ({
+      data: {
+        amount: form.data.amount,
+        merchant: form.data.merchant,
+        notes: form.data.notes,
+        receipts: form.data.receipts,
+        // form.data.receipts.map((receipt: any) => ({
+        //   fileName: receipt.id,
+        //   mimeType: receipt.mimeType,
+        //   downloadPath: receipt.downloadPath,
+        // })),
+        updatedReceipts: (form.data.updatedReceipts || []).filter(
+          (r) => r !== file
+        ),
+      },
+      isDirty: false,
+    }));
+  };
+
+  // const onTransactionReceiptAdded = async ({ transaction, files }: any) => {
+  //   if (files?.length === 0) {
+  //     return;
+  //   }
+
+  //   const formdata = new FormData();
+  //   formdata.append(
+  //     "tags",
+  //     JSON.stringify({
+  //       CorrelationID: transaction.id,
+  //       Type: "TRANSACTION_RECEIPT",
+  //       TransactionID: transactionID,
+  //       Note: "",
+  //     })
+  //   );
+
+  //   formdata.append("file", files[0], files[0].name);
+
+  //   const response = await fetch("/files", {
+  //     method: "POST",
+  //     body: formdata,
+  //   });
+
+  //   if (!response.ok) {
+  //     throw new Error(`File upload failed: ${response.statusText}`);
+  //   }
+  // };
+
+  const updateTransaction = async () => {
     editCta = "Saving...";
 
     cancelCtaButton.disabled = true;
     saveCtaButton.disabled = true;
+
+    const existingReceipts = $transactionForm.data.receipts
+    const newReceipts = $transactionForm.data.updatedReceipts
+
+    // New Files to upload are the ones which don't have a downloadPath
+    const receiptsToAdd = newReceipts.filter(p => !p?.downloadPath)
+
+    // Existing files to delete are the ones which are not present in the new files
+    const receiptsToDelete = existingReceipts.filter(p => newReceipts.findIndex(x => x?.downloadPath === p?.downloadPath) === -1)
+
+    // console.log({existingReceipts: $transactionForm.data.receipts})
+    // console.log({newReceipts: $transactionForm.data.updatedReceipts})
+    // console.log({receiptsToAdd})
+    // console.log({receiptsToDelete})
+
+    // Upload new files
+    const uploadPromises = receiptsToAdd.map((file: File) => {
+      const formdata = new FormData();
+      formdata.append(
+        "tags",
+        JSON.stringify({
+          CorrelationID: transactionID,
+          Type: "TRANSACTION_RECEIPT",
+          TransactionID: transactionID,
+          Note: "",
+        })
+      );
+      formdata.append("file", file, file.name);
+
+      return fetch("/files", {
+        method: "POST",
+        body: formdata,
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`File upload failed: ${response.statusText}`);
+        }
+        return response.json().then(data => {
+          return {
+            id: data.id,
+            mimeType: data.mimeType,
+            downloadPath: data.downloadPath,
+          };
+        });
+      })
+    });
+
+    const uploadedReceipts = await Promise.all(uploadPromises);
+
+    console.log("Uploaded Receipts:", uploadedReceipts);
+      // .then((responses) => {
+      //   responses.forEach((response) => {
+      //     if (!response.ok) {
+      //       throw new Error(`File upload failed: ${response.statusText}`);
+      //     }
+
+      //     const responseData = await response.json()
+      //     return responseData.id; 
+      //   });
+      // })
+      // .catch((error) => {
+      //   console.error("Error uploading files:", error);
+      //   // editCta = "Save";
+      //   // cancelCtaButton.disabled = false;
+      //   // saveCtaButton.disabled = false;
+      //   // return;
+      // });
 
     const updateTransactionOp = mutationStore({
       client: $paymentsUrql,
@@ -110,6 +224,8 @@
         updateDTO: {
           ...$transactionForm.data,
           amount: +$transactionForm.data.amount,
+          receipts: undefined,
+          updatedReceipts: undefined,
         },
       },
       query: gql`
@@ -130,10 +246,10 @@
     });
 
     updateTransactionOp.subscribe(() => {
-      pageMode = "VIEW";
       saveCtaButton.disabled = false;
       cancelCtaButton.disabled = false;
       editCta = "Save";
+      pageMode = "VIEW";
 
       transaction = {
         ...transaction,
@@ -169,7 +285,32 @@
             backgroundColor="var(--primary-bg-color)"
             color="black"
             scale={1.5}
-            on:click={() => (pageMode = "EDIT")}
+            on:click={() => {
+              pageMode = "EDIT";
+
+              transactionForm.set({
+                data: {
+                  amount: $transactionsQuery.data.transactionByID.amount,
+                  merchant: $transactionsQuery.data.transactionByID.merchant,
+                  notes: $transactionsQuery.data.transactionByID.notes,
+                  receipts: $transactionsQuery.data.transactionByID.receipts.map(
+                    (receipt: any) => ({
+                      fileName: receipt.id,
+                      mimeType: receipt.mimeType,
+                      downloadPath: receipt.downloadPath,
+                    })
+                  ),
+                  updatedReceipts: $transactionsQuery.data.transactionByID.receipts.map(
+                    (receipt: any) => ({
+                      fileName: receipt.id,
+                      mimeType: receipt.mimeType,
+                      downloadPath: receipt.downloadPath,
+                    })
+                  ),
+                },
+                isDirty: false,
+              });
+            }}
           />
         </div>
         <div class="transaction-detail">
@@ -296,13 +437,9 @@
         <div class="transaction-file-input">
           <FileUploader
             editable={true}
-            files={transaction.receipts.map((receipt: any) => ({
-              fileName: receipt.fileName,
-              mimeType: receipt.mimeType,
-              downloadPath: receipt.downloadPath,
-            }))}
-            onFilesChanged={({ files }) =>
-              onTransactionReceiptAdded({ transaction, files })}
+            files={$transactionForm.data.updatedReceipts}
+            onFileAdded={onTransactionReceiptAdded}
+            onFileRemoved={onTransactionReceiptRemoved}
           />
         </div>
 
