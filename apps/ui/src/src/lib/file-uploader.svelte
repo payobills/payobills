@@ -2,7 +2,7 @@
   import { faClose, faFile } from "@fortawesome/free-solid-svg-icons";
   import IconButton from "./icon-button.svelte";
 
-  export let onFilesChanges: (input: { files: FileList }) => void = (_) => {};
+  export let onFilesChanged: (input: { files: FileList }) => void = (_) => {};
   export let editable = false;
   export let files: any[] = [];
 
@@ -18,7 +18,7 @@
 </script>
 
 <form
-  on:submit|preventDefault={() => onFilesChanges({ files: selectedFileList })}
+  on:submit|preventDefault={() => onFilesChanged({ files: selectedFileList })}
 >
   {#if editable}
     <div class="tile-item">

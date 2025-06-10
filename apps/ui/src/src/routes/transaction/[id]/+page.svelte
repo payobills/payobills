@@ -301,7 +301,7 @@
               mimeType: receipt.mimeType,
               downloadPath: receipt.downloadPath,
             }))}
-            onFilesChanges={({ files }) =>
+            onFilesChanged={({ files }) =>
               onTransactionReceiptAdded({ transaction, files })}
           />
         </div>
