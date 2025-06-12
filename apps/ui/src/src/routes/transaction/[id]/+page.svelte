@@ -82,7 +82,7 @@
   });
 
   const onTransactionReceiptAdded = ({ file }: { file: File }) => {
-    console.log("file added:", file);
+    // console.log("file added:", file);
     transactionForm.update((form) => ({
       data: {
         amount: form.data.amount,
@@ -96,7 +96,7 @@
   };
 
   const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
-    console.log("removing file:", file);
+    // console.log("removing file:", file);
     transactionForm.update((form) => ({
       data: {
         amount: form.data.amount,
@@ -198,7 +198,7 @@
 
     const uploadedReceipts = await Promise.all(uploadPromises);
 
-    console.log("Uploaded Receipts:", uploadedReceipts);
+    // console.log("Uploaded Receipts:", uploadedReceipts);
       // .then((responses) => {
       //   responses.forEach((response) => {
       //     if (!response.ok) {
@@ -246,8 +246,8 @@
     });
 
     updateTransactionOp.subscribe(() => {
-      saveCtaButton.disabled = false;
-      cancelCtaButton.disabled = false;
+      if(saveCtaButton) saveCtaButton.disabled = false;
+      if(cancelCtaButton) cancelCtaButton.disabled = false;
       editCta = "Save";
       pageMode = "VIEW";
 
