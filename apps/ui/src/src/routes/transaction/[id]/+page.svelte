@@ -178,7 +178,7 @@
       );
       formdata.append("file", file, file.name);
 
-      return fetch("/files", {
+      return fetch("/files/files", {
         method: "POST",
         body: formdata,
       })
