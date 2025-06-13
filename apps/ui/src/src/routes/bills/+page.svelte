@@ -117,7 +117,7 @@ const onBillStatementFormUpload = async (inputs: { bill: Bill, billStatementFile
       inputs.billStatementFile.name
     );
 
-    const response = await fetch("/files", {
+    const response = await fetch("/files/files", {
       method: "POST",
       body: formdata,
     });

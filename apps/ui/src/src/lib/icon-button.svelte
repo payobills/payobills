@@ -4,7 +4,7 @@
   import { onMount } from "svelte";
 
   export let icon: IconDefinition;
-  export let backgroundColor: string;
+  export let backgroundColor: string = "transparent";
   export let color: string = "white";
   export let scale = 1.5;
   export let style = "";

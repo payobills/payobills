@@ -121,7 +121,7 @@
         inputs.billStatementFile.name
       );
   
-      const response = await fetch("/files", {
+      const response = await fetch("/files/files", {
         method: "POST",
         body: formdata,
       });

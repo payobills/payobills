@@ -1,31 +1,33 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import RecentTransactions from "$lib/recent-transactions.svelte";
   import { paymentsUrql } from "$lib/stores/urql";
-  import {
-    faChevronLeft,
-    faChevronRight,
-    faEdit,
-    faPencil,
-  } from "@fortawesome/free-solid-svg-icons";
+  import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
   import { queryStore, gql, mutationStore } from "@urql/svelte";
   import type { OperationResultStore } from "@urql/svelte";
   import { onMount } from "svelte";
-  import { Icon } from "svelte-awesome";
   import { formatRelativeDate } from "../../../utils/format-relative-date";
   import { formStoreGenerator, type FormStore } from "$lib/stores/form";
   import IconButton from "$lib/icon-button.svelte";
   import type { Writable } from "svelte/store";
   import type { Transaction } from "$lib/types/transaction";
   import FileUploader from "../../../lib/file-uploader.svelte";
+  import { envStore } from "$lib/stores/env";
 
   let transactionID: string | null = null;
   let pageMode: "VIEW" | "EDIT" = "VIEW";
+  let editCta = "Save";
   let transaction: any;
+  let cancelCtaButton: HTMLButtonElement, saveCtaButton: HTMLButtonElement;
   let transactionsQuery: OperationResultStore;
   let transactionForm: Writable<FormStore<Transaction>> =
     formStoreGenerator("transactionById");
+
+  const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
+    console.log(
+      $envStore
+    )
+    return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
+  };
 
   onMount(() => {
     let path = window.location.pathname;
@@ -49,6 +51,7 @@
               createdAt
               downloadPath
               updatedAt
+              mimeType
               extension
             }
             bill {
@@ -68,45 +71,162 @@
           amount: res.data.transactionByID.amount,
           merchant: res.data.transactionByID.merchant,
           notes: res.data.transactionByID.notes,
+          receipts: res.data.transactionByID.receipts.map((receipt: any) => ({
+            fileName: receipt.id,
+            mimeType: receipt.mimeType,
+            downloadPath: receipt.downloadPath,
+          })),
+          updatedReceipts: res.data.transactionByID.receipts.map(
+            (receipt: any) => ({
+              fileName: receipt.id,
+              mimeType: receipt.mimeType,
+              downloadPath: receipt.downloadPath,
+            })
+          ),
         },
         isDirty: false,
       });
     });
   });
 
-  const onTransactionReceiptAdded = async ({transaction, files}: any) => {
-    if(files?.length === 0) {
-      return;
-    }
+  const onTransactionReceiptAdded = ({ file }: { file: File }) => {
+    // console.log("file added:", file);
+    transactionForm.update((form) => ({
+      data: {
+        amount: form.data.amount,
+        merchant: form.data.merchant,
+        notes: form.data.notes,
+        receipts: form.data.receipts,
+        updatedReceipts: [...form.data.updatedReceipts, file],
+      },
+      isDirty: false,
+    }));
+  };
 
-    const formdata = new FormData();
-    formdata.append(
-      "tags",
-      JSON.stringify({
-        CorrelationID: transaction.id,
-        Type: "TRANSACTION_RECEIPT",
-        TransactionID: transactionID,
-        Note: "",
-      })
+  const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
+    // console.log("removing file:", file);
+    transactionForm.update((form) => ({
+      data: {
+        amount: form.data.amount,
+        merchant: form.data.merchant,
+        notes: form.data.notes,
+        receipts: form.data.receipts,
+        // form.data.receipts.map((receipt: any) => ({
+        //   fileName: receipt.id,
+        //   mimeType: receipt.mimeType,
+        //   downloadPath: receipt.downloadPath,
+        // })),
+        updatedReceipts: (form.data.updatedReceipts || []).filter(
+          (r) => r !== file
+        ),
+      },
+      isDirty: false,
+    }));
+  };
+
+  // const onTransactionReceiptAdded = async ({ transaction, files }: any) => {
+  //   if (files?.length === 0) {
+  //     return;
+  //   }
+
+  //   const formdata = new FormData();
+  //   formdata.append(
+  //     "tags",
+  //     JSON.stringify({
+  //       CorrelationID: transaction.id,
+  //       Type: "TRANSACTION_RECEIPT",
+  //       TransactionID: transactionID,
+  //       Note: "",
+  //     })
+  //   );
+
+  //   formdata.append("file", files[0], files[0].name);
+
+  //   const response = await fetch("/files", {
+  //     method: "POST",
+  //     body: formdata,
+  //   });
+
+  //   if (!response.ok) {
+  //     throw new Error(`File upload failed: ${response.statusText}`);
+  //   }
+  // };
+
+  const updateTransaction = async () => {
+    editCta = "Saving...";
+
+    cancelCtaButton.disabled = true;
+    saveCtaButton.disabled = true;
+
+    const existingReceipts = $transactionForm.data.receipts;
+    const newReceipts = $transactionForm.data.updatedReceipts;
+
+    // New Files to upload are the ones which don't have a downloadPath
+    const receiptsToAdd = newReceipts.filter((p) => !p?.downloadPath);
+
+    // Existing files to delete are the ones which are not present in the new files
+    const receiptsToDelete = existingReceipts.filter(
+      (p) =>
+        newReceipts.findIndex((x) => x?.downloadPath === p?.downloadPath) === -1
     );
 
-    formdata.append(
-      "file",
-      files[0],
-      files[0].name
-    );
+    // console.log({existingReceipts: $transactionForm.data.receipts})
+    // console.log({newReceipts: $transactionForm.data.updatedReceipts})
+    // console.log({receiptsToAdd})
+    // console.log({receiptsToDelete})
 
-    const response = await fetch("/files", {
-      method: "POST",
-      body: formdata,
+    // Upload new files
+    const uploadPromises = receiptsToAdd.map((file: File) => {
+      const formdata = new FormData();
+      formdata.append(
+        "tags",
+        JSON.stringify({
+          CorrelationID: transactionID,
+          Type: "TRANSACTION_RECEIPT",
+          TransactionID: transactionID,
+          Note: "",
+        })
+      );
+      formdata.append("file", file, file.name);
+
+      return fetch("/files/files", {
+        method: "POST",
+        body: formdata,
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error(`File upload failed: ${response.statusText}`);
+        }
+        return response.json().then((data) => {
+          return {
+            id: data.id,
+            mimeType: data.mimeType,
+            downloadPath: data.downloadPath,
+          };
+        });
+      });
     });
-    
-    if (!response.ok) {
-      throw new Error(`File upload failed: ${response.statusText}`);
-    }
-  }
 
-  const updateTransaction = () => {
+    const uploadedReceipts = await Promise.all(uploadPromises);
+
+    // console.log("Uploaded Receipts:", uploadedReceipts);
+    // .then((responses) => {
+    //   responses.forEach((response) => {
+    //     if (!response.ok) {
+    //       throw new Error(`File upload failed: ${response.statusText}`);
+    //     }
+
+    //     const responseData = await response.json()
+    //     return responseData.id;
+    //   });
+    // })
+    // .catch((error) => {
+    //   console.error("Error uploading files:", error);
+    //   // editCta = "Save";
+    //   // cancelCtaButton.disabled = false;
+    //   // saveCtaButton.disabled = false;
+    //   // return;
+    // });
+
     const updateTransactionOp = mutationStore({
       client: $paymentsUrql,
       variables: {
@@ -114,6 +234,8 @@
         updateDTO: {
           ...$transactionForm.data,
           amount: +$transactionForm.data.amount,
+          receipts: undefined,
+          updatedReceipts: undefined,
         },
       },
       query: gql`
@@ -134,7 +256,11 @@
     });
 
     updateTransactionOp.subscribe(() => {
+      if (saveCtaButton) saveCtaButton.disabled = false;
+      if (cancelCtaButton) cancelCtaButton.disabled = false;
+      editCta = "Save";
       pageMode = "VIEW";
+
       transaction = {
         ...transaction,
         ...$transactionForm.data,
@@ -169,7 +295,34 @@
             backgroundColor="var(--primary-bg-color)"
             color="black"
             scale={1.5}
-            on:click={() => (pageMode = "EDIT")}
+            on:click={() => {
+              pageMode = "EDIT";
+
+              transactionForm.set({
+                data: {
+                  amount: $transactionsQuery.data.transactionByID.amount,
+                  merchant: $transactionsQuery.data.transactionByID.merchant,
+                  notes: $transactionsQuery.data.transactionByID.notes,
+                  receipts:
+                    $transactionsQuery.data.transactionByID.receipts.map(
+                      (receipt: any) => ({
+                        fileName: receipt.id,
+                        mimeType: receipt.mimeType,
+                        downloadPath: receipt.downloadPath,
+                      })
+                    ),
+                  updatedReceipts:
+                    $transactionsQuery.data.transactionByID.receipts.map(
+                      (receipt: any) => ({
+                        fileName: receipt.id,
+                        mimeType: receipt.mimeType,
+                        downloadPath: receipt.downloadPath,
+                      })
+                    ),
+                },
+                isDirty: false,
+              });
+            }}
           />
         </div>
         <div class="transaction-detail">
@@ -208,32 +361,27 @@
         {/if}
 
         {#if transaction.receipts}
-        <h1 class="subheader">Receipts</h1>
-        <div class="receipts">
-          {#if transaction.receipts.length === 0}
-            <p>This transaction doesn't have any receipts. Edit transaction to add receipts.</p>
-          {:else}
-            <ul class="transaction-receipts-list">
-              {#each transaction.receipts as receipt}
-                <li>
-                  <p>
-                    Receipt Uploaded {new Intl.DateTimeFormat("en-GB", {
-                      year: "2-digit",
-                      month: "long",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    }).format(new Date(receipt.createdAt))} ({receipt.extension}) - 
-                    <a href={receipt.downloadPath} target="_blank" rel="noopener noreferrer">
-                      Download Receipt
-                    </a>
-                  </p>
-                </li>
-              {/each}
-            </ul>
-          {/if}
-        </div>
+          <h1 class="subheader">Receipts</h1>
+          <div class="receipts">
+            {#if transaction.receipts.length === 0}
+              <p>
+                This transaction doesn't have any receipts. Edit transaction to
+                add receipts.
+              </p>
+            {:else}
+              <div class="transaction-file-input">
+                <FileUploader
+                  editable={false}
+                  fileUrlTransformer={addFilesBaseUrlPrefix}
+                  files={transaction.receipts.map((receipt: any) => ({
+                    fileName: receipt.fileName,
+                    mimeType: receipt.mimeType,
+                    downloadPath: receipt.downloadPath,
+                  }))}
+                />
+              </div>
+            {/if}
+          </div>
         {/if}
 
         <h1 class="subheader">Tags</h1>
@@ -301,8 +449,11 @@
         <h1 class="subheader">Transaction receipt</h1>
         <div class="transaction-file-input">
           <FileUploader
-            onFileAdded={({ files }) =>
-              onTransactionReceiptAdded({ transaction, files })}
+            editable={true}
+            files={$transactionForm.data.updatedReceipts}
+            onFileAdded={onTransactionReceiptAdded}
+            onFileRemoved={onTransactionReceiptRemoved}
+            fileUrlTransformer={addFilesBaseUrlPrefix}
           />
         </div>
 
@@ -325,10 +476,15 @@
           bind:value={$transactionForm.data.notes}
           placeholder="This transaction doesn't have a note. Click here to add one."
         ></textarea>
-        <button class="submit" on:click={() => updateTransaction()}>save</button
+        <button
+          class="submit"
+          bind:this={saveCtaButton}
+          on:click={() => updateTransaction()}>{editCta}</button
         >
-        <button class="submit" on:click={() => (pageMode = "VIEW")}
-          >cancel</button
+        <button
+          class="submit cta--cancel"
+          bind:this={cancelCtaButton}
+          on:click={() => (pageMode = "VIEW")}>cancel</button
         >
       </section>
     {/if}
@@ -338,6 +494,9 @@
 <style>
   .submit {
     margin-top: 1rem;
+  }
+  .cta--cancel {
+    background-color: var(--secondary-bg-color);
   }
 
   input {
