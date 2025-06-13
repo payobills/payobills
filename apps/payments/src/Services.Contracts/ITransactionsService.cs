@@ -13,4 +13,5 @@ public interface ITransactionsService
   Task<IEnumerable<TransactionTagDTO>> GetTransactionTagsAsync();
   Task<TransactionDTO> UpdateTransactionAsync(string id, TransactionUpdateDTO updateDTO);
   Task<TransactionDTO> AddTransactionAsync(TransactionAddDTO addDTO);
+  Task<IEnumerable<Contracts.DTOs.File>> SyncTransactionReceiptsAsync(TransactionReceiptsSyncInput input);
 }

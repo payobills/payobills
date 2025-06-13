@@ -1,8 +1,4 @@
-using System.Text.Json.Nodes;
 using Payobills.Payments.Services.Contracts;
-using Payobills.Payments.Data.Contracts.Models;
-using HotChocolate.Types.Pagination;
-using HotChocolate.Data.Sorting;
 using Payobills.Payments.Services.Contracts.DTOs;
 
 namespace Payobills.Payments.Services;
@@ -19,4 +15,6 @@ public class Mutation
   public async Task<TransactionDTO> TransactionAdd([Service] ITransactionsService transactionsService, TransactionAddDTO input)
     => await transactionsService.AddTransactionAsync(input);
 
+  public async Task<IEnumerable<Payobills.Payments.Services.Contracts.DTOs.File>> TransactionReceiptsSync([Service] ITransactionsService transactionsService, TransactionReceiptsSyncInput input)
+    => await transactionsService.SyncTransactionReceiptsAsync(input);
 }

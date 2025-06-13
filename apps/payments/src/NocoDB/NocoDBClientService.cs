@@ -9,15 +9,15 @@ namespace Payobills.Payments.NocoDB;
 
 public class DateTimeConverterUsingDateTimeParse : JsonConverter<DateTime>
 {
-    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return DateTime.Parse(reader.GetString() ?? string.Empty);
-    }
+  public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+  {
+    return DateTime.Parse(reader.GetString() ?? string.Empty);
+  }
 
-    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(value.ToString());
-    }
+  public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+  {
+    writer.WriteStringValue(value.ToString());
+  }
 }
 
 public class NocoDBClientService
@@ -190,7 +190,7 @@ public class NocoDBClientService
     var metaResourceData = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
     return metaResourceData!;
   }
-  
+
   public async Task<T?> ParseJsonToNocoDBRecordAsync<T>(string jsonString)
   {
     if (string.IsNullOrEmpty(jsonString))
@@ -203,8 +203,40 @@ public class NocoDBClientService
 
     JsonSerializerOptions options = new JsonSerializerOptions();
     options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-    
+
     var record = await JsonSerializer.DeserializeAsync<T>(jsonStream, options);
     return record;
+  }
+
+  public async Task LinkManyToManyRecordsAsync(
+    string baseName,
+    string table,
+    string recordId,
+    string relationLinkName,
+    IEnumerable<string> relatedRecordIds,
+    NocoDbLinkOperation operation = NocoDbLinkOperation.Attach)
+  {
+    if (!relatedRecordIds.Any()) return;
+
+    var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}/{recordId}/mm/{relationLinkName}";
+
+    var linkTasks = relatedRecordIds.Select(id =>
+    {
+      return new HttpRequestMessage(
+        operation is NocoDbLinkOperation.Attach ? HttpMethod.Post : HttpMethod.Delete,
+        $"{url}/{id}"
+        );
+    });
+
+    await Task.WhenAll(linkTasks.Select(async request =>
+    {
+      request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+      var response = await httpClient.SendAsync(request);
+      try { response.EnsureSuccessStatusCode(); }
+      catch (Exception)
+      {
+        Console.Error.WriteLine($"--- \n Error linking receipt: {request.RequestUri} \n {await response.Content.ReadAsStringAsync()}");
+      }
+    }));
   }
 }

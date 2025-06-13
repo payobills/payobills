@@ -1,12 +1,10 @@
 using System.Text.Json;
 using AutoMapper;
-using HotChocolate.Execution;
 using Payobills.Payments.Data.Contracts.Models;
 using Payobills.Payments.Services.Contracts;
 using Payobills.Payments.NocoDB;
 using HotChocolate.Data.Sorting;
 using Payobills.Payments.Services.Contracts.DTOs;
-using System.Net.WebSockets;
 
 namespace Payobills.Payments.Services;
 
@@ -183,5 +181,43 @@ public class TransactionsNocoDBService : ITransactionsService
         }
 
         return [.. transactionFileIds];
+    }
+
+    public async Task<IEnumerable<Contracts.DTOs.File>> SyncTransactionReceiptsAsync(TransactionReceiptsSyncInput input)
+    {
+        var transactionRecord = await nocoDBClientService.GetRecordByIdAsync<Transaction>(
+                   input.TransactionID,
+                   "payobills",
+                   "transactions",
+                   "*"
+               );
+
+        var fileRecordsToAttach = await nocoDBClientService.GetRecordsPageAsync<Data.Contracts.Models.File>(
+            "payobills",
+            "files",
+            "*",
+            $"w=(Tags,like,\"TransactionID\":\"{input.TransactionID}\")"
+        );
+
+        await nocoDBClientService.LinkManyToManyRecordsAsync(
+            "payobills",
+            "transactions",
+            transactionRecord.Id.ToString(),
+            "Receipts",
+            fileRecordsToAttach?.List.Select(f => f.Id.ToString()) ?? []);
+
+        await nocoDBClientService.LinkManyToManyRecordsAsync(
+            "payobills",
+            "transactions",
+            transactionRecord.Id.ToString(),
+             "Receipts",
+            transactionRecord.Receipts.Select(f => f.Id.ToString()) ?? [],
+            NocoDbLinkOperation.Detach);
+
+        return fileRecordsToAttach?.List
+            .Select(f => new Contracts.DTOs.File
+            {
+                Id = f.Id.ToString(),
+            }) ?? [];
     }
 }
