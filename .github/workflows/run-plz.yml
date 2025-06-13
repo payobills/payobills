@@ -48,25 +48,6 @@ jobs:
   run_plz_command:
     runs-on: ubuntu-22.04-arm
     steps:
-      - name: Set GitHub Actions run title
-        id: set-title
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const version = process.env.PLZ_VERSION;
-            const plzCmd = process.env.PLZ_SUBCOMMAND;
-            const plzCmdArgs = process.env.PLZ_SUBCOMMAND_ARGS;
-            const newTitle = `VERSION="${version}" plz ${plzCmd} ${plzCmdArgs}`;
-            await github.rest.actions.updateWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.runId,
-              name: newTitle
-            });
-        env:
-          PLZ_SUBCOMMAND: ${{ inputs.PLZ_SUBCOMMAND }}
-          PLZ_SUBCOMMAND_ARGS: ${{ inputs.PLZ_SUBCOMMAND_ARGS }}
-
       - name: Checkout repository
         uses: actions/checkout@v3
 
