@@ -32,7 +32,7 @@ const getFile = ({ nocoDbClient }) => {
             return;
         }
 
-        const mimeType = fileRecord.Files?.[0]?.mimeType || 'application/pdf';
+        const mimeType = fileRecord.Files?.[0]?.mimetype || 'application/pdf';
         const fileExtension = `.${mimeType.split('/').pop()}` || '';
         const url = `${nocoDbClient.getBaseUrl()}/${signedNocodbPath}`
         const fileStream = await axios.get(url, { responseType: "stream" });
