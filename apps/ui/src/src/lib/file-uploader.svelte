@@ -4,6 +4,9 @@
 
   export let onFileAdded: (input: { file: File }) => void = (_) => {};
   export let onFileRemoved: (input: { file: File }) => void = (_) => {};
+  export let fileUrlTransformer: (input: { url: string }) => string = ({
+    url,
+  }) => url;
   export let editable = false;
   export let files: any[] = [];
 </script>
@@ -60,7 +63,7 @@
     <div class="tile-item tile-item--file">
       {#if selectedFile?.mimeType?.startsWith("image/")}
         <img
-          src={selectedFile.downloadPath}
+          src={fileUrlTransformer({ url: selectedFile.downloadPath })}
           alt={selectedFile.fileName}
           style="width: 100%; height: 100%; object-fit: cover;"
         />
@@ -88,9 +91,9 @@
           color="white"
           scale={0.75}
           style={"padding: .125rem"}
-           on:click={() => {
-            console.log('trying to remove file', selectedFile)
-            onFileRemoved({ file: selectedFile })
+          on:click={() => {
+            console.log("trying to remove file", selectedFile);
+            onFileRemoved({ file: selectedFile });
           }}
         />
       {/if}

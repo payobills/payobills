@@ -3,16 +3,19 @@
   import BottomNav from "$lib/bottom-nav.svelte";
   import Nav from "$lib/nav.svelte";
   import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
+  import { tryLoadEnvUrls } from "$lib/stores/env";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
 
-  // onMount(async () => {
+  onMount(async () => {
+    // Try to load env Urls from localStorage
+    await tryLoadEnvUrls();
 
-  //   // Guard against going to other pages without login
-  //   // loadAuthFromLocalStorage();
-  //   // const authState = get(auth);
-  //   // if (authState == null) await goto("/timeline");
-  // });
+    // Guard against going to other pages without login
+    // loadAuthFromLocalStorage();
+    // const authState = get(auth);
+    // if (authState == null) await goto("/timeline");
+  });
 
   function randomNotification() {
     Notification.requestPermission().then((result) => {

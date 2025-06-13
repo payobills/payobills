@@ -11,6 +11,7 @@
   import type { Writable } from "svelte/store";
   import type { Transaction } from "$lib/types/transaction";
   import FileUploader from "../../../lib/file-uploader.svelte";
+  import { envStore } from "$lib/stores/env";
 
   let transactionID: string | null = null;
   let pageMode: "VIEW" | "EDIT" = "VIEW";
@@ -20,6 +21,13 @@
   let transactionsQuery: OperationResultStore;
   let transactionForm: Writable<FormStore<Transaction>> =
     formStoreGenerator("transactionById");
+
+  const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
+    console.log(
+      $envStore
+    )
+    return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
+  };
 
   onMount(() => {
     let path = window.location.pathname;
@@ -150,14 +158,17 @@
     cancelCtaButton.disabled = true;
     saveCtaButton.disabled = true;
 
-    const existingReceipts = $transactionForm.data.receipts
-    const newReceipts = $transactionForm.data.updatedReceipts
+    const existingReceipts = $transactionForm.data.receipts;
+    const newReceipts = $transactionForm.data.updatedReceipts;
 
     // New Files to upload are the ones which don't have a downloadPath
-    const receiptsToAdd = newReceipts.filter(p => !p?.downloadPath)
+    const receiptsToAdd = newReceipts.filter((p) => !p?.downloadPath);
 
     // Existing files to delete are the ones which are not present in the new files
-    const receiptsToDelete = existingReceipts.filter(p => newReceipts.findIndex(x => x?.downloadPath === p?.downloadPath) === -1)
+    const receiptsToDelete = existingReceipts.filter(
+      (p) =>
+        newReceipts.findIndex((x) => x?.downloadPath === p?.downloadPath) === -1
+    );
 
     // console.log({existingReceipts: $transactionForm.data.receipts})
     // console.log({newReceipts: $transactionForm.data.updatedReceipts})
@@ -181,41 +192,40 @@
       return fetch("/files/files", {
         method: "POST",
         body: formdata,
-      })
-      .then(response => {
+      }).then((response) => {
         if (!response.ok) {
           throw new Error(`File upload failed: ${response.statusText}`);
         }
-        return response.json().then(data => {
+        return response.json().then((data) => {
           return {
             id: data.id,
             mimeType: data.mimeType,
             downloadPath: data.downloadPath,
           };
         });
-      })
+      });
     });
 
     const uploadedReceipts = await Promise.all(uploadPromises);
 
     // console.log("Uploaded Receipts:", uploadedReceipts);
-      // .then((responses) => {
-      //   responses.forEach((response) => {
-      //     if (!response.ok) {
-      //       throw new Error(`File upload failed: ${response.statusText}`);
-      //     }
+    // .then((responses) => {
+    //   responses.forEach((response) => {
+    //     if (!response.ok) {
+    //       throw new Error(`File upload failed: ${response.statusText}`);
+    //     }
 
-      //     const responseData = await response.json()
-      //     return responseData.id; 
-      //   });
-      // })
-      // .catch((error) => {
-      //   console.error("Error uploading files:", error);
-      //   // editCta = "Save";
-      //   // cancelCtaButton.disabled = false;
-      //   // saveCtaButton.disabled = false;
-      //   // return;
-      // });
+    //     const responseData = await response.json()
+    //     return responseData.id;
+    //   });
+    // })
+    // .catch((error) => {
+    //   console.error("Error uploading files:", error);
+    //   // editCta = "Save";
+    //   // cancelCtaButton.disabled = false;
+    //   // saveCtaButton.disabled = false;
+    //   // return;
+    // });
 
     const updateTransactionOp = mutationStore({
       client: $paymentsUrql,
@@ -246,8 +256,8 @@
     });
 
     updateTransactionOp.subscribe(() => {
-      if(saveCtaButton) saveCtaButton.disabled = false;
-      if(cancelCtaButton) cancelCtaButton.disabled = false;
+      if (saveCtaButton) saveCtaButton.disabled = false;
+      if (cancelCtaButton) cancelCtaButton.disabled = false;
       editCta = "Save";
       pageMode = "VIEW";
 
@@ -293,20 +303,22 @@
                   amount: $transactionsQuery.data.transactionByID.amount,
                   merchant: $transactionsQuery.data.transactionByID.merchant,
                   notes: $transactionsQuery.data.transactionByID.notes,
-                  receipts: $transactionsQuery.data.transactionByID.receipts.map(
-                    (receipt: any) => ({
-                      fileName: receipt.id,
-                      mimeType: receipt.mimeType,
-                      downloadPath: receipt.downloadPath,
-                    })
-                  ),
-                  updatedReceipts: $transactionsQuery.data.transactionByID.receipts.map(
-                    (receipt: any) => ({
-                      fileName: receipt.id,
-                      mimeType: receipt.mimeType,
-                      downloadPath: receipt.downloadPath,
-                    })
-                  ),
+                  receipts:
+                    $transactionsQuery.data.transactionByID.receipts.map(
+                      (receipt: any) => ({
+                        fileName: receipt.id,
+                        mimeType: receipt.mimeType,
+                        downloadPath: receipt.downloadPath,
+                      })
+                    ),
+                  updatedReceipts:
+                    $transactionsQuery.data.transactionByID.receipts.map(
+                      (receipt: any) => ({
+                        fileName: receipt.id,
+                        mimeType: receipt.mimeType,
+                        downloadPath: receipt.downloadPath,
+                      })
+                    ),
                 },
                 isDirty: false,
               });
@@ -360,6 +372,7 @@
               <div class="transaction-file-input">
                 <FileUploader
                   editable={false}
+                  fileUrlTransformer={addFilesBaseUrlPrefix}
                   files={transaction.receipts.map((receipt: any) => ({
                     fileName: receipt.fileName,
                     mimeType: receipt.mimeType,
@@ -440,6 +453,7 @@
             files={$transactionForm.data.updatedReceipts}
             onFileAdded={onTransactionReceiptAdded}
             onFileRemoved={onTransactionReceiptRemoved}
+            fileUrlTransformer={addFilesBaseUrlPrefix}
           />
         </div>
 
