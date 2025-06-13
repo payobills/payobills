@@ -1,4 +1,4 @@
-name: 'Run plz Command'
+run-name: 'Run plz Command - ${{ fromJson(inputs.ENV_VARS).VERSION }} ; plz ${{ inputs.PLZ_SUBCOMMAND }} ${{ inputs.PLZ_SUBCOMMAND_ARGS }}'
 
 on:
   workflow_call: 
