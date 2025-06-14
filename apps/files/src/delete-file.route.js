@@ -1,8 +1,3 @@
-/**
- * @param {{
- * minioClient: import("minio").Client
- * }}
- */
 const deleteFile = ({ nocoDbClient }) => {
     /**
      * @param {import('express').Request} req
