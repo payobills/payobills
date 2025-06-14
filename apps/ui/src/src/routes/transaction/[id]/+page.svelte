@@ -23,9 +23,6 @@
     formStoreGenerator("transactionById");
 
   const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
-    console.log(
-      $envStore
-    )
     return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
   };
 
@@ -206,26 +203,7 @@
       });
     });
 
-    const uploadedReceipts = await Promise.all(uploadPromises);
-
-    // console.log("Uploaded Receipts:", uploadedReceipts);
-    // .then((responses) => {
-    //   responses.forEach((response) => {
-    //     if (!response.ok) {
-    //       throw new Error(`File upload failed: ${response.statusText}`);
-    //     }
-
-    //     const responseData = await response.json()
-    //     return responseData.id;
-    //   });
-    // })
-    // .catch((error) => {
-    //   console.error("Error uploading files:", error);
-    //   // editCta = "Save";
-    //   // cancelCtaButton.disabled = false;
-    //   // saveCtaButton.disabled = false;
-    //   // return;
-    // });
+    await Promise.all(uploadPromises);
 
     const updateTransactionOp = mutationStore({
       client: $paymentsUrql,
@@ -243,6 +221,15 @@
           $id: String!
           $updateDTO: TransactionUpdateDTOInput!
         ) {
+          transactionReceiptsSync(input: { transactionID: $id }) {
+            id
+            createdAt
+            downloadPath
+            updatedAt
+            mimeType
+            extension
+          }
+
           transactionUpdate(id: $id, updateDTO: $updateDTO) {
             currency
             id
@@ -255,7 +242,11 @@
       `,
     });
 
-    updateTransactionOp.subscribe(() => {
+    updateTransactionOp.subscribe(({ fetching, data }) => {
+      if (fetching) {
+        return;
+      }
+
       if (saveCtaButton) saveCtaButton.disabled = false;
       if (cancelCtaButton) cancelCtaButton.disabled = false;
       editCta = "Save";
