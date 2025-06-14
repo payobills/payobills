@@ -172,6 +172,17 @@
     // console.log({receiptsToAdd})
     // console.log({receiptsToDelete})
 
+    const deleteReceiptPromises = receiptsToDelete.map((receipt: any) => {
+      return fetch(`${addFilesBaseUrlPrefix({ url: receipt.downloadPath })}`, {
+        method: "DELETE",
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error(`File deletion failed: ${response.statusText}`);
+        }
+        return receipt;
+      });
+    });
+
     // Upload new files
     const uploadPromises = receiptsToAdd.map((file: File) => {
       const formdata = new FormData();
@@ -193,17 +204,11 @@
         if (!response.ok) {
           throw new Error(`File upload failed: ${response.statusText}`);
         }
-        return response.json().then((data) => {
-          return {
-            id: data.id,
-            mimeType: data.mimeType,
-            downloadPath: data.downloadPath,
-          };
-        });
+        return Promise.resolve();
       });
     });
 
-    await Promise.all(uploadPromises);
+    await Promise.all([...uploadPromises, ...deleteReceiptPromises]);
 
     const updateTransactionOp = mutationStore({
       client: $paymentsUrql,
