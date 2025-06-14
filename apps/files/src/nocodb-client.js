@@ -102,10 +102,9 @@ module.exports = class NocoDbClient {
         };
 
         let url = `${this.opts.baseUrl}/api/v1/db/data/nc/${this.opts.projectId}/${this.opts.tableId}`;
-        url += (id ? `/${id}` : '');
 
         let rowUploadResponse = await fetch(url, {
-            method: id ? 'PUT' : 'POST',
+            method: 'POST',
             body: JSON.stringify(row),
             headers: {
                 'Content-Type': "application/json",
