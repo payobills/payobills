@@ -23,9 +23,6 @@
     formStoreGenerator("transactionById");
 
   const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
-    console.log(
-      $envStore
-    )
     return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
   };
 
@@ -175,6 +172,17 @@
     // console.log({receiptsToAdd})
     // console.log({receiptsToDelete})
 
+    const deleteReceiptPromises = receiptsToDelete.map((receipt: any) => {
+      return fetch(`${addFilesBaseUrlPrefix({ url: receipt.downloadPath })}`, {
+        method: "DELETE",
+      }).then((response) => {
+        if (!response.ok) {
+          throw new Error(`File deletion failed: ${response.statusText}`);
+        }
+        return receipt;
+      });
+    });
+
     // Upload new files
     const uploadPromises = receiptsToAdd.map((file: File) => {
       const formdata = new FormData();
@@ -196,36 +204,11 @@
         if (!response.ok) {
           throw new Error(`File upload failed: ${response.statusText}`);
         }
-        return response.json().then((data) => {
-          return {
-            id: data.id,
-            mimeType: data.mimeType,
-            downloadPath: data.downloadPath,
-          };
-        });
+        return Promise.resolve();
       });
     });
 
-    const uploadedReceipts = await Promise.all(uploadPromises);
-
-    // console.log("Uploaded Receipts:", uploadedReceipts);
-    // .then((responses) => {
-    //   responses.forEach((response) => {
-    //     if (!response.ok) {
-    //       throw new Error(`File upload failed: ${response.statusText}`);
-    //     }
-
-    //     const responseData = await response.json()
-    //     return responseData.id;
-    //   });
-    // })
-    // .catch((error) => {
-    //   console.error("Error uploading files:", error);
-    //   // editCta = "Save";
-    //   // cancelCtaButton.disabled = false;
-    //   // saveCtaButton.disabled = false;
-    //   // return;
-    // });
+    await Promise.all([...uploadPromises, ...deleteReceiptPromises]);
 
     const updateTransactionOp = mutationStore({
       client: $paymentsUrql,
@@ -243,6 +226,15 @@
           $id: String!
           $updateDTO: TransactionUpdateDTOInput!
         ) {
+          transactionReceiptsSync(input: { transactionID: $id }) {
+            id
+            createdAt
+            downloadPath
+            updatedAt
+            mimeType
+            extension
+          }
+
           transactionUpdate(id: $id, updateDTO: $updateDTO) {
             currency
             id
@@ -255,7 +247,11 @@
       `,
     });
 
-    updateTransactionOp.subscribe(() => {
+    updateTransactionOp.subscribe(({ fetching, data }) => {
+      if (fetching) {
+        return;
+      }
+
       if (saveCtaButton) saveCtaButton.disabled = false;
       if (cancelCtaButton) cancelCtaButton.disabled = false;
       editCta = "Save";
