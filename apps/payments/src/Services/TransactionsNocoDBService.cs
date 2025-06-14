@@ -192,6 +192,23 @@ public class TransactionsNocoDBService : ITransactionsService
                    "*"
                );
 
+        var currentReceiptsPage = await nocoDBClientService.GetManyToManyLinkRecordsAsync<IdDTO<int>>(
+            "payobills",
+            "transactions",
+            transactionRecord.Id.ToString(),
+            "Receipts"
+        );
+
+        // Detach all existing transaction receipts
+        await nocoDBClientService.LinkManyToManyRecordsAsync(
+            "payobills",
+            "transactions",
+            transactionRecord.Id.ToString(),
+             "Receipts",
+            currentReceiptsPage?.List?.Select(r => r.Id.ToString()) ?? [],
+            NocoDbLinkOperation.Detach);
+
+        // Attach new receipts based on TransactionID tags from files table
         var fileRecordsToAttach = await nocoDBClientService.GetRecordsPageAsync<Data.Contracts.Models.File>(
             "payobills",
             "files",
@@ -205,14 +222,6 @@ public class TransactionsNocoDBService : ITransactionsService
             transactionRecord.Id.ToString(),
             "Receipts",
             fileRecordsToAttach?.List.Select(f => f.Id.ToString()) ?? []);
-
-        await nocoDBClientService.LinkManyToManyRecordsAsync(
-            "payobills",
-            "transactions",
-            transactionRecord.Id.ToString(),
-             "Receipts",
-            transactionRecord.Receipts.Select(f => f.Id.ToString()) ?? [],
-            NocoDbLinkOperation.Detach);
 
         return fileRecordsToAttach?.List
             .Select(f => new Contracts.DTOs.File
