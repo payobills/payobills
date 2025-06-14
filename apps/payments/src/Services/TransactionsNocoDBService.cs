@@ -192,13 +192,20 @@ public class TransactionsNocoDBService : ITransactionsService
                    "*"
                );
 
+        var currentReceiptsPage = await nocoDBClientService.GetManyToManyLinkRecordsAsync<IdDTO<int>>(
+            "payobills",
+            "transactions",
+            transactionRecord.Id.ToString(),
+            "Receipts"
+        );
+
         // Detach all existing transaction receipts
         await nocoDBClientService.LinkManyToManyRecordsAsync(
             "payobills",
             "transactions",
             transactionRecord.Id.ToString(),
              "Receipts",
-            transactionRecord.Receipts.Select(f => f.Id.ToString()) ?? [],
+            currentReceiptsPage?.List?.Select(r => r.Id.ToString()) ?? [],
             NocoDbLinkOperation.Detach);
 
         // Attach new receipts based on TransactionID tags from files table

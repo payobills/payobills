@@ -208,6 +208,30 @@ public class NocoDBClientService
     return record;
   }
 
+  public async  Task<NocoDBPage<T>> GetManyToManyLinkRecordsAsync<T>(
+   string baseName,
+   string table,
+   string recordId,
+   string relationLinkName)
+  {
+    var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}/{recordId}/mm/{relationLinkName}";
+
+    var request = new HttpRequestMessage(
+      HttpMethod.Get,
+      url
+    );
+
+    request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+    var response = await httpClient.SendAsync(request);
+
+    var responseStream = await response.Content.ReadAsStreamAsync();
+    JsonSerializerOptions options = new JsonSerializerOptions();
+    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    var recordsPage = await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream, options);
+
+    return recordsPage;
+  }
+
   public async Task LinkManyToManyRecordsAsync(
     string baseName,
     string table,
