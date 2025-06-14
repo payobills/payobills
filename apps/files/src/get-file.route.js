@@ -15,7 +15,6 @@ const getFile = ({ nocoDbClient }) => {
      */
     return async (req, res) => {
         const fileId = req.params['id'];
-        console.log('id', req.params['id'])
 
         const projectId = process.env.NOCODB_PROJECT_ID || "payobills";
         const tableId = process.env.NOCODB_FILES_TABLE_ID || "files";

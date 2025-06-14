@@ -17,6 +17,7 @@ const rabbitmqChannelFactory = require("./rabbitmq-channel.factory");
 
 const { postFile } = require("./post-file.route");
 const { getFile } = require("./get-file.route");
+const { deleteFile } = require("./delete-file.route");
 const { default: gql } = require('graphql-tag');
 
 const fileResolver = require('./file.resolver');
@@ -131,6 +132,8 @@ input FilesInput {
   app.post('/files', upload.single('file'), postFile(DI))
   /// @ts-ignore
   app.get('/files/:id', upload.single('file'), getFile(DI))
+  /// @ts-ignore
+  app.delete('/files/:id', upload.single('file'), deleteFile(DI))
 
   console.log(`App listening on port ${host}:${port}`)
   await new Promise((resolve) => httpServer.listen({ port, host, resolve }));
