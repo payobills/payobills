@@ -44,6 +44,32 @@ module.exports = class NocoDbClient {
 
         return res.data;
     }
+
+    async patchRecord(
+        row,
+        id
+    ) {
+        let url = `${this.opts.baseUrl}/api/v1/db/data/nc/${this.opts.projectId}/${this.opts.tableId}/${id}`;
+        console.log(`Updating record from NocoDB: URL=${url}`);
+
+        let rowUploadResponse = await axios.request({
+            url,
+            method: 'PATCH',
+            data: row,
+            headers: {
+                'Content-Type': "application/json",
+                'xc-token': this.opts.xcToken
+            }
+        })
+
+        if (![200, 201].includes(rowUploadResponse.status)) {
+            throw new Error(`Row update failed with status ${rowUploadResponse.status}: ${rowUploadResponse.data}`);
+        }
+
+        var nocodbRow = await rowUploadResponse.data;
+        return nocodbRow;
+    }
+
     async putObject(
         _,
         fileName,
@@ -71,12 +97,13 @@ module.exports = class NocoDbClient {
         let response = await axios.request(config)
 
         let row = {
-            "CorrelationID": tags['correlationID'],
             "Files": response.data,
             Tags: tags
         };
 
-        let rowUploadResponse = await fetch(`${this.opts.baseUrl}/api/v1/db/data/nc/${this.opts.projectId}/${this.opts.tableId}`, {
+        let url = `${this.opts.baseUrl}/api/v1/db/data/nc/${this.opts.projectId}/${this.opts.tableId}`;
+
+        let rowUploadResponse = await fetch(url, {
             method: 'POST',
             body: JSON.stringify(row),
             headers: {
