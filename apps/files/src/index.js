@@ -65,6 +65,7 @@ type File @key(fields: "id") {
   fileName: String
   createdAt: DateTimeISO!
   updatedAt: DateTimeISO
+  ocrID: ID
 }
 
 """

@@ -23,6 +23,7 @@ module.exports = {
             mimeType: record.Files?.[0]?.mimetype,
             createdAt: record.CreatedAt,
             updatedAt: record.UpdatedAt || null,
+            ocrID: record?.ocr?.Id || null,
         };
     }
 }
