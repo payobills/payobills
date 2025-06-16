@@ -21,6 +21,7 @@
   export let showGraph = false;
   export let title: string | undefined = undefined;
   export let totalSpend = 0;
+  export let initialShowCount = 5;
 
   $: ApexCharts = undefined;
 
@@ -184,7 +185,7 @@
   </div>
   <hr />
 
-  {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, 5) as transaction (transaction.id)}
+  {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
     <a class="transaction-card" href={`/transaction/${transaction.id}`}>
       <div class="recent-transaction">
         <div class="non-amount-details">

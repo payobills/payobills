@@ -1,6 +1,6 @@
 <script lang="ts">
   import { queryStore, gql } from "@urql/svelte";
-  import { billsUrql } from "$lib/stores/urql";
+  import { billsUrql, paymentsUrql } from "$lib/stores/urql";
   import { page } from "$app/stores";
   import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
   import Nav from "$lib/nav.svelte";
@@ -9,6 +9,9 @@
   import BillUploadStatement from "$lib/bill-upload-statement.svelte";
   import BillStatements from "$lib/bills/bill-statements.svelte";
   import { json } from "@sveltejs/kit";
+  import FileUploader from "$lib/file-uploader.svelte";
+  import { envStore } from "$lib/stores/env";
+  import RecentTransactions from "$lib/recent-transactions.svelte";
 
   let billId: any;
   let billStatementId: any;
@@ -30,6 +33,12 @@
           startDate
           endDate
           notes
+          statement {
+            id
+            ocrID
+            createdAt
+            updatedAt
+          }
         }
         bill: billById(id: $billId) {
           id
@@ -60,6 +69,36 @@
         (billStatement: any) => billStatement.id === billStatementId
       )
     : undefined;
+
+  $: transactionsFromOCRQuery = currentBillStatement?.statement?.ocrID
+    ? queryStore({
+        client: $paymentsUrql,
+        query: gql`
+          query GetTransactionsFromOCR($ocrID: String!) {
+            transactions(filters: { ocrId: $ocrID }) {
+              nodes {
+                id
+                amount
+                merchant
+                paidAt
+                tags
+              }
+              pageInfo {
+                hasNextPage
+                startCursor
+                endCursor
+              }
+            }
+          }
+        `,
+        variables: { ocrID: currentBillStatement?.statement?.ocrID },
+        pause: currentBillStatement?.statement?.ocrID === undefined,
+      })
+    : null;
+
+  const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
+    return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
+  };
 </script>
 
 <Card>
@@ -70,18 +109,51 @@
       <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
     {:else}
       <h1>
-        <a href={`/bills/${$billStatementsQuery.data.bill.id}`}>{$billStatementsQuery.data.bill.name}</a> / {!currentBillStatement.startDate ||
-        !currentBillStatement.endDate
+        <a href={`/bills/${$billStatementsQuery.data.bill.id}`}
+          >{$billStatementsQuery.data.bill.name}</a
+        >
+        / {!currentBillStatement.startDate || !currentBillStatement.endDate
           ? "Unknown billing period"
           : `${currentBillStatement.startDate} to ${currentBillStatement.endDate}`}
       </h1>
-      <!-- <pre> {JSON.stringify($billStatementsQuery.data.billStatements, undefined, 1)}</pre> -->
+
+      {#if currentBillStatement.statement}
+        <p>This bill statement has an associated statement file</p>
+        <FileUploader
+          editable={false}
+          files={[currentBillStatement.statement]}
+          fileUrlTransformer={addFilesBaseUrlPrefix}
+        />
+
+        {#if $transactionsFromOCRQuery?.fetching}
+          <p>Loading...</p>
+        {:else if $transactionsFromOCRQuery?.error}
+          <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
+        {:else if (($transactionsFromOCRQuery?.data?.transactions?.nodes || []).length === 0)}
+          <p>🙆‍♂️ Uh oh! Looks like the statement file couldn't be parsed for transactions!</p>
+          {:else}
+          <RecentTransactions
+            initialShowCount={Infinity}
+            title="Transactions from this statement"
+            totalSpend={$transactionsFromOCRQuery?.data?.transactions?.nodes.reduce(
+              (acc: number, curr: any) => acc + curr.amount,
+              0
+            )}
+            showViewAllCTA={false}
+            transactions={$transactionsFromOCRQuery?.data?.transactions
+              ?.nodes || []}
+          />
+        {/if}
+      {:else}
+        <p>This bill statement doesn't have an associated statement file.</p>
+      {/if}
     {/if}
   </div>
 </Card>
 
 <style>
-  h1,a {
+  h1,
+  a {
     color: var(--primary-color);
     font-size: 1.2rem;
     font-weight: 600;
