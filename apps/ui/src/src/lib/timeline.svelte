@@ -66,7 +66,7 @@
 
     <div class="items">
       {#each filteredItems as item}
-        <button class="bill" on:click={() => goto(`bills?id=${item.id}`)}>
+        <button class="bill" on:click={() => goto(`bills/${item.id}`)}>
           <PaymentTimelinePill {item} />
         </button>
       {/each}
