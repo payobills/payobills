@@ -12,4 +12,9 @@ public class BillStatementDTO(BillStatement from)
     public DateTime UpdatedAt { get; set; } = from.UpdatedAt;
     public BillConnection Bill { get; set; } = from.Bill;
     public DTOs.File? Statement { get; set; } = from.File is null ? null : new File(from.File);
+    public double? Amount { get; set; } = from?.Amount;
+    public bool IsFullyPaid { get; set; } = from?.IsFullyPaid ?? false;
+    public TransactionDTO[] Payments { get; set; } = from?.Edges?.PaymentIDs
+        ?.Select(id => new TransactionDTO { Id = id })
+        .ToArray() ?? [];
 }

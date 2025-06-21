@@ -10,6 +10,9 @@ public class BillStatement
     public string Notes { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public BillConnection Bill { get; set; } = default!;
+    public double? Amount { get; set; }
+    public bool IsFullyPaid { get; set; } = false;
+    public Edges Edges { get; set; } = new();
     public FileModel? File { get; set; }
     [JsonIgnore]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
