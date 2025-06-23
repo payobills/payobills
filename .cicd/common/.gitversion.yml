@@ -1,5 +1,5 @@
-mode: MainLine
-tag-prefix: v
+mode: ContinuousDeployment
+tag-prefix: '[vV]?'
 branches:
   main:
     increment: Patch
@@ -7,9 +7,11 @@ branches:
     increment: None
   feature:
     regex: ^(feat|fix|improv|chore)[/-]
-    commit-message-incrementing: Enabled
-    tag: alpha
-    increment: Minor
-  hotfix:
-    tag: hotfix
     increment: Patch
+  hotfix:
+    regex: ^(hotfix)[/-]
+    increment: Patch
+  unknown:
+    label: '{BranchName}'
+    increment: Patch
+    regex: (?<BranchName>.+)
