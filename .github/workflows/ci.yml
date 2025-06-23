@@ -37,6 +37,8 @@ jobs:
 
     - name: Checkout to branch
       uses: mrsauravsahu/monotools/apps/semver-yeasy@main
+      env:
+        GITVERSION_EXEC_PATH: /home/runner/.dotnet/tools/dotnet-gitversion
       with: 
         repo-type: MONOREPO
         mode: checkout
@@ -47,7 +49,7 @@ jobs:
         dotnet-version: 8.x
 
     - name: Install GitVersion.Tool
-      run: dotnet tool install --global GitVersion.Tool --version 5.12.0
+      run: dotnet tool install --global GitVersion.Tool --version 6.3.0
 
     - uses: actions/cache@v4
       with:
@@ -56,6 +58,8 @@ jobs:
 
     - name: Calculate changed services
       id: calculate_changed_services
+      env:
+        GITVERSION_EXEC_PATH: /home/runner/.dotnet/tools/dotnet-gitversion
       uses: mrsauravsahu/monotools/apps/semver-yeasy@main
       with: 
         repo-type: MONOREPO
@@ -138,6 +142,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SEMVERY_YEASY_PR_BODY: ${{ steps.calculate_service_versions.outputs.PR_BODY }}
+        GITVERSION_EXEC_PATH: /home/runner/.dotnet/tools/dotnet-gitversion
       if: ${{ github.event_name == 'pull_request' }}
       uses: mrsauravsahu/monotools/apps/semver-yeasy@main
       with: 
@@ -151,6 +156,7 @@ jobs:
       env:
         SEMVERYEASY_CHANGED: ${{ steps.calculate_changed_services.outputs.changed }}
         SEMVERYEASY_CHANGED_SERVICES: ${{ steps.generate_other_targets.outputs.SERVICES }}
+        GITVERSION_EXEC_PATH: /home/runner/.dotnet/tools/dotnet-gitversion
       uses: mrsauravsahu/monotools/apps/semver-yeasy@main
       with: 
         repo-type: MONOREPO
