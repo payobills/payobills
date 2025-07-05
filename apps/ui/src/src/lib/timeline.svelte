@@ -4,6 +4,7 @@
   import PaymentTimelinePill from "./payment-timeline-pill.svelte";
   import IdeaCard from "./idea-card.svelte";
   import RecentTransactions from "./recent-transactions.svelte";
+  import BillPayment from "./bills/bill-payment.svelte";
   export let title: string = "";
   export let items: any[] = [];
   export let stats: any = {};
@@ -58,6 +59,13 @@
         idea={`Pay all bills together by paying between ${month} ${fullPaymentDates[0].dateRanges[0].start} and ${month} ${fullPaymentDates[0].dateRanges[0].end}!`}
       />
     {/if}
+
+    <p>Your bills need attention this month...</p>
+    <div class="items">
+      {#each filteredItems.filter((p) => p.payByDate !== null) as item}
+        <BillPayment bill={item} />
+      {/each}
+    </div>
 
     <div class="legend legend-top">
       <span>1</span>

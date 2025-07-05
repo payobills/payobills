@@ -50,6 +50,8 @@
     --primary-color: #181818;
     --primary-bg-color: #f3f3f3;
     --secondary-bg-color: #bbbbbb;
+
+    --primary-accent-color: #3367D6;
   }
 
   :global(a) {
