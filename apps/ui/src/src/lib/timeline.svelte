@@ -54,18 +54,23 @@
       <h1 class="title_bill">Your bills</h1>
     {/if}
 
+    <p>Stay updated with the bills you need to pay this month...</p>
+
     {#if fullPaymentDates.length > 0}
       <IdeaCard
         idea={`Pay all bills together by paying between ${month} ${fullPaymentDates[0].dateRanges[0].start} and ${month} ${fullPaymentDates[0].dateRanges[0].end}!`}
       />
     {/if}
 
-    <p>Your bills need attention this month...</p>
     <div class="items">
       {#each filteredItems.filter((p) => p.payByDate !== null) as item}
         <BillPayment bill={item} />
       {/each}
     </div>
+
+    <h1 class="title_bill">Billing Cycles</h1>
+
+    <p>Each month, your bills are generated at the start of the bar, and are to be paid when the bar ends. Bars wrapping around mean they can be paid the next month</p>
 
     <div class="legend legend-top">
       <span>1</span>
