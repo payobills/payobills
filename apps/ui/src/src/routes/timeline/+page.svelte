@@ -17,10 +17,21 @@
           billingDate
           payByDate
           isEnabled
+          
         }
       }
     `,
   });
+
+  $: billStatementsQuery = (!$billsQuery.fetching && !$billsQuery.error) ? queryStore({
+    client: $billsUrql,
+    query:gql(`query { ${$billsQuery.data.bills.reduce((acc: string, currentBill: any) => acc += `billStatements__bill_${currentBill.id}: billStatements(billId: "${currentBill.id}") {
+      id
+      startDate
+      endDate
+      amount
+    }
+     `, '')} }`) }) : null;
 
   const currentMonth = new Date().getUTCMonth() + 1;
   const currentYear = new Date().getUTCFullYear();
@@ -79,6 +90,7 @@
       items={$billsQuery.data.bills}
       stats={$billStatsQuery.data.billStats}
       transactions={$transactionsQuery.data.transactions.nodes}
+      billingStatements={$billStatementsQuery?.data}
     />
   {/if}
 </section>
