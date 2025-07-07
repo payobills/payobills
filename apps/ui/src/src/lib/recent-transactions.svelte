@@ -21,7 +21,7 @@
   export let showGraph = false;
   export let title: string | undefined = undefined;
   export let totalSpend = 0;
-  export let initialShowCount = 5;
+  export let initialShowCount = 1;
 
   $: ApexCharts = undefined;
 

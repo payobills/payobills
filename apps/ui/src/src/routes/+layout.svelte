@@ -6,6 +6,9 @@
   import { tryLoadEnvUrls } from "$lib/stores/env";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
+  import { fade, fly } from 'svelte/transition';
+
+  let sw = true;
 
   onMount(async () => {
     // Try to load env Urls from localStorage
@@ -15,6 +18,10 @@
     // loadAuthFromLocalStorage();
     // const authState = get(auth);
     // if (authState == null) await goto("/timeline");
+
+    // setInterval(() => {
+    //   sw = !sw;
+    // }, 2000);
   });
 
   function randomNotification() {
@@ -36,7 +43,14 @@
 <Nav />
 <!-- <button on:click={randomNotification}>Notification</button> -->
 <main>
+  <!-- <button on:click={() => sw = !sw}>change</button> -->
   <slot />
+  {#if sw}
+    <div class='drawer-transparent' on:click={() => sw = false}></div>
+    <div class="drawer-container" in:fly={{y: 800}} out:fly={{y: 800}}>
+      <p>This is a bottom drawer</p>
+    </div>
+  {/if}
 </main>
 
 <style>
@@ -50,8 +64,29 @@
     --primary-color: #181818;
     --primary-bg-color: #f3f3f3;
     --secondary-bg-color: #bbbbbb;
+    --primary-accent-color: #3367d6;
+  }
 
-    --primary-accent-color: #3367D6;
+  .drawer-container {
+    position: absolute;
+    bottom: 0;
+    background-color: var(--primary-bg-color);
+    box-shadow: 0px 4px 16px black;
+    width: calc(100% - 2rem) ;
+    height: 50%;
+    padding: 1rem;
+    border-radius: 1rem 1rem 0 0;
+  }
+  .drawer-transparent {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 50%;
+    /* background-color: transparent; */
+  }
+
+  .drawer-container > * {
+
   }
 
   :global(a) {
