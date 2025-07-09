@@ -6,6 +6,9 @@
   import Page from "../../routes/+page.svelte";
   import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
   import { fromStore } from "svelte/store";
+  import { uiDrawer } from "$lib/stores/ui-drawer";
+  import BillPaymentForm from "$lib/record-payment-form.svelte";
+  import UiDrawer from "$lib/ui-drawer.svelte";
 
   export let bill;
   export let billingStatements: any[];
@@ -14,6 +17,9 @@
   let billDueDetails: { status: string; string: string; l2Status?: string };
   let currentCycleFromDate = "";
   let currentCycleToDate = "";
+
+  let currComponent: HTMLDivElement;
+  let currentPayingBill: any;
 
   onMount(() => {
     todaysDay = new Date().getDate();
@@ -42,13 +48,28 @@
   }
 </script>
 
-<div class="container">
+<div class="container" bind:this={currComponent}>
+  <a href={`#payment__bill_${bill.id}`} aria-label="anchor"></a>
   <div class="header">
     <div class="name">{bill.name}</div>
     <div class="actions">
-      <button on:click={() => goto(`bills/${bill.id}`)}>Record payment</button>
+      <button
+        on:click={() => {
+          goto(`#payment__bill_${bill.id}`);
+          currentPayingBill = null;
+          currentPayingBill = bill;
+          console.log('currentPayingBill',currentPayingBill)
+        }}>Record payment</button
+      >
     </div>
   </div>
+
+  {#if currentPayingBill}
+    <UiDrawer onClose={() => {currentPayingBill = null;}}>
+      <h2>Mark a payment for <strong>{bill.name}</strong></h2>
+      <BillPaymentForm bill={currentPayingBill} />
+    </UiDrawer>
+  {/if}
 
   <hr />
   <div class="card-item">
@@ -151,6 +172,7 @@
   }
 
   .due-status--today {
+    color: white;
     background-color: orange;
   }
 </style>
