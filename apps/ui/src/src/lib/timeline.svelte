@@ -9,6 +9,7 @@
   export let items: any[] = [];
   export let stats: any = {};
   export let transactions: any[] = [];
+  export let billingStatements: any = undefined;
 
   let lastDay = 31;
   let fullPaymentDates: any[] = [];
@@ -62,15 +63,25 @@
       />
     {/if}
 
-    <div class="items">
+    <div class="items bill-payments">
       {#each filteredItems.filter((p) => p.payByDate !== null) as item}
-        <BillPayment bill={item} />
+        <BillPayment
+          bill={item}
+          billingStatements={billingStatements
+            ? billingStatements[item.id] || []
+            : []}
+          onRecordingPayment={() => {}}
+        />
       {/each}
     </div>
 
     <h1 class="title_bill">Billing Cycles</h1>
 
-    <p>Each month, your bills are generated at the start of the bar, and are to be paid when the bar ends. Bars wrapping around mean they can be paid the next month</p>
+    <p>
+      Each month, your bills are generated at the start of the bar, and are to
+      be paid when the bar ends. Bars wrapping around mean they can be paid the
+      next month
+    </p>
 
     <div class="legend legend-top">
       <span>1</span>
@@ -119,6 +130,11 @@
     align-self: flex-end;
     border-radius: 0.25rem;
   }
+
+  :global(.bill-payments > div:first-of-type) {
+    margin-top: 0;
+  }
+
   .cta {
     margin: 1rem 0 0 0;
     border-radius: 1rem;

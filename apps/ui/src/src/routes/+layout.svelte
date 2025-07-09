@@ -1,11 +1,19 @@
 <script>
   import { goto } from "$app/navigation";
   import BottomNav from "$lib/bottom-nav.svelte";
+  import IconButton from "$lib/icon-button.svelte";
   import Nav from "$lib/nav.svelte";
   import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
   import { tryLoadEnvUrls } from "$lib/stores/env";
+  import { uiDrawer } from "$lib/stores/ui-drawer";
+  import {
+    faArrowAltCircleDown,
+    faChevronCircleDown,
+    faChevronDown,
+  } from "@fortawesome/free-solid-svg-icons";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
+  import { fade, fly } from "svelte/transition";
 
   onMount(async () => {
     // Try to load env Urls from localStorage
@@ -15,6 +23,8 @@
     // loadAuthFromLocalStorage();
     // const authState = get(auth);
     // if (authState == null) await goto("/timeline");
+
+    // setInterval(()=> {uiDrawer.update((curr) => ({...curr, state:!curr.state}))}, 2000)
   });
 
   function randomNotification() {
@@ -31,12 +41,54 @@
       }
     });
   }
+
+  const closeUiDrawer = () => {
+    uiDrawer.update((curr) => {
+      curr.onClose?.();
+      return { ...curr, content: null };
+    });
+  };
 </script>
 
 <Nav />
+
 <!-- <button on:click={randomNotification}>Notification</button> -->
 <main>
   <slot />
+  {#if $uiDrawer.content}
+    <button
+      class="drawer-transparent"
+      aria-label="Transparent button to close bottom drawer"
+      on:click={closeUiDrawer}
+      in:fade={{ duration: 300 }}
+      out:fade={{ duration: 300 }}
+    ></button>
+    <div
+      class="drawer-container"
+      in:fly={{ y: 800, duration: 300 }}
+      out:fly={{ y: 800, duration: 300 }}
+    >
+      <div class="drawer-content-container">
+        <button
+          aria-label="drawer close button"
+          class="drawer-close"
+          on:click={closeUiDrawer}
+        >
+          <IconButton
+            icon={faChevronDown}
+            color="grey"
+            backgroundColor={"transparent"}
+            scale={0.75}
+          />
+        </button>
+        <div class="drawer-content">
+          {#if $uiDrawer.content}
+            <svelte:component this={$uiDrawer.content} />
+          {/if}
+        </div>
+      </div>
+    </div>
+  {/if}
 </main>
 
 <style>
@@ -50,8 +102,47 @@
     --primary-color: #181818;
     --primary-bg-color: #f3f3f3;
     --secondary-bg-color: #bbbbbb;
+    --primary-accent-color: #3367d6;
+  }
 
-    --primary-accent-color: #3367D6;
+  .drawer-transparent {
+    background-color: rgba(0, 0, 0, 0.75);
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1001;
+  }
+
+  .drawer-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
+
+  .drawer-container {
+    position: absolute;
+    bottom: 0;
+    background-color: var(--primary-bg-color);
+    box-shadow: 0px 4px 16px black;
+    width: calc(100% - 2rem);
+    height: 70%;
+    padding: 1rem;
+    border-radius: 1rem 1rem 0 0;
+    z-index: 1002;
+  }
+
+  .drawer-close {
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .drawer-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
   }
 
   :global(a) {
