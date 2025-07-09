@@ -70,6 +70,7 @@
           billingStatements={billingStatements
             ? billingStatements[item.id] || []
             : []}
+          onRecordingPayment={() => {}}
         />
       {/each}
     </div>

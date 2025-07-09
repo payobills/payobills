@@ -10,6 +10,8 @@
   export let style = "";
 
 </script>
+
+<!-- Ref: https://fontawesome.com/search?ip=classic&s=solid&o=r -->
 <button on:click class="icon-button" >
   <Icon
     data={icon}

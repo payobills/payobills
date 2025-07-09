@@ -7,16 +7,20 @@
   import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
   import { fromStore } from "svelte/store";
   import { uiDrawer } from "$lib/stores/ui-drawer";
-  import BillPaymentForm from "$lib/record-payment-form.svelte";
+  import RecordPaymentForm from "$lib/record-payment-form.svelte";
   import UiDrawer from "$lib/ui-drawer.svelte";
 
   export let bill;
   export let billingStatements: any[];
+  export let showRecordPaymentButton = true;
+  export let title = "";
+  export let onRecordingPayment: any;
 
   let todaysDay: number;
   let billDueDetails: { status: string; string: string; l2Status?: string };
-  let currentCycleFromDate = "";
-  let currentCycleToDate = "";
+
+  export let currentCycleFromDate = "";
+  export let currentCycleToDate = "";
 
   let currComponent: HTMLDivElement;
   let currentPayingBill: any;
@@ -51,23 +55,29 @@
 <div class="container" bind:this={currComponent}>
   <a href={`#payment__bill_${bill.id}`} aria-label="anchor"></a>
   <div class="header">
-    <div class="name">{bill.name}</div>
-    <div class="actions">
-      <button
-        on:click={() => {
-          goto(`#payment__bill_${bill.id}`);
-          currentPayingBill = null;
-          currentPayingBill = bill;
-          console.log('currentPayingBill',currentPayingBill)
-        }}>Record payment</button
-      >
-    </div>
+    <div class="name">{title?.length > 0 ? title : bill.name}</div>
+    {#if showRecordPaymentButton}
+      <div class="actions">
+        <button
+          on:click={() => {
+            goto(`#payment__bill_${bill.id}`);
+            currentPayingBill = null;
+            currentPayingBill = bill;
+            console.log("currentPayingBill", currentPayingBill);
+          }}>Record payment</button
+        >
+      </div>
+    {/if}
   </div>
 
   {#if currentPayingBill}
-    <UiDrawer onClose={() => {currentPayingBill = null;}}>
-      <h2>Mark a payment for <strong>{bill.name}</strong></h2>
-      <BillPaymentForm bill={currentPayingBill} />
+    <UiDrawer
+      onClose={() => {
+        currentPayingBill = null;
+      }}
+    >
+      <RecordPaymentForm bill={currentPayingBill} {onRecordingPayment}
+      ></RecordPaymentForm>
     </UiDrawer>
   {/if}
 

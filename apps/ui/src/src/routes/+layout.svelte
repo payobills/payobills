@@ -118,6 +118,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100%;
   }
 
   .drawer-container {
@@ -141,6 +142,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: 100%;
   }
 
   :global(a) {
