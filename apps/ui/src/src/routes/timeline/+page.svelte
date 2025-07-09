@@ -6,7 +6,6 @@
   import { billsUrql, paymentsUrql } from "$lib/stores/urql";
 
   import { queryStore, gql, getContextClient } from "@urql/svelte";
-	import { Drawer } from "vaul-svelte";
 
   const billsQuery = queryStore({
     client: $billsUrql,
