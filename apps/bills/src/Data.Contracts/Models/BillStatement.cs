@@ -5,15 +5,16 @@ namespace Payobills.Bills.Data.Contracts.Models;
 public class BillStatement
 {
     public long Id { get; set; }
-    public string StartDate { get; set; } = default!;
-    public string EndDate { get; set; } = default!;
+    public string? StartDate { get; set; } = default!;
+    public string? EndDate { get; set; } = default!;
     public string Notes { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public BillConnection Bill { get; set; } = default!;
     public double? Amount { get; set; }
     public bool IsFullyPaid { get; set; } = false;
     public Edges Edges { get; set; } = new();
-    public FileModel? File { get; set; }
+    public FileModel? File { get; set; } = null;
+
     [JsonIgnore]
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
