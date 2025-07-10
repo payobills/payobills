@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace Payobills.Bills.Data.Contracts.Models;
+namespace Payobills.Bills.Services.Contracts.DTOs;
 
-public class Edges
+public record EdgesDTO
 {
     public List<string> PaymentIds { get; set; } = [];
 }
