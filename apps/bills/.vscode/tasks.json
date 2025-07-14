@@ -6,14 +6,12 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "msbuild",
+            "command": "dotnet",
             "args": [
-                // Ask msbuild to generate full paths for file names.
-                "src/API",
-                "/property:GenerateFullPaths=true",
-                "/t:build",
-                // Do not generate summary otherwise it leads to duplicate errors in Problems panel
-                "/consoleloggerparameters:NoSummary"
+                "build",
+                "src/API/API.csproj",   // explicit project file
+                "-property:GenerateFullPaths=true",
+                "-consoleloggerparameters:NoSummary"
             ],
             "group": "build",
             "presentation": {
