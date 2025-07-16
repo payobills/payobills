@@ -192,7 +192,10 @@ public class NocoDBClientService
 
         var response = await httpClient.SendAsync(request);
         var responseStream = await response.Content.ReadAsStreamAsync();
-        var updatedRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream);
+
+        var options = new JsonSerializerOptions();
+        options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+        var updatedRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
 
         return updatedRecord!;
     }
