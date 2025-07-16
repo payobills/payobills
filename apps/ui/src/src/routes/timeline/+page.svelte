@@ -30,6 +30,7 @@
       startDate
       endDate
       amount
+      isFullyPaid
     }
      `, '')} }`) }) : null;
 
@@ -78,6 +79,31 @@
       }
     `,
   });
+
+  const onRecordingPayment = ({ amount, bill, cycleFromDate, cycleToDate }) => {
+    $paymentsUrql
+      .mutation(
+        gql`
+          mutation RecordPayment($input: RecordPaymentInput!) {
+            recordPayment(input: $input) {
+              id
+            }
+          }
+        `,
+        {
+          input: {
+            amount,
+            billId: bill.id,
+            cycleFromDate,
+            cycleToDate,
+          },
+        }
+      )
+      .toPromise()
+      .then(() => {
+        goto("/timeline");
+      });
+  };
 </script>
 
 <section class="timeline-page">

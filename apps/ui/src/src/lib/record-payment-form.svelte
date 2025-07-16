@@ -12,18 +12,18 @@
 </script>
 
 <div class="container">
-  <BillPayment
-    {bill}
-    billingStatements={[]}
-    showRecordPaymentButton={false}
-    title={`Record a payment for ${bill.name}`}
-    onRecordingPayment={() => {}}
+  <div class="form-container">
+    <h2>Record a payment</h2>
+    <label for="record-bill-payment-bill">Bill</label>
+    <BillPayment
+      {bill}
+      billingStatements={[]}
+      showRecordPaymentButton={false}
+      onRecordingPayment={() => {}}
+      bind:currentCycleFromDate={cycleFromDate}
+      bind:currentCycleToDate={cycleToDate}
+    />
 
-    bind:currentCycleFromDate={cycleFromDate}
-    bind:currentCycleToDate={cycleToDate}
-  />
-
-  <div class="actions">
     <label for="record-bill-payment-amount">Amount</label>
     <input
       id="record-bill-payment-amount"
@@ -40,16 +40,17 @@
         name="record-bill-payment-fullypaid"
         id="record-bill-payment-fullypaid"
       />
+      <!-- </div> -->
     </div>
-
-    <Button onclick={() => onRecordingPayment({ amount, bill, cycleFromDate, cycleToDate })} >Record Payment</Button>
   </div>
+  <Button
+    onclick={() =>
+      onRecordingPayment({ amount, bill, cycleFromDate, cycleToDate })}
+    >Record Payment</Button
+  >
 </div>
 
 <style>
-  h2 {
-    margin-bottom: 0;
-  }
 
   .container {
     height: 100%;
@@ -60,6 +61,14 @@
     border-radius: 8px;
     background-color: var(--color-background);
     box-shadow: var(--shadow-elevation-2);
+  }
+
+  .form-container {
+    display: flex;
+    flex-direction: column;
+
+    padding: 1rem;
+    gap: 0.5rem;
   }
 
   .actions {
@@ -81,5 +90,4 @@
     align-items: center;
     gap: 0.5rem;
   }
-
 </style>
