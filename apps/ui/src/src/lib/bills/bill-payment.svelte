@@ -11,7 +11,7 @@
   import UiDrawer from "$lib/ui-drawer.svelte";
 
   export let bill;
-  export let billingStatements: any[];
+  export let billingStatements: any[] | undefined;
   export let showRecordPaymentButton = true;
   export let title = "";
   export let onRecordingPayment: any;
@@ -33,11 +33,28 @@
     // TODO: Prepaid type of bills will have cycle with current date in the cycle
     // Add edge case once Type field is exposed on BillDTO
     const cycle = getBillPaymentCycle(bill);
+
+    const currentBillStatement = billingStatements?.find(
+      (statement) =>
+        statement.startDate === cycle?.fromDate &&
+        cycle?.toDate === statement.endDate
+    );
+
     currentCycleFromDate = cycle?.fromDate || "";
     currentCycleToDate = cycle?.toDate || "";
-
     const diffInDays = bill.payByDate - todaysDay;
-    if (diffInDays > 0)
+
+    if (!billingStatements && !currentBillStatement) {
+      billDueDetails = {
+        string: `Calculating ...`,
+        status: "loading",
+      };
+    } else if (currentBillStatement?.isFullyPaid) {
+      billDueDetails = {
+        string: `Fully Paid`,
+        status: "paid",
+      };
+    } else if (diffInDays > 0)
       billDueDetails = {
         string: `Due in ${diffInDays} days`,
         status: "due",
@@ -169,6 +186,16 @@
   .due-status--due {
     color: white;
     background-color: var(--primary-accent-color);
+  }
+
+  .due-status--paid {
+    color: white;
+    background-color: rgb(9, 174, 9);
+  }
+
+  .due-status--loading {
+    color: white;
+    background-color: rgb(55, 55, 55);
   }
 
   .due-status--due--warning {

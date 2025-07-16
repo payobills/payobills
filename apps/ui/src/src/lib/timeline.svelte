@@ -9,7 +9,7 @@
   export let items: any[] = [];
   export let stats: any = {};
   export let transactions: any[] = [];
-  export let billingStatements: any = undefined;
+  export let billingStatements: any;
 
   let lastDay = 31;
   let fullPaymentDates: any[] = [];
@@ -68,7 +68,7 @@
         <BillPayment
           bill={item}
           billingStatements={billingStatements
-            ? billingStatements[item.id] || []
+            ? billingStatements[`billStatements__bill_${item.id}`] || undefined
             : []}
           onRecordingPayment={() => {}}
         />
