@@ -46,14 +46,30 @@ public class BillStatementsNocoDBService : IBillStatementsService
         return billStatement is not null ? new BillStatementDTO(billStatement) : null;
     }
 
-    public async Task<BillStatementDTO> AddBillStatementAsync(AddBillStatementDTO input)
+    public async Task<BillStatementDTO> AddOrUpdateBillStatementAsync(AddOrUpdateBillStatementDTO input)
     {
-        var billStatement = await nocoDBClientService.CreateRecordAsync<AddBillStatementDTO, BillStatement>(
-            "payobills",
-            "bill-statements",
-            input
-        );
+        BillStatement? billStatement = null;
 
-        return new BillStatementDTO(billStatement); 
+        if (string.IsNullOrEmpty(input.Id))
+        {
+            billStatement = await nocoDBClientService.CreateRecordAsync<AddOrUpdateBillStatementDTO, BillStatement>(
+                "payobills",
+                "bill-statements",
+                input
+            );
+
+            return new BillStatementDTO(billStatement);
+        }
+        else
+        {
+            billStatement = await nocoDBClientService.UpdateRecordAsync<AddOrUpdateBillStatementDTO, BillStatement>(
+                "payobills",
+                "bill-statements",
+                input.Id,
+                input
+            );
+
+            return new BillStatementDTO(billStatement);
+        }
     }
 }

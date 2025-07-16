@@ -6,5 +6,5 @@ public interface IBillStatementsService
 {
   Task<IEnumerable<BillStatementDTO>> GetBillStatementsAsync(string billId);
   Task<BillStatementDTO?> GetBillStatementByIdAsync(string billStatementId);
-  Task<BillStatementDTO> AddBillStatementAsync(AddBillStatementDTO input);
+  Task<BillStatementDTO> AddOrUpdateBillStatementAsync(AddOrUpdateBillStatementDTO input);
 }
