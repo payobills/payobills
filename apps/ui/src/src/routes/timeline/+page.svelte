@@ -80,28 +80,42 @@
     `,
   });
 
-  const onRecordingPayment = ({ amount, bill, cycleFromDate, cycleToDate }) => {
-    $paymentsUrql
+  const onRecordingPayment = ({ amount, bill, cycleFromDate, cycleToDate, isFullyPaid }) => {
+    return $paymentsUrql
       .mutation(
         gql`
-          mutation RecordPayment($input: RecordPaymentInput!) {
-            recordPayment(input: $input) {
-              id
-            }
+          mutation AddBillStatement($dto: AddOrUpdateBillStatementDTOInput!) {
+              addOrUpdateBillStatement(dto: $dto) {
+                  id
+                  startDate
+                  endDate
+                  isFullyPaid
+                  amount
+                  payments {
+                      id
+                      __typename
+                  }
+              }
           }
         `,
         {
-          input: {
+          dto: {
+            notes: "",
             amount,
-            billId: bill.id,
-            cycleFromDate,
-            cycleToDate,
+            isFullyPaid,
+            bill: { id: +bill.id },
+            startDate: cycleFromDate,
+            endDate: cycleToDate,
+            edges: { paymentIds: [] }
           },
         }
       )
       .toPromise()
-      .then(() => {
-        goto("/timeline");
+      .then((res) => {
+        if (res.error) {
+          console.error("Error recording payment:", res.error);
+          throw new Error("Failed to record payment");
+        }
       });
   };
 </script>
@@ -117,6 +131,7 @@
       stats={$billStatsQuery.data.billStats}
       transactions={$transactionsQuery.data.transactions.nodes}
       billingStatements={$billStatementsQuery?.data}
+      {onRecordingPayment}
     />
   {/if}
 </section>

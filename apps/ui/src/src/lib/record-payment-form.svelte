@@ -5,10 +5,11 @@
   export let bill: any;
   export let onRecordingPayment;
 
-  let fullyPaid = true;
   let amount: number;
-
   let cycleFromDate: string, cycleToDate: string;
+
+  let isFullyPaid = true;
+  let isSaving = false;
 </script>
 
 <div class="container">
@@ -36,22 +37,30 @@
       <label for="record-bill-payment-fullypaid">Fully Paid</label>
       <input
         type="checkbox"
-        bind:checked={fullyPaid}
+        bind:checked={isFullyPaid}
         name="record-bill-payment-fullypaid"
         id="record-bill-payment-fullypaid"
       />
-      <!-- </div> -->
     </div>
   </div>
   <Button
-    onclick={() =>
-      onRecordingPayment({ amount, bill, cycleFromDate, cycleToDate })}
-    >Record Payment</Button
-  >
+    onclick={async () => {
+      isSaving = true;
+      await onRecordingPayment({
+        amount,
+        bill,
+        cycleFromDate,
+        cycleToDate,
+        isFullyPaid,
+      });
+      isSaving = false;
+    }}
+    state={isSaving ? "LOADING" : "DEFAULT"}
+    >Record Payment
+  </Button>
 </div>
 
 <style>
-
   .container {
     height: 100%;
     display: flex;
@@ -66,8 +75,6 @@
   .form-container {
     display: flex;
     flex-direction: column;
-
-    padding: 1rem;
     gap: 0.5rem;
   }
 

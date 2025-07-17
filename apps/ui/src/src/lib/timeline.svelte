@@ -10,6 +10,7 @@
   export let stats: any = {};
   export let transactions: any[] = [];
   export let billingStatements: any;
+  export let onRecordingPayment: any;
 
   let lastDay = 31;
   let fullPaymentDates: any[] = [];
@@ -70,7 +71,7 @@
           billingStatements={billingStatements
             ? billingStatements[`billStatements__bill_${item.id}`] || undefined
             : []}
-          onRecordingPayment={() => {}}
+          {onRecordingPayment}
         />
       {/each}
     </div>
