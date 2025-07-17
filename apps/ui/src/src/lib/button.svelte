@@ -2,11 +2,24 @@
   import IconButton from "./icon-button.svelte";
   import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 
-  let { children, onclick = () => {}, isLoading = true } = $props();
+  let {
+    children,
+    onclick = undefined,
+    state = "DEFAULT",
+  }: {
+    children: any;
+    onclick?: (event: any) => Promise<any | void>;
+    state: "DEFAULT" | "LOADING" | "SUCCESS" | "ERROR";
+  } = $props();
 </script>
 
-<button onclick={(ev) => onclick(ev)} class="button-container">
-  {#if isLoading}
+<button
+  onclick={async (ev) => {
+    await onclick?.(ev);
+  }}
+  class="button-container"
+>
+  {#if state === "LOADING"}
     <IconButton icon={faCircleNotch} scale={0.75} />
   {:else}
     {@render children?.()}

@@ -93,8 +93,7 @@
         currentPayingBill = null;
       }}
     >
-      <RecordPaymentForm bill={currentPayingBill} {onRecordingPayment}
-      ></RecordPaymentForm>
+      <RecordPaymentForm bill={currentPayingBill} {onRecordingPayment} />
     </UiDrawer>
   {/if}
 
