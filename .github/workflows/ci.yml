@@ -166,7 +166,7 @@ jobs:
 
   deploy-tmp-pr-docker-buildx-images:
     name: deploy-tmp-pr-docker-buildx-images
-    if: ${{ github.event_name == 'pull_request' && needs.ci.outputs.CHANGED_SERVICES != '{"value":""}' }}
+    if: ${{ github.event_name == 'pull_request' && needs.ci.outputs.CHANGED_SERVICES != '{"value":[]}' }}
     needs: ci
     uses: ./.github/workflows/run-plz.yml
     secrets: 
