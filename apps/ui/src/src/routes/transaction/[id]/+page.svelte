@@ -266,6 +266,7 @@
   };
 </script>
 
+<div class='container'>
 {#if ($transactionsQuery === undefined || $transactionsQuery.fetching) && !transaction}
   <p>Loading...</p>
 {:else if $transactionsQuery.error}
@@ -486,6 +487,7 @@
     {/if}
   </div>
 {/if}
+</div>
 
 <style>
   .submit {
@@ -524,7 +526,6 @@
   }
 
   .transaction {
-    margin: 1rem;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -603,5 +604,10 @@
   .transaction-receipts-list {
     margin: 0 1rem;
     padding: 0;
+  }
+
+
+  div.container {
+    padding: 1rem;
   }
 </style>
