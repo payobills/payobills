@@ -1,4 +1,6 @@
-# bills service
+# bills
+
+Service to handle all bill related details - like CRUD on bills, billing statements, etc.
 
 docker build -t payobills-bills:0.1.0-alpha.2 -f ../../../common/docker/dotnet-svc.prod.dockerfile --build-arg SVC=payobills.bills --build-arg DOTNET_VERSION=6.0 .
 
