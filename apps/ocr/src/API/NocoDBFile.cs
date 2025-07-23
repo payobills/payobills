@@ -6,7 +6,7 @@ public record NocoDBFile
 
     public Dictionary<string, string> Tags { get; set; } = [];
 
-    public IEnumerable<File> Files { get; set; } = Enumerable.Empty<File>();
+    public IEnumerable<File> Files { get; set; } = [];
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

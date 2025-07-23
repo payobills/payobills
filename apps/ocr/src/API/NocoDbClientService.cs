@@ -69,10 +69,13 @@ public class NocoDBClientService
             return default(T);
         }
 
-        var responseStream = await response.Content.ReadAsStreamAsync();
+        // var responseStream = await response.Content.ReadAsStreamAsync();
+        var responseString = await response.Content.ReadAsStringAsync();
+        // Console.WriteLine($"Response: {responseString}");
         JsonSerializerOptions options = new JsonSerializerOptions();
         options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-        var recordsPage = await JsonSerializer.DeserializeAsync<T>(responseStream, options);
+        // var recordsPage = await JsonSerializer.DeserializeAsync<T>(responseStream, options);
+        var recordsPage =  JsonSerializer.Deserialize<T>(responseString, options);
 
         return recordsPage;
     }
