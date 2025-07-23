@@ -91,6 +91,7 @@ partial class Program
         var builder = WebApplication.CreateBuilder(args);
         var app = builder.Build();
 
+        app.MapGet("/", () => new { App = "payobills.ocr" });
         app.MapGet("/ocr", ([FromQuery(Name = "fileId")] string fileId) => GetOcrStringAsync(fileId));
         app.Run();
     }
