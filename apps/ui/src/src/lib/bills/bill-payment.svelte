@@ -24,6 +24,7 @@
 
   let currComponent: HTMLDivElement;
   let currentPayingBill: any;
+  let currentBillStatement: any;
 
   onMount(() => {
     todaysDay = new Date().getDate();
@@ -34,7 +35,7 @@
     // Add edge case once Type field is exposed on BillDTO
     const cycle = getBillPaymentCycle(bill);
 
-    const currentBillStatement = billingStatements?.find(
+    currentBillStatement = billingStatements?.find(
       (statement) =>
         statement.startDate === cycle?.fromDate &&
         cycle?.toDate === statement.endDate
@@ -116,9 +117,18 @@
       ><strong>{billDueDetails?.string}</strong></span
     >
   </div>
+  {#if currentBillStatement?.amount > 0}
+  <div class="card-item">
+    Total Payment made this cycle: <span class='current-bill-amount'>₹{currentBillStatement?.amount}/-</span>
+  </div>
+  {/if}
 </div>
 
 <style>
+  .current-bill-amount {
+    font-weight: 800;
+  }
+
   .container {
     background-color: rgb(233, 233, 233);
     border-radius: 0.425rem;
