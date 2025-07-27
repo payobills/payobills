@@ -31,6 +31,10 @@
       endDate
       amount
       isFullyPaid
+      payments {
+        id
+        amount
+      }
     }
      `, '')} }`) }) : null;
 

@@ -30,6 +30,11 @@
       query billById($billId: String!) {
         billStatements(billId: $billId) {
           id
+          payments {
+            id
+            amount
+            paidAt
+          }
           startDate
           endDate
           notes
@@ -129,9 +134,12 @@
           <p>Loading...</p>
         {:else if $transactionsFromOCRQuery?.error}
           <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
-        {:else if (($transactionsFromOCRQuery?.data?.transactions?.nodes || []).length === 0)}
-          <p>🙆‍♂️ Uh oh! Looks like the statement file couldn't be parsed for transactions!</p>
-          {:else}
+        {:else if ($transactionsFromOCRQuery?.data?.transactions?.nodes || []).length === 0}
+          <p>
+            🙆‍♂️ Uh oh! Looks like the statement file couldn't be parsed for
+            transactions!
+          </p>
+        {:else}
           <RecentTransactions
             initialShowCount={Infinity}
             title="Transactions from this statement"
@@ -146,6 +154,39 @@
         {/if}
       {:else}
         <p>This bill statement doesn't have an associated statement file.</p>
+      {/if}
+
+      {#if currentBillStatement && currentBillStatement.payments.reduce((acc: number, payment: any) => acc + payment.amount, 0)}
+        <!-- <div class="card-item"> -->
+
+        {#if currentBillStatement.payments.length > 0}
+          <h2>Payments made this cycle</h2>
+          <ul>
+            {#each currentBillStatement.payments as payment}
+              <li>
+                ₹ {payment.amount} on {new Intl.DateTimeFormat("en-GB", {
+                  year: "2-digit",
+                  month: "long",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                }).format(new Date(payment.paidAt))}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+
+        <p>
+          Total Payments made this cycle: ₹ <strong>
+            {currentBillStatement.payments.reduce(
+              (acc: number, payment: any) => acc + payment.amount,
+              0
+            )} /-
+          </strong>
+        </p>
+
+        <!-- </div> -->
       {/if}
     {/if}
   </div>
