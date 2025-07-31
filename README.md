@@ -1,6 +1,6 @@
 # payobills
 
-A self-hosted (Bring and Keep your own Data) bill management app. 
+A self-hosted (Bring and Keep your own Data) personal bill management app. The full business intent of this project is documented in the [business intent document](docs/business-intent.md).
 
 ## Screenshots
 Here's the [Figma Link](https://www.figma.com/design/RuZ5khlNpA4IgKPb1iebzc/payobills-main) 😊 - feel free to connect with me if you're a designer and want to contribute!
