@@ -50,7 +50,14 @@
         string: `Calculating ...`,
         status: "loading",
       };
-    } else if (currentBillStatement?.isFullyPaid) {
+    } 
+    else if (currentBillStatement?.isFullyPaid && currentBillStatement?.amount === 0) {
+      billDueDetails = {
+        string: `No payment due`,
+        status: "paid",
+      };
+    }
+    else if (currentBillStatement?.isFullyPaid) {
       billDueDetails = {
         string: `Fully Paid`,
         status: "paid",
