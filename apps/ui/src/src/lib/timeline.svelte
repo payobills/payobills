@@ -68,9 +68,9 @@
       {#each filteredItems.filter((p) => p.payByDate !== null) as item}
         <BillPayment
           bill={item}
-          billingStatements={billingStatements
-            ? billingStatements[`billStatements__bill_${item.id}`] || undefined
-            : []}
+          billingStatements={billingStatements?.[
+            `billStatements__bill_${item.id}`
+          ]}
           {onRecordingPayment}
         />
       {/each}
