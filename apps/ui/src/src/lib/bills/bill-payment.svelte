@@ -45,28 +45,38 @@
     currentCycleToDate = cycle?.toDate || "";
     const diffInDays = bill.payByDate - todaysDay;
 
-    if (!billingStatements && !currentBillStatement) {
+    if (!billingStatements) {
       billDueDetails = {
         string: `Calculating ...`,
         status: "loading",
       };
-    } else if (currentBillStatement?.isFullyPaid) {
-      billDueDetails = {
-        string: `Fully Paid`,
-        status: "paid",
-      };
-    } else if (diffInDays > 0)
-      billDueDetails = {
-        string: `Due in ${diffInDays} days`,
-        status: "due",
-        l2Status: diffInDays <= 5 ? "warning" : "ok",
-      };
-    else if (diffInDays < 0)
-      billDueDetails = {
-        string: `Overdue by ${-diffInDays} days`,
-        status: "overdue",
-      };
-    else billDueDetails = { string: "Due today", status: "today" };
+    } else {
+      if (
+        currentBillStatement?.isFullyPaid &&
+        currentBillStatement?.amount === 0
+      ) {
+        billDueDetails = {
+          string: `No payment due`,
+          status: "paid",
+        };
+      } else if (currentBillStatement?.isFullyPaid) {
+        billDueDetails = {
+          string: `Fully Paid`,
+          status: "paid",
+        };
+      } else if (diffInDays > 0)
+        billDueDetails = {
+          string: `Due in ${diffInDays} days`,
+          status: "due",
+          l2Status: diffInDays <= 5 ? "warning" : "ok",
+        };
+      else if (diffInDays < 0)
+        billDueDetails = {
+          string: `Overdue by ${-diffInDays} days`,
+          status: "overdue",
+        };
+      else billDueDetails = { string: "Due today", status: "today" };
+    }
   }
 </script>
 
@@ -118,9 +128,11 @@
     >
   </div>
   {#if currentBillStatement?.amount > 0}
-  <div class="card-item">
-    Total Payment made this cycle: <span class='current-bill-amount'>₹{currentBillStatement?.amount}/-</span>
-  </div>
+    <div class="card-item">
+      Total Payment made this cycle: <span class="current-bill-amount"
+        >₹{currentBillStatement?.amount}/-</span
+      >
+    </div>
   {/if}
 </div>
 
