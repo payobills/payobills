@@ -5,7 +5,7 @@ name: 'Plz run Docker_BuildX on Tag Publish'
 on:
   push:
     tags:
-    - '*'
+      - '*'
 
 jobs:
   tag-checker-job:
