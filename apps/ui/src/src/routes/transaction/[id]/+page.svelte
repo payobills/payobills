@@ -382,17 +382,17 @@
         {/if}
 
         <h1 class="subheader">Tags</h1>
-        <div class="tags_description">
+        <!-- <div class="tags_description">
           This transaction doesn't have any tags.
-        </div>
-        <!-- {#if transaction.tags?.length === 0}
+        </div> -->
+        {#if transaction.tags?.length === 0}
         {:else}
           <div class="tags">
             {#each transaction.tags as tag}
               <div class="tag">{tag}</div>
             {/each}
           </div>
-        {/if} -->
+        {/if}
 
         <h1 class="subheader">Notes</h1>
         <p class="note note__view">
@@ -454,7 +454,8 @@
           />
         </div>
 
-        <h1 class="subheader">Tags</h1>
+        <!-- TODO: Add the ability to edit tags -->
+        <!-- <h1 class="subheader">Tags</h1>
         {#if transaction.tags?.length === 0}
           <div class="tags_description">
             This transaction doesn't have any tags.
@@ -465,7 +466,7 @@
               <div class="tag">{tag}</div>
             {/each}
           </div>
-        {/if}
+        {/if} -->
 
         <h1 class="subheader">Notes</h1>
         <textarea
