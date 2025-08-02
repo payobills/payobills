@@ -13,12 +13,5 @@ namespace Payobills.Payments.Services.Contracts.DTOs
         private string notes = string.Empty;
         public string? BackDateString { get; set; } = string.Empty;
         public DateTime? BackDate { get; set; }
-
-        [GraphQLName("tags")]
-        [JsonIgnore]
-        public string[]? TagsArray { get; set; } = [];
-
-        [GraphQLIgnore]
-        public string Tags => string.Join(",", TagsArray ?? []);
     }
 }
