@@ -1,0 +1,56 @@
+# Note: This is a WIP workflow being tested to ensure it works as expected.
+
+name: 'Plz run Docker_BuildX on Tag Publish'
+
+on:
+  push:
+    tags:
+    - '*'
+
+jobs:
+  tag-checker-job:
+    runs-on: ubuntu-22.04-arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup please.build
+        uses: sagikazarmark/setup-please-action@v0
+      
+      - name: Extract app name and version from tag
+        id: extract-app-name-version
+        run: |
+          echo "Tag: $GITHUB_REF"
+          APP_NAME=$(echo "$GITHUB_REF" | cut -d '/' -f 1)
+          VERSION=$(echo "$GITHUB_REF" | cut -d '/' -f 2)
+          
+          if [ -z "$APP_NAME" ] || [ -z "$VERSION" ]; then
+            echo "Error: Tag format must be <app-name>/<semver-version>"
+            exit 1
+          fi
+
+      - name: Check if app exists in apps folder
+        id: check-app-existence
+        run: |
+          echo "Checking if $APP_NAME exists in apps directory..."
+          ls "apps/$APP_NAME" || {
+            echo "App '$APP_NAME' does not exist in apps folder."
+            exit 1
+          }
+
+      - name: Set outputs for downstream jobs
+        run: |
+          echo "APP_NAME=$APP_NAME" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+  deploy-docker-buildx-image:
+    needs: tag-checker-job
+    name: Run plz action for Docker BuildX
+    uses: ./.github/workflows/run-plz.yml@main
+    secrets:
+      GHCR_CI_TOKEN: ${{ secrets.GHCR_CI_TOKEN }}
+    with:
+      PLZ_SUBCOMMAND: "run"
+      PLZ_SUBCOMMAND_ARGS: "//apps/${{ needs.tag-checker-job.outputs.APP_NAME }}:docker_buildx"
+      ENV_VARS: "{ \"VERSION\":\"${{ needs.tag-checker-job.outputs.VERSION }}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"NODE_VERSION\":\"20.11.1\", \"RUST_VERSION\":\"1.79.0-alpine3.20\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
