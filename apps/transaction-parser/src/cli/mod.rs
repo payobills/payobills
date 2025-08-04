@@ -1,4 +1,6 @@
-pub(crate) async fn cli() {
+use std::{error::Error, future::Future};
+
+pub(crate) fn cli() -> impl Future<Output = Result<(), Box<(dyn Error)>>> {
     let nocodb_env = crate::payobills::transaction_parser::NocoDBEnv {
         base_url: std::env::var("NOCODB__BASE_URL").expect("NOCODB__BASE_URL must be set"),
 
@@ -23,7 +25,12 @@ pub(crate) async fn cli() {
             .expect("NOCODB__INTEGRATION_TOKEN must be set"),
     };
 
-    crate::payobills::transaction_parser::process_transactions(nocodb_env.clone())
-        .await
-        .expect("Unable to parse transactions");
+    return crate::payobills::transaction_parser::process_transactions(nocodb_env.clone());
+        // .await
+        // .map_err(|e| {
+        //     eprintln!("Error processing transactions: {}", e);
+        //     std::process::exit(1);
+        // });
+        // .map_err(|e| Box::new(e) as Box<dyn std::error::Error>);
+        // .expect("Unable to parse transactions");
 }

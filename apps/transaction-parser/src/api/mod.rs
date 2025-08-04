@@ -1,10 +1,12 @@
-use axum::{routing::*, *};
-use api::parses;
+use axum::{routing::*};
 
-pub fn create_router() -> Router {
-    Router::new()
-        .merge(
-            Router::new()
-                .route("/api/parses/:transactionId", post(parses::parse_handler))
-        )
+use crate::api::parses::post_new_parse_handler;
+
+mod parses;
+
+pub(crate) fn create_router() -> Router {
+    Router::new().merge(Router::new().route(
+        "/api/parses/:transaction_id",
+        post(move |transaction_id| post_new_parse_handler(transaction_id)),
+    ))
 }
