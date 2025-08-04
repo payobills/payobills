@@ -589,6 +589,29 @@ where
     Ok(response)
 }
 
+pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: String) -> Result<(), Box<dyn Error>> {
+    let mut map = HeaderMap::new();
+    map.insert("xc-token", nocodb_env.api_key.parse().unwrap());
+
+    let url: String = format!(
+        "{}/api/v1/db/data/nc/{}/{}/{}",
+        nocodb_env.base_url,
+        nocodb_env.base_name_payobills,
+        nocodb_env.table_name_payobills_transactions,
+        transaction_id
+    );
+
+    let response = reqwest::Client::new()
+        .get(url)
+        .headers(map)
+        .send()
+        .await?
+        .json::<Transaction>()
+        .await?;
+
+    parse_transaction(response, nocodb_env).await
+}
+
 pub async fn process_transactions(nocodb_env: NocoDBEnv) -> Result<(), Box<dyn Error>> {
     // let mut offset = 0;
     let mut parse_more = true;
