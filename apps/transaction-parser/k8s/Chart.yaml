@@ -1,0 +1,4 @@
+apiVersion: v2
+name: transaction-parser
+description: Transaction Parser for Payobills
+type: application
