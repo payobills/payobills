@@ -29,8 +29,7 @@ pub(crate) async fn post_new_parse_handler(Path(transaction_id): Path<String>) -
             .expect("NOCODB__INTEGRATION_TOKEN must be set"),
     };
 
-    let res =
-        crate::payobills::transaction_parser::parse_transaction_by_id(nocodb_env, transaction_id)
+    let _ = crate::payobills::transaction_parser::parse_transaction_by_id(nocodb_env, transaction_id)
             .await;
 
     Json(json!({ "message": "Transaction parsed successfully"}))
