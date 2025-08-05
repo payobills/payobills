@@ -20,6 +20,7 @@ notion = "0.6.0"
 chrono = "0.4.38"
 jiff = "0.1.24"
 isahc = "1.7.2"
+axum = { version = "0.6", features = ["json"] }
 
 [dev-dependencies]
 httpmock = "0.7.0"
