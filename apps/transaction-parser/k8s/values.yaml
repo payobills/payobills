@@ -31,6 +31,22 @@ pod:
   env:
   - name: SERVER_ADDRESS
     value: '0.0.0.0:80'
+  - name: NOCODB__BASE_URL
+    value: http://nocodb.homelab.svc.cluster.local:8080
+  - name: NOCODB__INTEGRATION_TOKEN
+    valueFrom:
+      secretKeyRef:
+        key: token
+        name: nocodb-token
+  # TODO: Move to a ConfigMap
+  - name: NOCODB__BASE_NAME__CURRENCIES
+    value: "ppqwf0630ff5ie0"
+  - name: NOCODB__TABLE_NAME__CURRENCIES__HISTORICAL
+    value: "m80bahqoxl4l25k"
+  - name: NOCODB__TABLE_NAME__CURRENCIES__CURRENCIES
+    value: "mh2815f1o7yc3c2"
+  - name: RUST_BACKTRACE
+    value: "full"
 
 podSecurityContext: {}
   # fsGroup: 2000
