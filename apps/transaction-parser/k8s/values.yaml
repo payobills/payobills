@@ -1,0 +1,97 @@
+# Default values for bills.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+openTelemetry:
+  enabled: false
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/payobills/tools/transaction-parser
+  pullPolicy: IfNotPresent
+  tag: "0.5.1"
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+pod:
+  annotations: {}
+  command: ["sh", "-c", "/app/transaction-parser api | tee /var/log/index.log"]
+
+  env:
+  - name: SERVER_ADDRESS
+    value: '0.0.0.0:80'
+  - name: NOCODB__BASE_URL
+    value: http://nocodb.homelab.svc.cluster.local:8080
+  - name: NOCODB__INTEGRATION_TOKEN
+    valueFrom:
+      secretKeyRef:
+        key: token
+        name: nocodb-token
+  # TODO: Move to a ConfigMap
+  - name: NOCODB__BASE_NAME__CURRENCIES
+    value: "ppqwf0630ff5ie0"
+  - name: NOCODB__TABLE_NAME__CURRENCIES__HISTORICAL
+    value: "m80bahqoxl4l25k"
+  - name: NOCODB__TABLE_NAME__CURRENCIES__CURRENCIES
+    value: "mh2815f1o7yc3c2"
+  - name: RUST_BACKTRACE
+    value: "full"
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  name: transaction-parser
+  type: ClusterIP
+  port: 80
+
+flags:
+  rewrite: false
+
+ingress:
+  enabled: false
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector:
+  kubernetes.io/hostname: pi5
+
+tolerations: []
+
+affinity: {}
