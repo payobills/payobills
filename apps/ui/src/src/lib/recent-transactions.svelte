@@ -3,7 +3,7 @@
   import { formatRelativeDate } from "../utils/format-relative-date";
 
   export let transactions: any[] = [];
-  $: orderedTransactions = transactions.reduce(
+  $: filteredTransactions = transactions.reduce(
     (agg: any[], currTransaction) => {
       let duplicateTransaction = agg.findIndex(
         (p) => p.id === currTransaction.id
@@ -15,7 +15,7 @@
       return agg;
     },
     []
-  );
+  ).filter(p => p.paidAt);
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
   export let showGraph = false;
@@ -43,19 +43,41 @@
   const chart = (node: any, transactions: any[]) => {
     if (!ApexCharts) return;
 
-    const orderedData = transactions.sort((a: any, b: any) => {
-      return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
-    });
+    if (transactions.length > 0) {
+      // from 1 to last day of the month of the first transaction, add 0s for missing days
+      let firstTransactionDate = new Date(filteredTransactions[0].paidAt);
+      let lastDateOfMonth = new Date(
+        firstTransactionDate.getUTCFullYear(),
+        firstTransactionDate.getUTCMonth() + 1,
+        0
+      );
+      let lastDay = lastDateOfMonth.getDate();
+      for (let i = 1; i <= lastDay; i++) {
+        let date = new Date(
+            firstTransactionDate.getUTCFullYear(),
+            firstTransactionDate.getUTCMonth(),
+            i
+          )
 
-    let allData = orderedData.map((p: any) => {
+
+        if (!filteredTransactions.find((p: any) => new Date(p.paidAt).getDate() === date.getDate() 
+        && new Date(p.paidAt).getMonth() === date.getMonth()
+      && new Date(p.paidAt).getFullYear() === date.getFullYear())) {
+          filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
+        }
+      }
+    }
+
+    
+
+    let allData = filteredTransactions.map((p: any) => {
       return {
-        x: Intl.DateTimeFormat(undefined, {
-          day: "numeric",
-        }).format(new Date(p.paidAt).getTime()),
+        x: new Date(p.paidAt).getDate(),
         y: p.amount,
         note: `${p.amount}`,
       };
     });
+
 
     let data = allData.reduce(
       (accumulator: any[], current: any, index: number) => {
@@ -85,30 +107,9 @@
       []
     );
 
-    if (orderedData.length > 0) {
-      // from 1 to last day of the month of the first transaction, add 0s for missing days
-      let firstTransactionDate = new Date(orderedData[0].paidAt);
-      let lastDateOfMonth = new Date(
-        firstTransactionDate.getUTCFullYear(),
-        firstTransactionDate.getUTCMonth() + 1,
-        0
-      );
-      let lastDay = lastDateOfMonth.getDate();
-      for (let i = 1; i <= lastDay; i++) {
-        let date = Intl.DateTimeFormat(undefined, {
-          day: "numeric",
-        }).format(
-          new Date(
-            firstTransactionDate.getUTCFullYear(),
-            firstTransactionDate.getUTCMonth(),
-            i
-          ).getTime()
-        );
-        if (!data.find((p: any) => p.x === date)) {
-          data.push({ x: date, y: 0, note: "No transactions" });
-        }
-      }
-    }
+      data.sort((a: any, b: any) => {
+      return a.x - b.x
+    });
 
     totalSpend = data.reduce((acc: number, p: any) => acc + p.y, 0);
 
@@ -207,7 +208,7 @@
   </div>
   <hr />
 
-  {#each showAllTransactions ? orderedTransactions : orderedTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
+  {#each showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
     <a class="transaction-card" href={`/transaction/${transaction.id}`}>
       <div class="recent-transaction">
         <div class="non-amount-details">
