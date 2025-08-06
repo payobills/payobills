@@ -50,9 +50,7 @@
     let allData = orderedData.map((p: any) => {
       return {
         x: Intl.DateTimeFormat(undefined, {
-          day: "2-digit",
-          month: "short",
-          year: "2-digit",
+          day: "numeric",
         }).format(new Date(p.paidAt).getTime()),
         y: p.amount,
         note: `${p.amount}`,
@@ -87,6 +85,31 @@
       []
     );
 
+    if (orderedData.length > 0) {
+      // from 1 to last day of the month of the first transaction, add 0s for missing days
+      let firstTransactionDate = new Date(orderedData[0].paidAt);
+      let lastDateOfMonth = new Date(
+        firstTransactionDate.getUTCFullYear(),
+        firstTransactionDate.getUTCMonth() + 1,
+        0
+      );
+      let lastDay = lastDateOfMonth.getDate();
+      for (let i = 1; i <= lastDay; i++) {
+        let date = Intl.DateTimeFormat(undefined, {
+          day: "numeric",
+        }).format(
+          new Date(
+            firstTransactionDate.getUTCFullYear(),
+            firstTransactionDate.getUTCMonth(),
+            i
+          ).getTime()
+        );
+        if (!data.find((p: any) => p.x === date)) {
+          data.push({ x: date, y: 0, note: "No transactions" });
+        }
+      }
+    }
+
     totalSpend = data.reduce((acc: number, p: any) => acc + p.y, 0);
 
     let options: any = {
@@ -109,15 +132,11 @@
       ],
       xaxis: {
         categories: data.map((p: any) => p.x),
-        labels: { show: false },
+        labels: { show: true },
       },
       yaxis: {
         labels: {
           show: false,
-          formatter: (value: number) =>
-            `₹ ${Intl.NumberFormat(undefined, {
-              style: "decimal",
-            }).format(value)}`,
         },
       },
       dataLabels: {
@@ -125,10 +144,13 @@
         style: {
           colors: ["#5e5e5e"],
         },
-        formatter: (value: number) =>
-          `₹ ${Intl.NumberFormat(undefined, {
-            style: "decimal",
-          }).format(value)}`,
+        formatter: (value: number) => {
+          return value === 0
+            ? undefined
+            : `₹ ${Intl.NumberFormat(undefined, {
+                style: "decimal",
+              }).format(value)}`;
+        },
       },
     };
 
@@ -215,7 +237,8 @@
   {#if showViewAllCTA}
     <p>
       Not seeing a transaction here? You can
-      <a href={`/transaction/add`} class='transaction-add-cta'>add one</a> manually too.
+      <a href={`/transaction/add`} class="transaction-add-cta">add one</a> manually
+      too.
     </p>
   {/if}
 </div>
