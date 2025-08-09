@@ -9,6 +9,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
         public string? Merchant { get; set; }
         public string? Currency { get; set; }
         public double? Amount { get; set; }
+        public string? ParseStatus { get; set; }
         public string? Notes { get { return notes; } set { notes = value ?? string.Empty; } }
         private string notes = string.Empty;
         public string? BackDateString { get; set; } = string.Empty;
