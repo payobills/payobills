@@ -128,7 +128,7 @@ public class TransactionsNocoDBService : ITransactionsService
             updateDTO,
             payloadSerializeOptions);
 
-        if (transactionUpdateResult.ParseStatus == "NotParsed")
+        if (transactionUpdateResult.ParseStatus == "NotStarted")
         {
             await rabbitMQService.PublishMessageAsync(
                             "payobills.transaction-parsing",
