@@ -2,6 +2,8 @@ using Payobills.Payments.Services.Contracts;
 using Payobills.Payments.Services;
 using Payobills.Payments.NocoDB;
 using AutoMapper;
+using RabbitMQ.Client;
+using Payobills.Payments.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // options
 builder.Services.Configure<NocoDBOptions>(builder.Configuration.GetRequiredSection(nameof(NocoDBOptions)));
+builder.Services.Configure<RabbitMQOptions>(builder.Configuration.GetRequiredSection(nameof(RabbitMQOptions)));
 
 // bills
 builder.Services.AddSingleton<HttpClient>();
@@ -39,6 +42,8 @@ builder.Services.AddSingleton<IMapper>((_) =>
 
   return new Mapper(config);
 });
+
+builder.Services.AddSingleton<RabbitMQService>();
 
 builder.Services
   .AddGraphQLServer()

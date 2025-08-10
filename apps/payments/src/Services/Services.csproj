@@ -10,6 +10,7 @@
     <ProjectReference Include="..\Services.Contracts\Services.Contracts.csproj" />
     <ProjectReference Include="..\Data.Contracts\Data.Contracts.csproj" />
     <ProjectReference Include="..\NocoDB\NocoDB.csproj" />
+    <ProjectReference Include="..\RabbitMQ\RabbitMQ.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -41,6 +41,13 @@ pod:
         name: nocodb-token
   - name: NocoDBOptions__BaseUrl
     value: http://nocodb.homelab.svc.cluster.local:8080
+  - name: RabbitMQOptions__ConnectionString
+    valueFrom:
+      secretKeyRef:
+        key: connection-string
+        name: rabbitmq
+  - name: TransactionParser__RequestParsingQueueName
+    value: 'payobills.transaction-parsing'
 
 podSecurityContext: {}
   # fsGroup: 2000

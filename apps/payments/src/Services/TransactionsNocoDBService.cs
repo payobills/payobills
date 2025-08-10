@@ -5,6 +5,7 @@ using Payobills.Payments.Services.Contracts;
 using Payobills.Payments.NocoDB;
 using HotChocolate.Data.Sorting;
 using Payobills.Payments.Services.Contracts.DTOs;
+using Payobills.Payments.RabbitMQ;
 
 namespace Payobills.Payments.Services;
 
@@ -12,13 +13,18 @@ public class TransactionsNocoDBService : ITransactionsService
 {
     private readonly NocoDBClientService nocoDBClientService;
     private readonly IMapper mapper;
+    private readonly RabbitMQService rabbitMQService;
 
     public const string TRANSACTIONS_NOCODB_FIELDS = "*";
 
-    public TransactionsNocoDBService(NocoDBClientService nocoDBClientService, IMapper mapper)
+    public TransactionsNocoDBService(
+        NocoDBClientService nocoDBClientService,
+        RabbitMQService rabbitMQService,
+        IMapper mapper)
     {
         this.nocoDBClientService = nocoDBClientService;
         this.mapper = mapper;
+        this.rabbitMQService = rabbitMQService;
     }
 
     public async Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> _, TransactionFiltersInput? filters = null!)
@@ -121,6 +127,17 @@ public class TransactionsNocoDBService : ITransactionsService
             "transactions",
             updateDTO,
             payloadSerializeOptions);
+
+        if (transactionUpdateResult.ParseStatus == "NotStarted")
+        {
+            await rabbitMQService.PublishMessageAsync(
+                            "payobills.transaction-parsing",
+                            JsonSerializer.Serialize(new
+                            {
+                                TransactionId = transactionUpdateResult.Id,
+                            })
+                        );
+        }
 
         var mappedTransactionDTO = new TransactionDTO(transactionUpdateResult);
         return mappedTransactionDTO;
