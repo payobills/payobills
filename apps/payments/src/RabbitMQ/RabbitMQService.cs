@@ -6,14 +6,16 @@ using Microsoft.Extensions.Options;
 using Payobills.Payments.Services.Contracts;
 using System.Text.Json.Serialization;
 using RabbitMQ.Client;
+using System.Threading;
 
 namespace Payobills.Payments.RabbitMQ;
 
 public class RabbitMQService
 {
   private readonly RabbitMQOptions rabbitMQOptions;
-  private  IChannel channel;
-  private  IConnection connection;
+  private IChannel channel;
+  private IConnection connection;
+  private readonly Semaphore channelLock = new Semaphore(1, 1);
 
   public RabbitMQService(
     IOptions<RabbitMQOptions> rabbitMQOptions
@@ -24,18 +26,27 @@ public class RabbitMQService
 
   private async Task createRabbitMQChannelAsync()
   {
-    if (channel is not null && connection is not null)
+    channelLock.WaitOne();
+    try
     {
-      return; // Channel already created
+    if (string.IsNullOrWhiteSpace(rabbitMQOptions.ConnectionString))
+      throw new InvalidOperationException("RabbitMQ connection string is not configured.");
+
+      if ((connection?.IsOpen ?? false) && (channel?.IsOpen ?? false))
+      { return; }
+
+      var factory = new ConnectionFactory()
+      {
+        Uri = new Uri(rabbitMQOptions.ConnectionString)
+      };
+
+      this.connection = await factory.CreateConnectionAsync().ConfigureAwait(false);
+      this.channel = await connection.CreateChannelAsync().ConfigureAwait(false);
     }
-
-    var factory = new ConnectionFactory()
+    finally
     {
-      Uri = new Uri(rabbitMQOptions.ConnectionString)
-    };
-    this.connection = await factory.CreateConnectionAsync();
-    this.channel = await connection.CreateChannelAsync();
-
+      channelLock.Release();
+    }
   }
 
   public async Task PublishMessageAsync(string queueName, string marshalledMessageString)
