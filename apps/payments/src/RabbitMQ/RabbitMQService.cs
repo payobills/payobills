@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Payobills.Payments.RabbitMQ;
 
-public class RabbitMQService
+public class RabbitMQService : IAsyncDisposable
 {
   private readonly RabbitMQOptions rabbitMQOptions;
   private IChannel channel;
@@ -29,8 +29,8 @@ public class RabbitMQService
     channelLock.WaitOne();
     try
     {
-    if (string.IsNullOrWhiteSpace(rabbitMQOptions.ConnectionString))
-      throw new InvalidOperationException("RabbitMQ connection string is not configured.");
+      if (string.IsNullOrWhiteSpace(rabbitMQOptions.ConnectionString))
+        throw new InvalidOperationException("RabbitMQ connection string is not configured.");
 
       if ((connection?.IsOpen ?? false) && (channel?.IsOpen ?? false))
       { return; }
@@ -63,10 +63,41 @@ public class RabbitMQService
 
     await this.createRabbitMQChannelAsync();
 
-    this.channel.BasicPublishAsync(
+    await this.channel.BasicPublishAsync(
           string.Empty,
           routingKey: queueName,
           body: Encoding.UTF8.GetBytes(marshalledMessageString)
         );
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    try
+    {
+      if (channel is not null)
+        await channel.CloseAsync().ConfigureAwait(false);
+    }
+    catch { /* swallow on shutdown */ }
+    finally
+    {
+      channel?.Dispose();
+    }
+
+    try
+    {
+      if (connection is not null)
+        await connection.CloseAsync().ConfigureAwait(false);
+    }
+    catch { }
+    finally
+    {
+      connection?.Dispose();
+    }
+
+    try
+    {
+      GC.SuppressFinalize(this);
+    }
+    catch { }
   }
 }
