@@ -12,6 +12,7 @@
   import type { Transaction } from "$lib/types/transaction";
   import FileUploader from "../../../lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
+  import IdeaCard from "$lib/idea-card.svelte";
 
   let transactionID: string | null = null;
   let pageMode: "VIEW" | "EDIT" = "VIEW";
@@ -21,6 +22,7 @@
   let transactionsQuery: OperationResultStore;
   let transactionForm: Writable<FormStore<Transaction>> =
     formStoreGenerator("transactionById");
+  let transactionReparseTriggered = false;
 
   const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
     return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
@@ -101,18 +103,12 @@
   };
 
   const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
-    // console.log("removing file:", file);
     transactionForm.update((form) => ({
       data: {
         amount: form.data.amount,
         merchant: form.data.merchant,
         notes: form.data.notes,
         receipts: form.data.receipts,
-        // form.data.receipts.map((receipt: any) => ({
-        //   fileName: receipt.id,
-        //   mimeType: receipt.mimeType,
-        //   downloadPath: receipt.downloadPath,
-        // })),
         updatedReceipts: (form.data.updatedReceipts || []).filter(
           (r) => r !== file
         ),
@@ -121,33 +117,34 @@
     }));
   };
 
-  // const onTransactionReceiptAdded = async ({ transaction, files }: any) => {
-  //   if (files?.length === 0) {
-  //     return;
-  //   }
-
-  //   const formdata = new FormData();
-  //   formdata.append(
-  //     "tags",
-  //     JSON.stringify({
-  //       CorrelationID: transaction.id,
-  //       Type: "TRANSACTION_RECEIPT",
-  //       TransactionID: transactionID,
-  //       Note: "",
-  //     })
-  //   );
-
-  //   formdata.append("file", files[0], files[0].name);
-
-  //   const response = await fetch("/files", {
-  //     method: "POST",
-  //     body: formdata,
-  //   });
-
-  //   if (!response.ok) {
-  //     throw new Error(`File upload failed: ${response.statusText}`);
-  //   }
-  // };
+  const triggerReparse = async () => {
+    try {
+      transactionReparseTriggered = true;
+      await $paymentsUrql
+        .mutation(
+          gql`
+            mutation TransactionUpdate(
+              $id: String!
+              $updateDTO: TransactionUpdateDTOInput!
+            ) {
+              transactionUpdate(id: $id, updateDTO: $updateDTO) {
+                id
+                parseStatus
+              }
+            }
+          `,
+          {
+            id: transactionID,
+            updateDTO: {
+              parseStatus: "NotStarted",
+            },
+          }
+        )
+        .toPromise();
+    } catch {
+      // TODO: Use common drawer to show transaction update error
+    }
+  };
 
   const updateTransaction = async () => {
     editCta = "Saving...";
@@ -266,196 +263,203 @@
   };
 </script>
 
-<div class='container'>
-{#if ($transactionsQuery === undefined || $transactionsQuery.fetching) && !transaction}
-  <p>Loading...</p>
-{:else if $transactionsQuery.error}
-  <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
-{:else if transaction}
-  <div class="transaction">
-    {#if pageMode === "VIEW"}
-      <section class="title">
-        <div class="amount">
-          {#if transaction.amount !== null}
-            <span class="value"
-              >{new Intl.NumberFormat(undefined, {
-                style: "currency",
-                currency: "INR",
-              }).format(transaction.amount)}</span
-            >
-          {:else}
-            <span class="value">Unknown Amount</span>
+<div class="container">
+  {#if ($transactionsQuery === undefined || $transactionsQuery.fetching) && !transaction}
+    <p>Loading...</p>
+  {:else if $transactionsQuery.error}
+    <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
+  {:else if transaction}
+    <div class="transaction">
+      {#if pageMode === "VIEW"}
+        <section class="title">
+          <div class="amount">
+            {#if transaction.amount !== null}
+              <span class="value"
+                >{new Intl.NumberFormat(undefined, {
+                  style: "currency",
+                  currency: "INR",
+                }).format(transaction.amount)}</span
+              >
+            {:else}
+              <span class="value">Unknown Amount</span>
+            {/if}
+
+            <IconButton
+              icon={faEdit}
+              backgroundColor="var(--primary-bg-color)"
+              color="black"
+              scale={1.5}
+              on:click={() => {
+                pageMode = "EDIT";
+
+                transactionForm.set({
+                  data: {
+                    amount: $transactionsQuery.data.transactionByID.amount,
+                    merchant: $transactionsQuery.data.transactionByID.merchant,
+                    notes: $transactionsQuery.data.transactionByID.notes,
+                    receipts:
+                      $transactionsQuery.data.transactionByID.receipts.map(
+                        (receipt: any) => ({
+                          fileName: receipt.id,
+                          mimeType: receipt.mimeType,
+                          downloadPath: receipt.downloadPath,
+                        })
+                      ),
+                    updatedReceipts:
+                      $transactionsQuery.data.transactionByID.receipts.map(
+                        (receipt: any) => ({
+                          fileName: receipt.id,
+                          mimeType: receipt.mimeType,
+                          downloadPath: receipt.downloadPath,
+                        })
+                      ),
+                  },
+                  isDirty: false,
+                });
+              }}
+            />
+          </div>
+          <div class="transaction-detail">
+            {formatRelativeDate(new Date(transaction.paidAt))} • {new Intl.DateTimeFormat(
+              "en-GB",
+              {
+                year: "2-digit",
+                month: "long",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              }
+            ).format(new Date(transaction.paidAt))}
+          </div>
+        </section>
+        <section class="content">
+          <h1>Recipient</h1>
+          <h2>{transaction.merchant ?? "Unknown"}</h2>
+
+          <h1 class="subheader parse-status">Parsing Status</h1>
+          <div class="parse-status">
+            <h2>
+              {transaction.parseStatus}
+            </h2>
+            <button on:click={triggerReparse}>Reparse</button>
+          </div>
+          {#if transaction.parseStatus !== "NotStarted"}
+            <IdeaCard
+              idea="NEW: Use the reparse option to trigger a new extraction of the transaction details."
+            />
           {/if}
 
-          <IconButton
-            icon={faEdit}
-            backgroundColor="var(--primary-bg-color)"
-            color="black"
-            scale={1.5}
-            on:click={() => {
-              pageMode = "EDIT";
+          <h1 class="subheader">Associated Billing Account</h1>
+          <h2>
+            {transaction.bill.name}
+          </h2>
 
-              transactionForm.set({
-                data: {
-                  amount: $transactionsQuery.data.transactionByID.amount,
-                  merchant: $transactionsQuery.data.transactionByID.merchant,
-                  notes: $transactionsQuery.data.transactionByID.notes,
-                  receipts:
-                    $transactionsQuery.data.transactionByID.receipts.map(
-                      (receipt: any) => ({
-                        fileName: receipt.id,
-                        mimeType: receipt.mimeType,
-                        downloadPath: receipt.downloadPath,
-                      })
-                    ),
-                  updatedReceipts:
-                    $transactionsQuery.data.transactionByID.receipts.map(
-                      (receipt: any) => ({
-                        fileName: receipt.id,
-                        mimeType: receipt.mimeType,
-                        downloadPath: receipt.downloadPath,
-                      })
-                    ),
-                },
-                isDirty: false,
-              });
-            }}
+          {#if transaction.transactionText !== ""}
+            <h1 class="subheader">Original Transaction Detail</h1>
+            <div class="transaction-detail">
+              <p>{transaction.transactionText}</p>
+            </div>
+          {/if}
+
+          {#if transaction.receipts}
+            <h1 class="subheader">Receipts</h1>
+            <div class="receipts">
+              {#if transaction.receipts.length === 0}
+                <p>
+                  This transaction doesn't have any receipts. Edit transaction
+                  to add receipts.
+                </p>
+              {:else}
+                <div class="transaction-file-input">
+                  <FileUploader
+                    editable={false}
+                    fileUrlTransformer={addFilesBaseUrlPrefix}
+                    files={transaction.receipts.map((receipt: any) => ({
+                      fileName: receipt.fileName,
+                      mimeType: receipt.mimeType,
+                      downloadPath: receipt.downloadPath,
+                    }))}
+                  />
+                </div>
+              {/if}
+            </div>
+          {/if}
+
+          <h1 class="subheader">Tags</h1>
+          <!-- <div class="tags_description">
+          This transaction doesn't have any tags.
+        </div> -->
+          {#if transaction.tags?.length === 0}{:else}
+            <div class="tags">
+              {#each transaction.tags as tag}
+                <div class="tag">{tag}</div>
+              {/each}
+            </div>
+          {/if}
+
+          <h1 class="subheader">Notes</h1>
+          <p class="note note__view">
+            {transaction.notes || "This transaction doesn't have a note."}
+          </p>
+        </section>
+        <!-- REGION: EDIT -->
+      {:else}
+        <section class="title title__edit">
+          <input
+            class="amount amount__edit"
+            placeholder="Unknown Amount"
+            bind:value={$transactionForm.data.amount}
           />
-        </div>
-        <div class="transaction-detail">
-          {formatRelativeDate(new Date(transaction.paidAt))} • {new Intl.DateTimeFormat(
-            "en-GB",
-            {
-              year: "2-digit",
-              month: "long",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            }
-          ).format(new Date(transaction.paidAt))}
-        </div>
-      </section>
-      <section class="content">
-        <h1>Recipient</h1>
-        <h2>{transaction.merchant ?? "Unknown"}</h2>
+          <div class="transaction-detail">
+            {formatRelativeDate(new Date(transaction.paidAt))} • {new Intl.DateTimeFormat(
+              "en-GB",
+              {
+                year: "2-digit",
+                month: "long",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              }
+            ).format(new Date(transaction.paidAt))}
+          </div>
+        </section>
+        <section class="content">
+          <h1>Recipient</h1>
+          <input
+            class="merchant merchant__edit"
+            bind:value={$transactionForm.data.merchant}
+          />
 
-        <h1 class="subheader">Parsing Status</h1>
-        <h2>
-          {transaction.parseStatus}
-        </h2>
+          <h1 class="subheader">Parsing Status</h1>
+          <h2>
+            {transaction.parseStatus}
+          </h2>
 
-        <h1 class="subheader">Associated Billing Account</h1>
-        <h2>
-          {transaction.bill.name}
-        </h2>
+          <h1 class="subheader">Associated Billing Account</h1>
+          <h2>
+            {transaction.bill.name}
+          </h2>
 
-        {#if transaction.transactionText !== ""}
           <h1 class="subheader">Original Transaction Detail</h1>
           <div class="transaction-detail">
             <p>{transaction.transactionText}</p>
           </div>
-        {/if}
 
-        {#if transaction.receipts}
-          <h1 class="subheader">Receipts</h1>
-          <div class="receipts">
-            {#if transaction.receipts.length === 0}
-              <p>
-                This transaction doesn't have any receipts. Edit transaction to
-                add receipts.
-              </p>
-            {:else}
-              <div class="transaction-file-input">
-                <FileUploader
-                  editable={false}
-                  fileUrlTransformer={addFilesBaseUrlPrefix}
-                  files={transaction.receipts.map((receipt: any) => ({
-                    fileName: receipt.fileName,
-                    mimeType: receipt.mimeType,
-                    downloadPath: receipt.downloadPath,
-                  }))}
-                />
-              </div>
-            {/if}
+          <h1 class="subheader">Transaction receipt</h1>
+          <div class="transaction-file-input">
+            <FileUploader
+              editable={true}
+              files={$transactionForm.data.updatedReceipts}
+              onFileAdded={onTransactionReceiptAdded}
+              onFileRemoved={onTransactionReceiptRemoved}
+              fileUrlTransformer={addFilesBaseUrlPrefix}
+            />
           </div>
-        {/if}
 
-        <h1 class="subheader">Tags</h1>
-        <!-- <div class="tags_description">
-          This transaction doesn't have any tags.
-        </div> -->
-        {#if transaction.tags?.length === 0}
-        {:else}
-          <div class="tags">
-            {#each transaction.tags as tag}
-              <div class="tag">{tag}</div>
-            {/each}
-          </div>
-        {/if}
-
-        <h1 class="subheader">Notes</h1>
-        <p class="note note__view">
-          {transaction.notes || "This transaction doesn't have a note."}
-        </p>
-      </section>
-      <!-- REGION: EDIT -->
-    {:else}
-      <section class="title title__edit">
-        <input
-          class="amount amount__edit"
-          placeholder="Unknown Amount"
-          bind:value={$transactionForm.data.amount}
-        />
-        <div class="transaction-detail">
-          {formatRelativeDate(new Date(transaction.paidAt))} • {new Intl.DateTimeFormat(
-            "en-GB",
-            {
-              year: "2-digit",
-              month: "long",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            }
-          ).format(new Date(transaction.paidAt))}
-        </div>
-      </section>
-      <section class="content">
-        <h1>Recipient</h1>
-        <input
-          class="merchant merchant__edit"
-          bind:value={$transactionForm.data.merchant}
-        />
-
-        <h1 class="subheader">Parsing Status</h1>
-        <h2>
-          {transaction.parseStatus}
-        </h2>
-
-        <h1 class="subheader">Associated Billing Account</h1>
-        <h2>
-          {transaction.bill.name}
-        </h2>
-
-        <h1 class="subheader">Original Transaction Detail</h1>
-        <div class="transaction-detail">
-          <p>{transaction.transactionText}</p>
-        </div>
-
-        <h1 class="subheader">Transaction receipt</h1>
-        <div class="transaction-file-input">
-          <FileUploader
-            editable={true}
-            files={$transactionForm.data.updatedReceipts}
-            onFileAdded={onTransactionReceiptAdded}
-            onFileRemoved={onTransactionReceiptRemoved}
-            fileUrlTransformer={addFilesBaseUrlPrefix}
-          />
-        </div>
-
-        <!-- TODO: Add the ability to edit tags -->
-        <!-- <h1 class="subheader">Tags</h1>
+          <!-- TODO: Add the ability to edit tags -->
+          <!-- <h1 class="subheader">Tags</h1>
         {#if transaction.tags?.length === 0}
           <div class="tags_description">
             This transaction doesn't have any tags.
@@ -468,26 +472,26 @@
           </div>
         {/if} -->
 
-        <h1 class="subheader">Notes</h1>
-        <textarea
-          class="note note__edit"
-          bind:value={$transactionForm.data.notes}
-          placeholder="This transaction doesn't have a note. Click here to add one."
-        ></textarea>
-        <button
-          class="submit"
-          bind:this={saveCtaButton}
-          on:click={() => updateTransaction()}>{editCta}</button
-        >
-        <button
-          class="submit cta--cancel"
-          bind:this={cancelCtaButton}
-          on:click={() => (pageMode = "VIEW")}>cancel</button
-        >
-      </section>
-    {/if}
-  </div>
-{/if}
+          <h1 class="subheader">Notes</h1>
+          <textarea
+            class="note note__edit"
+            bind:value={$transactionForm.data.notes}
+            placeholder="This transaction doesn't have a note. Click here to add one."
+          ></textarea>
+          <button
+            class="submit"
+            bind:this={saveCtaButton}
+            on:click={() => updateTransaction()}>{editCta}</button
+          >
+          <button
+            class="submit cta--cancel"
+            bind:this={cancelCtaButton}
+            on:click={() => (pageMode = "VIEW")}>cancel</button
+          >
+        </section>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -496,6 +500,17 @@
   }
   .cta--cancel {
     background-color: var(--secondary-bg-color);
+  }
+
+  .subheader {
+    margin-top: 0.75rem;
+  }
+
+  .parse-status {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
   }
 
   input {
@@ -606,7 +621,6 @@
     margin: 0 1rem;
     padding: 0;
   }
-
 
   div.container {
     padding: 1rem;
