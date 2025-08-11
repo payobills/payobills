@@ -43,7 +43,6 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             Id = parent.Id;
             Merchant = parent.Merchant;
             Currency = parent.Currency;
-
             BackDateString = parent.BackDateString;
             TransactionText = parent.TransactionText;
             BackDate = parent.BackDate;
