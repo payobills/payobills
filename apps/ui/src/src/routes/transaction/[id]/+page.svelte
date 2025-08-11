@@ -342,13 +342,16 @@
             <h2>
               {transaction.parseStatus}
             </h2>
-            <button on:click={triggerReparse}>Reparse</button>
+            {#if transaction.parseStatus !== "NotStarted"}
+              <button on:click={triggerReparse}>Reparse</button>
+            {/if}
           </div>
-          {#if transaction.parseStatus !== "NotStarted"}
-            <IdeaCard
-              idea="NEW: Use the reparse option to trigger a new extraction of the transaction details."
-            />
-          {/if}
+
+          <IdeaCard
+            idea={transaction.parseStatus !== "NotStarted"
+              ? "NEW! Use the reparse option to trigger a new extraction of the transaction details using GenAI."
+              : "Details for this transaction will be available soon."}
+          />
 
           <h1 class="subheader">Associated Billing Account</h1>
           <h2>
