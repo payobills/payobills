@@ -43,7 +43,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             Id = parent.Id;
             Merchant = parent.Merchant;
             Currency = parent.Currency;
-            Amount = parent.Amount;
+
             BackDateString = parent.BackDateString;
             TransactionText = parent.TransactionText;
             BackDate = parent.BackDate;
@@ -55,6 +55,29 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             ParseStatus = parent.ParseStatus;
             Bill = parent.Bill;
             Receipts = parent.Receipts.Select(p => new File { Id = p.Id.ToString() });
+
+            // [
+            //   {
+            //     "GenAIParsedData": {
+            //       "Amount": "254.99",
+            //       "Merchant": "THIRD WAVE C",
+            //       "BackDateString": "2025-08-11T21:17:00.000Z",
+            //       "Tags": "Transaction,Credit",
+            //       "ConfidenceLevel": "0.95"
+            //     },
+            //     "ParseStatus": "Parsed"
+            //   }
+            // ]
+
+            parent.GenAIParsedData.TryGetValue("Amount", out object? amountObj);
+            parent.Amount = amountObj is not null ? (double)amountObj : parent.Amount;
+
+            parent.GenAIParsedData.TryGetValue("Merchant", out object? merchantObj);
+            parent.Merchant = merchantObj?.ToString() ?? parent.Merchant;
+
+            parent.GenAIParsedData.TryGetValue("BackDateString", out object? backDateStringObj);
+            var paidAtString = backDateStringObj?.ToString();
+            parent.PaidAt = paidAtString is not null ? DateTime.Parse(paidAtString) : parent.PaidAt;
         }
     }
 }

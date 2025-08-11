@@ -22,6 +22,8 @@ public class Transaction
 
     public DateTime PaidAt { get; set; } = DateTime.UtcNow;
 
+    public Dictionary<string, object> GenAIParsedData = [];
+
     [JsonPropertyName(nameof(updatedAt))]
     public string UpdatedAtString
     {
