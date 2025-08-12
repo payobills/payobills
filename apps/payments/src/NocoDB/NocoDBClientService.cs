@@ -1,4 +1,3 @@
-using System.IO;
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
@@ -25,6 +24,8 @@ public class NocoDBClientService
   private readonly HttpClient httpClient;
   private readonly NocoDBOptions nocoDBOptions;
 
+  private readonly JsonSerializerOptions jsonSerializerOptions;
+
   public NocoDBClientService(
     IOptions<NocoDBOptions> nocoDBOptions,
     HttpClient httpClient
@@ -32,6 +33,10 @@ public class NocoDBClientService
   {
     this.httpClient = httpClient;
     this.nocoDBOptions = nocoDBOptions.Value;
+
+    jsonSerializerOptions = new JsonSerializerOptions();
+    jsonSerializerOptions.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+    // jsonSerializerOptions.Converters.Add(new JsonNodeParse());
   }
 
   public async Task<NocoDBPage<T>?> GetRecordsPageAsync<T>(string baseName, string table, string fields, string extraArgs = "")
@@ -51,9 +56,7 @@ public class NocoDBClientService
 
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
-    JsonSerializerOptions options = new JsonSerializerOptions();
-    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-    var recordsPage = await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream, options);
+    var recordsPage = await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream, jsonSerializerOptions);
 
     return recordsPage;
   }
@@ -68,7 +71,6 @@ public class NocoDBClientService
     );
 
     request.Headers.Add("xc-token", nocoDBOptions.XCToken);
-
     var response = await httpClient.SendAsync(request);
 
     if (response.StatusCode == HttpStatusCode.NotFound)
@@ -78,9 +80,7 @@ public class NocoDBClientService
     }
 
     var responseStream = await response.Content.ReadAsStreamAsync();
-    JsonSerializerOptions options = new JsonSerializerOptions();
-    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-    var recordsPage = await JsonSerializer.DeserializeAsync<T>(responseStream, options);
+    var recordsPage = await JsonSerializer.DeserializeAsync<T>(responseStream, jsonSerializerOptions);
 
     return recordsPage;
   }
@@ -129,10 +129,7 @@ public class NocoDBClientService
 
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
-
-    JsonSerializerOptions options = new();
-    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-    var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
+    var createdRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, this.jsonSerializerOptions);
 
     return createdRecord!;
   }
@@ -159,9 +156,7 @@ public class NocoDBClientService
     var response = await httpClient.SendAsync(request);
     var responseStream = await response.Content.ReadAsStreamAsync();
 
-    JsonSerializerOptions options = jsonSerializerOptions ?? new();
-    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-    var updatedRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
+    var updatedRecord = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, this.jsonSerializerOptions);
 
     return updatedRecord!;
   }
@@ -185,14 +180,14 @@ public class NocoDBClientService
     // return metaResourceData!;
 
     var responseStream = await response.Content.ReadAsStreamAsync();
-    JsonSerializerOptions options = new JsonSerializerOptions();
-    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-    var metaResourceData = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, options);
+
+    var metaResourceData = await JsonSerializer.DeserializeAsync<TOutput>(responseStream, jsonSerializerOptions);
     return metaResourceData!;
   }
 
   public async Task<T?> ParseJsonToNocoDBRecordAsync<T>(string jsonString)
   {
+    // Console.WriteLine(jsonString);
     if (string.IsNullOrEmpty(jsonString))
     {
       return default;
@@ -201,14 +196,11 @@ public class NocoDBClientService
     using var jsonStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(jsonString));
     jsonStream.Seek(0, SeekOrigin.Begin);
 
-    JsonSerializerOptions options = new JsonSerializerOptions();
-    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-
-    var record = await JsonSerializer.DeserializeAsync<T>(jsonStream, options);
+    var record = await JsonSerializer.DeserializeAsync<T>(jsonStream, jsonSerializerOptions);
     return record;
   }
 
-  public async  Task<NocoDBPage<T>> GetManyToManyLinkRecordsAsync<T>(
+  public async Task<NocoDBPage<T>> GetManyToManyLinkRecordsAsync<T>(
    string baseName,
    string table,
    string recordId,
@@ -225,9 +217,8 @@ public class NocoDBClientService
     var response = await httpClient.SendAsync(request);
 
     var responseStream = await response.Content.ReadAsStreamAsync();
-    JsonSerializerOptions options = new JsonSerializerOptions();
-    options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
-    var recordsPage = await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream, options);
+
+    var recordsPage = await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream, jsonSerializerOptions);
 
     return recordsPage;
   }

@@ -1,9 +1,19 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Payobills.Payments.Data.Contracts.Models;
 
 public class Transaction
 {
+    public Transaction()
+    {
+        if (GenAIParsedDataObj is JsonElement element)
+        {
+            GenAIParsedData  = JsonNode.Parse(element.GetRawText());
+        }
+    }
+
     public long Id { get; set; }
     public string? Merchant { get; set; }
     public string? Currency { get; set; }
@@ -21,6 +31,12 @@ public class Transaction
     private DateTime updatedAt;
 
     public DateTime PaidAt { get; set; } = DateTime.UtcNow;
+
+
+    [JsonPropertyName(nameof(GenAIParsedData))]
+    public object? GenAIParsedDataObj;
+
+    public JsonNode? GenAIParsedData { get; set; }
 
     [JsonPropertyName(nameof(updatedAt))]
     public string UpdatedAtString

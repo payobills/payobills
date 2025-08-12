@@ -1,7 +1,7 @@
 using HotChocolate.ApolloFederation.Types;
 using Payobills.Payments.Data.Contracts.Models;
 using System.Text.Json.Serialization;
-using HotChocolate;
+using System.Text.Json.Nodes;
 
 namespace Payobills.Payments.Services.Contracts.DTOs
 {
@@ -43,7 +43,6 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             Id = parent.Id;
             Merchant = parent.Merchant;
             Currency = parent.Currency;
-            Amount = parent.Amount;
             BackDateString = parent.BackDateString;
             TransactionText = parent.TransactionText;
             BackDate = parent.BackDate;
@@ -55,6 +54,18 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             ParseStatus = parent.ParseStatus;
             Bill = parent.Bill;
             Receipts = parent.Receipts.Select(p => new File { Id = p.Id.ToString() });
+
+            var json = parent.GenAIParsedData as JsonObject;
+
+            JsonNode? amountNode = null;
+            json?.TryGetPropertyValue(nameof(Amount), out amountNode);
+            var amount = amountNode?.GetValue<double>();
+            Amount = amount is not null ? amount : parent.Amount;
+
+            JsonNode? merchantNode = null;   
+            json?.TryGetPropertyValue(nameof(Merchant), out merchantNode);
+            string? merchantName = merchantNode?.GetValue<string>();
+            Merchant = merchantName ?? parent.Merchant;
         }
     }
 }
