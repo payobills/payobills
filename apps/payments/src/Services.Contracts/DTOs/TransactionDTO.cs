@@ -1,7 +1,7 @@
 using HotChocolate.ApolloFederation.Types;
 using Payobills.Payments.Data.Contracts.Models;
 using System.Text.Json.Serialization;
-using HotChocolate;
+using System.Text.Json.Nodes;
 
 namespace Payobills.Payments.Services.Contracts.DTOs
 {
@@ -55,28 +55,17 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             Bill = parent.Bill;
             Receipts = parent.Receipts.Select(p => new File { Id = p.Id.ToString() });
 
-            // [
-            //   {
-            //     "GenAIParsedData": {
-            //       "Amount": "254.99",
-            //       "Merchant": "THIRD WAVE C",
-            //       "BackDateString": "2025-08-11T21:17:00.000Z",
-            //       "Tags": "Transaction,Credit",
-            //       "ConfidenceLevel": "0.95"
-            //     },
-            //     "ParseStatus": "Parsed"
-            //   }
-            // ]
+            var json = parent.GenAIParsedData as JsonObject;
 
-            parent.GenAIParsedData.TryGetValue("Amount", out object? amountObj);
-            parent.Amount = amountObj is not null ? (double)amountObj : parent.Amount;
+            JsonNode? amountNode = null;
+            json?.TryGetPropertyValue(nameof(Amount), out amountNode);
+            var amount = amountNode?.GetValue<double>();
+            Amount = amount is not null ? amount : parent.Amount;
 
-            parent.GenAIParsedData.TryGetValue("Merchant", out object? merchantObj);
-            parent.Merchant = merchantObj?.ToString() ?? parent.Merchant;
-
-            parent.GenAIParsedData.TryGetValue("BackDateString", out object? backDateStringObj);
-            var paidAtString = backDateStringObj?.ToString();
-            parent.PaidAt = paidAtString is not null ? DateTime.Parse(paidAtString) : parent.PaidAt;
+            JsonNode? merchantNode = null;   
+            json?.TryGetPropertyValue(nameof(Merchant), out merchantNode);
+            string? merchantName = merchantNode?.GetValue<string>();
+            Merchant = merchantName ?? parent.Merchant;
         }
     }
 }
