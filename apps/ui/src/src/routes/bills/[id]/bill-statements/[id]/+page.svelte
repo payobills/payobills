@@ -12,6 +12,7 @@
   import FileUploader from "$lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
   import RecentTransactions from "$lib/recent-transactions.svelte";
+  import { currencyFormatter } from "../../../../../utils/currency-formatter.util";
 
   let billId: any;
   let billStatementId: any;
@@ -35,6 +36,7 @@
             amount
             paidAt
           }
+          amount
           startDate
           endDate
           notes
@@ -121,6 +123,10 @@
           ? "Unknown billing period"
           : `${currentBillStatement.startDate} to ${currentBillStatement.endDate}`}
       </h1>
+
+      {#if currentBillStatement.amount}
+        <h2>Bill amount: {currencyFormatter(currentBillStatement.amount)}</h2>
+      {/if}
 
       {#if currentBillStatement.statement}
         <p>This bill statement has an associated statement file</p>

@@ -291,5 +291,6 @@
 
   .disclaimer {
     font-size: 0.75rem;
+    margin-top: 0
   }
 </style>

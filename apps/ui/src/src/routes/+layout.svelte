@@ -201,7 +201,14 @@
 
   :global(h1) {
     margin: 0.5rem 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  :global(h2){
+    font-size: 1rem;
+    font-weight: 600;
   }
 
   main {
@@ -211,11 +218,5 @@
     overflow-y: scroll;
     height: calc(100% - 4rem);
     background-color: var(--primary-bg-color);
-  }
-
-  :global(h1) {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--primary-color);
   }
 </style>

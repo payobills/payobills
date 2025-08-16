@@ -3,7 +3,7 @@
   export let statements: any[];
 </script>
 
-<h2>bill statements</h2>
+<h2>Bill Statements</h2>
 {#if statements?.length === 0}
   <p>No statements found this bill</p>
 {:else}
