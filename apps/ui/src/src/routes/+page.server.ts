@@ -1,3 +1,8 @@
+
+if (process.env.BUILD__MODE === 'STATIC') {
+	export const prerender = true
+	return 
+}
 import { env } from '$env/dynamic/private';
 
 /** @type {import('./$types').PageLoad} */
