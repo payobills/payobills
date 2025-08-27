@@ -9,7 +9,7 @@ const config = {
 	preprocess: preprocess(),
 
 	kit: {
-		adapter: process.env.BUILD__MODE === 'STATIC' ? adapterStatic() : adapterNode()
+		adapter: process.env.BUILD__MODE === 'STATIC' ? adapterStatic() : adapterNode(),
 	}
 };
 

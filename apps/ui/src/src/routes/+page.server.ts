@@ -1,12 +1,9 @@
+export const prerender = import.meta.env.PUBLIC_APP_MODE === 'APP'
 
-if (process.env.BUILD__MODE === 'STATIC') {
-	export const prerender = true
-	return 
-}
 import { env } from '$env/dynamic/private';
 
 /** @type {import('./$types').PageLoad} */
-export function load() {
+export const load = import.meta.env.PUBLIC_APP_MODE !== 'APP' ? (() => {
 
 	var loginUrl = env.OIDC_TENANT_LOGIN_URL_TEMPLATE
 		.replace('${OWN_URL}', env.OWN_URL)
@@ -16,7 +13,11 @@ export function load() {
 	return {
 		urls: {
 			oidcUrl: env.OIDC_TENANT_URL,
-			loginUrl
+			loginUrl,
 		}
 	};
-}
+}) : () => {
+	return {
+		rootRoute: import.meta.env.PUBLIC_APP_MODE === 'APP' ? '/app' : '/timeline'
+	}
+};
