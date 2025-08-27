@@ -17,8 +17,7 @@
     // loadAuthFromLocalStorage();
     // const authState = get(auth);
     // if (authState !== null)
-    const rootRoute = data.rootRoute
-    await goto(rootRoute);
+    await goto("/timeline");
   });
 </script>
 
