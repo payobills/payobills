@@ -6,16 +6,13 @@ A self-hosted (Bring and Keep your own Data) personal bill management app. The f
 You can find the [Figma Designs](https://www.figma.com/design/RuZ5khlNpA4IgKPb1iebzc/payobills-main) for this app. Feel free to connect with me if you're a designer and want to contribute!
 Note: I'm not a designer, these designs have been generated with GenAI.
 
-| Timeline view of bills | Details for a bill |
-| --- | --- |
-
 | <img src="docs/images/Overview Page.png" alt="Screenshot of the Overview Page" > | <img src="docs/images/Bills Page.png" alt="Screenshot of all your bills" > | 
 | --- | --- |
 
 | <img src="docs/images/Bill Detail Page.png" alt="Screenshot of details for one bill" > | <img src="docs/images/Transaction Detail Page.png" alt="Screenshot of details of a transaction" > | 
 | --- | --- |
 
-| <img src="docs/images/Settings Page.png" alt="Screenshot of the settings page" > | 
+| <img src="docs/images/Settings Page.png" alt="Screenshot of the settings page" > |
 
 ## Why create such an app?
 - Help me with all my bill related needs; save time and pay bills together.
