@@ -61,26 +61,9 @@ genrule(
     echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
     echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
     echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
-    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg NODE_VERSION="${NODE_VERSION}" -t ghcr.io/payobills/apps/ui:${IMAGE_TAG_VERSION} -f common/docker/svelte-static-full.prod.dockerfile ${EXTRA_ARGS} apps/ui' >> $OUT
+    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg NODE_VERSION="${NODE_VERSION}" -t ghcr.io/payobills/apps/ui:${IMAGE_TAG_VERSION} -f common/docker/node-svc--svelte.prod.dockerfile ${EXTRA_ARGS} apps/ui' >> $OUT
   '''.format(svc=svc),
   out="docker-buildx.sh"
-)
-
-genrule(
-  name="docker_buildx__app",
-  binary = True,
-  pass_env=["VERSION", "DOTNET_VERSION", "DOTNET_RUNTIME_VERSION"],
-  cmd='''
-    echo '#!/bin/sh' > $OUT
-    echo 'IMAGE_TAG_VERSION="${VERSION:-latest}"' >> $OUT
-    echo 'PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"' >> $OUT
-    echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
-    echo 'docker buildx build --platform "${PLATFORMS}" --build-arg NODE_VERSION="${NODE_VERSION}" -t ghcr.io/payobills/apps/ui-app:${IMAGE_TAG_VERSION} -f common/docker/svelte-static.prod.dockerfile ${EXTRA_ARGS} apps/ui' >> $OUT
-    echo 'DOCKER_CONTAINER_ID=$(docker run -d --entrypoint tail ghcr.io/payobills/apps/ui-app:${IMAGE_TAG_VERSION} -f /dev/null)' >> $OUT
-    echo 'rm -rf plz-out/gen/apps/{svc}/app' >> $OUT
-    echo 'docker cp ${DOCKER_CONTAINER_ID}:/app/build plz-out/gen/apps/{svc}/app' >> $OUT
-  '''.format(svc=svc),
-  out="docker-buildx--app.sh"
 )
 
 sh_cmd(

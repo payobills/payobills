@@ -1,5 +1,4 @@
-import adapterNode from '@sveltejs/adapter-node';
-import adapterStatic from '@sveltejs/adapter-static';
+import adapter from '@sveltejs/adapter-node';
 import preprocess from 'svelte-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -9,7 +8,7 @@ const config = {
 	preprocess: preprocess(),
 
 	kit: {
-		adapter: process.env.BUILD__MODE === 'STATIC' ? adapterStatic() : adapterNode(),
+		adapter: adapter()
 	}
 };
 

@@ -16,7 +16,7 @@
   let showUploadStatementSection = false;
   let uploadStatementResult = undefined;
 
-  
+  billId = $page.url.searchParams.get("id");
   $: billByIdQuery = queryStore({
     client: $billsUrql,
     query: gql`
@@ -91,8 +91,6 @@
     }
 
     await load();
-
-    billId = $page.url.searchParams.get("id");
   });
 
 interface FileUploadResult {
