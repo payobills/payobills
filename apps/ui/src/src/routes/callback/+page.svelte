@@ -6,7 +6,7 @@
     import { auth } from "$lib/stores/auth";
 
     /** @type {import('./$types').PageData} */
-    export let data: any;
+    // export let data: any;
 
     let accessToken: string | null = null;
 
@@ -17,15 +17,15 @@
         if (code === null) throw redirect(301, "/login");
 
         let encodedParams = new URLSearchParams({
-            client_id: data.data.oidcClientId,
-            redirect_uri: `${data.urls.ownUrl}/callback`,
+            client_id: import.meta.env.PUBLIC_OIDC_CLIENT_ID,
+            redirect_uri: `${import.meta.env.PUBLIC_OWN_URL}/callback`,
             grant_type: "authorization_code",
             scope: "openid",
             code: code || "",
         });
 
         let accessTokenResponse = await fetch(
-            `${data.urls.oidcUrl}/auth/realms/homelab/protocol/openid-connect/token`,
+            `${import.meta.env.PUBLIC_OIDC_URL}/auth/realms/homelab/protocol/openid-connect/token`,
             {
                 method: "POST",
                 headers: {

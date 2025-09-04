@@ -12,7 +12,7 @@
   import FileUploader from "$lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
   import RecentTransactions from "$lib/recent-transactions.svelte";
-  import { currencyFormatter } from "../../../../../utils/currency-formatter.util";
+  import { currencyFormatter } from "../../../utils/currency-formatter.util";
 
   let billId: any;
   let billStatementId: any;

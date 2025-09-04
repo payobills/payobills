@@ -5,8 +5,8 @@
   import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
   import { get } from "svelte/store";
 
-  /** @type {import('./$types').PageData} */
-  export let data: any;
+  // /** @type {import('./$types').PageData} */
+  // export let data: any;
 
   // async function login() {
   //     // await goto(data.urls.loginUrl);
