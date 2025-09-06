@@ -11,16 +11,15 @@
   import { onMount } from "svelte";
   import { Icon } from "svelte-awesome";
 
-  let currentYear = new Date().getUTCFullYear();
-  let currentMonth = new Date().getUTCMonth();
+  let currentYear: number;
+  let currentMonth: number;
 
   onMount(() => {
-    let path = window.location.pathname;
-    currentYear = +path.split("/")[2];
-    currentMonth = +path.split("/")[3];
+    currentYear = +(new URLSearchParams(window.location.search)?.get('year') || new Date().getFullYear())
+    currentMonth = +(new URLSearchParams(window.location.search)?.get('month') || (new Date().getMonth() +1 ))
   });
 
-  $: transactionsQuery = queryStore({
+  $: transactionsQuery = currentYear && currentMonth ? queryStore({
     client: $paymentsUrql,
     variables: { year: currentYear, month: currentMonth },
     query: gql`
@@ -41,13 +40,13 @@
         }
       }
     `,
-  });
+  }): null;
 </script>
 
 <section class="monthly-transactions">
-  {#if $transactionsQuery.fetching}
+  {#if $transactionsQuery == null || $transactionsQuery.fetching}
     <p>Loading...</p>
-  {:else if $transactionsQuery.error}
+  {:else if $transactionsQuery?.error}
     <p>🙆‍♂️ Uh oh! Unable to fetch your bills!</p>
   {:else}
     <section class="title">
@@ -55,7 +54,7 @@
         on:click={() => {
           currentYear = currentMonth == 1 ? currentYear - 1 : currentYear;
           currentMonth = currentMonth == 1 ? 12 : currentMonth - 1;
-          goto(`/transactions/${currentYear}/${currentMonth}`);
+          goto(`/transactions?year=${currentYear}&month=${currentMonth}`);
         }}
       >
         <Icon
@@ -77,7 +76,7 @@
         on:click={() => {
           currentYear = currentMonth == 12 ? currentYear + 1 : currentYear;
           currentMonth = currentMonth == 12 ? 1 : currentMonth + 1;
-          goto(`/transactions/${currentYear}/${currentMonth}`);
+          goto(`/transactions?year=${currentYear}&month=${currentMonth}`);
         }}
       >
         <Icon
