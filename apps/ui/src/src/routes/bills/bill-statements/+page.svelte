@@ -20,9 +20,9 @@
   let refreshKey: number = Date.now();
 
   onMount(() => {
-    let path = window.location.pathname;
-    billId = path.split("/")[2];
-    billStatementId = path.split("/")[4];
+    let urlParams = window.location.search;
+    billId = new URLSearchParams(urlParams).get('bill-id')
+    billStatementId = new URLSearchParams(urlParams).get('bill-statement-id')
   });
 
   $: billStatementsQuery = queryStore({
