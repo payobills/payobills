@@ -1,4 +1,5 @@
-ARG NODE_VERSION=20.11.1
+# ARG NODE_VERSION=
+# 22.19.0
 
 FROM node:22.19.0-alpine AS build-env
 WORKDIR /app
