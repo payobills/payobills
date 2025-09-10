@@ -1,7 +1,6 @@
-# ARG NODE_VERSION=
-# 22.19.0
+ARG NODE_VERSION=20.11.1
 
-FROM node:22.19.0-alpine AS build-env
+FROM node:${NODE_VERSION}-alpine AS build-env
 WORKDIR /app
 
 COPY src/package*.json ./
