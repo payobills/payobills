@@ -8,6 +8,7 @@
   import { onMount } from "svelte";
   import BillUploadStatement from "$lib/bill-upload-statement.svelte";
   import BillStatements from "$lib/bills/bill-statements.svelte";
+  import { browser } from '$app/environment';
 
   let billId: any;
   let billByIdQuery: any;
@@ -16,7 +17,6 @@
   let showUploadStatementSection = false;
   let uploadStatementResult = undefined;
 
-  
   $: billByIdQuery = billId ? queryStore({
     client: $billsUrql,
     query: gql`
@@ -84,7 +84,9 @@
   let loaded = false;
   let ApexCharts: any;
 
-  $: billId = $page.url.searchParams.get("id");
+  $: if(browser) {
+    billId = $page.url.searchParams.get("id");
+  }
 
   onMount(async () => {
     if ((window as any).ApexCharts) {
@@ -281,11 +283,11 @@ const onBillStatementFormUpload = async (inputs: { bill: Bill, billStatementFile
 
 <Card>
   <div class="content">
-    {#if $billByIdQuery?.fetching}
+    {#if $billByIdQuery === null || $billByIdQuery?.fetching}
       <p>Loading...</p>
     {:else if $billByIdQuery?.error}
       <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
-    {:else if $billByIdQuery}
+    {:else if $billByIdQuery?.data}
       <h1>{$billByIdQuery?.data.billById.name}</h1>
 
       {#if $billByIdQuery.data.billById.payments.length == 0}
