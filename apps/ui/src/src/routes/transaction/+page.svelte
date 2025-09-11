@@ -5,12 +5,12 @@
   import { queryStore, gql, mutationStore } from "@urql/svelte";
   import type { OperationResultStore } from "@urql/svelte";
   import { onMount } from "svelte";
-  import { formatRelativeDate } from "../../../utils/format-relative-date";
+  import { formatRelativeDate } from "../../utils/format-relative-date";
   import { formStoreGenerator, type FormStore } from "$lib/stores/form";
   import IconButton from "$lib/icon-button.svelte";
   import type { Writable } from "svelte/store";
   import type { Transaction } from "$lib/types/transaction";
-  import FileUploader from "../../../lib/file-uploader.svelte";
+  import FileUploader from "../../lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
   import IdeaCard from "$lib/idea-card.svelte";
 
@@ -29,8 +29,7 @@
   };
 
   onMount(() => {
-    let path = window.location.pathname;
-    transactionID = path.split("/")[2];
+    transactionID = new URLSearchParams(window.location.search).get('id');
     transactionsQuery = queryStore({
       client: $paymentsUrql,
       variables: { id: transactionID },

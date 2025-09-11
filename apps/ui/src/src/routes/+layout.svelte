@@ -17,7 +17,7 @@
 
   onMount(async () => {
     // Try to load env Urls from localStorage
-    await tryLoadEnvUrls();
+    // await tryLoadEnvUrls();
 
     // Guard against going to other pages without login
     // loadAuthFromLocalStorage();
