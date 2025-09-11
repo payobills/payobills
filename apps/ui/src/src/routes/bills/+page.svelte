@@ -17,7 +17,7 @@
   let uploadStatementResult = undefined;
 
   
-  $: billByIdQuery = queryStore({
+  $: billByIdQuery = billId ? queryStore({
     client: $billsUrql,
     query: gql`
       query billById($billId: String!) {
@@ -49,7 +49,7 @@
       }
     `,
     variables: { billId, refreshKey },
-  });
+  }) : null
 
   async function markPaid() {
     const markPaidQuery = $billsUrql
@@ -84,15 +84,14 @@
   let loaded = false;
   let ApexCharts: any;
 
+  $: billId = $page.url.searchParams.get("id");
+
   onMount(async () => {
     if ((window as any).ApexCharts) {
       loaded = true;
       return;
     }
-
     await load();
-
-    billId = $page.url.searchParams.get("id");
   });
 
 interface FileUploadResult {
@@ -282,12 +281,12 @@ const onBillStatementFormUpload = async (inputs: { bill: Bill, billStatementFile
 
 <Card>
   <div class="content">
-    {#if $billByIdQuery.fetching}
+    {#if $billByIdQuery?.fetching}
       <p>Loading...</p>
-    {:else if $billByIdQuery.error}
+    {:else if $billByIdQuery?.error}
       <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
-    {:else}
-      <h1>{$billByIdQuery.data.billById.name}</h1>
+    {:else if $billByIdQuery}
+      <h1>{$billByIdQuery?.data.billById.name}</h1>
 
       {#if $billByIdQuery.data.billById.payments.length == 0}
         <p>we don't see any payments made for this bill. 😞</p>
