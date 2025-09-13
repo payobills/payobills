@@ -108,7 +108,6 @@
     </UiDrawer>
   {/if}
 
-  <hr />
   <div class="card-item">
     Bill generates <strong>{withOrdinalSuffix(bill.billingDate)}</strong> of every
     month
@@ -142,14 +141,19 @@
   }
 
   .container {
-    background-color: rgb(233, 233, 233);
+    /* background-color: rgb(233, 233, 233); */
     border-radius: 0.425rem;
-    border: 0.125rem solid rgb(216, 216, 216);
+    background-color: rgb(59, 59, 59);
+    /* border: 0.125rem solid rgb(216, 216, 216); */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: top;
     margin-top: 1rem;
+  }
+
+  strong {
+    color:white;
   }
 
   .container > div:nth-of-type(2) {
@@ -171,6 +175,7 @@
     font-size: 1rem;
     font-weight: 400;
     margin: 0.5rem 1rem 0.5rem 1rem;
+    font-weight: 900;
   }
 
   strong {

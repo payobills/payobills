@@ -18,12 +18,10 @@
   onMount(async () => {
     // Try to load env Urls from localStorage
     // await tryLoadEnvUrls();
-
     // Guard against going to other pages without login
     // loadAuthFromLocalStorage();
     // const authState = get(auth);
     // if (authState == null) await goto("/timeline");
-
     // setInterval(()=> {uiDrawer.update((curr) => ({...curr, state:!curr.state}))}, 2000)
   });
 
@@ -93,17 +91,22 @@
 
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-  @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Vibes&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Vibes&display=swap");
   @import url("https://fonts.googleapis.com/css2?family=Vibes&display=swap");
 
   :root {
     --color: #9f9f9f;
 
-    /* #5b81bb */
-    --primary-color: #181818;
+    /* --primary-color: #181818;
     --primary-bg-color: #f3f3f3;
     --secondary-bg-color: #bbbbbb;
+    --primary-accent-color: #3367d6; */
+
+    --primary-color: #a0a0a8;
+    --primary-bg-color: #181818;
+    --secondary-bg-color: #bbbbbb;
     --primary-accent-color: #3367d6;
+    
   }
 
   .drawer-transparent {
@@ -166,7 +169,7 @@
   }
 
   :global(body) {
-    background-color: var(--primary-color);
+    background-color: var(--primary-bg-color);
   }
 
   :global(#app) {
@@ -175,6 +178,7 @@
   }
 
   :global(*) {
+    color: #a0a0a8;
     font-family:
       Montserrat,
       "Helvetica Neue",
@@ -194,7 +198,7 @@
   :global(button) {
     border: none;
     border-radius: 0.25rem;
-    background: var(--primary-color);
+    background: var(--primary-bg-color);
     color: white;
     text-transform: uppercase;
     padding: 1rem;
@@ -207,7 +211,7 @@
     color: var(--primary-color);
   }
 
-  :global(h2){
+  :global(h2) {
     font-size: 1rem;
     font-weight: 600;
   }
@@ -219,5 +223,21 @@
     overflow-y: scroll;
     height: calc(100% - 4rem);
     align-self: stretch;
+  }
+
+  :global(h1, h2, h3, h4, h5, h6) {
+    font-family:
+      "Figtree",
+      "Helvetica Neue",
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      Oxygen,
+      Ubuntu,
+      Cantarell,
+      "Open Sans",
+      sans-serif;
   }
 </style>

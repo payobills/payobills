@@ -21,7 +21,7 @@
 
 <style>
   nav {
-    background-color: var(--primary-color);
+    background-color: var(--primary-bg-color);
     display: flex;
     align-items: center;
     padding: 0;
