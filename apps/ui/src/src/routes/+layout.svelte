@@ -180,7 +180,7 @@
   :global(*) {
     color: #a0a0a8;
     font-family:
-      Montserrat,
+      "Figtree",
       "Helvetica Neue",
       system-ui,
       -apple-system,
