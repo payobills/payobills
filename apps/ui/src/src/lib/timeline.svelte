@@ -116,7 +116,6 @@
     flex-direction: column;
     justify-content: space-between;
     flex-grow: 1;
-    background-color: #f3f3f3;
     padding-top: 0;
   }
 
