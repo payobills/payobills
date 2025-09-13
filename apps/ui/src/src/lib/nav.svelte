@@ -15,7 +15,7 @@
   </button>
   -->
   <button class="app-title" on:click={() => goto("/timeline")}>
-    payobills
+    Payobills
   </button>
 </nav>
 
@@ -30,12 +30,12 @@
   }
 
   .app-title {
-    font-size: 2.25rem;
-    font-weight: 100;
+    font-size: 2rem;
+    font-weight: 900;
     padding: 0;
     margin: 0 1rem;
-    font-family: "Vibes";
-    text-transform: lowercase;
+    font-family: "Figtree";
+    text-transform: capitalize;
   }
 
   /* .hamburger {

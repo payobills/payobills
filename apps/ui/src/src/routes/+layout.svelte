@@ -93,6 +93,7 @@
 
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+  @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Vibes&display=swap');
   @import url("https://fonts.googleapis.com/css2?family=Vibes&display=swap");
 
   :root {
@@ -217,6 +218,6 @@
     flex-direction: column;
     overflow-y: scroll;
     height: calc(100% - 4rem);
-    background-color: var(--primary-bg-color);
+    align-self: stretch;
   }
 </style>

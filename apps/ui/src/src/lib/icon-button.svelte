@@ -16,7 +16,7 @@
   <Icon
     data={icon}
     {scale}
-    style={`color: ${color};cursor: pointer; background-color: ${backgroundColor}; ${style}`}
+    style={`color: ${color}; cursor: pointer; ${backgroundColor ? `background-color: ${backgroundColor}`: ''}; ${style}`}
   />
 </button>
 
