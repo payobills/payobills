@@ -20,7 +20,7 @@
   <h2>Bills be gone.</h2>
   <p class="one-liner">
     <span>payobills lite</span> is your go to app to be on top of your billing and transaction needs, all without sharing your data with third
-    y services. BKYOD: You bring and keep your own data with you.
+    party services. It's BKYOD — You bring and keep your own data with you.
   </p>
 
   <div class="card">
@@ -56,7 +56,6 @@
   section {
     padding: 1rem;
     align-items: stretch;
-    background-color: var(--primary-color);
     display: flex;
     flex-direction: column;
   }

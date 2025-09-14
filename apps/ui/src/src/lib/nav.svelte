@@ -21,7 +21,7 @@
 
 <style>
   nav {
-    background-color: var(--primary-bg-color);
+    background-color: var(--primary-accent-color);
     display: flex;
     align-items: center;
     padding: 0;
@@ -48,4 +48,7 @@
     height: 100%;
     padding-top: .25rem;
   } */
+  button {
+    background-color: var(--primary-accent-color);
+  }
 </style>

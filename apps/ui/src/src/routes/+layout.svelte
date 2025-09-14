@@ -105,7 +105,7 @@
     --primary-color: #a0a0a8;
     --primary-bg-color: #181818;
     --secondary-bg-color: #bbbbbb;
-    --primary-accent-color: #3367d6;
+    --primary-accent-color: #1D3459;
     
   }
 
