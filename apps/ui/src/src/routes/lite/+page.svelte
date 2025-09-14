@@ -19,9 +19,8 @@
 <section>
   <h2>Bills be gone.</h2>
   <p class="one-liner">
-    <span>payobills lite</span> is your go to app to be on top of your about
-    billing and transaction needs all without sharing your data with third
-    parties.
+    <span>payobills lite</span> is your go to app to be on top of your billing and transaction needs, all without sharing your data with third
+    y services. BKYOD: You bring and keep your own data with you.
   </p>
 
   <div class="card">
