@@ -1,9 +1,11 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { svelteInspector } from '@sveltejs/vite-plugin-svelte-inspector';
+import basicSsl from '@vitejs/plugin-basic-ssl'
+
 import type { UserConfig } from 'vite';
 
 const config: UserConfig = {
-	plugins: [sveltekit(), svelteInspector({})],
+	plugins: [sveltekit(), svelteInspector({}), basicSsl()],
 	base: '/',
 	optimizeDeps: {
 		exclude: ['@urql/svelte'],
