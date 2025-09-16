@@ -21,7 +21,7 @@
 
 <style>
   nav {
-    background-color: var(--primary-bg-color);
+    background-color: var(--primary-accent-color);
     display: flex;
     align-items: center;
     padding: 0;
@@ -36,6 +36,7 @@
     margin: 0 1rem;
     font-family: "Figtree";
     text-transform: capitalize;
+    background-color: transparent;
   }
 
   /* .hamburger {
