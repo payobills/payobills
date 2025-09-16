@@ -8,7 +8,7 @@
   import { onMount } from "svelte";
   import BillUploadStatement from "$lib/bill-upload-statement.svelte";
   import BillStatements from "$lib/bills/bill-statements.svelte";
-  import { browser } from '$app/environment';
+  import { browser } from "$app/environment";
 
   let billId: any;
   let billByIdQuery: any;
@@ -17,39 +17,47 @@
   let showUploadStatementSection = false;
   let uploadStatementResult = undefined;
 
-  $: billByIdQuery = billId ? queryStore({
-    client: $billsUrql,
-    query: gql`
-      query billById($billId: String!) {
-        billStatements(billId: $billId) {
-          id
-          startDate
-          endDate
-          notes
-        }
-        billById(id: $billId) {
-          id
-          name
-          billingDate
-          payByDate
-          updatedAt
-          createdAt
-          payments {
-            id
-            amount
-            paidAt
-            billingPeriod {
-              start
-              end
+  $: billByIdQuery = billId
+    ? queryStore({
+        client: $billsUrql,
+        query: gql`
+          query billById($billId: String!) {
+            billStatements(billId: $billId) {
+              id
+              startDate
+              endDate
+              notes
+              amount
+              paidAt: createdAt
+              payments {
+                amount
+                paidAt
+              }
             }
-            createdAt
-            updatedAt
+            billById(id: $billId) {
+              id
+              name
+              billingDate
+              payByDate
+              updatedAt
+              createdAt
+              payments {
+                id
+                amount
+                paidAt
+                billingPeriod {
+                  start
+                  end
+                }
+                createdAt
+                updatedAt
+              }
+            }
           }
-        }
-      }
-    `,
-    variables: { billId, refreshKey },
-  }) : null
+        `,
+        variables: { billId, refreshKey },
+      })
+    : null;
 
   async function markPaid() {
     const markPaidQuery = $billsUrql
@@ -84,7 +92,7 @@
   let loaded = false;
   let ApexCharts: any;
 
-  $: if(browser) {
+  $: if (browser) {
     billId = $page.url.searchParams.get("id");
   }
 
@@ -96,85 +104,103 @@
     await load();
   });
 
-interface FileUploadResult {
-  data: {
-    id: string;
-  };
-}
+  interface FileUploadResult {
+    data: {
+      id: string;
+    };
+  }
 
-const onBillStatementFormUpload = async (inputs: { bill: Bill, billStatementFile: File , billPeriodDetails: any }) => {
-  try {
-    const formdata = new FormData();
-    formdata.append(
-      "tags",
-      JSON.stringify({
-        CorrelationID: inputs.bill.id,
-        Type: "BILL_STATEMENT",
-        Note: inputs.billStatementFile.name,
-      })
-    );
+  const onBillStatementFormUpload = async (inputs: {
+    bill: Bill;
+    billStatementFile: File;
+    billPeriodDetails: any;
+  }) => {
+    try {
+      const formdata = new FormData();
+      formdata.append(
+        "tags",
+        JSON.stringify({
+          CorrelationID: inputs.bill.id,
+          Type: "BILL_STATEMENT",
+          Note: inputs.billStatementFile.name,
+        })
+      );
 
-    formdata.append(
-      "file",
-      inputs.billStatementFile,
-      inputs.billStatementFile.name
-    );
+      formdata.append(
+        "file",
+        inputs.billStatementFile,
+        inputs.billStatementFile.name
+      );
 
-    const response = await fetch("/files/files", {
-      method: "POST",
-      body: formdata,
-    });
-    
-    if (!response.ok) {
-      throw new Error(`File upload failed: ${response.statusText}`);
-    }
-    
-    const fileUploadResult = (await response.json()) as FileUploadResult;
-    
-    const { error } = await $billsUrql
-      .mutation(
-        gql`
-          mutation ($fileId: Int!, $billId: Int!, $billPeriodStartDate: String!, $billPeriodEndDate: String!) {
-            addBillStatement(
-              dto: {
-                notes: "",
-                startDate: $billPeriodStartDate,
-                endDate: $billPeriodEndDate,
-                file: { id: $fileId }
-                bill: { id: $billId }
-              }
+      const response = await fetch("/files/files", {
+        method: "POST",
+        body: formdata,
+      });
+
+      if (!response.ok) {
+        throw new Error(`File upload failed: ${response.statusText}`);
+      }
+
+      const fileUploadResult = (await response.json()) as FileUploadResult;
+
+      const { error } = await $billsUrql
+        .mutation(
+          gql`
+            mutation (
+              $fileId: Int!
+              $billId: Int!
+              $billPeriodStartDate: String!
+              $billPeriodEndDate: String!
             ) {
-              id
-              startDate
-              endDate
-              notes
-              bill {
-                id name
+              addBillStatement(
+                dto: {
+                  notes: ""
+                  startDate: $billPeriodStartDate
+                  endDate: $billPeriodEndDate
+                  file: { id: $fileId }
+                  bill: { id: $billId }
+                }
+              ) {
+                id
+                startDate
+                endDate
+                notes
+                bill {
+                  id
+                  name
+                }
               }
             }
+          `,
+          {
+            billId: +inputs.bill.id,
+            fileId: +fileUploadResult.data.id,
+            billPeriodStartDate: Intl.DateTimeFormat("en-CA", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            }).format(inputs.billPeriodDetails.billStartDate.getTime()),
+            billPeriodEndDate: Intl.DateTimeFormat("en-CA", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            }).format(inputs.billPeriodDetails.billEndDate.getTime()),
           }
-        `,
-        {
-          billId: +inputs.bill.id,
-          fileId: +fileUploadResult.data.id,
-          billPeriodStartDate:  Intl.DateTimeFormat("en-CA", {year: "numeric",month: "2-digit",day: "2-digit", }).format(inputs.billPeriodDetails.billStartDate.getTime()),
-          billPeriodEndDate: Intl.DateTimeFormat("en-CA", {year: "numeric",month: "2-digit",day: "2-digit", }).format(inputs.billPeriodDetails.billEndDate.getTime()),
-        }
-      )
-      .toPromise();
-      
-    if (error) {
+        )
+        .toPromise();
+
+      if (error) {
+        throw error;
+      }
+
+      uploadStatementResult = true;
+      refreshKey = Date.now(); // Refresh the query to show the new statement
+    } catch (error) {
+      console.error("Error:", error);
+      uploadStatementResult = false;
       throw error;
     }
-    
-    uploadStatementResult = true;
-    refreshKey = Date.now(); // Refresh the query to show the new statement
-  } catch (error) {
-    console.error("Error:", error);
-    uploadStatementResult = false;
-    throw error;
-  }
-};
+  };
 
   const load = async () => {
     const module = await import("apexcharts");
@@ -185,11 +211,14 @@ const onBillStatementFormUpload = async (inputs: { bill: Bill, billStatementFile
   const chart = (node: any) => {
     if (!loaded) load();
 
-    const orderedData = $billByIdQuery.data.billById.payments.sort(
-      (a: any, b: any) => {
+    const orderedData = [
+      $billByIdQuery.data.billById.payments,
+      $billByIdQuery.data.billStatements,
+    ]
+      .flat()
+      .sort((a: any, b: any) => {
         return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
-      }
-    );
+      });
 
     let allData = orderedData.map((p: any) => {
       return {
@@ -290,57 +319,57 @@ const onBillStatementFormUpload = async (inputs: { bill: Bill, billStatementFile
     {:else if $billByIdQuery?.data}
       <h1>{$billByIdQuery?.data.billById.name}</h1>
 
-      {#if $billByIdQuery.data.billById.payments.length == 0}
+      <!-- {#if $billByIdQuery.data.billById.payments.length == 0}
         <p>we don't see any payments made for this bill. 😞</p>
-      {:else}
-        <div use:chart></div>
-        <h2>past payments</h2>
-        {#each $billByIdQuery.data.billById.payments as payment}
-          <p class="payment">
-            {#if payment.amount}
-              <!-- TODO: Get currency from user, suggest based on Intl -->
-              <span class="amount"
-                >{new Intl.NumberFormat(undefined, {
-                  style: "currency",
-                  currency: "INR",
-                }).format(payment.amount)} (manually entered)</span
-              >
-            {:else}
-              <span class="amount--unknown">Unknown Amount</span>
-            {/if}
-            <span class="paid-on"
-              >{Intl.DateTimeFormat(undefined, {
-                month: "long",
-                year: "2-digit",
-              }).format(new Date(payment.paidAt).getTime())}</span
+      {:else} -->
+      <div use:chart></div>
+      <h2>past payments</h2>
+      {#each $billByIdQuery.data.billById.payments as payment}
+        <p class="payment">
+          {#if payment.amount}
+            <!-- TODO: Get currency from user, suggest based on Intl -->
+            <span class="amount"
+              >{new Intl.NumberFormat(undefined, {
+                style: "currency",
+                currency: "INR",
+              }).format(payment.amount)} (manually entered)</span
             >
-          </p>
-        {/each}
-
-        <BillStatements
-          bill={{ id: billId }}
-          statements={$billByIdQuery.data.billStatements}
-        />
-
-        {#if showUploadStatementSection}
-          <BillUploadStatement
-            bill={$billByIdQuery.data.billById}
-            {onBillStatementFormUpload}
-          />
-        {/if}
-
-        <div class="actions">
-          {#if !showUploadStatementSection}
-            <button on:click={() => (showUploadStatementSection = true)}
-              >upload statement</button
-            >
+          {:else}
+            <span class="amount--unknown">Unknown Amount</span>
           {/if}
-          <button class="markPaid" on:click={async () => await markPaid()}
-            >mark as paid</button
+          <span class="paid-on"
+            >{Intl.DateTimeFormat(undefined, {
+              month: "long",
+              year: "2-digit",
+            }).format(new Date(payment.paidAt).getTime())}</span
           >
-        </div>
+        </p>
+      {/each}
+
+      <BillStatements
+        bill={{ id: billId }}
+        statements={$billByIdQuery.data.billStatements}
+      />
+
+      {#if showUploadStatementSection}
+        <BillUploadStatement
+          bill={$billByIdQuery.data.billById}
+          {onBillStatementFormUpload}
+        />
       {/if}
+
+      <div class="actions">
+        {#if !showUploadStatementSection}
+          <button on:click={() => (showUploadStatementSection = true)}
+            >upload statement</button
+          >
+        {/if}
+        <button class="markPaid" on:click={async () => await markPaid()}
+          >mark as paid</button
+        >
+      </div>
     {/if}
+    <!-- {/if} -->
   </div>
 </Card>
 
