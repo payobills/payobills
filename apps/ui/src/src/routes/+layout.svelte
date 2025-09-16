@@ -105,7 +105,7 @@
     --primary-color: #a0a0a8;
     --primary-bg-color: #181818;
     --secondary-bg-color: #bbbbbb;
-    --primary-accent-color: #3367d6;
+    --primary-accent-color: #696adb;
     
   }
 
@@ -198,7 +198,7 @@
   :global(button) {
     border: none;
     border-radius: 0.25rem;
-    background: var(--primary-bg-color);
+    background: var(--primary-accent-color);
     color: white;
     text-transform: uppercase;
     padding: 1rem;
