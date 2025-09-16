@@ -1,6 +1,7 @@
 <script lang='ts'>
   import { goto } from "$app/navigation";
   import IconButton from "$lib/icon-button.svelte";
+  import ReminderNotificationSetting from "$lib/reminder-notification-setting.svelte";
   import { faBell, faChartSimple, faListOl } from "@fortawesome/free-solid-svg-icons";
 
   const iconStyle = (colorsLeftToRight: string[] = []) => `
@@ -51,6 +52,8 @@
 
   <button on:click={() => {}}>Coming Soon</button>
   <p class='one-liner'>* Payobills is an open source project maintained by <span>Sahu, S</span> in his personal time. ❤️ is appreciated</p>
+
+  <ReminderNotificationSetting />
 </section>
 
 <style>
