@@ -12,7 +12,7 @@ COPY src ./
 RUN rm -rfv ./src/routes/*
 
 COPY src/src/routes/+layout* ./src/routes
-COPY src/src/routes/lite/* ./src/routes/
+COPY src/src/routes/lite/ ./src/routes/
 
 RUN npm run build:static
 
