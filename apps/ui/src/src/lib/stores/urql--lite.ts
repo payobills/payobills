@@ -2,6 +2,7 @@ import { offlineExchange } from "@urql/exchange-graphcache";
 import { makeDefaultStorage } from "@urql/exchange-graphcache/default-storage";
 import { createClient, fetchExchange } from "@urql/svelte";
 import { readable } from "svelte/store";
+  import { queryStore, gql, getContextClient } from "@urql/svelte";
 
 export const getLiteUrql = () => {
   const introspectedSchema = {
@@ -23,6 +24,24 @@ export const getLiteUrql = () => {
     schema: introspectedSchema,
     updates: {
       /* ... */
+      Mutation: {
+        addBill(result, _args, cache, _info) {
+        const TodoList = gql`
+          {
+            todos {
+              id
+            }
+          }
+        `;
+
+        cache.updateQuery({ query: TodoList }, data => {
+          return {
+            ...data,
+            todos: [...data.todos, result.createTodo],
+          };
+        });
+      },
+      }
     },
     storage,
     optimistic: {
@@ -31,7 +50,7 @@ export const getLiteUrql = () => {
   });
 
   const liteClient = createClient({
-    url: '/gateway/graphql',
+    url: '/invalid-graphql-url',
     exchanges: [cache as any, fetchExchange]
   });
 
