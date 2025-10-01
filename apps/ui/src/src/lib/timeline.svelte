@@ -50,7 +50,13 @@
 
 <div class="timeline">
   <div class="timeline-data">
-    <RecentTransactions {transactions} showGraph={true} {title} />
+    <RecentTransactions
+      {transactions}
+      showGraph={true}
+      {title}
+      showRecentSpends={true}
+      showTotalSpend={false}
+    />
 
     {#if filteredItems.length > 0}
       <h1 class="title_bill">Your bills</h1>

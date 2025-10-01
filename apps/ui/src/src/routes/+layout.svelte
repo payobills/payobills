@@ -106,7 +106,6 @@
     --primary-bg-color: #181818;
     --secondary-bg-color: #bbbbbb;
     --primary-accent-color: #696adb;
-    
   }
 
   .drawer-transparent {
