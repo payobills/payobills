@@ -3,8 +3,8 @@
   import { formatRelativeDate } from "../utils/format-relative-date";
 
   export let transactions: any[] = [];
-  $: filteredTransactions = transactions.reduce(
-    (agg: any[], currTransaction) => {
+  $: filteredTransactions = transactions
+    .reduce((agg: any[], currTransaction) => {
       let duplicateTransaction = agg.findIndex(
         (p) => p.id === currTransaction.id
       );
@@ -64,15 +64,19 @@
       let lastDay = lastDateOfMonth.getDate();
       for (let i = 1; i <= lastDay; i++) {
         let date = new Date(
-            firstTransactionDate.getUTCFullYear(),
-            firstTransactionDate.getUTCMonth(),
-            i
+          firstTransactionDate.getUTCFullYear(),
+          firstTransactionDate.getUTCMonth(),
+          i
+        );
+
+        if (
+          !filteredTransactions.find(
+            (p: any) =>
+              new Date(p.paidAt).getDate() === date.getDate() &&
+              new Date(p.paidAt).getMonth() === date.getMonth() &&
+              new Date(p.paidAt).getFullYear() === date.getFullYear()
           )
-
-
-        if (!filteredTransactions.find((p: any) => new Date(p.paidAt).getDate() === date.getDate() 
-        && new Date(p.paidAt).getMonth() === date.getMonth()
-      && new Date(p.paidAt).getFullYear() === date.getFullYear())) {
+        ) {
           filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
         }
       }
@@ -85,7 +89,6 @@
         note: `${p.amount}`,
       };
     });
-
 
     let data = allData.reduce(
       (accumulator: any[], current: any, index: number) => {
@@ -115,8 +118,8 @@
       []
     );
 
-      data.sort((a: any, b: any) => {
-      return a.x - b.x
+    data.sort((a: any, b: any) => {
+      return a.x - b.x;
     });
 
     totalSpend = data.reduce((acc: number, p: any) => acc + p.y, 0);
@@ -225,12 +228,6 @@
       <div class="non-amount-details">
         <span>Total spend</span>
       </div>
-      <span
-        >{new Intl.NumberFormat(undefined, {
-          style: "currency",
-          currency: "INR",
-        }).format(totalSpend)}</span
-      >
     </div>
   </div>
   {/if}
@@ -318,7 +315,33 @@
 
   .disclaimer {
     font-size: 0.75rem;
-    margin-top: 0
+    margin-top: 0;
+  }
+
+  .recent-spends__title {
+    margin-top: 0;
+  }
+
+  .recent-spends__spend-tile {
+    background-color: #383838;
+    /* margin: .25rem; */
+    column-gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    width: 50%;
+  }
+
+  .recent-spends__content {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .recent-spends__spend-amount {
+    font-weight: 900;
+    font-size: 2.25rem;
+    margin: 0.5rem 0;
   }
 
   .recent-spends__title {
