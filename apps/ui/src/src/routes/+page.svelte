@@ -14,14 +14,15 @@
   // }
 
   onMount(async () => {
-    // loadAuthFromLocalStorage();
-    // const authState = get(auth);
-    // if (authState !== null)
+    loadAuthFromLocalStorage();
+    const authState = get(auth);
+    if (authState !== null)
     await goto("/timeline");
   });
 </script>
 
 <div class="main">
+  <a href='http://localhost:8084/auth/realms/homelab-sbx/protocol/openid-connect/auth?client_id=e4d1416e-f275-4764-beea-e919c2477a87&redirect_uri=https://localhost:5173/callback&response_type=code&grant_type=authorization_code&scope=openid'>Login</a>
 </div>
 
 <style>

@@ -16,9 +16,19 @@
     },
     []
   ).filter(p => p.paidAt);
+
+  $: todaysDate = new Intl.DateTimeFormat('en-CA').format(new Date());
+
+  $: todaysSpend = filteredTransactions
+    .filter(p => new Intl.DateTimeFormat('en-CA').format(new Date(p.paidAt)) === todaysDate)
+    .reduce((acc, curr) => acc + curr.amount, 0)
+
+
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
+  export let showRecentSpends = false;
   export let showGraph = false;
+  export let showTotalSpend = true;
   export let title: string | undefined = undefined;
   export let totalSpend = 0;
   export let initialShowCount = 5;
@@ -67,8 +77,6 @@
         }
       }
     }
-
-    
 
     let allData = filteredTransactions.map((p: any) => {
       return {
@@ -188,11 +196,30 @@
   {#if showGraph && transactions.length > 0 && ApexCharts}
     <div use:chart={transactions}></div>
 
+    {#if showRecentSpends}
+      
+    <h2 class='recent-spends__title'>Your recent spends</h2>
+<div class='recent-spends__content'>
+    <div class='recent-spends__spend-tile'>
+      <p>Today's spend</p>
+      <p class="recent-spends__spend-amount">₹ {todaysSpend}</p>
+    </div>
+
+
+     <div class='recent-spends__spend-tile'>
+      <p>This month's spend</p>
+      <p class="recent-spends__spend-amount">₹ {totalSpend}</p>
+    </div>
+    </div>
+    
+    {/if}
+
     <p class="disclaimer">
       It might take upto an hour for latest transactions to show up here...
     </p>
   {/if}
 
+{#if showTotalSpend}
   <div class="transaction-card">
     <div class="recent-transaction">
       <div class="non-amount-details">
@@ -206,7 +233,7 @@
       >
     </div>
   </div>
-  <hr />
+  {/if}
 
   {#each showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
     <a class="transaction-card" href={`/transaction?id=${transaction.id}`}>
@@ -292,5 +319,31 @@
   .disclaimer {
     font-size: 0.75rem;
     margin-top: 0
+  }
+
+  .recent-spends__title {
+    margin-top: 0;
+  }
+
+  .recent-spends__spend-tile {
+    background-color: #383838;
+    /* margin: .25rem; */
+    column-gap: .25rem;
+    padding: .5rem;
+    border-radius: .5rem;
+    width: 50%;
+  }
+
+  .recent-spends__content {
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .recent-spends__spend-amount {
+    font-weight: 900;
+    font-size: 2.25rem;
+    margin: .5rem 0;
   }
 </style>
