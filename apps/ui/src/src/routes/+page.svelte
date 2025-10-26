@@ -3,26 +3,30 @@
   import { onMount } from "svelte";
   import { CONSTANTS } from "../constants";
   import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
+  import { envStore } from "$lib/stores/env";
   import { get } from "svelte/store";
-
-  // /** @type {import('./$types').PageData} */
-  // export let data: any;
-
-  // async function login() {
-  //     // await goto(data.urls.loginUrl);
-  //     await goto("/timeline");
-  // }
 
   onMount(async () => {
     loadAuthFromLocalStorage();
+
     const authState = get(auth);
-    if (authState !== null)
-    await goto("/timeline");
+    // console.log("Auth State on mount:", authState);
+    if (authState?.refreshToken) await goto("/timeline");
   });
 </script>
 
 <div class="main">
-  <a href='http://localhost:8084/auth/realms/homelab-sbx/protocol/openid-connect/auth?client_id=e4d1416e-f275-4764-beea-e919c2477a87&redirect_uri=https://localhost:5173/callback&response_type=code&grant_type=authorization_code&scope=openid'>Login</a>
+  <a
+    href={$envStore?.INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE.replace(
+      "${INJECTED_OWN_URL}",
+      $envStore?.INJECTED_OWN_URL
+    )
+      .replace("${INJECTED_OIDC_CLIENT_ID}", $envStore?.INJECTED_OIDC_CLIENT_ID)
+      .replace(
+        "${INJECTED_OIDC_TENANT_URL}",
+        $envStore?.INJECTED_OIDC_TENANT_URL
+      )}>Login</a
+  >
 </div>
 
 <style>

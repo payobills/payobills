@@ -4,7 +4,7 @@
   import IconButton from "$lib/icon-button.svelte";
   import Nav from "$lib/nav.svelte";
   import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
-  import { tryLoadEnvUrls } from "$lib/stores/env";
+  import { tryLoadEnv } from "$lib/stores/env";
   import { uiDrawer } from "$lib/stores/ui-drawer";
   import {
     faArrowAltCircleDown,
@@ -17,12 +17,17 @@
 
   onMount(async () => {
     // Try to load env Urls from localStorage
-    // await tryLoadEnvUrls();
+    await tryLoadEnv();
+
     // Guard against going to other pages without login
     // loadAuthFromLocalStorage();
     // const authState = get(auth);
     // if (authState == null) await goto("/timeline");
-    // setInterval(()=> {uiDrawer.update((curr) => ({...curr, state:!curr.state}))}, 2000)
+
+    // For testing drawer
+    // setInterval(() => {
+    //   uiDrawer.update((curr) => ({ ...curr, state: !curr.state }));
+    // }, 2000);
   });
 
   function randomNotification() {
