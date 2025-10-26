@@ -4,8 +4,15 @@
   import { goto } from "$app/navigation";
   import Nav from "$lib/nav.svelte";
   import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-
+  import { auth } from "$lib/stores/auth";
   import { queryStore, gql, getContextClient } from "@urql/svelte";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    if (!$auth?.refreshToken) {
+      goto("/");
+    }
+  });
 
   const billsQuery = queryStore({
     client: $billsUrql,
@@ -17,15 +24,19 @@
           billingDate
           payByDate
           isEnabled
-          
         }
       }
     `,
   });
 
-  $: billStatementsQuery = (!$billsQuery.fetching && !$billsQuery.error) ? queryStore({
-    client: $billsUrql,
-    query:gql(`query { ${$billsQuery.data.bills.reduce((acc: string, currentBill: any) => acc += `billStatements__bill_${currentBill.id}: billStatements(billId: "${currentBill.id}") {
+  $: billStatementsQuery =
+    !$billsQuery.fetching && !$billsQuery.error
+      ? queryStore({
+          client: $billsUrql,
+          query: gql(
+            `query { ${$billsQuery.data.bills.reduce(
+              (acc: string, currentBill: any) =>
+                (acc += `billStatements__bill_${currentBill.id}: billStatements(billId: "${currentBill.id}") {
       id
       startDate
       endDate
@@ -36,7 +47,12 @@
         amount
       }
     }
-     `, '')} }`) }) : null;
+     `),
+              ""
+            )} }`
+          ),
+        })
+      : null;
 
   const currentMonth = new Date().getUTCMonth() + 1;
   const currentYear = new Date().getUTCFullYear();
@@ -66,7 +82,11 @@
     variables: { year: currentYear, month: currentMonth },
     query: gql`
       query ($year: Int!, $month: Int!) {
-        transactions: transactionsByYearAndMonth(year: $year, month: $month, first: 900) {
+        transactions: transactionsByYearAndMonth(
+          year: $year
+          month: $month
+          first: 900
+        ) {
           nodes {
             id
             amount
@@ -84,22 +104,28 @@
     `,
   });
 
-  const onRecordingPayment = ({ amount, bill, cycleFromDate, cycleToDate, isFullyPaid }) => {
+  const onRecordingPayment = ({
+    amount,
+    bill,
+    cycleFromDate,
+    cycleToDate,
+    isFullyPaid,
+  }) => {
     return $paymentsUrql
       .mutation(
         gql`
           mutation AddBillStatement($dto: AddOrUpdateBillStatementDTOInput!) {
-              addOrUpdateBillStatement(dto: $dto) {
-                  id
-                  startDate
-                  endDate
-                  isFullyPaid
-                  amount
-                  payments {
-                      id
-                      __typename
-                  }
+            addOrUpdateBillStatement(dto: $dto) {
+              id
+              startDate
+              endDate
+              isFullyPaid
+              amount
+              payments {
+                id
+                __typename
               }
+            }
           }
         `,
         {
@@ -110,7 +136,7 @@
             bill: { id: +bill.id },
             startDate: cycleFromDate,
             endDate: cycleToDate,
-            edges: { paymentIds: [] }
+            edges: { paymentIds: [] },
           },
         }
       )

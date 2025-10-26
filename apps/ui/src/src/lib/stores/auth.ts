@@ -22,8 +22,8 @@ export const loadAuthFromLocalStorage = (): boolean => {
 }
 
 export type AuthStore = {
-    refreshToken: string
-    refreshTokenExpiry: number
+    refreshToken: string | null
+    refreshTokenExpiry: number | null
 }
 
 export const auth = writable<AuthStore | null>(null)
