@@ -34,7 +34,7 @@ pod:
     value: "http://payobills.mrsauravsahu.in"
   - name: INJECTED_FILES_BASE_URL
     value: "/files"
-  - name: OIDC_TENANT_LOGIN_URL_TEMPLATE
+  - name: INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE
     value: "${INJECTED_OIDC_TENANT_URL}/realms/homelab/protocol/openid-connect/auth?client_id=${INJECTED_OIDC_CLIENT_ID}&redirect_uri=${INJECTED_OWN_URL}/callback&response_type=code&grant_type=authorization_code&scope=openid"
 
 podAnnotations: {}
