@@ -46,3 +46,15 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## Local Setup with Docker
+
+```bash
+docker run -it -p 5173:80 \
+    -e INJECTED_OWN_URL=http://localhost:5173 \
+    -e INJECTED_OIDC_TENANT_URL=http://localhost:8084 \
+    -e INJECTED_OIDC_CLIENT_ID=payobills \
+    -e INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE='${INJECTED_OIDC_TENANT_URL}/realms/Homelab-SBX/protocol/openid-connect/auth?client_id=${INJECTED_OIDC_CLIENT_ID}&redirect_uri=${INJECTED_OWN_URL}/callback&response_type=code' \
+    ghcr.io/payobills/apps/ui:latest
+```
+
