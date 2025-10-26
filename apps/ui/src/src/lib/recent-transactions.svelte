@@ -13,16 +13,18 @@
       }
 
       return agg;
-    },
-    []
-  ).filter(p => p.paidAt);
+    }, [])
+    .filter((p) => p.paidAt);
 
-  $: todaysDate = new Intl.DateTimeFormat('en-CA').format(new Date());
+  $: todaysDate = new Intl.DateTimeFormat("en-CA").format(new Date());
 
   $: todaysSpend = filteredTransactions
-    .filter(p => new Intl.DateTimeFormat('en-CA').format(new Date(p.paidAt)) === todaysDate)
-    .reduce((acc, curr) => acc + curr.amount, 0)
-
+    .filter(
+      (p) =>
+        new Intl.DateTimeFormat("en-CA").format(new Date(p.paidAt)) ===
+        todaysDate
+    )
+    .reduce((acc, curr) => acc + curr.amount, 0);
 
   export let showViewAllCTA = true;
   export let showAllTransactions = false;
@@ -200,21 +202,26 @@
     <div use:chart={transactions}></div>
 
     {#if showRecentSpends}
-      
-    <h2 class='recent-spends__title'>Your recent spends</h2>
-<div class='recent-spends__content'>
-    <div class='recent-spends__spend-tile'>
-      <p>Today's spend</p>
-      <p class="recent-spends__spend-amount">₹ {todaysSpend}</p>
-    </div>
+      <h2 class="recent-spends__title">Your recent spends</h2>
+      <div class="recent-spends__content">
+        <div class="recent-spends__spend-tile">
+          <p>Today's spend</p>
+          <p class="recent-spends__spend-amount">{new Intl.NumberFormat(undefined, {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 2,
+        }).format(todaysSpend)}</p>
+        </div>
 
-
-     <div class='recent-spends__spend-tile'>
-      <p>This month's spend</p>
-      <p class="recent-spends__spend-amount">₹ {totalSpend}</p>
-    </div>
-    </div>
-    
+        <div class="recent-spends__spend-tile">
+          <p>This month's spend</p>
+          <p class="recent-spends__spend-amount">{new Intl.NumberFormat(undefined, {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 2,
+        }).format(totalSpend)}</p>
+        </div>
+      </div>
     {/if}
 
     <p class="disclaimer">
@@ -222,14 +229,21 @@
     </p>
   {/if}
 
-{#if showTotalSpend}
-  <div class="transaction-card">
-    <div class="recent-transaction">
-      <div class="non-amount-details">
-        <span>Total spend</span>
+  {#if showTotalSpend}
+    <div class="transaction-card">
+      <div class="recent-transaction">
+        <div class="non-amount-details">
+          <span>Total spend</span>
+        </div>
+           <span
+            >{new Intl.NumberFormat(undefined, {
+              style: "currency",
+              currency: "INR",
+            }).format(totalSpend)}</span
+          >
       </div>
     </div>
-  </div>
+    <hr>
   {/if}
 
   {#each showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
@@ -351,22 +365,22 @@
   .recent-spends__spend-tile {
     background-color: #383838;
     /* margin: .25rem; */
-    column-gap: .25rem;
-    padding: .5rem;
-    border-radius: .5rem;
+    column-gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
     width: 50%;
   }
 
   .recent-spends__content {
     display: flex;
     flex-direction: row;
-    gap: .5rem;
+    gap: 0.5rem;
     margin-bottom: 1rem;
   }
-  
+
   .recent-spends__spend-amount {
     font-weight: 900;
     font-size: 2.25rem;
-    margin: .5rem 0;
+    margin: 0.5rem 0;
   }
 </style>
