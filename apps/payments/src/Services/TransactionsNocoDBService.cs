@@ -29,11 +29,18 @@ public class TransactionsNocoDBService : ITransactionsService
 
     public async Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> _, TransactionFiltersInput? filters = null!)
     {
-        var ocrId = filters?.OcrId ?? string.Empty;
-
         var sortUrlParam = "s=-PaidAt";
-        var filterUrlParam = string.IsNullOrEmpty(ocrId) ? string.Empty : $"w=(OcrId,eq,{ocrId})";
-        var urlParams = string.Join("&", sortUrlParam, filterUrlParam);
+        var filterUrlParam = string.Join("~and", new List<string>{
+            string.IsNullOrEmpty(filters?.OcrId) ? string.Empty : $"(OcrId,eq,{filters.OcrId})",
+            string.IsNullOrEmpty(filters.SearchTerm) ? string.Empty : $"((Merchant,like,%{filters.SearchTerm}%)~or(TransactionText,like,%{filters.SearchTerm}%)~or(Notes,like,%{filters.SearchTerm}%){(filters.SearchTerm.All(char.IsDigit) ? $"~or(Amount,eq,{filters.SearchTerm})" : string.Empty)})",
+    }.Where(p => !string.IsNullOrEmpty(p))
+        );
+
+        var urlParams = string.Join("&", new List<string> {
+            sortUrlParam,
+            filterUrlParam != string.Empty ? $"w={filterUrlParam}" : string.Empty
+        }.Where(p => !string.IsNullOrEmpty(p))
+        );
 
         var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
             "payobills",
