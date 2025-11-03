@@ -66,8 +66,6 @@ jobs:
     secrets:
       GHCR_CI_TOKEN: ${{ secrets.GHCR_CI_TOKEN }}
     with:
-      GITHUB_PASSED_REF: ${{ github.ref }}
-      INPUT_REF: ${{ github.event.inputs.REF }}
       PLZ_SUBCOMMAND: "run"
       PLZ_SUBCOMMAND_ARGS: "//apps/${{ needs.tag-checker-job.outputs.APP_NAME }}:docker_buildx"
       APP_NAME: ${{ needs.tag-checker-job.outputs.APP_NAME }}
