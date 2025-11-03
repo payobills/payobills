@@ -7,6 +7,11 @@ on:
     tags:
       - '*'
   workflow_dispatch:
+    inputs:
+      REF:
+        description: 'Optional ref to extract tag from (e.g. refs/tags/<app>/<version> or <app>/<version>). Falls back to github.ref when empty.'
+        required: false
+        default: ''
 
 jobs:
   tag-checker-job:
@@ -21,8 +26,19 @@ jobs:
       
       - name: Extract app name and version from tag
         id: extract-app-name-version
+        env:
+          INPUT_REF: ${{ github.event.inputs.REF }}
         run: |
-          echo "Tag: $GITHUB_REF"
+          echo "Provided input REF: '$INPUT_REF'"
+          # Use provided REF if set, otherwise fallback to GITHUB_REF
+          REF="${INPUT_REF:-$GITHUB_REF}"
+          echo "Using ref: $REF"
+
+          # strip common ref prefixes if present (accepts both "refs/tags/..." and plain "app/version")
+          TAG_NAME="${REF#refs/tags/}"
+          TAG_NAME="${TAG_NAME#refs/}"
+          TAG_NAME="${TAG_NAME#/}" || true
+
           APP_NAME=$(echo "$GITHUB_REF" | cut -d '/' -f 1)
           VERSION=$(echo "$GITHUB_REF" | cut -d '/' -f 2)
           
@@ -31,17 +47,12 @@ jobs:
             exit 1
           fi
 
-      - name: Check if app exists in apps folder
-        id: check-app-existence
-        run: |
           echo "Checking if $APP_NAME exists in apps directory..."
           ls "apps/$APP_NAME" || {
             echo "App '$APP_NAME' does not exist in apps folder."
             exit 1
           }
 
-      - name: Set outputs for downstream jobs
-        run: |
           echo "APP_NAME=$APP_NAME" >> $GITHUB_OUTPUT
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
