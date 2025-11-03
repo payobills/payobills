@@ -60,12 +60,16 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
   deploy-docker-buildx-image:
-    needs: tag-checker-job  
+    needs: tag-checker-job
     name: Run plz action for Docker BuildX
-    uses: payobills/payobills/.github/workflows/run-plz.yml@${{ needs.tag-checker-job.outputs.APP_NAME  }}
+    uses: payobills/payobills/.github/workflows/run-plz.yml
     secrets:
       GHCR_CI_TOKEN: ${{ secrets.GHCR_CI_TOKEN }}
     with:
+      GITHUB_PASSED_REF: ${{ github.ref }}
+      INPUT_REF: ${{ github.event.inputs.REF }}
       PLZ_SUBCOMMAND: "run"
       PLZ_SUBCOMMAND_ARGS: "//apps/${{ needs.tag-checker-job.outputs.APP_NAME }}:docker_buildx"
-      ENV_VARS: "{ \"VERSION\":\"${{ needs.tag-checker-job.outputs.VERSION }}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"NODE_VERSION\":\"20.11.1\", \"RUST_VERSION\":\"1.79.0-alpine3.20\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
+      APP_NAME: ${{ needs.tag-checker-job.outputs.APP_NAME }}
+      VERSION: ${{ needs.tag-checker-job.outputs.VERSION }}
+      ENV_VARS: "{ \"APP_NAME\":${{ needs.tag-checker-job.outputs.APP_NAME }}, \"VERSION\":\"${{ needs.tag-checker-job.outputs.VERSION }}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"NODE_VERSION\":\"20.11.1\", \"RUST_VERSION\":\"1.79.0-alpine3.20\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"

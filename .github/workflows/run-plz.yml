@@ -1,48 +1,64 @@
-run-name: 'VERSION=${{ fromJson(inputs.ENV_VARS).VERSION }}; plz ${{ inputs.PLZ_SUBCOMMAND }} ${{ inputs.PLZ_SUBCOMMAND_ARGS }}'
+run-name: "VERSION=${{ fromJson(inputs.ENV_VARS).VERSION }}; plz ${{ inputs.PLZ_SUBCOMMAND }} ${{ inputs.PLZ_SUBCOMMAND_ARGS }}"
 
 on:
-  workflow_call: 
+  workflow_call:
     secrets:
       GHCR_CI_TOKEN:
-        description: 'ci token to login to ghcr'
+        description: "ci token to login to ghcr"
         required: true
     inputs:
       PLZ_SUBCOMMAND:
-        description: 'plz subcommand to run'
+        description: "plz subcommand to run"
         required: true
-        default: 'run'
+        default: "run"
         type: string
-        # type: choice
-        # options:
-        #   - run
-        #   - build
       ENV_VARS:
-        description: 'JSON string of environment variables'
-        default: '{ "CI": "true", "EXTRA_ARGS":"--push", "DOTNET_VERSION":"8.0.404","DOTNET_RUNTIME_VERSION":"8.0.3-bookworm-slim", "NODE_VERSION": "20.11.1", "RUST_VERSION": "1.79.0-alpine3.20" }'  
+        description: "JSON string of environment variables"
+        default: '{ "CI": "true", "EXTRA_ARGS":"--push", "DOTNET_VERSION":"8.0.404","DOTNET_RUNTIME_VERSION":"8.0.3-bookworm-slim", "NODE_VERSION": "20.11.1", "RUST_VERSION": "1.79.0-alpine3.20" }'
         type: string
       PLZ_SUBCOMMAND_ARGS:
-        description: 'Arguments for plz command'
+        description: "Arguments for plz command"
         required: false
         type: string
-        default: ''
+        default: ""
+      APP_NAME:
+        description: "Name of the app to run the plz command on"
+        required: false
+        type: string
+        default: ""
+      VERSION:
+        description: "Version of the app to run the plz command on"
+        required: false
+        type: string
+        default: ""
 
   workflow_dispatch:
     inputs:
       PLZ_SUBCOMMAND:
-        description: 'plz subcommand to run'
+        description: "plz subcommand to run"
         required: true
-        default: 'run'
+        default: "run"
         type: choice
         options:
           - run
           - build
       ENV_VARS:
-        description: 'JSON string of environment variables'
+        description: "JSON string of environment variables"
         default: '{ "CI": "true", "EXTRA_ARGS":"--push", "DOTNET_VERSION":"8.0.404","DOTNET_RUNTIME_VERSION":"8.0.3-bookworm-slim"}'
       PLZ_SUBCOMMAND_ARGS:
-        description: 'Arguments for plz command'
+        description: "Arguments for plz command"
         required: false
-        default: ''
+        default: ""
+      APP_NAME:
+        description: "Name of the app to run the plz command on"
+        required: false
+        type: string
+        default: ""
+      VERSION:
+        description: "Version of the app to run the plz command on"
+        required: false
+        type: string
+        default: ""
 
 jobs:
   run_plz_command:
@@ -50,6 +66,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          ref: refs/tags/${{ inputs.APP_NAME }}/${{ inputs.VERSION }}
 
       - name: Setup please.build
         uses: sagikazarmark/setup-please-action@v0
