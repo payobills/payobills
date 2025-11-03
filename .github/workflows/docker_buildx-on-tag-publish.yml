@@ -62,7 +62,7 @@ jobs:
   deploy-docker-buildx-image:
     needs: tag-checker-job
     name: Run plz action for Docker BuildX
-    uses: payobills/payobills/.github/workflows/run-plz.yml
+    uses: payobills/payobills/.github/workflows/run-plz.yml@main
     secrets:
       GHCR_CI_TOKEN: ${{ secrets.GHCR_CI_TOKEN }}
     with:
