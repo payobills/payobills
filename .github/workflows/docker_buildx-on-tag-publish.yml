@@ -39,8 +39,8 @@ jobs:
           TAG_NAME="${TAG_NAME#refs/}"
           TAG_NAME="${TAG_NAME#/}" || true
 
-          APP_NAME=$(echo "$GITHUB_REF" | cut -d '/' -f 1)
-          VERSION=$(echo "$GITHUB_REF" | cut -d '/' -f 2)
+          APP_NAME=$(echo "${TAG_NAME}" | cut -d '/' -f 1)
+          VERSION=$(echo "${TAG_NAME}" | cut -d '/' -f 2)
           
           if [ -z "$APP_NAME" ] || [ -z "$VERSION" ]; then
             echo "Error: Tag format must be <app-name>/<semver-version>"
