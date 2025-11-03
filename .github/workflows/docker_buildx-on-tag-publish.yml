@@ -70,4 +70,4 @@ jobs:
       PLZ_SUBCOMMAND_ARGS: "//apps/${{ needs.tag-checker-job.outputs.APP_NAME }}:docker_buildx"
       APP_NAME: ${{ needs.tag-checker-job.outputs.APP_NAME }}
       VERSION: ${{ needs.tag-checker-job.outputs.VERSION }}
-      ENV_VARS: "{ \"APP_NAME\":${{ needs.tag-checker-job.outputs.APP_NAME }}, \"VERSION\":\"${{ needs.tag-checker-job.outputs.VERSION }}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"NODE_VERSION\":\"20.11.1\", \"RUST_VERSION\":\"1.79.0-alpine3.20\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
+      ENV_VARS: "{ \"APP_NAME\":\"${{ needs.tag-checker-job.outputs.APP_NAME }}\", \"VERSION\":\"${{ needs.tag-checker-job.outputs.VERSION }}\", \"CI\": \"true\", \"EXTRA_ARGS\":\"--push\", \"NODE_VERSION\":\"20.11.1\", \"RUST_VERSION\":\"1.79.0-alpine3.20\", \"DOTNET_VERSION\":\"8.0.404\",\"DOTNET_RUNTIME_VERSION\":\"8.0.3-bookworm-slim\"}"
