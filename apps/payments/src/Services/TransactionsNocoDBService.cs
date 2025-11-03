@@ -29,6 +29,9 @@ public class TransactionsNocoDBService : ITransactionsService
 
     public async Task<IEnumerable<TransactionDTO>> GetTransactionsAsync(SortInputType<TransactionDTO> _, TransactionFiltersInput? filters = null!)
     {
+        // Build URL params with sorting and filtering
+        // -> Add OcrID only if provided
+        // -> Add SearchTerm only if provided (searches Merchant, TransactionText, Notes, Amount)
         var sortUrlParam = "s=-PaidAt";
         var filterUrlParam = string.Join("~and", new List<string>{
             string.IsNullOrEmpty(filters?.OcrId) ? string.Empty : $"(OcrId,eq,{filters.OcrId})",
