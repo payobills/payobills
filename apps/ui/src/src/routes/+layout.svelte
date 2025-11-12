@@ -101,7 +101,7 @@
   @import url("https://fonts.googleapis.com/css2?family=Vibes&display=swap");
 
   @import "tailwindcss";
-  @plugin "daisyui";
+  /* @plugin "daisyui"; */
   :root {
     --color: #9f9f9f;
 

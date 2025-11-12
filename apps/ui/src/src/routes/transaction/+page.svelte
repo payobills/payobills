@@ -9,7 +9,7 @@
   import { formStoreGenerator, type FormStore } from "$lib/stores/form";
   import IconButton from "$lib/icon-button.svelte";
   import type { Writable } from "svelte/store";
-  import type { Transaction } from "$lib/types/transaction";
+  import type { TransactionDTO as Transaction } from "$lib/types";
   import FileUploader from "../../lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
   import IdeaCard from "$lib/idea-card.svelte";
