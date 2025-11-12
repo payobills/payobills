@@ -38,6 +38,7 @@
 		"@urql/svelte": "^4.2.1",
 		"apexcharts": "^3.52.0",
 		"daisyui": "^5.4.2",
+		"dexie": "^4.2.1",
 		"graphql": "^16.6.0",
 		"svelte-awesome": "^3.3.5",
 		"tailwindcss": "^4.1.16"
