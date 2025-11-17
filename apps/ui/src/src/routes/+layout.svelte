@@ -14,6 +14,7 @@
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { fade, fly } from "svelte/transition";
+  import "./app.css";
 
   onMount(async () => {
     // Try to load env Urls from localStorage
@@ -99,6 +100,8 @@
   @import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Vibes&display=swap");
   @import url("https://fonts.googleapis.com/css2?family=Vibes&display=swap");
 
+  @import "tailwindcss";
+  /* @plugin "daisyui"; */
   :root {
     --color: #9f9f9f;
 

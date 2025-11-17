@@ -110,10 +110,7 @@
 
   <div class="card-item">
     Bill generates <strong>{withOrdinalSuffix(bill.billingDate)}</strong> of every
-    month
-  </div>
-  <div class="card-item">
-    Bill payment due <strong>{withOrdinalSuffix(bill.payByDate)}</strong> of every
+    month and due <strong>{withOrdinalSuffix(bill.payByDate)}</strong> of every
     month
   </div>
 

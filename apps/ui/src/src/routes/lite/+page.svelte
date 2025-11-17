@@ -15,7 +15,6 @@
   `
 
 </script>
-
 <section>
   <h2>Bills be gone.</h2>
   <p class="one-liner">
