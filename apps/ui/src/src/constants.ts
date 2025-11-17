@@ -2,4 +2,6 @@ export const CONSTANTS = {
     REFRESH_TOKEN_KEY: 'REFRESH_TOKEN_LS_KEY',
     REFRESH_TOKEN_EXPIRY_KEY: 'REFRESH_TOKEN_EXPIRY_LS_KEY',
     DB_NAME: 'PayobillsLiteDB',
+
+    BILL_STATEMENTS_KEY_PREFIX: 'billStatements__bill_'
 };

@@ -25,5 +25,5 @@ export class LiteTransactionsService implements ITransactionsService {
   
         return this.transactionsForCurrentMonth
     }
-    
 }
+

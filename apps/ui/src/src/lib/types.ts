@@ -1,3 +1,43 @@
+// HELPERS
+
+export type ID<T> = {
+    id: T
+}
+
+// DTOs
+
+export type AddBillDTO = {
+    name: string
+    billingDate?: number
+    payByDate?: number
+}
+
+export type AddBillStatementDTO = {
+    notes: string
+    amount: number
+    bill: ID<string>
+    startDate: string,
+    endDate: string,
+    isFullyPaid: boolean
+    edges: { paymentIds: string[] }
+}
+
+// LITE INDEXED DB TYPES
+
+export type AddLiteBillStatementDTO = {
+    notes: string
+    amount: number
+    billId: string
+    cycleFromDate: string,
+    cycleToDate: string,
+    isFullyPaid: boolean
+    edges: { paymentIds: string[] }
+}
+
+export type LiteBillStatementDTO = { id: string } & AddLiteBillStatementDTO;
+
+// MODELS
+
 export type Query<T> = {
     fetching: boolean;
     data: T;
@@ -6,14 +46,24 @@ export type Query<T> = {
 
 export type BillDTO = {
     id: string
-    name: string
-    billingDate?: number
-    payByDate?: number
-    latePayByDate?: number
-    payments: any[];
     isEnabled: boolean
-    createdAt: Date;
-    updatedAt?: Date;
+    createdAt: Date
+    updatedAt: Date
+    payments: any[]
+} & AddBillDTO
+
+
+export type BillStatDTO = {
+    startDate: Date,
+    endDate: Date,
+    stats: {
+        type: string
+        billIds: string[]
+        dateRanges: {
+            start: number
+            end: number
+        }[]
+    }
 }
 
 export type TransactionDTO = {
@@ -24,18 +74,6 @@ export type TransactionDTO = {
     receipts: any[]
     updatedReceipts: any[]
     paidAt: string
-}
-
-export type ID<T> = {
-    id: T
-}
-
-export type AddBillStatementDTO = {
-    amount: number
-    bill: ID<string>,
-    cycleFromDate: string
-    cycleToDate: string,
-    isFullyPaid: boolean
 }
 
 export type BillStatementDTO = {

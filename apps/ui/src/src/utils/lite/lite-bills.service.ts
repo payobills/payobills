@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { IBillsService } from "../interfaces/bills-service.interface";
-import type { BillDTO, BillStatementDTO, Query, TransactionDTO } from "$lib/types";
+import type { AddBillDTO, BillDTO, BillStatementDTO, Query, TransactionDTO } from "$lib/types";
 import type { LiteIndexedDbService } from "./lite-indexed-db.service";
 
 export class LiteBillService implements IBillsService {
@@ -26,6 +26,27 @@ export class LiteBillService implements IBillsService {
         })();
 
         return this.bills;
+    }
+
+    addBill(bill: AddBillDTO): Promise<unknown> {
+        // TODO: Fix bil; type
+        const currentTimeStamp = new Date()
+        const billToAdd: BillDTO = {
+            ...bill, id: crypto.randomUUID(),
+            payments: [],
+            isEnabled: true,
+            createdAt: currentTimeStamp,
+            updatedAt: currentTimeStamp
+        }
+
+        return new Promise(async resolve => {
+            await this.dbService.bills.add(billToAdd);
+            this.bills.update(prevState => ({
+                ...prevState,
+                data: [...prevState?.data || [], billToAdd]
+            }));
+            resolve(bill);
+        });
     }
 }
 

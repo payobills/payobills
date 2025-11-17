@@ -4,7 +4,7 @@
   import { goto } from "$app/navigation";
   import Nav from "$lib/nav.svelte";
   import { auth } from "$lib/stores/auth";
-  import { liteDb } from "$lib/stores/lite-indexed-db"
+  import { liteDb } from "$lib/stores/lite-indexed-db";
   import { onMount } from "svelte";
   import { LiteBillService } from "../../../utils/lite/lite-bills.service";
   import { LiteBillStatementsService } from "../../../utils/lite/lite-bill-statements.service";
@@ -33,100 +33,29 @@
   const currentMonth = new Date().getUTCMonth() + 1;
   const currentYear = new Date().getUTCFullYear();
 
-  const billStatsQuery = writable({
-    fetching: false,
-    data: { billStats: { stats: [] } },
-    error: null,
-  });
-
-  //  queryStore({
-  //   client: $billsUrql,
-  //   query: gql`
-  //       {
-  //       billStats(year: ${currentYear.toString()}, month: ${currentMonth.toString()}) {
-  //           startDate,
-  //           endDate,
-  //           stats {
-  //               type
-  //               billIds
-  //               dateRanges {
-  //                   start
-  //                   end
-  //               }
-  //           }
-  //       }
-  //   }
-  //   `,
-  // });
+  $: billStatsQuery = billStatementsService?.queryBillStatementsByBillIds(
+    $billsQuery?.data?.map((bill) => bill.id) ?? []
+  );
 
   $: transactionsQuery =
     transactionsService?.queryTransactionsForCurrentMonth();
 
-  // queryStore({
-  //   client: $paymentsUrql,
-  //   variables: { year: currentYear, month: currentMonth },
-  //   query: gql`
-  //     query ($year: Int!, $month: Int!) {
-  //       transactions: transactionsByYearAndMonth(
-  //         year: $year
-  //         month: $month
-  //         first: 900
-  //       ) {
-  //         nodes {
-  //           id
-  //           amount
-  //           merchant
-  //           paidAt
-  //           tags
-  //         }
-  //         pageInfo {
-  //           hasNextPage
-  //           startCursor
-  //           endCursor
-  //         }
-  //       }
-  //     }
-  //   `,
-  // });
-
-  const onRecordingPayment = (billStatementDTO: AddBillStatementDTO) => {
-    return billStatementsService.addBillStatement(billStatementDTO);
-    // $paymentsUrql
-    //   .mutation(
-    //     gql`
-    //       mutation AddBillStatement($dto: AddOrUpdateBillStatementDTOInput!) {
-    //         addOrUpdateBillStatement(dto: $dto) {
-    //           id
-    //           startDate
-    //           endDate
-    //           isFullyPaid
-    //           amount
-    //           payments {
-    //             id
-    //             __typename
-    //           }
-    //         }
-    //       }
-    //     `,
-    //     {
-    //       dto: {
-    //         notes: "",
-    //         amount,
-    //         isFullyPaid,
-    //         bill: { id: +bill.id },
-    //         startDate: cycleFromDate,
-    //         endDate: cycleToDate,
-    //         edges: { paymentIds: [] },
-    //       },
-    //     }
-    //   )
-    //   .toPromise()
-    //   .then((res) => {
-    //     if (res.error) {
-    //       console.error("Error recording payment:", res.error);
-    //       throw new Error("Failed to record payment");
-    //     }
-    //   });
+  const onRecordingPayment = ({
+    bill,
+    amount,
+    isFullyPaid,
+    cycleFromDate,
+    cycleToDate,
+  }) => {
+    return billStatementsService.addBillStatement({
+      notes: "",
+      amount,
+      isFullyPaid,
+      bill: { id: bill.id },
+      startDate: cycleFromDate,
+      endDate: cycleToDate,
+      edges: { paymentIds: [] },
+    });
   };
 </script>
 
@@ -138,7 +67,7 @@
   {:else}
     <Timeline
       items={$billsQuery?.data || []}
-      stats={$billStatsQuery?.data?.billStats || { stats: [] }}
+      stats={{ stats: $billStatsQuery?.data || [] }}
       transactions={$transactionsQuery?.data || []}
       billingStatements={$billStatementsQuery?.data}
       {onRecordingPayment}
