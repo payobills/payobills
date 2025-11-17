@@ -67,7 +67,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: refs/tags/${{ inputs.APP_NAME }}/${{ inputs.VERSION }}
+          ref: ${{ (inputs.APP_NAME != "" && inputs.VERSION == "") && format("refs/tags/{0}/{1}", inputs.APP_NAME, inputs.VERSION) || github.ref }}
 
       - name: Setup please.build
         uses: sagikazarmark/setup-please-action@v0
