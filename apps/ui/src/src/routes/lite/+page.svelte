@@ -11,16 +11,14 @@
     margin-bottom: 1rem;
     border-radius: 2rem;
     cursor: pointer;
-    transition: background 0.3s ease;
-  `
-
+  `;
 </script>
 <section>
-  <h2>Bills be gone.</h2>
+  <h1>Payobills</h1>
+  <h2>bills be gone</h2>
   <p class="one-liner">
-    <span>payobills lite</span> is your go to app to be on top of your about
-    billing and transaction needs all without sharing your data with third
-    parties.
+    <span>payobills lite</span> is THE app for your billing and transaction
+    needs, all without sharing your data with third parties.
   </p>
 
   <div class="card">
@@ -60,8 +58,12 @@
     display: flex;
     flex-direction: column;
   }
-  
-  p { font-size: 1rem; margin-bottom: 0;}
+
+  p {
+    font-size: 1rem;
+    margin-bottom: 0;
+  }
+
   .one-liner {
     margin-bottom: .75rem;
     text-align: center;
