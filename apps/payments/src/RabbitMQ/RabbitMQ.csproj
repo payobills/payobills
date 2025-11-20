@@ -3,12 +3,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Payobills.Payments.NocoDB</RootNamespace>
+    <RootNamespace>Payobills.Payments.RabbitMQ</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Services.Contracts\Services.Contracts.csproj" />
-    <ProjectReference Include="..\Data.Contracts\Data.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

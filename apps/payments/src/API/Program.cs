@@ -45,17 +45,6 @@ builder.Services.AddSingleton<IMapper>((_) =>
 
 builder.Services.AddSingleton<RabbitMQService>();
 
-// builder.Services.AddSingleton<>(async (_) =>
-// {
-//   var factory = new ConnectionFactory
-//   {
-//     Uri = new Uri(builder.Configuration.GetValue<string>("EVENT_QUEUE_CONNECTION_STRING") ?? string.Empty)
-//   };
-
-//   var connection = await factory.CreateConnectionAsync();
-//   return await connection.CreateChannelAsync();
-// });
-
 builder.Services
   .AddGraphQLServer()
   .DisableIntrospection(false)
