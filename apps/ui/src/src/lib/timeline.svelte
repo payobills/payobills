@@ -149,7 +149,7 @@
   .timeline-data {
     display: flex;
     flex-direction: column;
-    overflow-y: scroll;
+    overflow-y: hidden;
   }
 
   .items {
