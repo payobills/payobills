@@ -6,8 +6,10 @@
   import { get } from "svelte/store";
   import IconButton from "$lib/icon-button.svelte";
   import { faBell, faChartSimple, faListOl } from "@fortawesome/free-solid-svg-icons";
+  import { nav } from "$lib/stores/nav";
 
   onMount(async () => {
+    nav.set({ isOpen: false })
     loadAuthFromLocalStorage();
 
     const authState = get(auth);
