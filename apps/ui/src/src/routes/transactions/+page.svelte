@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import RecentTransactions from "$lib/recent-transactions.svelte";
   import { paymentsUrql } from "$lib/stores/urql";
+  import { nav } from "$lib/stores/nav";
   import {
     faChevronLeft,
     faChevronRight,
@@ -15,6 +16,7 @@
   let currentMonth: number;
 
   onMount(() => {
+    nav.set({ isOpen: true })
     currentYear = +(new URLSearchParams(window.location.search)?.get('year') || new Date().getFullYear())
     currentMonth = +(new URLSearchParams(window.location.search)?.get('month') || (new Date().getMonth() +1 ))
   });

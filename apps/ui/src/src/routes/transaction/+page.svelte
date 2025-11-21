@@ -13,6 +13,7 @@
   import FileUploader from "../../lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
   import IdeaCard from "$lib/idea-card.svelte";
+    import { nav } from "$lib/stores/nav";
 
   let transactionID: string | null = null;
   let pageMode: "VIEW" | "EDIT" = "VIEW";
@@ -29,6 +30,7 @@
   };
 
   onMount(() => {
+    nav.set({ isOpen: true })
     transactionID = new URLSearchParams(window.location.search).get('id');
     transactionsQuery = queryStore({
       client: $paymentsUrql,

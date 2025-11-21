@@ -2,12 +2,18 @@
   import { gql, queryStore } from "@urql/svelte";
   import { goto, afterNavigate } from "$app/navigation";
   import { billsUrql, paymentsUrql } from "$lib/stores/urql";
+    import { onMount } from "svelte";
+    import { nav } from "$lib/stores/nav";
 
   let transactionText = "";
   let billId = "";
   let amount: number | null = null;
   let merchant = "";
   let notes: string | null = null;
+
+  onMount(() => {
+    nav.set({ isOpen: true })
+    })
 
   const billsQuery = queryStore({
     client: $billsUrql,

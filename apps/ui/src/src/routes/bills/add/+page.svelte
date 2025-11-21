@@ -11,6 +11,8 @@
   } from "@urql/svelte";
 
   import { goto, afterNavigate } from "$app/navigation";
+    import { onMount } from "svelte";
+    import { nav } from "$lib/stores/nav";
   // import { base } from "$app/paths";
 
   // let previousPage: string = base;
@@ -20,6 +22,10 @@
   // });
 
   let billingDate: number, payByDate: number, name: string;
+
+  onMount(() => {
+    nav.set({ isOpen: true })
+    })
 
   const addBill = () => {
     let client;

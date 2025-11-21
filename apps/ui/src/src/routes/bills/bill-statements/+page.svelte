@@ -11,6 +11,7 @@
   import { json } from "@sveltejs/kit";
   import FileUploader from "$lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
+  import { nav } from "$lib/stores/nav";
   import RecentTransactions from "$lib/recent-transactions.svelte";
   import { currencyFormatter } from "../../../utils/currency-formatter.util";
 
@@ -20,6 +21,7 @@
   let refreshKey: number = Date.now();
 
   onMount(() => {
+    nav.set({ isOpen: true })
     let urlParams = window.location.search;
     billId = new URLSearchParams(urlParams).get('bill-id')
     billStatementId = new URLSearchParams(urlParams).get('bill-statement-id')

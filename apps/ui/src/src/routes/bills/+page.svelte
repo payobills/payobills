@@ -7,6 +7,7 @@
   import Card from "$lib/card.svelte";
   import { onMount } from "svelte";
   import BillUploadStatement from "$lib/bill-upload-statement.svelte";
+  import { nav } from "$lib/stores/nav"
   import BillStatements from "$lib/bills/bill-statements.svelte";
   import { browser } from "$app/environment";
 
@@ -97,6 +98,7 @@
   }
 
   onMount(async () => {
+    nav.set({ isOpen: true })
     if ((window as any).ApexCharts) {
       loaded = true;
       return;
