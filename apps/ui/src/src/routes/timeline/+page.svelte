@@ -5,10 +5,12 @@
   import Nav from "$lib/nav.svelte";
   import { billsUrql, paymentsUrql } from "$lib/stores/urql";
   import { auth } from "$lib/stores/auth";
+  import { nav } from "$lib/stores/nav";
   import { queryStore, gql, getContextClient } from "@urql/svelte";
   import { onMount } from "svelte";
 
   onMount(() => {
+    nav.set({ isOpen: true })
     if (!$auth?.refreshToken) {
       goto("/");
     }

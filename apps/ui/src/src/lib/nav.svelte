@@ -2,8 +2,10 @@
   import Icon from "svelte-awesome";
   import { faBars } from "@fortawesome/free-solid-svg-icons";
   import { goto } from "$app/navigation";
+  import { nav } from '$lib/stores/nav'
 </script>
 
+{#if $nav.isOpen}
 <nav>
   <!--
   <button class="hamburger" role="button">
@@ -18,6 +20,7 @@
     Payobills
   </button>
 </nav>
+{/if}
 
 <style>
   nav {

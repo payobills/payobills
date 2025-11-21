@@ -12,8 +12,9 @@
     faChevronDown,
   } from "@fortawesome/free-solid-svg-icons";
   import { onMount } from "svelte";
-  import { get } from "svelte/store";
   import { fade, fly } from "svelte/transition";
+  import { nav } from "$lib/stores/nav";
+
   import "./app.css";
 
   onMount(async () => {
@@ -57,7 +58,7 @@
 <Nav />
 
 <!-- <button on:click={randomNotification}>Notification</button> -->
-<main>
+<main style={`${$nav.isOpen ? "height: calc(100% - 4rem)" : "height: 100%"}`}>
   <slot />
   {#if $uiDrawer.content}
     <button
@@ -228,7 +229,6 @@
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
-    height: calc(100% - 4rem);
     align-self: stretch;
   }
 
