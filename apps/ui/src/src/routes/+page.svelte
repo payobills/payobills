@@ -7,6 +7,7 @@
   import IconButton from "$lib/icon-button.svelte";
   import { faBell, faChartSimple, faListOl } from "@fortawesome/free-solid-svg-icons";
   import { nav } from "$lib/stores/nav";
+  import { getIdpBaseUrl } from "../utils/auth";
 
   onMount(async () => {
     nav.set({ isOpen: false })
@@ -71,7 +72,7 @@
       .replace("${INJECTED_OIDC_CLIENT_ID}", $envStore?.INJECTED_OIDC_CLIENT_ID)
       .replace(
         "${INJECTED_OIDC_TENANT_URL}",
-        $envStore?.INJECTED_OIDC_TENANT_URL
+        getIdpBaseUrl($envStore?.INJECTED_OWN_URL, $envStore?.INJECTED_OIDC_TENANT_URL),
       )}>Login</a
   >
 
@@ -97,6 +98,7 @@
   span {
     font-weight: 800;
   }
+
   p,
   h2,
   h3 {
