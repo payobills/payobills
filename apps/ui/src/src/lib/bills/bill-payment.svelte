@@ -15,6 +15,7 @@
   export let showRecordPaymentButton = true;
   export let title = "";
   export let onRecordingPayment: any;
+  export let showBillingCycle = true;
 
   let todaysDay: number;
   let billDueDetails: { status: string; string: string; l2Status?: string };
@@ -114,9 +115,12 @@
     month
   </div>
 
-  <div class="card-item">
-    Billing cycle: {currentCycleFromDate} - {currentCycleToDate}
-  </div>
+  {#if showBillingCycle}
+    <div class="card-item">
+      Billing cycle: {currentCycleFromDate} - {currentCycleToDate}
+    </div>
+  {/if}
+
   <div class="card-item">
     Current bill status <span
       class={`due-status due-status--${billDueDetails?.status} ${billDueDetails?.l2Status ? `due-status--${billDueDetails?.status}--${billDueDetails?.l2Status}` : ""}`}

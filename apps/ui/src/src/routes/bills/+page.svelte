@@ -10,14 +10,16 @@
   import { nav } from "$lib/stores/nav"
   import BillStatements from "$lib/bills/bill-statements.svelte";
   import { browser } from "$app/environment";
-    import type { BillDTO } from "$lib/types";
+  import type { BillDTO } from "$lib/types";
+  import RecordPaymentForm from "$lib/record-payment-form.svelte";
+    import UiDrawer from "$lib/ui-drawer.svelte";
 
   let billId: any;
   let billByIdQuery: any;
   let refreshKey: number = Date.now();
 
   let showUploadStatementSection = false;
-  let showRecordPastPayment = false;
+  let showRecordPayment = false;
   let uploadStatementResult = undefined;
 
   $: billByIdQuery = billId
@@ -312,6 +314,10 @@
       },
     };
   };
+
+  const onRecordPayment = () => {
+
+  }
 </script>
 
 <Card>
@@ -362,10 +368,6 @@
         />
       {/if}
 
-      {#if showRecordPastPayment}
-        <RecordPastPayment bill={$billByIdQuery.data.billById}
-        {onRecordPastPayment}
-      {/if}
 
       <div class="actions">
         {#if !showUploadStatementSection}
