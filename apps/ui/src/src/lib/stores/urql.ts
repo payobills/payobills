@@ -12,3 +12,4 @@ const paymentsClient = createClient({
   exchanges:[fetchExchange]
 });
 export const paymentsUrql = readable(paymentsClient)
+
