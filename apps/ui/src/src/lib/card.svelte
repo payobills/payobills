@@ -18,7 +18,7 @@
     background-color: rgb(59, 59, 59);
     /* background-color: #f3f3f3; */
     padding: 1rem 1rem;
-    /* border-radius: 2rem; */
+    border-radius: 0.425rem;
   }
 
   .title {
