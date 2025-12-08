@@ -65,7 +65,7 @@
       {#each billStatements as statement (statement.id)}
         <div class={`bill-statement ${lockBillStatementCycle ? "bill-statement--locked" : ""} ${statement.id === selectedStatement.id ? "bill-statement--selected": ""}`}>
           <Card>
-            <p>{`${statement.id}`}</p>
+            <!-- <p>{`${statement.id}`}</p> -->
             <p>{`${statement.startDate} - ${statement.endDate}`}</p>
           </Card>
         </div>
@@ -113,12 +113,13 @@
         id="record-bill-payment-fullypaid"
       />
     </div>
-    {#if Object.values(selectedTransactions).filter(x => x.state).length > 0}
+    <!-- {#if Object.values(selectedTransactions).filter(x => x.state).length > 0} -->
   <Button
     onclick={async () => {
       isSaving = true;
       await onRecordingPayment({
-        amount,
+      id: selectedStatement.id,
+      amount:  Object.values(selectedTransactions).filter(x => x.state).length > 0 ? amount : +transactionSearchTerm,
         bill,
       cycleFromDate: selectedStatement.startDate,
         cycleToDate:selectedStatement.endDate,
@@ -130,7 +131,7 @@
     state={isSaving ? "LOADING" : "DEFAULT"}
     >Record Payment
   </Button>
-  {/if}
+  <!-- {/if} -->
   </div>
 </div>
 

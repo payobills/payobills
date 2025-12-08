@@ -56,7 +56,6 @@ export class LiteBillStatementsService implements IBillStatementsService {
 
     async addBillStatement(dto: AddBillStatementDTO): Promise<unknown> {
         // TODO: Add Validation to check if billStatement already exists and data is valid
-
         const l = {
             id: crypto.randomUUID(),
             ...dto,
@@ -66,9 +65,7 @@ export class LiteBillStatementsService implements IBillStatementsService {
             billId: dto.bill.id
         }
 
-        console.log('adding ', l)
         await this.dbService.billStatements.add(l);
-
         return dto;
     }
 }

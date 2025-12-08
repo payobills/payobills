@@ -11,6 +11,7 @@
   export let transactions: any[] = [];
   export let billingStatements: any;
   export let onRecordingPayment: any;
+  export let onCurrentBillStatementDoesNotExist: any;
 
   let lastDay = 31;
   let fullPaymentDates: any[] = [];
@@ -78,6 +79,7 @@
             `billStatements__bill_${item.id}`
           ]}
           {onRecordingPayment}
+          {onCurrentBillStatementDoesNotExist}
         />
       {/each}
     </div>
