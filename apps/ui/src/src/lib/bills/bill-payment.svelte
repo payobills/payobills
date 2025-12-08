@@ -9,12 +9,16 @@
   import { uiDrawer } from "$lib/stores/ui-drawer";
   import RecordPaymentForm from "$lib/record-payment-form.svelte";
   import UiDrawer from "$lib/ui-drawer.svelte";
+  import type { BillStatementDTO } from "$lib/types";
 
   export let bill;
-  export let billingStatements: any[] | undefined;
+  export let billingStatements: BillStatementDTO[] | undefined;
   export let showRecordPaymentButton = true;
   export let title = "";
+  export let showBillingCycle = true;
+
   export let onRecordingPayment: any;
+  export let onCurrentBillStatementDoesNotExist: any;
 
   let todaysDay: number;
   let billDueDetails: { status: string; string: string; l2Status?: string };
@@ -41,6 +45,21 @@
         cycle?.toDate === statement.endDate
     );
 
+    if (!currentBillStatement)
+    {
+      (() => {
+        // onCurrentBillStatementDoesNotExist({
+          // amount: undefined,
+          // bill, cycleFromDate: cycle?.fromDate, cycleToDate: cycle?.toDate, isFullyPaid: false 
+        // });
+      })();
+      currentBillStatement = {
+        startDate: cycle?.fromDate,
+        endDate: cycle?.toDate,
+        amount: undefined,
+      }
+    }
+    
     currentCycleFromDate = cycle?.fromDate || "";
     currentCycleToDate = cycle?.toDate || "";
     const diffInDays = bill.payByDate - todaysDay;
@@ -91,7 +110,7 @@
             goto(`#payment__bill_${bill.id}`);
             currentPayingBill = null;
             currentPayingBill = bill;
-            console.log("currentPayingBill", currentPayingBill);
+            // console.log("currentPayingBill", currentPayingBill);
           }}>Record payment</button
         >
       </div>
@@ -104,7 +123,11 @@
         currentPayingBill = null;
       }}
     >
-      <RecordPaymentForm bill={currentPayingBill} {onRecordingPayment} />
+      <RecordPaymentForm bill={currentPayingBill}
+        {onRecordingPayment}
+        billStatements={[currentBillStatement]}
+        selectedStatement={currentBillStatement}
+      />
     </UiDrawer>
   {/if}
 
@@ -114,9 +137,12 @@
     month
   </div>
 
-  <div class="card-item">
-    Billing cycle: {currentCycleFromDate} - {currentCycleToDate}
-  </div>
+  {#if showBillingCycle}
+    <div class="card-item">
+      Billing cycle: {currentCycleFromDate} - {currentCycleToDate}
+    </div>
+  {/if}
+
   <div class="card-item">
     Current bill status <span
       class={`due-status due-status--${billDueDetails?.status} ${billDueDetails?.l2Status ? `due-status--${billDueDetails?.status}--${billDueDetails?.l2Status}` : ""}`}

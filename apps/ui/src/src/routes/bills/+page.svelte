@@ -10,12 +10,16 @@
   import { nav } from "$lib/stores/nav"
   import BillStatements from "$lib/bills/bill-statements.svelte";
   import { browser } from "$app/environment";
+  import type { BillDTO } from "$lib/types";
+  import RecordPaymentForm from "$lib/record-payment-form.svelte";
+    import UiDrawer from "$lib/ui-drawer.svelte";
 
   let billId: any;
   let billByIdQuery: any;
   let refreshKey: number = Date.now();
 
   let showUploadStatementSection = false;
+  let showRecordPayment = false;
   let uploadStatementResult = undefined;
 
   $: billByIdQuery = billId
@@ -113,7 +117,7 @@
   }
 
   const onBillStatementFormUpload = async (inputs: {
-    bill: Bill;
+    bill: BillDTO;
     billStatementFile: File;
     billPeriodDetails: any;
   }) => {
@@ -310,6 +314,10 @@
       },
     };
   };
+
+  const onRecordPayment = () => {
+
+  }
 </script>
 
 <Card>
@@ -360,18 +368,15 @@
         />
       {/if}
 
+
       <div class="actions">
         {#if !showUploadStatementSection}
           <button on:click={() => (showUploadStatementSection = true)}
             >upload statement</button
           >
         {/if}
-        <button class="markPaid" on:click={async () => await markPaid()}
-          >mark as paid</button
-        >
       </div>
     {/if}
-    <!-- {/if} -->
   </div>
 </Card>
 
@@ -400,10 +405,6 @@
   .actions > button {
     margin: 0.25rem 0;
     width: 100%;
-  }
-
-  .markPaid {
-    align-self: flex-end;
   }
 
   .payment {
