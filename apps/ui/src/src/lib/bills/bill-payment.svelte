@@ -47,12 +47,6 @@
 
     if (!currentBillStatement)
     {
-      (() => {
-        // onCurrentBillStatementDoesNotExist({
-          // amount: undefined,
-          // bill, cycleFromDate: cycle?.fromDate, cycleToDate: cycle?.toDate, isFullyPaid: false 
-        // });
-      })();
       currentBillStatement = {
         startDate: cycle?.fromDate,
         endDate: cycle?.toDate,
@@ -64,7 +58,13 @@
     currentCycleToDate = cycle?.toDate || "";
     const diffInDays = bill.payByDate - todaysDay;
 
-    if (!billingStatements) {
+    if(!bill.isEnabled) {
+      billDueDetails = {
+        string: 'Disabled',
+        status: 'disabled'
+      }
+    }
+    else if (!billingStatements) {
       billDueDetails = {
         string: `Calculating ...`,
         status: "loading",
@@ -103,7 +103,7 @@
   <a href={`#payment__bill_${bill.id}`} aria-label="anchor"></a>
   <div class="header">
     <div class="name">{title?.length > 0 ? title : bill.name}</div>
-    {#if showRecordPaymentButton}
+    {#if bill.isEnabled && showRecordPaymentButton}
       <div class="actions">
         <button
           on:click={() => {
@@ -164,10 +164,8 @@
   }
 
   .container {
-    /* background-color: rgb(233, 233, 233); */
     border-radius: 0.425rem;
     background-color: rgb(59, 59, 59);
-    /* border: 0.125rem solid rgb(216, 216, 216); */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -210,13 +208,13 @@
     font-size: 0.75rem;
   }
 
-  hr {
-    width: 100%;
-    height: 0.125rem;
-    border: none;
-    background-color: rgb(216, 216, 216);
-    margin: 0;
-  }
+  /* hr { */
+  /*   width: 100%; */
+  /*   height: 0.125rem; */
+  /*   border: none; */
+  /*   background-color: rgb(216, 216, 216); */
+  /*   margin: 0; */
+  /* } */
 
   button {
     margin: 0.5rem;
@@ -235,6 +233,11 @@
   .due-status--due {
     color: white;
     background-color: var(--primary-accent-color);
+  }
+
+  .due-status--disabled {
+    color: white;
+    background-color: rgb(55, 55, 55);
   }
 
   .due-status--paid {
