@@ -63,7 +63,7 @@
       <h1 class="title_bill">Your bills</h1>
     {/if}
 
-    <p>Stay updated with the bills you need to pay this month...</p>
+    <p class='stay-updated'>Stay updated with the bills you need to pay this month...</p>
 
     {#if fullPaymentDates.length > 0}
       <IdeaCard
@@ -180,5 +180,9 @@
 
   span {
     color: #9f9f9f;
+  }
+
+  .stay-updated {
+    margin-bottom: 1rem;
   }
 </style>
