@@ -28,6 +28,8 @@ struct CurrencyRecord {
     name: String,
     #[serde(rename = "Code")]
     code: String,
+    #[serde(rename = "Aliases")]
+    aliases: Vec<String>
 }
 
 #[derive(Serialize, Deserialize)]
@@ -491,7 +493,7 @@ async fn parse_transaction(
 
                             let matching_currency_records: Vec<&CurrencyRecord> = currencies
                                 .iter()
-                                .filter(|curr| currency == curr.code || currency == curr.symbol)
+                                .filter(|curr| currency == curr.code || curr.aliases.contains(&currency) || currency == curr.symbol)
                                 .clone()
                                 .collect();
 
