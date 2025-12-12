@@ -18,6 +18,13 @@ public class Transaction
     public string? Merchant { get; set; }
     public string? Currency { get; set; }
     public double? Amount { get; set; }
+
+    private double? normalizedAmount;
+    public double? NormalizedAmount {
+      get { return normalizedAmount ?? Amount; }
+      set { if(value != normalizedAmount) normalizedAmount = value; }
+    }
+
     public string Notes { get { return notes; } set { notes = value ?? string.Empty; } }
     private string notes = string.Empty;
     public string TransactionText { get; set; } = string.Empty;
