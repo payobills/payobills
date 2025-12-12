@@ -21,11 +21,11 @@ public class Transaction
 
     private double? normalizedAmount;
     public double? NormalizedAmount {
-      get { return normalizedAmount ?? Amount; }
+      get { return normalizedAmount; }
       set { if(value != normalizedAmount) normalizedAmount = value; }
     }
 
-    public string Notes { get { return notes; } set { notes = value ?? string.Empty; } }
+    public string Notes { get { return notes ?? string.Empty; } set { notes = value ?? string.Empty; } }
     private string notes = string.Empty;
     public string TransactionText { get; set; } = string.Empty;
     public string BackDateString { get; set; } = string.Empty;
