@@ -12,6 +12,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
         public string? Merchant { get; set; }
         public string? Currency { get; set; }
         public double? Amount { get; set; }
+        public double NormalizedAmount { get; set; }
         public string Notes { get { return notes; } set { notes = value ?? string.Empty; } }
         private string notes = string.Empty;
         public string TransactionText { get; set; } = string.Empty;
@@ -66,6 +67,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             json?.TryGetPropertyValue(nameof(Merchant), out merchantNode);
             string? merchantName = merchantNode?.GetValue<string>();
             Merchant = merchantName ?? parent.Merchant;
+            NormalizedAmount = parent.NormalizedAmount;
         }
     }
 }
