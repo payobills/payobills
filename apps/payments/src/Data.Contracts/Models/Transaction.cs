@@ -28,8 +28,15 @@ public class Transaction
     public string Notes { get { return notes ?? string.Empty; } set { notes = value ?? string.Empty; } }
     private string notes = string.Empty;
     public string TransactionText { get; set; } = string.Empty;
-    public string BackDateString { get; set; } = string.Empty;
-    public string ParseStatus { get; set; } = string.Empty;
+    public string BackDateString => BackDate?.ToString("o") ?? string.Empty;
+
+    private string parseStatus;
+    public string ParseStatus
+    {
+      get { return parseStatus ?? "NotStarted"; }
+      set { parseStatus = value; }
+    }
+
     public DateTime? BackDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
