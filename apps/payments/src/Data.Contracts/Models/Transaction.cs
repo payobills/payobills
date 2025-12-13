@@ -34,7 +34,7 @@ public class Transaction
     public string ParseStatus
     {
       get { return parseStatus ?? "NotStarted"; }
-      set { parseStatus = parseStatus; }
+      set { parseStatus = value; }
     }
 
     public DateTime? BackDate { get; set; }
