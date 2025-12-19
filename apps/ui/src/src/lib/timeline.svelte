@@ -17,18 +17,19 @@
   let fullPaymentDates: any[] = [];
   let month = "";
 
-  $: itemsFilteredByName = items.toSorted((p: any, q: any) =>
-    p.name > q.name ? 1 : -1
-  );
-  $: filteredItems = itemsFilteredByName.toSorted((p: any, q: any) => {
+  $: filteredItems = items.toSorted((p: any, q: any) => {
+    if(!p.isEnabled) return Number.POSITIVE_INFINITY;
+    if(!q.isEnabled) return Number.NEGATIVE_INFINITY;
+
     if (
-      p.billingDate !== null &&
-      p.payByDate !== null &&
-      q.billingDate !== null &&
-      q.payByDate !== null
+      p.billingDate == null &&
+      p.payByDate == null &&
+      q.billingDate == null &&
+      q.payByDate == null
     )
       return -1;
-    return 0;
+
+    return p.name.localeCompare(q.name);
   });
 
   onMount(() => {
