@@ -1,6 +1,5 @@
 # @payobills/ui
 
-<!-- Sample change -->
 UI for payobills.
 
 docker build -t payobills-ui:0.1.0-alpha.1 -f ../../common/docker/svelte-svc.prod.dockerfile --build-arg SVC=payobills.ui --build-arg NODE_VERSION=18.12.0 .
