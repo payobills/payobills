@@ -21,6 +21,7 @@
     // Try to load env Urls from localStorage
     await tryLoadEnv();
 
+    randomNotification()
     // Guard against going to other pages without login
     // loadAuthFromLocalStorage();
     // const authState = get(auth);
