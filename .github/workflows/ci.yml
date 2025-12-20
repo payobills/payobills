@@ -164,10 +164,10 @@ jobs:
         mode: tag
         diff_dest: ${{ steps.calculate_changed_services.outputs.diff_dest }}
 
-     - name: Trigger Build workflow
-       if: ${{ github.event_name == 'pull_request' || steps.calculate_changed_services.outputs.changed_services != '{"value":[]}' && (steps.calculate_changed_services.outputs.diff_dest == 'main' || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix')) }}
+    - name: Trigger Build workflow
+      if: ${{ github.event_name == 'pull_request' || steps.calculate_changed_services.outputs.changed_services != '{"value":[]}' && (steps.calculate_changed_services.outputs.diff_dest == 'main' || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'release') || startsWith(steps.calculate_changed_services.outputs.diff_dest, 'hotfix')) }}
       run: |
-          curl -X POST \
+        curl -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.CICD_PAT}}" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/docker_buildx-on-tag-publish.yml/dispatches \
