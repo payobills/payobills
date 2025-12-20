@@ -35,7 +35,8 @@
 
   function randomNotification() {
     Notification.requestPermission().then((result) => {
-      if (result === "granted") {
+      alert(result)
+      // if (result === "granted") {
         const notifTitle = "Payobills";
         const notifBody = `You have a new bill to pay...`;
         const notifImg = `https://http.cat/images/200.jpg`;
@@ -44,7 +45,7 @@
           icon: notifImg,
         };
         new Notification(notifTitle, options);
-      }
+      // }
     });
   }
 
