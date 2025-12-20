@@ -176,7 +176,7 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.CICD_PAT}}" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/178662221/dispatches \
-            -d "{\"ref\": \"$(echo -n '${{ steps.calculate_service_versions.outputs.PR_BODY }}' | grep apps | head -1 | sed 's|.*apps/||' | sed 's| - |/|')\"}" 
+            -d "{\"ref\": \"$(echo -n '${{ steps.calculate_service_versions.outputs.PR_BODY }}' | grep apps | head -1 | sed 's|.*apps/||' | sed 's| - |/|' | sed 's/\\n//' )\"}" 
 
   deploy-tmp-pr-docker-buildx-images:
     name: deploy-tmp-pr-docker-buildx-images
