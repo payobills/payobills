@@ -1,5 +1,4 @@
 <script lang='ts'>
-  import { goto } from "$app/navigation";
   import IconButton from "$lib/icon-button.svelte";
   import { faBell, faChartSimple, faListOl } from "@fortawesome/free-solid-svg-icons";
 
@@ -14,11 +13,11 @@
   `;
 </script>
 <section>
-  <h1>Payobills</h1>
+  <h1>Payobills Lite</h1>
+  <div class="content">
   <h2>bills be gone</h2>
   <p class="one-liner">
-    <span>payobills lite</span> is THE app for your billing and transaction
-    needs, all without sharing your data with third parties.
+    <span>payobills lite</span> is your go to app to be on top of your billing and transaction needs, all without sharing your data with third party services. Bring and keep your own data.
   </p>
 
   <div class="card">
@@ -48,15 +47,30 @@
 
   <button on:click={() => {}}>Coming Soon</button>
   <p class='one-liner'>* Payobills is an open source project maintained by <span>Sahu, S</span> in his personal time. ❤️ is appreciated</p>
+    </div>
 </section>
 
 <style>
+  :global(main) {
+    align-items: center;
+    justify-content: stretch;
+  }
+
   section {
     padding: 1rem;
     align-items: stretch;
-    background-color: var(--primary-color);
     display: flex;
     flex-direction: column;
+    max-width: 60rem;
+    flex-grow: 1;
+  }
+  
+  .content {
+    justify-content: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   p {
@@ -65,7 +79,7 @@
   }
 
   .one-liner {
-    margin-bottom: .75rem;
+    margin: 1rem 0 .75rem 0;
     text-align: center;
   }
 
@@ -93,6 +107,7 @@
     padding: 2rem 2.5rem;
     margin-bottom: 1rem;
     border-radius: 2rem;
+    width: 100%;
   }
 
   h3 {
@@ -105,13 +120,10 @@
   button {
     align-self: center;
     width: auto;
-
-    /* button with gradient from 696ADB to 633CBD from left to right */
-    /* background:  */
     font-family: 'Figtree';
     font-weight: 900;
     text-transform: unset;
-    background: linear-gradient(to right, #696adb, #633cbd);
+    background-color: #2a276a;
     border: none;
     color: white;
     margin-top: 2rem;
