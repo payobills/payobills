@@ -1,53 +1,84 @@
-<script lang='ts'>
+<script lang="ts">
   import IconButton from "$lib/icon-button.svelte";
-  import { faBell, faChartSimple, faListOl } from "@fortawesome/free-solid-svg-icons";
+  import {
+    faBell,
+    faChartSimple,
+    faListOl,
+  } from "@fortawesome/free-solid-svg-icons";
 
   const iconStyle = (colorsLeftToRight: string[] = []) => `
-    background: linear-gradient(to right, ${colorsLeftToRight.join(', ')});
+    background: linear-gradient(to right, ${colorsLeftToRight.join(", ")});
     border: none;
     color: white;
-    padding: 1.6rem;
-    margin-bottom: 1rem;
-    border-radius: 2rem;
+    margin-right: 2rem;
+    border-radius: 2.5rem;
+    height: 5rem;
+    width: 5rem;
     cursor: pointer;
   `;
 </script>
+
 <section>
   <h1>Payobills Lite</h1>
   <div class="content">
-  <h2>bills be gone</h2>
-  <p class="one-liner">
-    <span>payobills lite</span> is your go to app to be on top of your billing and transaction needs, all without sharing your data with third party services. Bring and keep your own data.
-  </p>
-
-  <div class="card">
-    <IconButton icon={faChartSimple} scale={.75} style={iconStyle(['#C850A3', '#8341D7'])}/>
-    <h3>Bill Management</h3>
-    <p>
-      Track all your bills together in a single place. No need to do it across different apps.
+    <h2>bills be gone</h2>
+    <p class="one-liner">
+      <span>payobills lite</span> is your go to app to be on top of your billing
+      and transaction needs, all without sharing your data with third party services.
+      Bring and keep your own data.
     </p>
-  </div>
 
     <div class="card">
-      <IconButton icon={faBell} scale={.75} style={iconStyle(['#61C1C7', '#518EE5'])}/>
-    <h3>Reminders</h3>
-    <p>
-      Get notified about when to pay your bills, so you never miss a due date.
-    </p>
-  </div>
-
-  <div class="card">
-    <IconButton icon={faListOl} scale={.75} style={iconStyle(['#F0B347', '#E98739'])}/>
-    <h3>Detailed Transaction History</h3>
-    <p>
-      See where your money goes with a clear, categorized view of your monthly
-      spending.
-    </p>
-  </div>
-
-  <button on:click={() => {}}>Coming Soon</button>
-  <p class='one-liner'>* Payobills is an open source project maintained by <span>Sahu, S</span> in his personal time. ❤️ is appreciated</p>
+      <IconButton
+        icon={faChartSimple}
+        scale={0.75}
+        style={iconStyle(["#C850A3", "#8341D7"])}
+      />
+      <div>
+        <h3>Bill Management</h3>
+        <p>
+          Track all your bills together in a single place. No need to do it
+          across different apps.
+        </p>
+      </div>
     </div>
+
+    <div class="card">
+      <IconButton
+        icon={faBell}
+        scale={0.75}
+        style={iconStyle(["#61C1C7", "#518EE5"])}
+      />
+      <div>
+        <h3>Reminders</h3>
+        <p>
+          Get notified about when to pay your bills, so you never miss a due
+          date.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <IconButton
+        icon={faListOl}
+        scale={0.75}
+        style={iconStyle(["#F0B347", "#E98739"])}
+      />
+      <div>
+        <h3>Detailed Transaction History</h3>
+        <p>
+          See where your money goes with a clear, categorized view of your
+          monthly spending.
+        </p>
+      </div>
+    </div>
+
+    <button on:click={() => {}}>Coming Soon</button>
+    <p class="one-liner">
+      * Payobills is an open source project maintained by <span>Sahu, S</span>
+      in his personal time <br /> ❤️ is appreciated
+    </p>
+  </div>
 </section>
 
 <style>
@@ -64,7 +95,7 @@
     max-width: 60rem;
     flex-grow: 1;
   }
-  
+
   .content {
     justify-content: center;
     flex-grow: 1;
@@ -79,7 +110,7 @@
   }
 
   .one-liner {
-    margin: 1rem 0 .75rem 0;
+    margin: 1rem 0 0.75rem 0;
     text-align: center;
   }
 
@@ -92,7 +123,6 @@
     color: #a0a0a8;
   }
 
-
   h2 {
     font-size: 2.5rem;
     font-weight: 900;
@@ -102,6 +132,8 @@
   }
 
   .card {
+    display: flex;
+    align-items: center;
     min-height: 8rem;
     background-color: rgb(59, 59, 59);
     padding: 2rem 2.5rem;
@@ -120,7 +152,7 @@
   button {
     align-self: center;
     width: auto;
-    font-family: 'Figtree';
+    font-family: "Figtree";
     font-weight: 900;
     text-transform: unset;
     background-color: #2a276a;

@@ -5,12 +5,16 @@
   import { envStore } from "$lib/stores/env";
   import { get } from "svelte/store";
   import IconButton from "$lib/icon-button.svelte";
-  import { faBell, faChartSimple, faListOl } from "@fortawesome/free-solid-svg-icons";
+  import {
+    faBell,
+    faChartSimple,
+    faListOl,
+  } from "@fortawesome/free-solid-svg-icons";
   import { nav } from "$lib/stores/nav";
-  import { getIdpBaseUrl } from "../utils/auth";
+  import { getIdpBaseUrl } from "$utils/auth";
 
   onMount(async () => {
-    nav.set({ isOpen: false })
+    nav.set({ isOpen: false });
     loadAuthFromLocalStorage();
 
     const authState = get(auth);
@@ -18,14 +22,14 @@
     if (authState?.refreshToken) await goto("/timeline");
   });
 
-
   const iconStyle = (colorsLeftToRight: string[] = []) => `
-    background: linear-gradient(to right, ${colorsLeftToRight.join(', ')});
+    background: linear-gradient(to right, ${colorsLeftToRight.join(", ")});
     border: none;
     color: white;
-    padding: 1.6rem;
-    margin-bottom: 1rem;
-    border-radius: 2rem;
+    margin-right: 2rem;
+    border-radius: 2.5rem;
+    height: 5rem;
+    width: 5rem;
     cursor: pointer;
   `;
 </script>
@@ -34,33 +38,52 @@
   <h1>Payobills</h1>
   <!-- <h2>bills be gone</h2> -->
   <p class="one-liner">
-    <span>payobills</span> is your go to app for all billing and transaction
-    needs, all without sharing your data with third parties
+    <span>payobills</span> is your go to app for all billing and transaction needs,
+    all without sharing your data with third parties
   </p>
 
   <div class="card">
-    <IconButton icon={faChartSimple} scale={.75} style={iconStyle(['#C850A3', '#8341D7'])}/>
-    <h3>Bill Management</h3>
-    <p>
-      Track all your bills together in a single place. No need to do it across different apps.
-    </p>
-  </div>
-
-    <div class="card">
-      <IconButton icon={faBell} scale={.75} style={iconStyle(['#61C1C7', '#518EE5'])}/>
-    <h3>Reminders</h3>
-    <p>
-      Get notified about when to pay your bills, so you never miss a due date.
-    </p>
+    <IconButton
+      icon={faChartSimple}
+      scale={0.75}
+      style={iconStyle(["#C850A3", "#8341D7"])}
+    />
+    <div>
+      <h3>Bill Management</h3>
+      <p>
+        Track all your bills together in a single place. No need to do it across
+        different apps.
+      </p>
+    </div>
   </div>
 
   <div class="card">
-    <IconButton icon={faListOl} scale={.75} style={iconStyle(['#F0B347', '#E98739'])}/>
-    <h3>Detailed Transaction History</h3>
-    <p>
-      See where your money goes with a clear, categorized view of your monthly
-      spending.
-    </p>
+    <IconButton
+      icon={faBell}
+      scale={0.75}
+      style={iconStyle(["#61C1C7", "#518EE5"])}
+    />
+    <div>
+      <h3>Reminders</h3>
+      <p>
+        Get notified about when to pay your bills, so you never miss a due date.
+      </p>
+    </div>
+  </div>
+
+  <div class="card">
+    <IconButton
+      icon={faListOl}
+      scale={0.75}
+      style={iconStyle(["#F0B347", "#E98739"])}
+    />
+    <div>
+      <h3>Detailed Transaction History</h3>
+      <p>
+        See where your money goes with a clear, categorized view of your monthly
+        spending.
+      </p>
+    </div>
   </div>
 
   <a
@@ -72,11 +95,17 @@
       .replace("${INJECTED_OIDC_CLIENT_ID}", $envStore?.INJECTED_OIDC_CLIENT_ID)
       .replace(
         "${INJECTED_OIDC_TENANT_URL}",
-        getIdpBaseUrl($envStore?.INJECTED_OWN_URL, $envStore?.INJECTED_OIDC_TENANT_URL),
+        getIdpBaseUrl(
+          $envStore?.INJECTED_OWN_URL,
+          $envStore?.INJECTED_OIDC_TENANT_URL
+        )
       )}>Login</a
   >
 
-  <p class='one-liner'>Payobills is an open source project maintained by <span>Sahu, S</span> in his personal time. ❤️ is appreciated</p>
+  <p class="one-liner">
+    Payobills is an open source project maintained by <span>Sahu, S</span> in his
+    personal time. ❤️ is appreciated
+  </p>
 </section>
 
 <style>
@@ -114,16 +143,9 @@
     margin-bottom: 4rem;
   }
 
-
-
-  h2 {
-    font-size: 2.5rem;
-    text-align: center;
-    color: white;
-    margin: 1rem;
-  }
-
   .card {
+    display: flex;
+    align-items: center;
     min-height: 8rem;
     background-color: rgb(59, 59, 59);
     padding: 2rem 2.5rem;
@@ -138,13 +160,14 @@
     margin: 0;
   }
 
-  button, .login-link {
+  button,
+  .login-link {
     align-self: center;
     width: auto;
 
     /* button with gradient from 696ADB to 633CBD from left to right */
     /* background:  */
-    font-family: 'Figtree';
+    font-family: "Figtree";
     font-weight: 900;
     text-transform: unset;
     background: linear-gradient(to right, #696adb, #633cbd);
@@ -159,4 +182,3 @@
     transition: background 0.3s ease;
   }
 </style>
-

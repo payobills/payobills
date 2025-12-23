@@ -56,7 +56,7 @@
         on:click={() => {
           currentYear = currentMonth == 1 ? currentYear - 1 : currentYear;
           currentMonth = currentMonth == 1 ? 12 : currentMonth - 1;
-          goto(`/transactions?year=${currentYear}&month=${currentMonth}`);
+          goto(`transactions?year=${currentYear}&month=${currentMonth}`);
         }}
       >
         <Icon
@@ -78,7 +78,7 @@
         on:click={() => {
           currentYear = currentMonth == 12 ? currentYear + 1 : currentYear;
           currentMonth = currentMonth == 12 ? 1 : currentMonth + 1;
-          goto(`/transactions?year=${currentYear}&month=${currentMonth}`);
+          goto(`transactions?year=${currentYear}&month=${currentMonth}`);
         }}
       >
         <Icon
