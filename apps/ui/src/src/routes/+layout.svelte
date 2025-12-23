@@ -15,7 +15,7 @@
   import { fade, fly } from "svelte/transition";
   import { nav } from "$lib/stores/nav";
 
-  import "./app.css";
+  // import "./app.css";
 
   onMount(async () => {
     // Try to load env Urls from localStorage

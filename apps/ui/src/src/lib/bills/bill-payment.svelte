@@ -3,7 +3,6 @@
   import Card from "$lib/card.svelte";
   import { onMount } from "svelte";
   import { withOrdinalSuffix } from "../../utils/ordinal-suffix";
-  import Page from "../../routes/+page.svelte";
   import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
   import { fromStore } from "svelte/store";
   import { uiDrawer } from "$lib/stores/ui-drawer";

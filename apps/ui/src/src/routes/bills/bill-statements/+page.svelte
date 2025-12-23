@@ -13,7 +13,7 @@
   import { envStore } from "$lib/stores/env";
   import { nav } from "$lib/stores/nav";
   import RecentTransactions from "$lib/recent-transactions.svelte";
-  import { currencyFormatter } from "../../../utils/currency-formatter.util";
+  import { currencyFormatter } from "$utils/currency-formatter.util";
     import UiDrawer from "$lib/ui-drawer.svelte";
     import RecordPaymentForm from "$lib/record-payment-form.svelte";
     import { writable, type Writable } from "svelte/store";
