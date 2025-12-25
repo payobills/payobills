@@ -74,8 +74,6 @@
       });
   }
 
-
-
   let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
     fetching: false,
     data: [],

@@ -16,8 +16,8 @@
     />
   </button>
   -->
-  <button class="app-title" on:click={() => goto("/timeline")}>
-    Payobills
+  <button class="app-title" on:click={() => goto($nav.link)}>
+      {$nav.title}
   </button>
 </nav>
 {/if}
