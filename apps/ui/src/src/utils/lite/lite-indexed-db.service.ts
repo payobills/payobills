@@ -43,8 +43,15 @@ export class LiteIndexedDbService {
                 id: "1",
                 merchant: "Test Merchant",
                 amount: 1500,
-                paidAt: "2025-11-12T16:01:17.814Z"
+                paidAt: new Date("2025-11-12T16:01:17.814Z")
+            } as TransactionDTO,
+            {
+                id: "2",
+                merchant: "Test Merchant 2",
+                amount: 499,
+                paidAt: new Date("2025-12-12T16:01:17.814Z")
             } as TransactionDTO
+
         ]);
 
     }
