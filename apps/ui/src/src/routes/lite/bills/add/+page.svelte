@@ -1,37 +1,16 @@
 <script lang="ts">
   import Card from "$lib/card.svelte";
-  import { faCancel, faEllipsis } from "@fortawesome/free-solid-svg-icons";
-  import {billsUrql} from '$lib/stores/urql'
+  import { faCancel } from "@fortawesome/free-solid-svg-icons";
   import IconButton from "$lib/icon-button.svelte";
-  import {
-    queryStore,
-    gql,
-    getContextClient,
-    mutationStore,
-  } from "@urql/svelte";
+  import { goto } from "$app/navigation";
+  import { liteServices } from "../../../../lib/stores/lite-services";
 
-  import { goto, afterNavigate } from "$app/navigation";
-  import { onMount } from "svelte";
-  import { LiteBillService } from "../../../../utils/lite/lite-bills.service";
-  // import { base } from "$app/paths";
-
-  // let previousPage: string = base;
-
-  // afterNavigate(({ from }) => {
-  //   previousPage = from?.url.pathname || "/";
-  // });
-
-  let billsService: LiteBillService;
-
-  onMount(() => {
-    billsService = new LiteBillService($liteDb);
-  });
+  $: billsService = $liteServices?.billsService
 
   let billingDate: number, payByDate: number, name: string;
 
   const addBill = () => {
-    let client;
-    try{
+    try {
       billsService.addBill({ name, payByDate, billingDate })
       .then(() => {
         goto("/");
@@ -40,12 +19,10 @@
     catch(error) {
       console.error("couldn't get client", error);
     }
-    
   };
 </script>
 
 <Card title="add bill">
-  <!-- <div> -->
   <div class="add-bill-form">
     <div>name</div>
     <input type="text" placeholder="My Credit Card" bind:value={name} />
@@ -63,11 +40,8 @@
         window.history.back();
       }}
     />
-    <!-- {#if !isAddingBill} -->
+
     <button on:click={addBill}>save</button>
-    <!-- {:else}
-      <IconButton icon={faEllipsis} backgroundColor={'white'} rounded={false} />
-    {/if} -->
   </div>
 </Card>
 
@@ -76,17 +50,20 @@
     font-size: 0.8rem;
     color: var(--color);
   }
+
   input {
     border: none;
     margin: 0.5rem 0;
     padding: 0.5rem;
     align-self: stretch;
   }
+
   .add-bill-form {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
   }
+
   .actions {
     display: flex;
     justify-content: space-between;
