@@ -3,7 +3,6 @@
   import { faCancel, faEllipsis } from "@fortawesome/free-solid-svg-icons";
   import {billsUrql} from '$lib/stores/urql'
   import IconButton from "$lib/icon-button.svelte";
-  import { liteDb } from "$lib/stores/lite-indexed-db";
   import {
     queryStore,
     gql,
