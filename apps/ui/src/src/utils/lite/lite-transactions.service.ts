@@ -1,6 +1,7 @@
 import { writable, type Writable } from "svelte/store";
 import type { ITransactionsService } from "../interfaces/transactions-service.interface";
 import type { TransactionDTO, Query } from "$lib/types";
+import type { LiteIndexedDbService } from "./lite-indexed-db.service";
 
 export class LiteTransactionsService implements ITransactionsService {
     constructor(private dbService: LiteIndexedDbService) { }
@@ -9,6 +10,12 @@ export class LiteTransactionsService implements ITransactionsService {
         data: undefined,
         error: null
     });
+
+    queryTransactionsWithSearchTerm(
+      existingStore: Writable<Query<TransactionDTO[]>>,
+      searchTerm: string): Writable<Query<TransactionDTO[]>> {
+      throw new Error('Not Implemented')
+    }
 
     queryTransactionsForCurrentMonth(): Writable<Query<TransactionDTO[] | undefined>> {
       (async () => {

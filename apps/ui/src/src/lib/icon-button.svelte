@@ -8,22 +8,21 @@
   export let color: string = "white";
   export let scale = 1.5;
   export let style = "";
-
 </script>
 
 <!-- Ref: https://fontawesome.com/search?ip=classic&s=solid&o=r -->
-<button on:click class="icon-button" >
+<button on:click class="icon-button" style={`${style}; ${backgroundColor ? `background-color: ${backgroundColor}` :''}`}>
   <Icon
     data={icon}
     {scale}
-    style={`color: ${color}; cursor: pointer; ${backgroundColor ? `background-color: ${backgroundColor}`: ''}; ${style}`}
+    style={`fill: ${color}; cursor: pointer; ${backgroundColor ? `background-color: ${backgroundColor}` : ""}; `}
   />
 </button>
 
 <style>
   button {
-    background-color: transparent;
+    /* background-color: transparent; */
     margin: 0;
-    padding: 0;
+    padding: 1.6rem;
   }
 </style>

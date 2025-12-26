@@ -18,11 +18,25 @@ public class Transaction
     public string? Merchant { get; set; }
     public string? Currency { get; set; }
     public double? Amount { get; set; }
-    public string Notes { get { return notes; } set { notes = value ?? string.Empty; } }
+
+    private double? normalizedAmount;
+    public double? NormalizedAmount {
+      get { return normalizedAmount; }
+      set { if(value != normalizedAmount) normalizedAmount = value; }
+    }
+
+    public string Notes { get { return notes ?? string.Empty; } set { notes = value ?? string.Empty; } }
     private string notes = string.Empty;
     public string TransactionText { get; set; } = string.Empty;
-    public string BackDateString { get; set; } = string.Empty;
-    public string ParseStatus { get; set; } = string.Empty;
+    public string BackDateString => BackDate?.ToString("o") ?? string.Empty;
+
+    private string parseStatus;
+    public string ParseStatus
+    {
+      get { return parseStatus ?? "NotStarted"; }
+      set { parseStatus = value; }
+    }
+
     public DateTime? BackDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

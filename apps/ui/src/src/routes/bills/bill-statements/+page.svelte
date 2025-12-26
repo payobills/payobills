@@ -13,12 +13,81 @@
   import { envStore } from "$lib/stores/env";
   import { nav } from "$lib/stores/nav";
   import RecentTransactions from "$lib/recent-transactions.svelte";
-  import { currencyFormatter } from "../../../utils/currency-formatter.util";
+  import { currencyFormatter } from "$utils/currency-formatter.util";
+    import UiDrawer from "$lib/ui-drawer.svelte";
+    import RecordPaymentForm from "$lib/record-payment-form.svelte";
+    import { writable, type Writable } from "svelte/store";
+    import type { BillStatementDTO, Query, TransactionDTO } from "$lib/types";
+    import { ProTransactionsService } from "../../../utils/pro/pro-transactions.service";
 
   let billId: any;
   let billStatementId: any;
   let billStatementsQuery: any;
   let refreshKey: number = Date.now();
+  
+  let showRecordPayment = false;
+
+  const onRecordingPayment = ({
+    amount,
+    bill,
+    cycleFromDate,
+    cycleToDate,
+    isFullyPaid,
+    transactions
+  }) => {
+    return $paymentsUrql
+      .mutation(
+        gql`
+          mutation AddBillStatement($dto: AddOrUpdateBillStatementDTOInput!) {
+            addOrUpdateBillStatement(dto: $dto) {
+              id
+              startDate
+              endDate
+              isFullyPaid
+              amount
+              payments {
+                id
+                __typename
+              }
+            }
+          }
+        `,
+        {
+          dto: {
+            id: billStatementId,
+            notes: "",
+            amount,
+            isFullyPaid,
+            bill: { id: +bill.id },
+            startDate: cycleFromDate,
+            endDate: cycleToDate,
+            edges: { paymentIds: (transactions ?? []).map((transaction: TransactionDTO) => transaction.id) },
+          },
+        }
+      )
+      .toPromise()
+      .then((res) => {
+        if (res.error) {
+          console.error("Error recording payment:", res.error);
+          throw new Error("Failed to record payment");
+        }
+      });
+  }
+
+  let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
+    fetching: false,
+    data: [],
+    error: null
+  });
+  
+  const onTransactionSearch = (transactionSearchTerm: string) => {
+    if (!$paymentsUrql || !transactionSearchTerm) matchingTransactionsQuery
+
+    const transactionService =  new ProTransactionsService($paymentsUrql)
+    transactionService.queryTransactionsWithSearchTerm(matchingTransactionsQuery, transactionSearchTerm)
+
+    return matchingTransactionsQuery
+  }
 
   onMount(() => {
     nav.set({ isOpen: true })
@@ -73,11 +142,15 @@
     variables: { billId, refreshKey },
   });
 
+  // $: {
+  //   console.log('all statements', $billStatementsQuery?.data?.billStatements)
+  //   console.log('curr',  $billStatementsQuery?.data?.billStatements?.find((billStatement: any) => billStatement.id === billStatementId))
+  // }
+
   $: currentBillStatement = $billStatementsQuery?.data?.billStatements
-    ? $billStatementsQuery.data.billStatements.find(
+    ? $billStatementsQuery.data.billStatements.filter(
         (billStatement: any) => billStatement.id === billStatementId
-      )
-    : undefined;
+      )?.[0]: undefined
 
   $: transactionsFromOCRQuery = currentBillStatement?.statement?.ocrID
     ? queryStore({
@@ -194,9 +267,29 @@
           </strong>
         </p>
 
-        <!-- </div> -->
       {/if}
     {/if}
+
+      {#if showRecordPayment}
+        <UiDrawer onClose={() => {(showRecordPayment) = false}}>
+          <RecordPaymentForm
+            bill={$billStatementsQuery.data.bill} 
+            billStatements={[currentBillStatement]}
+            selectedStatement={currentBillStatement}
+            lockBillStatementCycle={true}
+            {onRecordingPayment}
+            {onTransactionSearch}
+          />
+        </UiDrawer>
+      {/if}
+
+      <div class="actions">
+        {#if !showRecordPayment}
+          <button on:click={() => (showRecordPayment = true)}
+            >Record Payment</button
+          >
+        {/if}
+      </div>
   </div>
 </Card>
 
@@ -226,18 +319,5 @@
   .actions > button {
     margin: 0.25rem 0;
     width: 100%;
-  }
-
-  .markPaid {
-    align-self: flex-end;
-  }
-
-  .payment {
-    display: flex;
-  }
-
-  .amount,
-  .amount--unknown {
-    flex-grow: 1;
   }
 </style>

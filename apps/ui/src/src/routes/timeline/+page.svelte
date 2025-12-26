@@ -106,7 +106,18 @@
     `,
   });
 
+  const onCurrentBillStatementDoesNotExist = ({
+    amount = undefined,
+    bill,
+    cycleFromDate,
+    cycleToDate,
+    isFullyPaid,
+  }) => {
+    return onRecordingPayment({ amount, bill, cycleFromDate, cycleToDate, isFullyPaid})
+  }
+
   const onRecordingPayment = ({
+    id,
     amount,
     bill,
     cycleFromDate,
@@ -132,6 +143,7 @@
         `,
         {
           dto: {
+            id,
             notes: "",
             amount,
             isFullyPaid,
@@ -164,6 +176,7 @@
       transactions={$transactionsQuery.data.transactions.nodes}
       billingStatements={$billStatementsQuery?.data}
       {onRecordingPayment}
+      {onCurrentBillStatementDoesNotExist}
     />
   {/if}
 </section>

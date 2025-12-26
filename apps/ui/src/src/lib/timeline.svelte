@@ -11,23 +11,25 @@
   export let transactions: any[] = [];
   export let billingStatements: any;
   export let onRecordingPayment: any;
+  export let onCurrentBillStatementDoesNotExist: any;
 
   let lastDay = 31;
   let fullPaymentDates: any[] = [];
   let month = "";
 
-  $: itemsFilteredByName = items.toSorted((p: any, q: any) =>
-    p.name > q.name ? 1 : -1
-  );
-  $: filteredItems = itemsFilteredByName.toSorted((p: any, q: any) => {
+  $: filteredItems = items.toSorted((p: any, q: any) => {
+    if(!p.isEnabled) return Number.POSITIVE_INFINITY;
+    if(!q.isEnabled) return Number.NEGATIVE_INFINITY;
+
     if (
-      p.billingDate !== null &&
-      p.payByDate !== null &&
-      q.billingDate !== null &&
-      q.payByDate !== null
+      p.billingDate == null &&
+      p.payByDate == null &&
+      q.billingDate == null &&
+      q.payByDate == null
     )
       return -1;
-    return 0;
+
+    return p.name.localeCompare(q.name);
   });
 
   onMount(() => {
@@ -62,7 +64,7 @@
       <h1 class="title_bill">Your bills</h1>
     {/if}
 
-    <p>Stay updated with the bills you need to pay this month...</p>
+    <p class='stay-updated'>Stay updated with the bills you need to pay this month...</p>
 
     {#if fullPaymentDates.length > 0}
       <IdeaCard
@@ -78,6 +80,7 @@
             `billStatements__bill_${item.id}`
           ]}
           {onRecordingPayment}
+          {onCurrentBillStatementDoesNotExist}
         />
       {/each}
     </div>
@@ -178,5 +181,9 @@
 
   span {
     color: #9f9f9f;
+  }
+
+  .stay-updated {
+    margin-bottom: 1rem;
   }
 </style>

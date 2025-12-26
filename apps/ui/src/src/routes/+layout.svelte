@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
   import BottomNav from "$lib/bottom-nav.svelte";
   import IconButton from "$lib/icon-button.svelte";
@@ -7,15 +7,15 @@
   import { tryLoadEnv } from "$lib/stores/env";
   import { uiDrawer } from "$lib/stores/ui-drawer";
   import {
-    faArrowAltCircleDown,
-    faChevronCircleDown,
     faChevronDown,
+    faDownLeftAndUpRightToCenter,
+    faUpRightAndDownLeftFromCenter
   } from "@fortawesome/free-solid-svg-icons";
   import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
   import { nav } from "$lib/stores/nav";
 
-  import "./app.css";
+  // import "./app.css";
 
   onMount(async () => {
     // Try to load env Urls from localStorage
@@ -53,6 +53,12 @@
       return { ...curr, content: null };
     });
   };
+
+  const toggleFullScreenUiDrawer = () => {
+    uiDrawer.update((curr) => {
+      return {...curr, isFullScreen: !curr.isFullScreen };
+    })
+  }
 </script>
 
 <Nav />
@@ -69,11 +75,12 @@
       out:fade={{ duration: 300 }}
     ></button>
     <div
-      class="drawer-container"
+      class={`drawer-container ${$uiDrawer.isFullScreen ? "drawer-container--fullscreen" : ""}`}
       in:fly={{ y: 800, duration: 300 }}
       out:fly={{ y: 800, duration: 300 }}
     >
       <div class="drawer-content-container">
+        <div class="drawer-action-icons">
         <button
           aria-label="drawer close button"
           class="drawer-close"
@@ -86,6 +93,22 @@
             scale={0.75}
           />
         </button>
+
+        <button 
+          aria-label="drawer close button"
+          class="drawer-close"
+          on:click={toggleFullScreenUiDrawer}
+        >
+          <IconButton
+            icon={$uiDrawer.isFullScreen ? faDownLeftAndUpRightToCenter : faUpRightAndDownLeftFromCenter}
+            color="grey"
+            backgroundColor={"transparent"}
+            scale={0.75}
+          />
+        </button>
+      </div>
+
+
         <div class="drawer-content">
           {#if $uiDrawer.content}
             <svelte:component this={$uiDrawer.content} />
@@ -133,16 +156,32 @@
     height: 100%;
   }
 
+  .drawer-action-icons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
+  .drawer-action-icons>*:first-child {
+    flex-grow: 1;
+  }
+
   .drawer-container {
     position: absolute;
     bottom: 0;
     background-color: var(--primary-bg-color);
     box-shadow: 0px 4px 16px black;
-    width: calc(100% - 2rem);
+    width: calc(100%);
     height: 70%;
     padding: 1rem;
     border-radius: 1rem 1rem 0 0;
+    transition: height cubic-bezier(0.19, 1, 0.22, 1) .3s;
     z-index: 1002;
+  }
+
+  .drawer-container--fullscreen {
+    height: 100%;
   }
 
   .drawer-close {

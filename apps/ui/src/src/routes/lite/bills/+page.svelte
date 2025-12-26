@@ -10,59 +10,42 @@
   import { nav } from "$lib/stores/nav"
   import BillStatements from "$lib/bills/bill-statements.svelte";
   import { browser } from "$app/environment";
-  import type { BillDTO } from "$lib/types";
+  // import type { BillDTO } from "$lib/types";
   import RecordPaymentForm from "$lib/record-payment-form.svelte";
     import UiDrawer from "$lib/ui-drawer.svelte";
+  import { LiteBillService } from "$utils/lite/lite-bills.service";
+    import type { IBillsService } from "../../../utils/interfaces/bills-service.interface";
+    import { liteServices, setupLiteServices } from "../../../lib/stores/lite-services";
 
   let billId: any;
   let billByIdQuery: any;
   let refreshKey: number = Date.now();
+  let billsService: IBillsService 
 
   let showUploadStatementSection = false;
   let showRecordPayment = false;
   let uploadStatementResult = undefined;
 
-  $: billByIdQuery = billId
-    ? queryStore({
-        client: $billsUrql,
-        query: gql`
-          query billById($billId: String!) {
-            billStatements(billId: $billId) {
-              id
-              startDate
-              endDate
-              notes
-              amount
-              paidAt: createdAt
-              payments {
-                amount
-                paidAt
-              }
-            }
-            billById(id: $billId) {
-              id
-              name
-              billingDate
-              payByDate
-              updatedAt
-              createdAt
-              payments {
-                id
-                amount
-                paidAt
-                billingPeriod {
-                  start
-                  end
-                }
-                createdAt
-                updatedAt
-              }
-            }
-          }
-        `,
-        variables: { billId, refreshKey },
-      })
-    : null;
+  onMount(async () => {
+    nav.update(prev => ({...prev, isOpen: true }))
+
+    billId = new URLSearchParams(window.location.search)?.get('id')
+    console.log('billid', billId)
+
+    if ((window as any).ApexCharts) {
+      loaded = true;
+      return;
+    }
+    await load();
+  });
+
+  interface FileUploadResult {
+    data: {
+      id: string;
+    };
+  }
+  $: billByIdQuery = (billId && $liteServices?.billsService) ? $liteServices.billsService.queryBillById(billId): null
+  $: billStatementsQuery = (billId && $liteServices?.billStatementsService) ? $liteServices.billStatementsService.queryBillStatementsByBillIds([billId]): null
 
   async function markPaid() {
     const markPaidQuery = $billsUrql
@@ -101,20 +84,6 @@
     billId = $page.url.searchParams.get("id");
   }
 
-  onMount(async () => {
-    nav.set({ isOpen: true })
-    if ((window as any).ApexCharts) {
-      loaded = true;
-      return;
-    }
-    await load();
-  });
-
-  interface FileUploadResult {
-    data: {
-      id: string;
-    };
-  }
 
   const onBillStatementFormUpload = async (inputs: {
     bill: BillDTO;
@@ -218,7 +187,7 @@
     if (!loaded) load();
 
     const orderedData = [
-      $billByIdQuery.data.billById.payments,
+      $billByIdQuery.data.payments,
       $billByIdQuery.data.billStatements,
     ]
       .flat()
@@ -322,19 +291,19 @@
 
 <Card>
   <div class="content">
-    {#if $billByIdQuery === null || $billByIdQuery?.fetching}
+    {#if $billByIdQuery?.fetching}
       <p>Loading...</p>
     {:else if $billByIdQuery?.error}
       <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
     {:else if $billByIdQuery?.data}
-      <h1>{$billByIdQuery?.data.billById.name}</h1>
+      <h1>{$billByIdQuery?.data.name}</h1>
 
-      <!-- {#if $billByIdQuery.data.billById.payments.length == 0}
+       {#if ($billByIdQuery.data.payments || []).length == 0} 
         <p>we don't see any payments made for this bill. 😞</p>
-      {:else} -->
+  {:else}
       <div use:chart></div>
       <h2>past payments</h2>
-      {#each $billByIdQuery.data.billById.payments as payment}
+      {#each ($billByIdQuery.data.payments || []) as payment}
         <p class="payment">
           {#if payment.amount}
             <!-- TODO: Get currency from user, suggest based on Intl -->
@@ -360,10 +329,11 @@
         bill={{ id: billId }}
         statements={$billByIdQuery.data.billStatements}
       />
+{/if}
 
       {#if showUploadStatementSection}
         <BillUploadStatement
-          bill={$billByIdQuery.data.billById}
+          bill={$billByIdQuery.data}
           {onBillStatementFormUpload}
         />
       {/if}

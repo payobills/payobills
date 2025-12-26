@@ -1,25 +1,16 @@
 <script lang="ts">
   import Timeline from "$lib/timeline.svelte";
-  import RecentTransactions from "$lib/recent-transactions.svelte";
-  import { goto } from "$app/navigation";
-  import Nav from "$lib/nav.svelte";
-  import { auth } from "$lib/stores/auth";
-  import { liteDb } from "$lib/stores/lite-indexed-db";
   import { onMount } from "svelte";
-  import { LiteBillService } from "../../../utils/lite/lite-bills.service";
-  import { LiteBillStatementsService } from "../../../utils/lite/lite-bill-statements.service";
-  import { LiteTransactionsService } from "../../../utils/lite/lite-transactions.service";
-  import { writable } from "svelte/store";
-  import type { AddBillStatementDTO } from "$lib/types";
+  import { nav } from "../../../lib/stores/nav";
+  import { CONSTANTS } from "../../../constants";
+  import { liteServices } from "../../../lib/stores/lite-services";
 
-  let billsService: LiteBillService;
-  let billStatementsService: LiteBillStatementsService;
-  let transactionsService: LiteTransactionsService;
+  $: billsService = $liteServices?.billsService;
+  $: billStatementsService = $liteServices?.billStatementsService;
+  $: transactionsService = $liteServices?.transactionsService;
 
   onMount(() => {
-    billsService = new LiteBillService($liteDb);
-    billStatementsService = new LiteBillStatementsService($liteDb);
-    transactionsService = new LiteTransactionsService($liteDb);
+    nav.update(prev => ({...prev, title: CONSTANTS.PAYOBILLS_LITE, isOpen: true }))
   });
 
   $: billsQuery = billsService?.queryBills();

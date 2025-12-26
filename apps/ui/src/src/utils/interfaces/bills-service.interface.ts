@@ -3,5 +3,6 @@ import type { Writable } from "svelte/store";
 
 export interface IBillsService {
     queryBills(): Writable<Query<BillDTO[] | undefined>>
+    queryBillById(id: string): Writable<Query<BillDTO | undefined>>
     addBill(bill: AddBillDTO): Promise<unknown>;
 }

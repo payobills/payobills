@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { IBillsService } from "../interfaces/bills-service.interface";
-import type { AddBillDTO, BillDTO, BillStatementDTO, Query, TransactionDTO } from "$lib/types";
+import { type BillDTO, type AddBillDTO, type BillStatementDTO, type Query, type TransactionDTO } from "$lib/types";
 import type { LiteIndexedDbService } from "./lite-indexed-db.service";
 
 export class LiteBillService implements IBillsService {
@@ -11,6 +11,32 @@ export class LiteBillService implements IBillsService {
         data: undefined,
         error: null
     });
+
+    queryBillById(id: string): Writable<Query<BillDTO | undefined>> {
+        const billByIdQuery = writable<Query<BillDTO | undefined>>({
+          fetching: true,
+          data: undefined,
+          error: null
+        }); 
+
+        (async () => {
+            try {
+                const matchingBills = await this.dbService.bills
+                  .where({ id })
+                  .toArray();
+
+                billByIdQuery.update(prevState => ({
+                    ...prevState,
+                    fetching: false,
+                    data: matchingBills.length == 1 ? matchingBills[0] : undefined
+                }));
+            }
+            catch (err) { console.error(err); }
+
+        })();
+
+        return billByIdQuery;
+    }
 
     queryBills(): Writable<Query<BillDTO[] | undefined>> {
         (async () => {

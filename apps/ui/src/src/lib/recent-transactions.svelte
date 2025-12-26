@@ -190,7 +190,7 @@
       <h1>Recent Transactions</h1>
     {/if}
     {#if showViewAllCTA}
-      <a href={`/transactions`}>view all</a>
+      <a href={`transactions`}>view all</a>
     {/if}
   </div>
 
@@ -276,7 +276,7 @@
   {#if showViewAllCTA}
     <p>
       Not seeing a transaction here? You can
-      <a href={`/transaction/add`} class="transaction-add-cta">add one</a> manually
+      <a href={`transaction/add`} class="transaction-add-cta">add one</a> manually
       too.
     </p>
   {/if}

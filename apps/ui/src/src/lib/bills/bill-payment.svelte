@@ -3,18 +3,21 @@
   import Card from "$lib/card.svelte";
   import { onMount } from "svelte";
   import { withOrdinalSuffix } from "../../utils/ordinal-suffix";
-  import Page from "../../routes/+page.svelte";
   import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
   import { fromStore } from "svelte/store";
   import { uiDrawer } from "$lib/stores/ui-drawer";
   import RecordPaymentForm from "$lib/record-payment-form.svelte";
   import UiDrawer from "$lib/ui-drawer.svelte";
+  import type { BillStatementDTO } from "$lib/types";
 
   export let bill;
-  export let billingStatements: any[] | undefined;
+  export let billingStatements: BillStatementDTO[] | undefined;
   export let showRecordPaymentButton = true;
   export let title = "";
+  export let showBillingCycle = true;
+
   export let onRecordingPayment: any;
+  export let onCurrentBillStatementDoesNotExist: any;
 
   let todaysDay: number;
   let billDueDetails: { status: string; string: string; l2Status?: string };
@@ -41,11 +44,26 @@
         cycle?.toDate === statement.endDate
     );
 
+    if (!currentBillStatement)
+    {
+      currentBillStatement = {
+        startDate: cycle?.fromDate,
+        endDate: cycle?.toDate,
+        amount: undefined,
+      }
+    }
+    
     currentCycleFromDate = cycle?.fromDate || "";
     currentCycleToDate = cycle?.toDate || "";
     const diffInDays = bill.payByDate - todaysDay;
 
-    if (!billingStatements) {
+    if(!bill.isEnabled) {
+      billDueDetails = {
+        string: 'Disabled',
+        status: 'disabled'
+      }
+    }
+    else if (!billingStatements) {
       billDueDetails = {
         string: `Calculating ...`,
         status: "loading",
@@ -84,14 +102,14 @@
   <a href={`#payment__bill_${bill.id}`} aria-label="anchor"></a>
   <div class="header">
     <div class="name">{title?.length > 0 ? title : bill.name}</div>
-    {#if showRecordPaymentButton}
+    {#if bill.isEnabled && showRecordPaymentButton}
       <div class="actions">
         <button
           on:click={() => {
             goto(`#payment__bill_${bill.id}`);
             currentPayingBill = null;
             currentPayingBill = bill;
-            console.log("currentPayingBill", currentPayingBill);
+            // console.log("currentPayingBill", currentPayingBill);
           }}>Record payment</button
         >
       </div>
@@ -104,7 +122,11 @@
         currentPayingBill = null;
       }}
     >
-      <RecordPaymentForm bill={currentPayingBill} {onRecordingPayment} />
+      <RecordPaymentForm bill={currentPayingBill}
+        {onRecordingPayment}
+        billStatements={[currentBillStatement]}
+        selectedStatement={currentBillStatement}
+      />
     </UiDrawer>
   {/if}
 
@@ -114,9 +136,12 @@
     month
   </div>
 
-  <div class="card-item">
-    Billing cycle: {currentCycleFromDate} - {currentCycleToDate}
-  </div>
+  {#if showBillingCycle}
+    <div class="card-item">
+      Billing cycle: {currentCycleFromDate} - {currentCycleToDate}
+    </div>
+  {/if}
+
   <div class="card-item">
     Current bill status <span
       class={`due-status due-status--${billDueDetails?.status} ${billDueDetails?.l2Status ? `due-status--${billDueDetails?.status}--${billDueDetails?.l2Status}` : ""}`}
@@ -138,10 +163,8 @@
   }
 
   .container {
-    /* background-color: rgb(233, 233, 233); */
     border-radius: 0.425rem;
     background-color: rgb(59, 59, 59);
-    /* border: 0.125rem solid rgb(216, 216, 216); */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -184,13 +207,13 @@
     font-size: 0.75rem;
   }
 
-  hr {
-    width: 100%;
-    height: 0.125rem;
-    border: none;
-    background-color: rgb(216, 216, 216);
-    margin: 0;
-  }
+  /* hr { */
+  /*   width: 100%; */
+  /*   height: 0.125rem; */
+  /*   border: none; */
+  /*   background-color: rgb(216, 216, 216); */
+  /*   margin: 0; */
+  /* } */
 
   button {
     margin: 0.5rem;
@@ -209,6 +232,11 @@
   .due-status--due {
     color: white;
     background-color: var(--primary-accent-color);
+  }
+
+  .due-status--disabled {
+    color: white;
+    background-color: rgb(55, 55, 55);
   }
 
   .due-status--paid {

@@ -77,6 +77,7 @@ genrule(
     echo 'EXTRA_ARGS="${EXTRA_ARGS}"' >> $OUT
     echo 'docker buildx build --platform "${PLATFORMS}" --build-arg NODE_VERSION="${NODE_VERSION}" -t ghcr.io/payobills/apps/ui-app:${IMAGE_TAG_VERSION} -f common/docker/svelte-static.prod.dockerfile ${EXTRA_ARGS} apps/ui' >> $OUT
     echo 'DOCKER_CONTAINER_ID=$(docker run -d --entrypoint tail ghcr.io/payobills/apps/ui-app:${IMAGE_TAG_VERSION} -f /dev/null)' >> $OUT
+    echo 'mkdir -p plz-out/gen/apps/{svc} > /dev/null 2>&1' >> $OUT
     echo 'rm -rf plz-out/gen/apps/{svc}/app' >> $OUT
     echo 'docker cp ${DOCKER_CONTAINER_ID}:/app/build plz-out/gen/apps/{svc}/app' >> $OUT
   '''.format(svc=svc),
