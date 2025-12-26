@@ -1,12 +1,12 @@
 import type { LiteBillStatementDTO, BillDTO, BillStatementDTO, TransactionDTO } from "$lib/types";
-import { Dexie, type EntityTable } from "dexie";
+import { Dexie, type EntityTable, type Table } from "dexie";
 
 export class LiteIndexedDbService {
     private db: Dexie;
 
-    public get bills() { return (this.db as any).bills }
-    public get billStatements() { return (this.db as any).billStatements }
-    public get transactions() { return (this.db as any).transactions }
+    public get bills() { return (this.db as any).bills as Table }
+    public get billStatements() { return (this.db as any).billStatements as Table }
+    public get transactions() { return (this.db as any).transactions as Table }
     constructor(dbName: string) {
 
         this.db = new Dexie(dbName) as Dexie & {

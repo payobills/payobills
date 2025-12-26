@@ -13,8 +13,8 @@
   import FileUploader from "$lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
   import IdeaCard from "$lib/idea-card.svelte";
-    import { nav } from "$lib/stores/nav";
-    import { liteServices } from "../../../lib/stores/lite-services";
+  import { nav } from "$lib/stores/nav";
+  import { liteServices } from "$lib/stores/lite-services";
 
   let transactionID: string | null = null;
   let pageMode: "VIEW" | "EDIT" = "VIEW";
