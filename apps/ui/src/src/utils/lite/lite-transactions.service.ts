@@ -52,8 +52,6 @@ export class LiteTransactionsService implements ITransactionsService {
                   .anyOf(ids)
                   .toArray();
 
-                console.log('matching transactions', transactions)
-
                 transactionsStore.update(prevState => ({
                     ...prevState,
                     data: transactions 

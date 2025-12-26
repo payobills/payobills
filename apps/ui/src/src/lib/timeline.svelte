@@ -43,10 +43,10 @@
       lastDateOfMonth
     );
     if (title === "") title = `Timeline view for ${month}`;
-
-    fullPaymentDates = stats.stats.filter(
+  
+    fullPaymentDates = Array.isArray(stats?.stats) ? stats?.stats?.filter(
       (p: any) => p.type === "FULL_PAYMENT_DATES"
-    );
+    ) : [];
   });
 </script>
 
