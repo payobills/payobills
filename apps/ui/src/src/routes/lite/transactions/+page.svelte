@@ -21,7 +21,7 @@
     transactionId = (new URLSearchParams(window.location.search)?.get('id');
   });
 
-  $: transactionsQuery = currentYear && currentMonth ? transactionsService?.queryTransactions({ filters: { ids: []}})
+  $: transactionsQuery = currentYear && currentMonth ? transactionsService?.queryTransactions({ filters: { ids: []}}) : null
 </script>
 
 <section class="monthly-transactions">
