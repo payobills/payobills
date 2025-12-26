@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { ITransactionsService } from "../interfaces/transactions-service.interface";
-import type { TransactionDTO, Query } from "$lib/types";
+import type { TransactionDTO, Query, TransactionAddDTOInput } from "$lib/types";
 import type { LiteIndexedDbService } from "./lite-indexed-db.service";
 
 export class LiteTransactionsService implements ITransactionsService {
@@ -10,6 +10,20 @@ export class LiteTransactionsService implements ITransactionsService {
         data: undefined,
         error: null
     });
+
+    async addTransaction({ input }: { input: TransactionAddDTOInput }): Promise<TransactionDTO<TransactionDTO>> {
+        const addedTransaction = await this.dbService.transactions.add({
+          ...input,
+          id: crypto.randomUUID(),
+          paidAt: new Date()
+        });
+
+       const addedDto: TransactionDTO = {
+          ...addedTransaction        
+        } 
+
+        return addedDto 
+    }
 
     queryTransactionsWithSearchTerm(
       existingStore: Writable<Query<TransactionDTO[]>>,

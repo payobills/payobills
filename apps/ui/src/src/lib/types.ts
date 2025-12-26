@@ -22,6 +22,15 @@ export type AddBillStatementDTO = {
     edges: { paymentIds: string[] }
 }
 
+export type TransactionAddDTOInput = {
+    amount?: number
+    transactionText: string 
+    parseStatus: string
+    merchant: string,
+    bill: Pick<BillDTO, 'id' | 'name'>,
+    notes: string
+}
+
 // LITE INDEXED DB TYPES
 
 export type AddLiteBillStatementDTO = {
@@ -43,6 +52,8 @@ export type Query<T> = {
     data: T;
     error: unknown | null | undefined | Error;
 }
+
+export type Response<T> = Query<T>
 
 export type BillDTO = {
     id: string
@@ -73,9 +84,10 @@ export type TransactionDTO = {
     notes: string
     receipts: any[]
     updatedReceipts: any[]
-    paidAt: string
+    paidAt: Date
 }
 
 export type BillStatementDTO = {
     id: string
 } & AddBillStatementDTO
+

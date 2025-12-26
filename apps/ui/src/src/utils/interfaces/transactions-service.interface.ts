@@ -1,4 +1,4 @@
-import type { Query, TransactionDTO } from "$lib/types";
+import type { Response, Query, TransactionDTO, TransactionAddDTOInput } from "$lib/types";
 import type { Writable } from "svelte/store";
 
 export interface ITransactionsService {
@@ -8,5 +8,7 @@ export interface ITransactionsService {
     queryTransactionsWithSearchTerm(
       existingStore: Writable<Query<TransactionDTO[]>>,
       searchTerm: string): Writable<Query<TransactionDTO[]>>
+
+    addTransaction({ input: TransactionAddDTOInput }): Promise<Response<TransactionDTO>>
 }
 
