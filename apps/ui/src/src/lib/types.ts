@@ -91,3 +91,10 @@ export type BillStatementDTO = {
     id: string
 } & AddBillStatementDTO
 
+export type LiteServices = {
+  billsService: IBillsService
+  billStatementsService: IBillStatementsService
+  transactionsService: ITransactionsService
+}
+
+
