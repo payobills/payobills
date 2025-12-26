@@ -17,10 +17,65 @@ export class LiteTransactionsService implements ITransactionsService {
       throw new Error('Not Implemented')
     }
 
-    queryTransactionsForCurrentMonth(): Writable<Query<TransactionDTO[] | undefined>> {
+    queryTransactions(input: { filters: { ids: string[] } }): Writable<Query<TransactionDTO[]>> {
+      const transactionsStore = writable<Query<TransactionDTO[]>>({
+        fetching: false,
+        data: [],
+        error: null
+      });
+
       (async () => {
             try {
-                const transactions = await this.dbService.transactions.toArray();
+                // const transactionsLowerBound = new Date(year, month === 1 ? 11 : month - 1, 1) 
+                // const transactionsUpperBound = new Date(month < 12 ? year : year + 1, month < 12 ? month : month, 1);
+                // console.table({transactionsUpperBound, transactionsLowerBound})
+                const ids = input?.filters?.ids
+        
+                if (ids.length === 0) throw new Error('No filters added')
+                
+                const transactions = await this.dbService.transactions
+                  .where('id')
+                  .anyOf(ids)
+                  .toArray();
+
+                console.log('matching transactions', transactions)
+
+                transactionsStore.update(prevState => ({
+                    ...prevState,
+                    data: transactions 
+                }));
+            }
+            catch (err) {
+              console.error(err);
+
+              transactionsStore.update(prev => ({
+                ...prev,
+                fetching: false,
+                data: [],
+                error: err
+              }));
+            }
+
+        })();
+  
+        return transactionsStore
+    }
+
+    queryTransactionsForMonthAndYear(period: { month: number, year: number }): Writable<Query<TransactionDTO[] | undefined>> {
+      (async () => {
+            try {
+                const month = period.month; const year = period.year; 
+                // console.table({ month, year })
+        
+                const transactionsLowerBound = new Date(year, month === 1 ? 11 : month - 1, 1) 
+                const transactionsUpperBound = new Date(month < 12 ? year : year + 1, month < 12 ? month : month, 1);
+                // console.table({transactionsUpperBound, transactionsLowerBound})
+
+                const transactions = await this.dbService.transactions
+                  .where('paidAt')
+                  .between(transactionsLowerBound, transactionsUpperBound, true, false)
+                  .toArray();
+
                 this.transactionsForCurrentMonth.update(prevState => ({
                     ...prevState,
                     data: transactions 

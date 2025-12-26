@@ -247,7 +247,7 @@
   {/if}
 
   {#each showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
-    <a class="transaction-card" href={`/transaction?id=${transaction.id}`}>
+    <a class="transaction-card" href={`transaction?id=${transaction.id}`}>
       <div class="recent-transaction">
         <div class="non-amount-details">
           {#if transaction.merchant !== null}

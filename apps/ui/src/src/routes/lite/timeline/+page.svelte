@@ -29,7 +29,7 @@
   );
 
   $: transactionsQuery =
-    transactionsService?.queryTransactionsForCurrentMonth();
+    transactionsService?.queryTransactionsForMonthAndYear({ month: currentMonth, year: currentYear});
 
   const onRecordingPayment = ({
     bill,

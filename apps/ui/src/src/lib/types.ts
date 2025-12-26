@@ -41,7 +41,7 @@ export type LiteBillStatementDTO = { id: string } & AddLiteBillStatementDTO;
 export type Query<T> = {
     fetching: boolean;
     data: T;
-    error: unknown | null | undefined;
+    error: unknown | null | undefined | Error;
 }
 
 export type BillDTO = {
