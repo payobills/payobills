@@ -10,7 +10,7 @@
 
   import { onMount } from "svelte";
   import { Icon } from "svelte-awesome";
-    import { liteServices } from "../../../lib/stores/lite-services";
+  import { liteServices } from "../../../lib/stores/lite-services";
 
   $: transactionsService = $liteServices?.transactionsService
   let transactionId: string;
@@ -18,7 +18,7 @@
 
   onMount(() => {
     nav.set({ isOpen: true })
-    transactionId = (new URLSearchParams(window.location.search)?.get('id');
+    transactionId = new URLSearchParams(window.location.search)?.get('id') ?? '';
   });
 
   $: transactionsQuery = currentYear && currentMonth ? transactionsService?.queryTransactions({ filters: { ids: []}}) : null
