@@ -1,6 +1,7 @@
 <script lang="ts">
   import { queryStore, gql } from "@urql/svelte";
   import { billsUrql } from "$lib/stores/urql";
+  import IconButton from "$lib/icon-button.svelte";
   import { page } from "$app/stores";
   import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
   import Nav from "$lib/nav.svelte";
@@ -12,10 +13,13 @@
   import { browser } from "$app/environment";
   // import type { BillDTO } from "$lib/types";
   import RecordPaymentForm from "$lib/record-payment-form.svelte";
-    import UiDrawer from "$lib/ui-drawer.svelte";
+  import UiDrawer from "$lib/ui-drawer.svelte";
   import { LiteBillService } from "$utils/lite/lite-bills.service";
     import type { IBillsService } from "../../../utils/interfaces/bills-service.interface";
     import { liteServices, setupLiteServices } from "../../../lib/stores/lite-services";
+    import { goto } from "$app/navigation";
+  import { faEdit } from "@fortawesome/free-solid-svg-icons";
+    import { withOrdinalSuffix } from "../../../utils/ordinal-suffix";
 
   let billId: any;
   let billByIdQuery: any;
@@ -30,8 +34,6 @@
     nav.update(prev => ({...prev, isOpen: true }))
 
     billId = new URLSearchParams(window.location.search)?.get('id')
-    console.log('billid', billId)
-
     if ((window as any).ApexCharts) {
       loaded = true;
       return;
@@ -296,15 +298,44 @@
     {:else if $billByIdQuery?.error}
       <p>🙆‍♂️ Uh oh! Unable to fetch your bill!</p>
     {:else if $billByIdQuery?.data}
+      <section class='heading-section'>
       <h1>{$billByIdQuery?.data.name}</h1>
+            <IconButton
+              icon={faEdit}
+              color="white"
+              scale={1.5}
+              style="padding: 0.25rem"
+              on:click={() => {
+                goto(`bills/add?existing-bill-id=${$billByIdQuery?.data.id}`)
+              }}
+            />
+      </section>
+      {#if $billByIdQuery?.data.billingDate || $billByIdQuery?.data.payByDate}
+      <section class="bill-details">
+       {#if $billByIdQuery?.data.billingDate}
+      
+        <div>Billing Date</div>
+  <div>the <span class="bill-detail">{`${withOrdinalSuffix($billByIdQuery?.data?.billingDate)}`}</span> of every month 
+    </div>
+      {/if}
 
+       {#if $billByIdQuery?.data.payByDate}
+      
+        <div>Pay by Date</div>
+        <div>the <span class="bill-detail">{`${withOrdinalSuffix($billByIdQuery?.data?.payByDate)}`}</span> of every month 
+    </div>
+      {/if}
+
+      </section>
+      {/if}
+      <h2>past payments</h2>
        {#if ($billByIdQuery.data.payments || []).length == 0} 
         <p>we don't see any payments made for this bill. 😞</p>
   {:else}
       <div use:chart></div>
-      <h2>past payments</h2>
       {#each ($billByIdQuery.data.payments || []) as payment}
         <p class="payment">
+    flex-direction: ;
           {#if payment.amount}
             <!-- TODO: Get currency from user, suggest based on Intl -->
             <span class="amount"
@@ -351,10 +382,20 @@
 </Card>
 
 <style>
+  .heading-section {
+    display: flex;
+    align-items: center;
+  }
+
   h1 {
     color: var(--primary-color);
     font-size: 1.2rem;
     font-weight: 600;
+    flex-grow: 1;
+  }
+
+  h2 {
+    margin-top: 2rem;
   }
 
   p {
@@ -384,5 +425,9 @@
   .amount,
   .amount--unknown {
     flex-grow: 1;
+  }
+
+  span.bill-detail {
+    font-weight: 800;
   }
 </style>
