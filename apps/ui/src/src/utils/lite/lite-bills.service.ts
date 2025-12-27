@@ -54,24 +54,25 @@ export class LiteBillService implements IBillsService {
         return this.bills;
     }
 
-    addBill(bill: AddBillDTO): Promise<unknown> {
-        // TODO: Fix bil; type
+    updateBill(id: string, bill: AddBillDTO): Promise<unknown> {
+        // TODO: Fix bill type
         const currentTimeStamp = new Date()
-        const billToAdd: BillDTO = {
-            ...bill, id: crypto.randomUUID(),
-            payments: [],
-            isEnabled: true,
-            createdAt: currentTimeStamp,
+        const billToUpdate: BillDTO = {
+            ...bill,
             updatedAt: currentTimeStamp
         }
 
-        return new Promise(async resolve => {
-            await this.dbService.bills.add(billToAdd);
+        console.log(billToUpdate)
+
+        return new Promise(async (resolve, reject) => {
+            try {
+            await this.dbService.bills.update(id, billToUpdate);
             this.bills.update(prevState => ({
                 ...prevState,
-                data: [...prevState?.data || [], billToAdd]
+                data: [...prevState?.data || [], billToUpdate]
             }));
             resolve(bill);
+      }catch(err){console.error(err);reject()}
         });
     }
 }

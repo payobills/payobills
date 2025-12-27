@@ -97,4 +97,9 @@ export type LiteServices = {
   transactionsService: ITransactionsService
 }
 
+// COMMON TYPES
+export enum Crud {
+  Create,
+  Update
+}
 

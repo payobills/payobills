@@ -2,27 +2,55 @@
   import Card from "$lib/card.svelte";
   import { faCancel } from "@fortawesome/free-solid-svg-icons";
   import IconButton from "$lib/icon-button.svelte";
-  import { goto } from "$app/navigation";
-  import { liteServices } from "../../../../lib/stores/lite-services";
+  import { liteServices } from "$lib/stores/lite-services";
+  import { onMount } from "svelte";
+  import { nav } from "$lib/stores/nav";
+  import { Crud } from "$lib/types";
 
   $: billsService = $liteServices?.billsService
+  
+  export let existingBillId: string | null = null;
 
   let billingDate: number, payByDate: number, name: string;
+  $: existingBillQuery = existingBillId && billsService ? billsService.queryBillById(existingBillId) : null 
+  $: mode = existingBillId ? Crud.Update : Crud.Create
 
-  const addBill = () => {
+  $: {
+    // Bill finished loading without errors
+    if(!$existingBillQuery?.fetching && !$existingBillQuery?.error)
+    {
+      billingDate = $existingBillQuery?.data.billingDate
+      payByDate = $existingBillQuery?.data.payByDate
+      name = $existingBillQuery?.data.name
+    }
+  }
+
+  onMount(() => {
+    nav.update(prev => ({...prev, isOpen: true }))
+    existingBillId = new URLSearchParams(window.location.search).get('existing-bill-id') ?? null 
+  });
+
+  const addBill = async () => {
     try {
-      billsService.addBill({ name, payByDate, billingDate })
-      .then(() => {
-        goto("/");
-      });
+      const savePromise = existingBillId ? billsService.updateBill(existingBillId, { name, payByDate, billingDate, id: existingBillId })
+        : billsService.addBill({ name, payByDate, billingDate })
+
+      await savePromise;
+      history.back()
     }
     catch(error) {
-      console.error("couldn't get client", error);
+      console.error("Unable to save/update the bill", error);
     }
   };
 </script>
 
-<Card title="add bill">
+{#if existingBillId && (!existingBillQuery || $existingBillQuery?.fetching)}
+<div>loading your bill...</div>
+{:else if $existingBillQuery?.error}
+<div>looks like there was an issue loading your bill</div>
+{:else}
+
+<Card title={mode == Crud.Create ? "add bill" : "update bill"}>
   <div class="add-bill-form">
     <div>name</div>
     <input type="text" placeholder="My Credit Card" bind:value={name} />
@@ -36,14 +64,13 @@
       icon={faCancel}
       backgroundColor="#d96c59"
       rounded={true}
-      on:click={() => {
-        window.history.back();
-      }}
+      on:click={() => { window.history.back(); }}
     />
 
     <button on:click={addBill}>save</button>
   </div>
 </Card>
+{/if}
 
 <style>
   div {
