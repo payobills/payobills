@@ -22,18 +22,20 @@
   let transaction: any;
   let cancelCtaButton: HTMLButtonElement, saveCtaButton: HTMLButtonElement;
   let transactionsQuery: OperationResultStore;
-  let transactionForm: Writable<FormStore<Transaction>> =
-    formStoreGenerator("transactionById");
-  let transactionReparseTriggered = false;
+  let transactionForm: Writable<FormStore<Transaction>> = formStoreGenerator("transactionById");
+  // let transactionReparseTriggered = false;
 
   const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
     return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
   };
 
-  $: transactionsService = $liteServices?.transactionsService
-  $: transactionsQuery = transactionID && transactionsService ? transactionsService.queryTransactions({ filters: { ids: [transactionID] }}) : null; 
+  $: transactionsService = $liteServices?.transactionsServics
+  $: transactionsQuery = (transactionID && transactionsService) ? transactionsService.queryTransactions({ filters: { ids: [transactionID] }}) : null; 
 
-  $: {
+  onMount(() => {
+    nav.update(prev => ({ ...prev, isOpen: true }))
+    transactionID = new URLSearchParams(window.location.search).get('id');
+
     transactionsQuery?.subscribe((res) => {
       if ((res?.data ?? [])?.length <= 0) return;
       transaction = res.data[0];
@@ -58,70 +60,65 @@
         isDirty: false,
       });
     });
-  }
-
-  onMount(() => {
-    nav.update(prev => ({ ...prev, isOpen: true }))
-    transactionID = new URLSearchParams(window.location.search).get('id');
   });
 
-  const onTransactionReceiptAdded = ({ file }: { file: File }) => {
-    // console.log("file added:", file);
-    transactionForm.update((form) => ({
-      data: {
-        amount: form.data.amount,
-        merchant: form.data.merchant,
-        notes: form.data.notes,
-        receipts: form.data.receipts,
-        updatedReceipts: [...form.data.updatedReceipts, file],
-      },
-      isDirty: false,
-    }));
-  };
-
-  const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
-    transactionForm.update((form) => ({
-      data: {
-        amount: form.data.amount,
-        merchant: form.data.merchant,
-        notes: form.data.notes,
-        receipts: form.data.receipts,
-        updatedReceipts: (form.data.updatedReceipts || []).filter(
-          (r) => r !== file
-        ),
-      },
-      isDirty: false,
-    }));
-  };
-
-  const triggerReparse = async () => {
-    try {
-      transactionReparseTriggered = true;
-      await $paymentsUrql
-        .mutation(
-          gql`
-            mutation TransactionUpdate(
-              $id: String!
-              $updateDTO: TransactionUpdateDTOInput!
-            ) {
-              transactionUpdate(id: $id, updateDTO: $updateDTO) {
-                id
-                parseStatus
-              }
-            }
-          `,
-          {
-            id: transactionID,
-            updateDTO: {
-              parseStatus: "NotStarted",
-            },
-          }
-        )
-        .toPromise();
-    } catch {
-      // TODO: Use common drawer to show transaction update error
-    }
-  };
+  // const onTransactionReceiptAdded = ({ file }: { file: File }) => {
+  //   // console.log("file added:", file);
+  //   transactionForm.update((form) => ({
+  //     data: {
+  //       amount: form.data.amount,
+  //       merchant: form.data.merchant,
+  //       notes: form.data.notes,
+  //       receipts: form.data.receipts,
+  //       updatedReceipts: [...form.data.updatedReceipts, file],
+  //     },
+  //     isDirty: false,
+  //   }));
+  // };
+  //
+  // const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
+  //   transactionForm.update((form) => ({
+  //     data: {
+  //       amount: form.data.amount,
+  //       merchant: form.data.merchant,
+  //       notes: form.data.notes,
+  //       receipts: form.data.receipts,
+  //       updatedReceipts: (form.data.updatedReceipts || []).filter(
+  //         (r) => r !== file
+  //       ),
+  //     },
+  //     isDirty: false,
+  //   }));
+  // };
+  //
+  // const triggerReparse = async () => {
+  //   try {
+  //     transactionReparseTriggered = true;
+  //     await $paymentsUrql
+  //       .mutation(
+  //         gql`
+  //           mutation TransactionUpdate(
+  //             $id: String!
+  //             $updateDTO: TransactionUpdateDTOInput!
+  //           ) {
+  //             transactionUpdate(id: $id, updateDTO: $updateDTO) {
+  //               id
+  //               parseStatus
+  //             }
+  //           }
+  //         `,
+  //         {
+  //           id: transactionID,
+  //           updateDTO: {
+  //             parseStatus: "NotStarted",
+  //           },
+  //         }
+  //       )
+  //       .toPromise();
+  //   } catch {
+  //     // TODO: Use common drawer to show transaction update error
+  //   }
+  // };
 
   const updateTransaction = async () => {
     editCta = "Saving...";
@@ -129,114 +126,123 @@
     cancelCtaButton.disabled = true;
     saveCtaButton.disabled = true;
 
-    const existingReceipts = $transactionForm.data.receipts;
-    const newReceipts = $transactionForm.data.updatedReceipts;
-
-    // New Files to upload are the ones which don't have a downloadPath
-    const receiptsToAdd = newReceipts.filter((p) => !p?.downloadPath);
-
-    // Existing files to delete are the ones which are not present in the new files
-    const receiptsToDelete = existingReceipts.filter(
-      (p) =>
-        newReceipts.findIndex((x) => x?.downloadPath === p?.downloadPath) === -1
-    );
-
-    // console.log({existingReceipts: $transactionForm.data.receipts})
-    // console.log({newReceipts: $transactionForm.data.updatedReceipts})
-    // console.log({receiptsToAdd})
-    // console.log({receiptsToDelete})
-
-    const deleteReceiptPromises = receiptsToDelete.map((receipt: any) => {
-      return fetch(`${addFilesBaseUrlPrefix({ url: receipt.downloadPath })}`, {
-        method: "DELETE",
-      }).then((response) => {
-        if (!response.ok) {
-          throw new Error(`File deletion failed: ${response.statusText}`);
-        }
-        return receipt;
-      });
-    });
-
-    // Upload new files
-    const uploadPromises = receiptsToAdd.map((file: File) => {
-      const formdata = new FormData();
-      formdata.append(
-        "tags",
-        JSON.stringify({
-          CorrelationID: transactionID,
-          Type: "TRANSACTION_RECEIPT",
-          TransactionID: transactionID,
-          Note: "",
-        })
-      );
-      formdata.append("file", file, file.name);
-
-      return fetch("/files/files", {
-        method: "POST",
-        body: formdata,
-      }).then((response) => {
-        if (!response.ok) {
-          throw new Error(`File upload failed: ${response.statusText}`);
-        }
-        return Promise.resolve();
-      });
-    });
-
-    await Promise.all([...uploadPromises, ...deleteReceiptPromises]);
-
-    const updateTransactionOp = mutationStore({
-      client: $paymentsUrql,
-      variables: {
-        id: transactionID,
-        updateDTO: {
-          ...$transactionForm.data,
-          amount: +$transactionForm.data.amount,
-          receipts: undefined,
-          updatedReceipts: undefined,
-        },
-      },
-      query: gql`
-        mutation TransactionUpdate(
-          $id: String!
-          $updateDTO: TransactionUpdateDTOInput!
-        ) {
-          transactionReceiptsSync(input: { transactionID: $id }) {
-            id
-            createdAt
-            downloadPath
-            updatedAt
-            mimeType
-            extension
-          }
-
-          transactionUpdate(id: $id, updateDTO: $updateDTO) {
-            currency
-            id
-            amount
-            transactionText
-            tags
-            merchant
-          }
-        }
-      `,
-    });
-
-    updateTransactionOp.subscribe(({ fetching, data }) => {
-      if (fetching) {
-        return;
-      }
+    // const existingReceipts = $transactionForm.data.receipts;
+    // const newReceipts = $transactionForm.data.updatedReceipts;
+    //
+    // // New Files to upload are the ones which don't have a downloadPath
+    // const receiptsToAdd = newReceipts.filter((p) => !p?.downloadPath);
+    //
+    // // Existing files to delete are the ones which are not present in the new files
+    // const receiptsToDelete = existingReceipts.filter(
+    //   (p) =>
+    //     newReceipts.findIndex((x) => x?.downloadPath === p?.downloadPath) === -1
+    // );
+    //
+    // // console.log({existingReceipts: $transactionForm.data.receipts})
+    // // console.log({newReceipts: $transactionForm.data.updatedReceipts})
+    // // console.log({receiptsToAdd})
+    // // console.log({receiptsToDelete})
+    //
+    // const deleteReceiptPromises = receiptsToDelete.map((receipt: any) => {
+    //   return fetch(`${addFilesBaseUrlPrefix({ url: receipt.downloadPath })}`, {
+    //     method: "DELETE",
+    //   }).then((response) => {
+    //     if (!response.ok) {
+    //       throw new Error(`File deletion failed: ${response.statusText}`);
+    //     }
+    //     return receipt;
+    //   });
+    // });
+    //
+    // // Upload new files
+    // const uploadPromises = receiptsToAdd.map((file: File) => {
+    //   const formdata = new FormData();
+    //   formdata.append(
+    //     "tags",
+    //     JSON.stringify({
+    //       CorrelationID: transactionID,
+    //       Type: "TRANSACTION_RECEIPT",
+    //       TransactionID: transactionID,
+    //       Note: "",
+    //     })
+    //   );
+    //   formdata.append("file", file, file.name);
+    //
+    //   return fetch("/files/files", {
+    //     method: "POST",
+    //     body: formdata,
+    //   }).then((response) => {
+    //     if (!response.ok) {
+    //       throw new Error(`File upload failed: ${response.statusText}`);
+    //     }
+    //     return Promise.resolve();
+    //   });
+    // });
+    //
+    // await Promise.all([...uploadPromises, ...deleteReceiptPromises]);
 
       if (saveCtaButton) saveCtaButton.disabled = false;
       if (cancelCtaButton) cancelCtaButton.disabled = false;
+
       editCta = "Save";
       pageMode = "VIEW";
+
+      const updatedTransaction = await transactionsService.updateTransaction(transactionID, {
+        id: transactionID,
+        ...$transactionForm.data,
+        amount: +$transactionForm.data.amount,
+      });
 
       transaction = {
         ...transaction,
         ...$transactionForm.data,
         amount: +$transactionForm.data.amount,
       };
-    });
+
+
+    // const updateTransactionOp = mutationStore({
+    //   client: $paymentsUrql,
+    //   variables: {
+    //     id: transactionID,
+    //     updateDTO: {
+    //       ...$transactionForm.data,
+    //       amount: +$transactionForm.data.amount,
+    //       receipts: undefined,
+    //       updatedReceipts: undefined,
+    //     },
+    //   },
+    //   query: gql`
+    //     mutation TransactionUpdate(
+    //       $id: String!
+    //       $updateDTO: TransactionUpdateDTOInput!
+    //     ) {
+    //       transactionReceiptsSync(input: { transactionID: $id }) {
+    //         id
+    //         createdAt
+    //         downloadPath
+    //         updatedAt
+    //         mimeType
+    //         extension
+    //       }
+    //
+    //       transactionUpdate(id: $id, updateDTO: $updateDTO) {
+    //         currency
+    //         id
+    //         amount
+    //         transactionText
+    //         tags
+    //         merchant
+    //       }
+    //     }
+    //   `,
+    // });
+
+    // updateTransactionOp.subscribe(({ fetching, data }) => {
+    //   if (fetching) {
+    //     return;
+    //   }
+
+    // });
   };
 </script>
 
@@ -271,11 +277,11 @@
 
                 transactionForm.set({
                   data: {
-                    amount: $transactionsQuery.data.amount,
-                    merchant: $transactionsQuery.data.merchant,
-                    notes: $transactionsQuery.data.notes,
+                    amount: $transactionsQuery.data[0].amount,
+                    merchant: $transactionsQuery.data[0].merchant,
+                    notes: $transactionsQuery.data[0].notes,
                     receipts:
-                      $transactionsQuery.data.receipts.map(
+                      ($transactionsQuery.data[0].receipts || []).map(
                         (receipt: any) => ({
                           fileName: receipt.id,
                           mimeType: receipt.mimeType,
@@ -283,7 +289,7 @@
                         })
                       ),
                     updatedReceipts:
-                      $transactionsQuery.data.receipts.map(
+                      ($transactionsQuery.data[0].receipts || []).map(
                         (receipt: any) => ({
                           fileName: receipt.id,
                           mimeType: receipt.mimeType,
@@ -314,21 +320,21 @@
           <h1>Recipient</h1>
           <h2>{transaction.merchant ?? "Unknown"}</h2>
 
-          <h1 class="subheader parse-status">Parsing Status</h1>
-          <div class="parse-status">
-            <h2>
-              {transaction.parseStatus}
-            </h2>
-            {#if transaction.parseStatus !== "NotStarted"}
-              <button on:click={triggerReparse}>Reparse</button>
-            {/if}
-          </div>
-
-          <IdeaCard
-            idea={transaction.parseStatus !== "NotStarted"
-              ? "NEW! Use the reparse option to trigger a new extraction of the transaction details using GenAI."
-              : "Details for this transaction will be available soon."}
-          />
+          <!-- <h1 class="subheader parse-status">Parsing Status</h1> -->
+          <!-- <div class="parse-status"> -->
+          <!--   <h2> -->
+          <!--     {transaction.parseStatus} -->
+          <!--   </h2> -->
+          <!--   {#if transaction.parseStatus !== "NotStarted"} -->
+          <!--     <button on:click={triggerReparse}>Reparse</button> -->
+          <!--   {/if} -->
+          <!-- </div> -->
+          <!---->
+          <!-- <IdeaCard -->
+          <!--   idea={transaction.parseStatus !== "NotStarted" -->
+          <!--     ? "NEW! Use the reparse option to trigger a new extraction of the transaction details using GenAI." -->
+          <!--     : "Details for this transaction will be available soon."} -->
+          <!-- /> -->
 
           <h1 class="subheader">Associated Billing Account</h1>
           <h2>
@@ -412,11 +418,11 @@
             bind:value={$transactionForm.data.merchant}
           />
 
-          <h1 class="subheader">Parsing Status</h1>
-          <h2>
-            {transaction.parseStatus}
-          </h2>
-
+          <!-- <h1 class="subheader">Parsing Status</h1> -->
+          <!-- <h2> -->
+          <!--   {transaction.parseStatus} -->
+          <!-- </h2> -->
+          <!---->
           <h1 class="subheader">Associated Billing Account</h1>
           <h2>
             {transaction.bill.name}
@@ -427,16 +433,16 @@
             <p>{transaction.transactionText}</p>
           </div>
 
-          <h1 class="subheader">Transaction receipt</h1>
-          <div class="transaction-file-input">
-            <FileUploader
-              editable={true}
-              files={$transactionForm.data.updatedReceipts}
-              onFileAdded={onTransactionReceiptAdded}
-              onFileRemoved={onTransactionReceiptRemoved}
-              fileUrlTransformer={addFilesBaseUrlPrefix}
-            />
-          </div>
+          <!-- <h1 class="subheader">Transaction receipt</h1> -->
+          <!-- <div class="transaction-file-input"> -->
+          <!--   <FileUploader -->
+          <!--     editable={true} -->
+          <!--     files={$transactionForm.data.updatedReceipts} -->
+          <!--     onFileAdded={onTransactionReceiptAdded} -->
+          <!--     onFileRemoved={onTransactionReceiptRemoved} -->
+          <!--     fileUrlTransformer={addFilesBaseUrlPrefix} -->
+          <!--   /> -->
+          <!-- </div> -->
 
           <!-- TODO: Add the ability to edit tags -->
           <!-- <h1 class="subheader">Tags</h1>

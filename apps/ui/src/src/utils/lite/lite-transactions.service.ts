@@ -25,6 +25,20 @@ export class LiteTransactionsService implements ITransactionsService {
         return addedDto 
     }
 
+    async updateTransaction(id: string, dto: TransactionAddDTOInput): Promise<TransactionDTO> {
+        const transaction = await this.dbService.transactions.update(id, {
+          ...dto,
+          id,
+          updatedAt: new Date()
+        });
+
+       // const updatedDto: TransactionDTO = {
+          // ...transaction        
+       // }; 
+
+      return transaction
+    }
+
     queryTransactionsWithSearchTerm(
       existingStore: Writable<Query<TransactionDTO[]>>,
       searchTerm: string): Writable<Query<TransactionDTO[]>> {
