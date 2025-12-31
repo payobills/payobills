@@ -10,7 +10,7 @@
   import { onMount } from "svelte";
 
   onMount(() => {
-    nav.set({ isOpen: true })
+    nav.update(prev => ({ ...prev, isOpen: true }))
     if (!$auth?.refreshToken) {
       goto("/");
     }

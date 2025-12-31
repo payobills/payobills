@@ -90,7 +90,7 @@
   }
 
   onMount(() => {
-    nav.set({ isOpen: true })
+    nav.update(prev => ({ ...prev, isOpen: true }))
     let urlParams = window.location.search;
     billId = new URLSearchParams(urlParams).get('bill-id')
     billStatementId = new URLSearchParams(urlParams).get('bill-statement-id')

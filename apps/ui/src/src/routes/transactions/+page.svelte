@@ -16,7 +16,7 @@
   let currentMonth: number;
 
   onMount(() => {
-    nav.set({ isOpen: true })
+    nav.update(prev => ({ ...prev, isOpen: true }))
     currentYear = +(new URLSearchParams(window.location.search)?.get('year') || new Date().getFullYear())
     currentMonth = +(new URLSearchParams(window.location.search)?.get('month') || (new Date().getMonth() +1 ))
   });

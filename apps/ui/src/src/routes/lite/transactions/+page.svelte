@@ -17,7 +17,7 @@
   let currentYear: number;
 
   onMount(() => {
-    nav.set({ isOpen: true })
+    nav.update(prev => ({...prev, isOpen: true, title: CONSTANTS.PAYOBILLS }));
     transactionId = new URLSearchParams(window.location.search)?.get('id') ?? '';
   });
 

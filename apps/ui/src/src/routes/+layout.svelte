@@ -14,12 +14,21 @@
   import { onMount } from "svelte";
   import { fade, fly } from "svelte/transition";
   import { nav } from "$lib/stores/nav";
+  import { CONSTANTS } from '../constants';
 
   // import "./app.css";
 
   onMount(async () => {
+    nav.update(prev => ({
+      ...prev,
+      isOpen: true,
+      title: CONSTANTS.PAYOBILLS,
+      link: '/'
+    }));
+    
     // Try to load env Urls from localStorage
     await tryLoadEnv();
+
 
     // Guard against going to other pages without login
     // loadAuthFromLocalStorage();
