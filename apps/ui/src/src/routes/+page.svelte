@@ -14,7 +14,7 @@
   import { getIdpBaseUrl } from "$utils/auth";
 
   onMount(async () => {
-    nav.set({ isOpen: false });
+    nav.update(prev => ({...prev, isOpen: false }));
     loadAuthFromLocalStorage();
 
     const authState = get(auth);

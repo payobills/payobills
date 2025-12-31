@@ -102,7 +102,7 @@
   }
 
   onMount(async () => {
-    nav.set({ isOpen: true })
+    nav.update(prev => ({...prev, isOpen: true }))
     if ((window as any).ApexCharts) {
       loaded = true;
       return;

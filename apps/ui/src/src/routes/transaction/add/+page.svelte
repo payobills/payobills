@@ -12,7 +12,7 @@
   let notes: string | null = null;
 
   onMount(() => {
-    nav.set({ isOpen: true })
+    nav.prev(prev => ({...prev, isOpen: true})) 
     })
 
   const billsQuery = queryStore({

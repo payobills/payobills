@@ -30,7 +30,7 @@
   };
 
   onMount(() => {
-    nav.set({ isOpen: true })
+    nav.update(prev => ({...prev, isOpen: true })); 
     transactionID = new URLSearchParams(window.location.search).get('id');
     transactionsQuery = queryStore({
       client: $paymentsUrql,

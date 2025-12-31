@@ -4,6 +4,7 @@ export const CONSTANTS = {
     DB_NAME: 'PayobillsLiteDB',
 
     BILL_STATEMENTS_KEY_PREFIX: 'billStatements__bill_',
+    PAYOBILLS: "Payobills",
     PAYOBILLS_LITE: "Payobills Lite"
 };
 

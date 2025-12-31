@@ -24,7 +24,7 @@
   let billingDate: number, payByDate: number, name: string;
 
   onMount(() => {
-    nav.set({ isOpen: true })
+    nav.update(prev => ({ ...prev, isOpen: true }))
     })
 
   const addBill = () => {
