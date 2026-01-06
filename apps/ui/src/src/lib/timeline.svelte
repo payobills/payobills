@@ -1,53 +1,48 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
-  import PaymentTimelinePill from "./payment-timeline-pill.svelte";
-  import IdeaCard from "./idea-card.svelte";
-  import RecentTransactions from "./recent-transactions.svelte";
-  import BillPayment from "./bills/bill-payment.svelte";
-  export let title: string = "";
-  export let items: any[] = [];
-  export let stats: any = {};
-  export let transactions: any[] = [];
-  export let billingStatements: any;
-  export let onRecordingPayment: any;
-  export let onCurrentBillStatementDoesNotExist: any;
+import { onMount } from "svelte";
+export let title: string = "";
+export const items: any[] = [];
+export const stats: any = {};
+export const transactions: any[] = [];
+export let billingStatements: any;
+export let onRecordingPayment: any;
+export let onCurrentBillStatementDoesNotExist: any;
 
-  let lastDay = 31;
-  let fullPaymentDates: any[] = [];
-  let month = "";
+let _lastDay = 31;
+let _fullPaymentDates: any[] = [];
+let month = "";
 
-  $: filteredItems = items.toSorted((p: any, q: any) => {
-    if(!p.isEnabled) return Number.POSITIVE_INFINITY;
-    if(!q.isEnabled) return Number.NEGATIVE_INFINITY;
+$: filteredItems = items.toSorted((p: any, q: any) => {
+	if (!p.isEnabled) return Number.POSITIVE_INFINITY;
+	if (!q.isEnabled) return Number.NEGATIVE_INFINITY;
 
-    if (
-      p.billingDate == null &&
-      p.payByDate == null &&
-      q.billingDate == null &&
-      q.payByDate == null
-    )
-      return -1;
+	if (
+		p.billingDate == null &&
+		p.payByDate == null &&
+		q.billingDate == null &&
+		q.payByDate == null
+	)
+		return -1;
 
-    return p.name.localeCompare(q.name);
-  });
+	return p.name.localeCompare(q.name);
+});
 
-  onMount(() => {
-    let lastDateOfMonth = new Date(
-      new Date().getUTCFullYear(),
-      new Date().getUTCMonth() + 1,
-      0
-    );
-    lastDay = lastDateOfMonth.getDate();
-    month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
-      lastDateOfMonth
-    );
-    if (title === "") title = `Timeline view for ${month}`;
-  
-    fullPaymentDates = Array.isArray(stats?.stats) ? stats?.stats?.filter(
-      (p: any) => p.type === "FULL_PAYMENT_DATES"
-    ) : [];
-  });
+onMount(() => {
+	const lastDateOfMonth = new Date(
+		new Date().getUTCFullYear(),
+		new Date().getUTCMonth() + 1,
+		0,
+	);
+	_lastDay = lastDateOfMonth.getDate();
+	month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
+		lastDateOfMonth,
+	);
+	if (title === "") title = `Timeline view for ${month}`;
+
+	_fullPaymentDates = Array.isArray(stats?.stats)
+		? stats?.stats?.filter((p: any) => p.type === "FULL_PAYMENT_DATES")
+		: [];
+});
 </script>
 
 <div class="timeline">

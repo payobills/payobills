@@ -1,24 +1,19 @@
 <script lang="ts">
-  import Timeline from "$lib/timeline.svelte";
-  import RecentTransactions from "$lib/recent-transactions.svelte";
-  import { goto } from "$app/navigation";
-  import Nav from "$lib/nav.svelte";
-  import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-  import { auth } from "$lib/stores/auth";
-  import { nav } from "$lib/stores/nav";
-  import { queryStore, gql, getContextClient } from "@urql/svelte";
-  import { onMount } from "svelte";
+import { gql, queryStore } from "@urql/svelte";
+import { onMount } from "svelte";
+import { goto } from "$app/navigation";
+import { nav } from "$lib/stores/nav";
 
-  onMount(() => {
-    nav.update(prev => ({ ...prev, isOpen: true }))
-    if (!$auth?.refreshToken) {
-      goto("/");
-    }
-  });
+onMount(() => {
+	nav.update((prev) => ({ ...prev, isOpen: true }));
+	if (!$auth?.refreshToken) {
+		goto("/");
+	}
+});
 
-  const billsQuery = queryStore({
-    client: $billsUrql,
-    query: gql`
+const _billsQuery = queryStore({
+	client: $billsUrql,
+	query: gql`
       query {
         bills {
           id
@@ -29,16 +24,16 @@
         }
       }
     `,
-  });
+});
 
-  $: billStatementsQuery =
-    !$billsQuery.fetching && !$billsQuery.error
-      ? queryStore({
-          client: $billsUrql,
-          query: gql(
-            `query { ${$billsQuery.data.bills.reduce(
-              (acc: string, currentBill: any) =>
-                (acc += `billStatements__bill_${currentBill.id}: billStatements(billId: "${currentBill.id}") {
+$: billStatementsQuery =
+	!$billsQuery.fetching && !$billsQuery.error
+		? queryStore({
+				client: $billsUrql,
+				query: gql(
+					`query { ${$billsQuery.data.bills.reduce(
+						(acc: string, currentBill: any) =>
+							(acc += `billStatements__bill_${currentBill.id}: billStatements(billId: "${currentBill.id}") {
       id
       startDate
       endDate
@@ -50,18 +45,18 @@
       }
     }
      `),
-              ""
-            )} }`
-          ),
-        })
-      : null;
+						"",
+					)} }`,
+				),
+			})
+		: null;
 
-  const currentMonth = new Date().getUTCMonth() + 1;
-  const currentYear = new Date().getUTCFullYear();
+const currentMonth = new Date().getUTCMonth() + 1;
+const currentYear = new Date().getUTCFullYear();
 
-  const billStatsQuery = queryStore({
-    client: $billsUrql,
-    query: gql`
+const _billStatsQuery = queryStore({
+	client: $billsUrql,
+	query: gql`
         {
         billStats(year: ${currentYear.toString()}, month: ${currentMonth.toString()}) {
             startDate,
@@ -77,12 +72,12 @@
         }
     }
     `,
-  });
+});
 
-  $: transactionsQuery = queryStore({
-    client: $paymentsUrql,
-    variables: { year: currentYear, month: currentMonth },
-    query: gql`
+$: transactionsQuery = queryStore({
+	client: $paymentsUrql,
+	variables: { year: currentYear, month: currentMonth },
+	query: gql`
       query ($year: Int!, $month: Int!) {
         transactions: transactionsByYearAndMonth(
           year: $year
@@ -104,29 +99,35 @@
         }
       }
     `,
-  });
+});
 
-  const onCurrentBillStatementDoesNotExist = ({
-    amount = undefined,
-    bill,
-    cycleFromDate,
-    cycleToDate,
-    isFullyPaid,
-  }) => {
-    return onRecordingPayment({ amount, bill, cycleFromDate, cycleToDate, isFullyPaid})
-  }
+const _onCurrentBillStatementDoesNotExist = ({
+	amount = undefined,
+	bill,
+	cycleFromDate,
+	cycleToDate,
+	isFullyPaid,
+}) => {
+	return onRecordingPayment({
+		amount,
+		bill,
+		cycleFromDate,
+		cycleToDate,
+		isFullyPaid,
+	});
+};
 
-  const onRecordingPayment = ({
-    id,
-    amount,
-    bill,
-    cycleFromDate,
-    cycleToDate,
-    isFullyPaid,
-  }) => {
-    return $paymentsUrql
-      .mutation(
-        gql`
+const onRecordingPayment = ({
+	id,
+	amount,
+	bill,
+	cycleFromDate,
+	cycleToDate,
+	isFullyPaid,
+}) => {
+	return $paymentsUrql
+		.mutation(
+			gql`
           mutation AddBillStatement($dto: AddOrUpdateBillStatementDTOInput!) {
             addOrUpdateBillStatement(dto: $dto) {
               id
@@ -141,27 +142,27 @@
             }
           }
         `,
-        {
-          dto: {
-            id,
-            notes: "",
-            amount,
-            isFullyPaid,
-            bill: { id: +bill.id },
-            startDate: cycleFromDate,
-            endDate: cycleToDate,
-            edges: { paymentIds: [] },
-          },
-        }
-      )
-      .toPromise()
-      .then((res) => {
-        if (res.error) {
-          console.error("Error recording payment:", res.error);
-          throw new Error("Failed to record payment");
-        }
-      });
-  };
+			{
+				dto: {
+					id,
+					notes: "",
+					amount,
+					isFullyPaid,
+					bill: { id: +bill.id },
+					startDate: cycleFromDate,
+					endDate: cycleToDate,
+					edges: { paymentIds: [] },
+				},
+			},
+		)
+		.toPromise()
+		.then((res) => {
+			if (res.error) {
+				console.error("Error recording payment:", res.error);
+				throw new Error("Failed to record payment");
+			}
+		});
+};
 </script>
 
 <section class="timeline-page">

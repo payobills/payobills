@@ -1,27 +1,20 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import RecentTransactions from "$lib/recent-transactions.svelte";
-  import { paymentsUrql } from "$lib/stores/urql";
-  import { nav } from "$lib/stores/nav";
-  import {
-    faChevronLeft,
-    faChevronRight,
-  } from "@fortawesome/free-solid-svg-icons";
+import { onMount } from "svelte";
+import { nav } from "$lib/stores/nav";
 
-  import { onMount } from "svelte";
-  import { Icon } from "svelte-awesome";
-  import { liteServices } from "../../../lib/stores/lite-services";
+$: transactionsService = $liteServices?.transactionsService;
+let _transactionId: string;
+let currentYear: number;
 
-  $: transactionsService = $liteServices?.transactionsService
-  let transactionId: string;
-  let currentYear: number;
+onMount(() => {
+	nav.update((prev) => ({ ...prev, isOpen: true, title: CONSTANTS.PAYOBILLS }));
+	_transactionId = new URLSearchParams(window.location.search)?.get("id") ?? "";
+});
 
-  onMount(() => {
-    nav.update(prev => ({...prev, isOpen: true, title: CONSTANTS.PAYOBILLS }));
-    transactionId = new URLSearchParams(window.location.search)?.get('id') ?? '';
-  });
-
-  $: transactionsQuery = currentYear && currentMonth ? transactionsService?.queryTransactions({ filters: { ids: []}}) : null
+$: transactionsQuery =
+	currentYear && currentMonth
+		? transactionsService?.queryTransactions({ filters: { ids: [] } })
+		: null;
 </script>
 
 <section class="monthly-transactions">

@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { onMount} from "svelte";
-    import { setupLiteDemoAsync } from "$lib/stores/lite-demo-store";
+import { onMount } from "svelte";
+import { setupLiteDemoAsync } from "$lib/stores/lite-demo-store";
 
-    let isSettingUp = true;
+let _isSettingUp = true;
 
-    onMount(async () => {
-      await setupLiteDemoAsync()
-      isSettingUp = false;
-    })
+onMount(async () => {
+	await setupLiteDemoAsync();
+	_isSettingUp = false;
+});
 </script>
 
 <div>

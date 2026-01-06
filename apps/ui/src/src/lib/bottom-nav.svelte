@@ -1,8 +1,6 @@
 <script>
-    import Icon from "svelte-awesome";
-    import { faBars } from "@fortawesome/free-solid-svg-icons";
-    import { goto } from "$app/navigation";
-  </script>
+
+</script>
   
   <nav>
     <p><span class='title'>coming soon...</span></p>

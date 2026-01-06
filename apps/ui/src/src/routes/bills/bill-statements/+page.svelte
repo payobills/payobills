@@ -1,43 +1,29 @@
 <script lang="ts">
-  import { queryStore, gql } from "@urql/svelte";
-  import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-  import { page } from "$app/stores";
-  import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
-  import Nav from "$lib/nav.svelte";
-  import Card from "$lib/card.svelte";
-  import { onMount } from "svelte";
-  import BillUploadStatement from "$lib/bill-upload-statement.svelte";
-  import BillStatements from "$lib/bills/bill-statements.svelte";
-  import { json } from "@sveltejs/kit";
-  import FileUploader from "$lib/file-uploader.svelte";
-  import { envStore } from "$lib/stores/env";
-  import { nav } from "$lib/stores/nav";
-  import RecentTransactions from "$lib/recent-transactions.svelte";
-  import { currencyFormatter } from "$utils/currency-formatter.util";
-    import UiDrawer from "$lib/ui-drawer.svelte";
-    import RecordPaymentForm from "$lib/record-payment-form.svelte";
-    import { writable, type Writable } from "svelte/store";
-    import type { BillStatementDTO, Query, TransactionDTO } from "$lib/types";
-    import { ProTransactionsService } from "../../../utils/pro/pro-transactions.service";
+import { gql, queryStore } from "@urql/svelte";
+import { onMount } from "svelte";
+import { type Writable, writable } from "svelte/store";
+import { nav } from "$lib/stores/nav";
+import type { Query, TransactionDTO } from "$lib/types";
+import { ProTransactionsService } from "../../../utils/pro/pro-transactions.service";
 
-  let billId: any;
-  let billStatementId: any;
-  let billStatementsQuery: any;
-  let refreshKey: number = Date.now();
-  
-  let showRecordPayment = false;
+let billId: any;
+let billStatementId: any;
+let _billStatementsQuery: any;
+const refreshKey: number = Date.now();
 
-  const onRecordingPayment = ({
-    amount,
-    bill,
-    cycleFromDate,
-    cycleToDate,
-    isFullyPaid,
-    transactions
-  }) => {
-    return $paymentsUrql
-      .mutation(
-        gql`
+const _showRecordPayment = false;
+
+const _onRecordingPayment = ({
+	amount,
+	bill,
+	cycleFromDate,
+	cycleToDate,
+	isFullyPaid,
+	transactions,
+}) => {
+	return $paymentsUrql
+		.mutation(
+			gql`
           mutation AddBillStatement($dto: AddOrUpdateBillStatementDTOInput!) {
             addOrUpdateBillStatement(dto: $dto) {
               id
@@ -52,53 +38,60 @@
             }
           }
         `,
-        {
-          dto: {
-            id: billStatementId,
-            notes: "",
-            amount,
-            isFullyPaid,
-            bill: { id: +bill.id },
-            startDate: cycleFromDate,
-            endDate: cycleToDate,
-            edges: { paymentIds: (transactions ?? []).map((transaction: TransactionDTO) => transaction.id) },
-          },
-        }
-      )
-      .toPromise()
-      .then((res) => {
-        if (res.error) {
-          console.error("Error recording payment:", res.error);
-          throw new Error("Failed to record payment");
-        }
-      });
-  }
+			{
+				dto: {
+					id: billStatementId,
+					notes: "",
+					amount,
+					isFullyPaid,
+					bill: { id: +bill.id },
+					startDate: cycleFromDate,
+					endDate: cycleToDate,
+					edges: {
+						paymentIds: (transactions ?? []).map(
+							(transaction: TransactionDTO) => transaction.id,
+						),
+					},
+				},
+			},
+		)
+		.toPromise()
+		.then((res) => {
+			if (res.error) {
+				console.error("Error recording payment:", res.error);
+				throw new Error("Failed to record payment");
+			}
+		});
+};
 
-  let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
-    fetching: false,
-    data: [],
-    error: null
-  });
-  
-  const onTransactionSearch = (transactionSearchTerm: string) => {
-    if (!$paymentsUrql || !transactionSearchTerm) matchingTransactionsQuery
+const matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
+	fetching: false,
+	data: [],
+	error: null,
+});
 
-    const transactionService =  new ProTransactionsService($paymentsUrql)
-    transactionService.queryTransactionsWithSearchTerm(matchingTransactionsQuery, transactionSearchTerm)
+const _onTransactionSearch = (transactionSearchTerm: string) => {
+	if (!$paymentsUrql || !transactionSearchTerm) matchingTransactionsQuery;
 
-    return matchingTransactionsQuery
-  }
+	const transactionService = new ProTransactionsService($paymentsUrql);
+	transactionService.queryTransactionsWithSearchTerm(
+		matchingTransactionsQuery,
+		transactionSearchTerm,
+	);
 
-  onMount(() => {
-    nav.update(prev => ({ ...prev, isOpen: true }))
-    let urlParams = window.location.search;
-    billId = new URLSearchParams(urlParams).get('bill-id')
-    billStatementId = new URLSearchParams(urlParams).get('bill-statement-id')
-  });
+	return matchingTransactionsQuery;
+};
 
-  $: billStatementsQuery = queryStore({
-    client: $billsUrql,
-    query: gql`
+onMount(() => {
+	nav.update((prev) => ({ ...prev, isOpen: true }));
+	const urlParams = window.location.search;
+	billId = new URLSearchParams(urlParams).get("bill-id");
+	billStatementId = new URLSearchParams(urlParams).get("bill-statement-id");
+});
+
+$: _billStatementsQuery = queryStore({
+	client: $billsUrql,
+	query: gql`
       query billById($billId: String!) {
         billStatements(billId: $billId) {
           id
@@ -139,23 +132,24 @@
         }
       }
     `,
-    variables: { billId, refreshKey },
-  });
+	variables: { billId, refreshKey },
+});
 
-  // $: {
-  //   console.log('all statements', $billStatementsQuery?.data?.billStatements)
-  //   console.log('curr',  $billStatementsQuery?.data?.billStatements?.find((billStatement: any) => billStatement.id === billStatementId))
-  // }
+// $: {
+//   console.log('all statements', $billStatementsQuery?.data?.billStatements)
+//   console.log('curr',  $billStatementsQuery?.data?.billStatements?.find((billStatement: any) => billStatement.id === billStatementId))
+// }
 
-  $: currentBillStatement = $billStatementsQuery?.data?.billStatements
-    ? $billStatementsQuery.data.billStatements.filter(
-        (billStatement: any) => billStatement.id === billStatementId
-      )?.[0]: undefined
+$: currentBillStatement = $billStatementsQuery?.data?.billStatements
+	? $billStatementsQuery.data.billStatements.filter(
+			(billStatement: any) => billStatement.id === billStatementId,
+		)?.[0]
+	: undefined;
 
-  $: transactionsFromOCRQuery = currentBillStatement?.statement?.ocrID
-    ? queryStore({
-        client: $paymentsUrql,
-        query: gql`
+$: transactionsFromOCRQuery = currentBillStatement?.statement?.ocrID
+	? queryStore({
+			client: $paymentsUrql,
+			query: gql`
           query GetTransactionsFromOCR($ocrID: String!) {
             transactions(filters: { ocrId: $ocrID }) {
               nodes {
@@ -173,14 +167,14 @@
             }
           }
         `,
-        variables: { ocrID: currentBillStatement?.statement?.ocrID },
-        pause: currentBillStatement?.statement?.ocrID === undefined,
-      })
-    : null;
+			variables: { ocrID: currentBillStatement?.statement?.ocrID },
+			pause: currentBillStatement?.statement?.ocrID === undefined,
+		})
+	: null;
 
-  const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
-    return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
-  };
+const _addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
+	return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
+};
 </script>
 
 <Card>

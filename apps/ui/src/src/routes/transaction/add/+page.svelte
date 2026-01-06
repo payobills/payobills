@@ -1,23 +1,22 @@
 <script lang="ts">
-  import { gql, queryStore } from "@urql/svelte";
-  import { goto, afterNavigate } from "$app/navigation";
-  import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-    import { onMount } from "svelte";
-    import { nav } from "$lib/stores/nav";
+import { gql, queryStore } from "@urql/svelte";
+import { onMount } from "svelte";
+import { goto } from "$app/navigation";
+import { nav } from "$lib/stores/nav";
 
-  let transactionText = "";
-  let billId = "";
-  let amount: number | null = null;
-  let merchant = "";
-  let notes: string | null = null;
+const transactionText = "";
+const billId = "";
+const amount: number | null = null;
+const merchant = "";
+const notes: string | null = null;
 
-  onMount(() => {
-    nav.prev(prev => ({...prev, isOpen: true})) 
-    })
+onMount(() => {
+	nav.prev((prev) => ({ ...prev, isOpen: true }));
+});
 
-  const billsQuery = queryStore({
-    client: $billsUrql,
-    query: gql`
+const _billsQuery = queryStore({
+	client: $billsUrql,
+	query: gql`
       query {
         bills {
           id
@@ -28,39 +27,39 @@
         }
       }
     `,
-  });
+});
 
-  const addTransaction = () => {
-    let client;
-    try {
-      $paymentsUrql
-        .mutation(
-          gql`
+const _addTransaction = () => {
+	let _client;
+	try {
+		$paymentsUrql
+			.mutation(
+				gql`
             mutation ($input: TransactionAddDTOInput!) {
               transactionAdd(input: $input) {
                 id
               }
             }
           `,
-          {
-            input: {
-              ...(amount && { amount }),
-              transactionText,
-              parseStatus: "NotStarted",
-              merchant,
-              bill: { id: +billId },
-              notes: notes || ""
-            },
-          }
-        )
-        .toPromise()
-        .then(() => {
-          goto("/");
-        });
-    } catch (error) {
-      console.error("couldn't get client", error);
-    }
-  };
+				{
+					input: {
+						...(amount && { amount }),
+						transactionText,
+						parseStatus: "NotStarted",
+						merchant,
+						bill: { id: +billId },
+						notes: notes || "",
+					},
+				},
+			)
+			.toPromise()
+			.then(() => {
+				goto("/");
+			});
+	} catch (error) {
+		console.error("couldn't get client", error);
+	}
+};
 </script>
 
 <section class="add-transaction">

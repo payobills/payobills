@@ -1,12 +1,5 @@
 <script lang="ts">
-  import IconButton from "$lib/icon-button.svelte";
-  import {
-    faBell,
-    faChartSimple,
-    faListOl,
-  } from "@fortawesome/free-solid-svg-icons";
-
-  const iconStyle = (colorsLeftToRight: string[] = []) => `
+const _iconStyle = (colorsLeftToRight: string[] = []) => `
     background: linear-gradient(to right, ${colorsLeftToRight.join(", ")});
     border: none;
     color: white;
