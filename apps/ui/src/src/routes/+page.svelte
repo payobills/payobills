@@ -1,20 +1,28 @@
 <script lang="ts">
-import { onMount } from "svelte";
-import { get } from "svelte/store";
-import { goto } from "$app/navigation";
-import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
-import { nav } from "$lib/stores/nav";
+  import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+  import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
+  import { envStore } from "$lib/stores/env";
+  import { get } from "svelte/store";
+  import IconButton from "$lib/icon-button.svelte";
+  import {
+    faBell,
+    faChartSimple,
+    faListOl,
+  } from "@fortawesome/free-solid-svg-icons";
+  import { nav } from "$lib/stores/nav";
+  import { getIdpBaseUrl } from "$utils/auth";
 
-onMount(async () => {
-	nav.update((prev) => ({ ...prev, isOpen: false }));
-	loadAuthFromLocalStorage();
+  onMount(async () => {
+    nav.update(prev => ({...prev, isOpen: false }));
+    loadAuthFromLocalStorage();
 
-	const authState = get(auth);
-	// console.log("Auth State on mount:", authState);
-	if (authState?.refreshToken) await goto("/timeline");
-});
+    const authState = get(auth);
+    // console.log("Auth State on mount:", authState);
+    if (authState?.refreshToken) await goto("/timeline");
+  });
 
-const _iconStyle = (colorsLeftToRight: string[] = []) => `
+  const iconStyle = (colorsLeftToRight: string[] = []) => `
     background: linear-gradient(to right, ${colorsLeftToRight.join(", ")});
     border: none;
     color: white;
@@ -80,13 +88,10 @@ const _iconStyle = (colorsLeftToRight: string[] = []) => `
 
   <a
     class="login-link"
-    href={$envStore?.INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE.replace(
-      "${INJECTED_OWN_URL}",
-      $envStore?.INJECTED_OWN_URL
-    )
-      .replace("${INJECTED_OIDC_CLIENT_ID}", $envStore?.INJECTED_OIDC_CLIENT_ID)
-      .replace(
-        "${INJECTED_OIDC_TENANT_URL}",
+    href={$envStore?.INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE
+      ?.replace("${INJECTED_OWN_URL}", $envStore?.INJECTED_OWN_URL)
+      ?.replace("${INJECTED_OIDC_CLIENT_ID}", $envStore?.INJECTED_OIDC_CLIENT_ID)
+      ?.replace("${INJECTED_OIDC_TENANT_URL}",
         getIdpBaseUrl(
           $envStore?.INJECTED_OWN_URL,
           $envStore?.INJECTED_OIDC_TENANT_URL
