@@ -1,185 +1,185 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { formatRelativeDate } from "../utils/format-relative-date";
+import { onMount } from "svelte";
+import { formatRelativeDate } from "../utils/format-relative-date";
 
-  export const transactions: any[] = [];
-  $: filteredTransactions = transactions
-    .reduce((agg: any[], currTransaction) => {
-      const duplicateTransaction = agg.findIndex(
-        (p) => p.id === currTransaction.id
-      );
-      if (duplicateTransaction === -1) {
-        return [...agg, currTransaction];
-      }
+export const transactions: any[] = [];
+$: filteredTransactions = transactions
+	.reduce((agg: any[], currTransaction) => {
+		const duplicateTransaction = agg.findIndex(
+			(p) => p.id === currTransaction.id,
+		);
+		if (duplicateTransaction === -1) {
+			return [...agg, currTransaction];
+		}
 
-      return agg;
-    }, [])
-    .filter((p) => p.paidAt);
+		return agg;
+	}, [])
+	.filter((p) => p.paidAt);
 
-  $: todaysDate = new Intl.DateTimeFormat("en-CA").format(new Date());
+$: todaysDate = new Intl.DateTimeFormat("en-CA").format(new Date());
 
-  $: todaysSpend = filteredTransactions
-    .filter(
-      (p) =>
-        new Intl.DateTimeFormat("en-CA").format(new Date(p.paidAt)) ===
-        todaysDate
-    )
-    .reduce((acc, curr) => acc + curr.amount, 0);
+$: todaysSpend = filteredTransactions
+	.filter(
+		(p) =>
+			new Intl.DateTimeFormat("en-CA").format(new Date(p.paidAt)) ===
+			todaysDate,
+	)
+	.reduce((acc, curr) => acc + curr.amount, 0);
 
-  export const showViewAllCTA = true;
-  export const showAllTransactions = false;
-  export const showRecentSpends = false;
-  export const showGraph = false;
-  export const showTotalSpend = true;
-  export const title: string | undefined = undefined;
-  export let totalSpend = 0;
-  export const initialShowCount = 5;
+export const showViewAllCTA = true;
+export const showAllTransactions = false;
+export const showRecentSpends = false;
+export const showGraph = false;
+export const showTotalSpend = true;
+export const title: string | undefined = undefined;
+export let totalSpend = 0;
+export const initialShowCount = 5;
 
-  $: ApexCharts = undefined;
+$: ApexCharts = undefined;
 
-  onMount(async () => {
-    if ((window as any).ApexCharts) {
-      ApexCharts = (window as any).ApexCharts;
-      return;
-    }
+onMount(async () => {
+	if ((window as any).ApexCharts) {
+		ApexCharts = (window as any).ApexCharts;
+		return;
+	}
 
-    await load();
-  });
+	await load();
+});
 
-  const load = async () => {
-    const module = await import("apexcharts");
-    (window as any).ApexCharts = module.default;
-    ApexCharts = module.default as any;
-  };
+const load = async () => {
+	const module = await import("apexcharts");
+	(window as any).ApexCharts = module.default;
+	ApexCharts = module.default as any;
+};
 
-  const chart = (node: any, transactions: any[]) => {
-    if (!ApexCharts) return;
+const chart = (node: any, transactions: any[]) => {
+	if (!ApexCharts) return;
 
-    if (transactions.length > 0) {
-      // from 1 to last day of the month of the first transaction, add 0s for missing days
-      const firstTransactionDate = new Date(filteredTransactions[0].paidAt);
-      const lastDateOfMonth = new Date(
-        firstTransactionDate.getUTCFullYear(),
-        firstTransactionDate.getUTCMonth() + 1,
-        0
-      );
-      const lastDay = lastDateOfMonth.getDate();
-      for (let i = 1; i <= lastDay; i++) {
-        const date = new Date(
-          firstTransactionDate.getUTCFullYear(),
-          firstTransactionDate.getUTCMonth(),
-          i
-        );
+	if (transactions.length > 0) {
+		// from 1 to last day of the month of the first transaction, add 0s for missing days
+		const firstTransactionDate = new Date(filteredTransactions[0].paidAt);
+		const lastDateOfMonth = new Date(
+			firstTransactionDate.getUTCFullYear(),
+			firstTransactionDate.getUTCMonth() + 1,
+			0,
+		);
+		const lastDay = lastDateOfMonth.getDate();
+		for (let i = 1; i <= lastDay; i++) {
+			const date = new Date(
+				firstTransactionDate.getUTCFullYear(),
+				firstTransactionDate.getUTCMonth(),
+				i,
+			);
 
-        if (
-          !filteredTransactions.find(
-            (p: any) =>
-              new Date(p.paidAt).getDate() === date.getDate() &&
-              new Date(p.paidAt).getMonth() === date.getMonth() &&
-              new Date(p.paidAt).getFullYear() === date.getFullYear()
-          )
-        ) {
-          filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
-        }
-      }
-    }
+			if (
+				!filteredTransactions.find(
+					(p: any) =>
+						new Date(p.paidAt).getDate() === date.getDate() &&
+						new Date(p.paidAt).getMonth() === date.getMonth() &&
+						new Date(p.paidAt).getFullYear() === date.getFullYear(),
+				)
+			) {
+				filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
+			}
+		}
+	}
 
-    const allData = filteredTransactions.map((p: any) => {
-      return {
-        x: new Date(p.paidAt).getDate(),
-        y: p.amount,
-        note: `${p.amount}`,
-      };
-    });
+	const allData = filteredTransactions.map((p: any) => {
+		return {
+			x: new Date(p.paidAt).getDate(),
+			y: p.amount,
+			note: `${p.amount}`,
+		};
+	});
 
-    const data = allData.reduce(
-      (accumulator: any[], current: any, index: number) => {
-        if (index == 0) return [current];
+	const data = allData.reduce(
+		(accumulator: any[], current: any, index: number) => {
+			if (index == 0) return [current];
 
-        if (current.x == accumulator[accumulator.length - 1].x) {
-          const last = accumulator[accumulator.length - 1];
-          return [
-            ...accumulator.slice(0, -1),
-            {
-              y: last.y + current.y,
-              x: last.x,
-              note: `${last.note} - + ${current.y}`,
-            },
-          ];
-        }
+			if (current.x == accumulator[accumulator.length - 1].x) {
+				const last = accumulator[accumulator.length - 1];
+				return [
+					...accumulator.slice(0, -1),
+					{
+						y: last.y + current.y,
+						x: last.x,
+						note: `${last.note} - + ${current.y}`,
+					},
+				];
+			}
 
-        return [
-          ...accumulator,
-          {
-            x: current.x,
-            y: current.y,
-            note: current.note,
-          },
-        ];
-      },
-      []
-    );
+			return [
+				...accumulator,
+				{
+					x: current.x,
+					y: current.y,
+					note: current.note,
+				},
+			];
+		},
+		[],
+	);
 
-    data.sort((a: any, b: any) => {
-      return a.x - b.x;
-    });
+	data.sort((a: any, b: any) => {
+		return a.x - b.x;
+	});
 
-    totalSpend = data.reduce((acc: number, p: any) => acc + p.y, 0);
+	totalSpend = data.reduce((acc: number, p: any) => acc + p.y, 0);
 
-    const options: any = {
-      colors: ["var(--primary-color)"],
-      legend: {
-        show: false,
-      },
-      stroke: {
-        curve: "smooth",
-        width: 2,
-      },
-      chart: {
-        type: "area",
-      },
-      series: [
-        {
-          name: "payments",
-          data: data.map((p: any) => p.y),
-        },
-      ],
-      xaxis: {
-        categories: data.map((p: any) => p.x),
-        labels: { show: true },
-      },
-      yaxis: {
-        labels: {
-          show: false,
-        },
-      },
-      dataLabels: {
-        enabled: true,
-        style: {
-          colors: ["#5e5e5e"],
-        },
-        formatter: (value: number) => {
-          return value === 0
-            ? undefined
-            : `₹ ${Intl.NumberFormat(undefined, {
-                style: "decimal",
-              }).format(value)}`;
-        },
-      },
-    };
+	const options: any = {
+		colors: ["var(--primary-color)"],
+		legend: {
+			show: false,
+		},
+		stroke: {
+			curve: "smooth",
+			width: 2,
+		},
+		chart: {
+			type: "area",
+		},
+		series: [
+			{
+				name: "payments",
+				data: data.map((p: any) => p.y),
+			},
+		],
+		xaxis: {
+			categories: data.map((p: any) => p.x),
+			labels: { show: true },
+		},
+		yaxis: {
+			labels: {
+				show: false,
+			},
+		},
+		dataLabels: {
+			enabled: true,
+			style: {
+				colors: ["#5e5e5e"],
+			},
+			formatter: (value: number) => {
+				return value === 0
+					? undefined
+					: `₹ ${Intl.NumberFormat(undefined, {
+							style: "decimal",
+						}).format(value)}`;
+			},
+		},
+	};
 
-    const myChart = new (ApexCharts as any)(node, options);
-    myChart.render();
+	const myChart = new (ApexCharts as any)(node, options);
+	myChart.render();
 
-    return {
-      update(options: any) {
-        myChart.updateOptions(options);
-      },
-      destroy() {
-        myChart.destroy();
-      },
-    };
-  };
+	return {
+		update(options: any) {
+			myChart.updateOptions(options);
+		},
+		destroy() {
+			myChart.destroy();
+		},
+	};
+};
 </script>
 
 <div class="container">

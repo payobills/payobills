@@ -1,6 +1,6 @@
 <script lang="ts">
-  export let bill: any;
-  export let statements: any[];
+export let bill: any;
+export let statements: any[];
 </script>
 
 <h2>Bill Statements</h2>

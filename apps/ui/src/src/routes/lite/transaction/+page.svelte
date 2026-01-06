@@ -1,105 +1,108 @@
 <script lang="ts">
-  import { paymentsUrql } from "$lib/stores/urql";
-  import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import type { OperationResultStore } from "@urql/svelte";
 
-  import { queryStore, gql, mutationStore } from "@urql/svelte";
-  import type { OperationResultStore } from "@urql/svelte";
-  import { onMount } from "svelte";
-  import { formatRelativeDate } from "$utils/format-relative-date";
-  import { formStoreGenerator, type FormStore } from "$lib/stores/form";
-  import IconButton from "$lib/icon-button.svelte";
-  import type { Writable } from "svelte/store";
-  import type { TransactionDTO as Transaction } from "$lib/types";
-  import FileUploader from "$lib/file-uploader.svelte";
-  import { envStore } from "$lib/stores/env";
-  import IdeaCard from "$lib/idea-card.svelte";
-  import { nav } from "$lib/stores/nav";
-  import { liteServices } from "$lib/stores/lite-services";
+import { gql, mutationStore, queryStore } from "@urql/svelte";
+import { onMount } from "svelte";
+import type { Writable } from "svelte/store";
+import FileUploader from "$lib/file-uploader.svelte";
+import IconButton from "$lib/icon-button.svelte";
+import IdeaCard from "$lib/idea-card.svelte";
+import { envStore } from "$lib/stores/env";
+import { type FormStore, formStoreGenerator } from "$lib/stores/form";
+import { liteServices } from "$lib/stores/lite-services";
+import { nav } from "$lib/stores/nav";
+import { paymentsUrql } from "$lib/stores/urql";
+import type { TransactionDTO as Transaction } from "$lib/types";
+import { formatRelativeDate } from "$utils/format-relative-date";
 
-  let transactionID: string | null = null;
-  let pageMode: "VIEW" | "EDIT" = "VIEW";
-  let editCta = "Save";
-  let transaction: any;
-  let cancelCtaButton: HTMLButtonElement, saveCtaButton: HTMLButtonElement;
-  let transactionsQuery: OperationResultStore;
-  const transactionForm: Writable<FormStore<Transaction>> =
-    formStoreGenerator("transactionById");
-  let transactionReparseTriggered = false;
+let transactionID: string | null = null;
+let pageMode: "VIEW" | "EDIT" = "VIEW";
+let editCta = "Save";
+let transaction: any;
+let cancelCtaButton: HTMLButtonElement, saveCtaButton: HTMLButtonElement;
+let transactionsQuery: OperationResultStore;
+const transactionForm: Writable<FormStore<Transaction>> =
+	formStoreGenerator("transactionById");
+let transactionReparseTriggered = false;
 
-  const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
-    return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
-  };
+const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
+	return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
+};
 
-  $: transactionsService = $liteServices?.transactionsService
-  $: transactionsQuery = transactionID && transactionsService ? transactionsService.queryTransactions({ filters: { ids: [transactionID] }}) : null; 
+$: transactionsService = $liteServices?.transactionsService;
+$: transactionsQuery =
+	transactionID && transactionsService
+		? transactionsService.queryTransactions({
+				filters: { ids: [transactionID] },
+			})
+		: null;
 
-  $: {
-    transactionsQuery?.subscribe((res) => {
-      if ((res?.data ?? [])?.length <= 0) return;
-      transaction = res.data[0];
-      transactionForm.set({
-        data: {
-          amount: res.data[0].amount,
-          merchant: res.data[0].merchant,
-          notes: res.data[0].notes,
-          receipts: (res.data[0].receipts ?? []).map((receipt: any) => ({
-            fileName: receipt.id,
-            mimeType: receipt.mimeType,
-            downloadPath: receipt.downloadPath,
-          })),
-          updatedReceipts: (res.data[0].receipts ?? []).map(
-            (receipt: any) => ({
-              fileName: receipt.id,
-              mimeType: receipt.mimeType,
-              downloadPath: receipt.downloadPath,
-            })
-          ),
-        },
-        isDirty: false,
-      });
-    });
-  }
+$: {
+	transactionsQuery?.subscribe((res) => {
+		if ((res?.data ?? [])?.length <= 0) return;
+		transaction = res.data[0];
+		transactionForm.set({
+			data: {
+				amount: res.data[0].amount,
+				merchant: res.data[0].merchant,
+				notes: res.data[0].notes,
+				receipts: (res.data[0].receipts ?? []).map((receipt: any) => ({
+					fileName: receipt.id,
+					mimeType: receipt.mimeType,
+					downloadPath: receipt.downloadPath,
+				})),
+				updatedReceipts: (res.data[0].receipts ?? []).map((receipt: any) => ({
+					fileName: receipt.id,
+					mimeType: receipt.mimeType,
+					downloadPath: receipt.downloadPath,
+				})),
+			},
+			isDirty: false,
+		});
+	});
+}
 
-  onMount(() => {
-    nav.update(prev => ({ ...prev, isOpen: true }))
-    transactionID = new URLSearchParams(window.location.search).get('id');
-  });
+onMount(() => {
+	nav.update((prev) => ({ ...prev, isOpen: true }));
+	transactionID = new URLSearchParams(window.location.search).get("id");
+});
 
-  const onTransactionReceiptAdded = ({ file }: { file: File }) => {
-    // console.log("file added:", file);
-    transactionForm.update((form) => ({
-      data: {
-        amount: form.data.amount,
-        merchant: form.data.merchant,
-        notes: form.data.notes,
-        receipts: form.data.receipts,
-        updatedReceipts: [...form.data.updatedReceipts, file],
-      },
-      isDirty: false,
-    }));
-  };
+const onTransactionReceiptAdded = ({ file }: { file: File }) => {
+	// console.log("file added:", file);
+	transactionForm.update((form) => ({
+		data: {
+			amount: form.data.amount,
+			merchant: form.data.merchant,
+			notes: form.data.notes,
+			receipts: form.data.receipts,
+			updatedReceipts: [...form.data.updatedReceipts, file],
+		},
+		isDirty: false,
+	}));
+};
 
-  const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
-    transactionForm.update((form) => ({
-      data: {
-        amount: form.data.amount,
-        merchant: form.data.merchant,
-        notes: form.data.notes,
-        receipts: form.data.receipts,
-        updatedReceipts: (form.data.updatedReceipts || []).filter(
-          (r) => r !== file
-        ),
-      },
-      isDirty: false,
-    }));
-  };
+const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
+	transactionForm.update((form) => ({
+		data: {
+			amount: form.data.amount,
+			merchant: form.data.merchant,
+			notes: form.data.notes,
+			receipts: form.data.receipts,
+			updatedReceipts: (form.data.updatedReceipts || []).filter(
+				(r) => r !== file,
+			),
+		},
+		isDirty: false,
+	}));
+};
 
-  const triggerReparse = async () => {
-    try {
-      transactionReparseTriggered = true;
-      await $paymentsUrql
-        .mutation(
-          gql`
+const triggerReparse = async () => {
+	try {
+		transactionReparseTriggered = true;
+		await $paymentsUrql
+			.mutation(
+				gql`
             mutation TransactionUpdate(
               $id: String!
               $updateDTO: TransactionUpdateDTOInput!
@@ -110,92 +113,92 @@
               }
             }
           `,
-          {
-            id: transactionID,
-            updateDTO: {
-              parseStatus: "NotStarted",
-            },
-          }
-        )
-        .toPromise();
-    } catch {
-      // TODO: Use common drawer to show transaction update error
-    }
-  };
+				{
+					id: transactionID,
+					updateDTO: {
+						parseStatus: "NotStarted",
+					},
+				},
+			)
+			.toPromise();
+	} catch {
+		// TODO: Use common drawer to show transaction update error
+	}
+};
 
-  const updateTransaction = async () => {
-    editCta = "Saving...";
+const updateTransaction = async () => {
+	editCta = "Saving...";
 
-    cancelCtaButton.disabled = true;
-    saveCtaButton.disabled = true;
+	cancelCtaButton.disabled = true;
+	saveCtaButton.disabled = true;
 
-    const existingReceipts = $transactionForm.data.receipts;
-    const newReceipts = $transactionForm.data.updatedReceipts;
+	const existingReceipts = $transactionForm.data.receipts;
+	const newReceipts = $transactionForm.data.updatedReceipts;
 
-    // New Files to upload are the ones which don't have a downloadPath
-    const receiptsToAdd = newReceipts.filter((p) => !p?.downloadPath);
+	// New Files to upload are the ones which don't have a downloadPath
+	const receiptsToAdd = newReceipts.filter((p) => !p?.downloadPath);
 
-    // Existing files to delete are the ones which are not present in the new files
-    const receiptsToDelete = existingReceipts.filter(
-      (p) =>
-        newReceipts.findIndex((x) => x?.downloadPath === p?.downloadPath) === -1
-    );
+	// Existing files to delete are the ones which are not present in the new files
+	const receiptsToDelete = existingReceipts.filter(
+		(p) =>
+			newReceipts.findIndex((x) => x?.downloadPath === p?.downloadPath) === -1,
+	);
 
-    // console.log({existingReceipts: $transactionForm.data.receipts})
-    // console.log({newReceipts: $transactionForm.data.updatedReceipts})
-    // console.log({receiptsToAdd})
-    // console.log({receiptsToDelete})
+	// console.log({existingReceipts: $transactionForm.data.receipts})
+	// console.log({newReceipts: $transactionForm.data.updatedReceipts})
+	// console.log({receiptsToAdd})
+	// console.log({receiptsToDelete})
 
-    const deleteReceiptPromises = receiptsToDelete.map((receipt: any) => {
-      return fetch(`${addFilesBaseUrlPrefix({ url: receipt.downloadPath })}`, {
-        method: "DELETE",
-      }).then((response) => {
-        if (!response.ok) {
-          throw new Error(`File deletion failed: ${response.statusText}`);
-        }
-        return receipt;
-      });
-    });
+	const deleteReceiptPromises = receiptsToDelete.map((receipt: any) => {
+		return fetch(`${addFilesBaseUrlPrefix({ url: receipt.downloadPath })}`, {
+			method: "DELETE",
+		}).then((response) => {
+			if (!response.ok) {
+				throw new Error(`File deletion failed: ${response.statusText}`);
+			}
+			return receipt;
+		});
+	});
 
-    // Upload new files
-    const uploadPromises = receiptsToAdd.map((file: File) => {
-      const formdata = new FormData();
-      formdata.append(
-        "tags",
-        JSON.stringify({
-          CorrelationID: transactionID,
-          Type: "TRANSACTION_RECEIPT",
-          TransactionID: transactionID,
-          Note: "",
-        })
-      );
-      formdata.append("file", file, file.name);
+	// Upload new files
+	const uploadPromises = receiptsToAdd.map((file: File) => {
+		const formdata = new FormData();
+		formdata.append(
+			"tags",
+			JSON.stringify({
+				CorrelationID: transactionID,
+				Type: "TRANSACTION_RECEIPT",
+				TransactionID: transactionID,
+				Note: "",
+			}),
+		);
+		formdata.append("file", file, file.name);
 
-      return fetch("/files/files", {
-        method: "POST",
-        body: formdata,
-      }).then((response) => {
-        if (!response.ok) {
-          throw new Error(`File upload failed: ${response.statusText}`);
-        }
-        return Promise.resolve();
-      });
-    });
+		return fetch("/files/files", {
+			method: "POST",
+			body: formdata,
+		}).then((response) => {
+			if (!response.ok) {
+				throw new Error(`File upload failed: ${response.statusText}`);
+			}
+			return Promise.resolve();
+		});
+	});
 
-    await Promise.all([...uploadPromises, ...deleteReceiptPromises]);
+	await Promise.all([...uploadPromises, ...deleteReceiptPromises]);
 
-    const updateTransactionOp = mutationStore({
-      client: $paymentsUrql,
-      variables: {
-        id: transactionID,
-        updateDTO: {
-          ...$transactionForm.data,
-          amount: +$transactionForm.data.amount,
-          receipts: undefined,
-          updatedReceipts: undefined,
-        },
-      },
-      query: gql`
+	const updateTransactionOp = mutationStore({
+		client: $paymentsUrql,
+		variables: {
+			id: transactionID,
+			updateDTO: {
+				...$transactionForm.data,
+				amount: +$transactionForm.data.amount,
+				receipts: undefined,
+				updatedReceipts: undefined,
+			},
+		},
+		query: gql`
         mutation TransactionUpdate(
           $id: String!
           $updateDTO: TransactionUpdateDTOInput!
@@ -219,25 +222,25 @@
           }
         }
       `,
-    });
+	});
 
-    updateTransactionOp.subscribe(({ fetching, data }) => {
-      if (fetching) {
-        return;
-      }
+	updateTransactionOp.subscribe(({ fetching, data }) => {
+		if (fetching) {
+			return;
+		}
 
-      if (saveCtaButton) saveCtaButton.disabled = false;
-      if (cancelCtaButton) cancelCtaButton.disabled = false;
-      editCta = "Save";
-      pageMode = "VIEW";
+		if (saveCtaButton) saveCtaButton.disabled = false;
+		if (cancelCtaButton) cancelCtaButton.disabled = false;
+		editCta = "Save";
+		pageMode = "VIEW";
 
-      transaction = {
-        ...transaction,
-        ...$transactionForm.data,
-        amount: +$transactionForm.data.amount,
-      };
-    });
-  };
+		transaction = {
+			...transaction,
+			...$transactionForm.data,
+			amount: +$transactionForm.data.amount,
+		};
+	});
+};
 </script>
 
 <div class="container">

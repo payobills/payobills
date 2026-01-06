@@ -1,16 +1,16 @@
 <script lang="ts">
-  import IconButton from "./icon-button.svelte";
-  import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
+import IconButton from "./icon-button.svelte";
 
-  const {
-    children,
-    onclick = undefined,
-    state = "DEFAULT",
-  }: {
-    children: any;
-    onclick?: (event: any) => Promise<any | void>;
-    state: "DEFAULT" | "LOADING" | "SUCCESS" | "ERROR";
-  } = $props();
+const {
+	children,
+	onclick = undefined,
+	state = "DEFAULT",
+}: {
+	children: any;
+	onclick?: (event: any) => Promise<any | void>;
+	state: "DEFAULT" | "LOADING" | "SUCCESS" | "ERROR";
+} = $props();
 </script>
 
 <button

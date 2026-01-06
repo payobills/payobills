@@ -1,5 +1,5 @@
 <script lang="ts">
-  export const title: string = "";
+export const title: string = "";
 </script>
 
 <div class="card">

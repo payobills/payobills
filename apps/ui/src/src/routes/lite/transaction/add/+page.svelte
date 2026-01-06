@@ -1,43 +1,46 @@
 <script lang="ts">
-  import { gql, queryStore } from "@urql/svelte";
-  import { goto, afterNavigate } from "$app/navigation";
-  import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-  import { onMount } from "svelte";
-  import { nav } from "$lib/stores/nav";
-  import { liteServices } from "../../../../lib/stores/lite-services";
+import { gql, queryStore } from "@urql/svelte";
+import { onMount } from "svelte";
+import { afterNavigate, goto } from "$app/navigation";
+import { nav } from "$lib/stores/nav";
+import { billsUrql, paymentsUrql } from "$lib/stores/urql";
+import { liteServices } from "../../../../lib/stores/lite-services";
 
-  const transactionText = "";
-  const billId = "";
-  const amount: number | null = null;
-  const merchant = "";
-  const notes: string | null = null;
+const transactionText = "";
+const billId = "";
+const amount: number | null = null;
+const merchant = "";
+const notes: string | null = null;
 
-  onMount(() => {
-    nav.update(prev => ({ ...prev, isOpen: true }))
-  })
+onMount(() => {
+	nav.update((prev) => ({ ...prev, isOpen: true }));
+});
 
-  $: billsQuery = $liteServices?.billsService?.queryBills() ?? null
+$: billsQuery = $liteServices?.billsService?.queryBills() ?? null;
 
-  const addTransaction = () => {
-    try {
-      $liteServices?.transactionsService.addTransaction(
-        {
-            input: {
-              amount,
-              transactionText,
-              parseStatus: "NotStarted",
-              merchant,
-              bill: { id: billId, name: $billsQuery.data.filter(b => b.id === billId)[0].name },
-              notes: notes || ""
-            },
-        })
-        .then(() => {
-          history.back()
-        });
-    } catch (error) {
-      console.error("couldn't get client", error);
-    }
-  };
+const addTransaction = () => {
+	try {
+		$liteServices?.transactionsService
+			.addTransaction({
+				input: {
+					amount,
+					transactionText,
+					parseStatus: "NotStarted",
+					merchant,
+					bill: {
+						id: billId,
+						name: $billsQuery.data.filter((b) => b.id === billId)[0].name,
+					},
+					notes: notes || "",
+				},
+			})
+			.then(() => {
+				history.back();
+			});
+	} catch (error) {
+		console.error("couldn't get client", error);
+	}
+};
 </script>
 
 <section class="add-transaction">

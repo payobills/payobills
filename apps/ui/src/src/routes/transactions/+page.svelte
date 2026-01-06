@@ -1,30 +1,37 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import RecentTransactions from "$lib/recent-transactions.svelte";
-  import { paymentsUrql } from "$lib/stores/urql";
-  import { nav } from "$lib/stores/nav";
-  import {
-    faChevronLeft,
-    faChevronRight,
-  } from "@fortawesome/free-solid-svg-icons";
+import {
+	faChevronLeft,
+	faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
+import { gql, queryStore } from "@urql/svelte";
+import { onMount } from "svelte";
+import { Icon } from "svelte-awesome";
+import { goto } from "$app/navigation";
+import RecentTransactions from "$lib/recent-transactions.svelte";
+import { nav } from "$lib/stores/nav";
+import { paymentsUrql } from "$lib/stores/urql";
 
-  import { queryStore, gql } from "@urql/svelte";
-  import { onMount } from "svelte";
-  import { Icon } from "svelte-awesome";
+let currentYear: number;
+let currentMonth: number;
 
-  let currentYear: number;
-  let currentMonth: number;
+onMount(() => {
+	nav.update((prev) => ({ ...prev, isOpen: true }));
+	currentYear = +(
+		new URLSearchParams(window.location.search)?.get("year") ||
+		new Date().getFullYear()
+	);
+	currentMonth = +(
+		new URLSearchParams(window.location.search)?.get("month") ||
+		new Date().getMonth() + 1
+	);
+});
 
-  onMount(() => {
-    nav.update(prev => ({ ...prev, isOpen: true }))
-    currentYear = +(new URLSearchParams(window.location.search)?.get('year') || new Date().getFullYear())
-    currentMonth = +(new URLSearchParams(window.location.search)?.get('month') || (new Date().getMonth() +1 ))
-  });
-
-  $: transactionsQuery = currentYear && currentMonth ? queryStore({
-    client: $paymentsUrql,
-    variables: { year: currentYear, month: currentMonth },
-    query: gql`
+$: transactionsQuery =
+	currentYear && currentMonth
+		? queryStore({
+				client: $paymentsUrql,
+				variables: { year: currentYear, month: currentMonth },
+				query: gql`
       query ($year: Int!, $month: Int!) {
         transactionsByYearAndMonth(year: $year, month: $month, first: 900) {
           nodes {
@@ -42,7 +49,8 @@
         }
       }
     `,
-  }): null;
+			})
+		: null;
 </script>
 
 <section class="monthly-transactions">

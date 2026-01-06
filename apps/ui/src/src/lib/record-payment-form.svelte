@@ -1,50 +1,67 @@
 <script lang="ts">
-  import type { Writable } from "svelte/store";
-  import BillPayment from "./bills/bill-payment.svelte";
-  import BottomNav from "./bottom-nav.svelte";
-  import Button from "./button.svelte";
-  import Card from "./card.svelte";
-  import type { BillStatementDTO, Query, TransactionDTO } from "./types";
-  import { formatRelativeDate } from "../utils/format-relative-date";
+import type { Writable } from "svelte/store";
+import { formatRelativeDate } from "../utils/format-relative-date";
+import BillPayment from "./bills/bill-payment.svelte";
+import BottomNav from "./bottom-nav.svelte";
+import Button from "./button.svelte";
+import Card from "./card.svelte";
+import type { BillStatementDTO, Query, TransactionDTO } from "./types";
 
-  export let bill: any;
-  export let billStatements: BillStatementDTO[];
-  export let onRecordingPayment;
-  export const lockBillStatementCycle = false;
-  export let selectedStatement: BillStatementDTO;
+export let bill: any;
+export let billStatements: BillStatementDTO[];
+export let onRecordingPayment;
+export const lockBillStatementCycle = false;
+export let selectedStatement: BillStatementDTO;
 
-  export let onTransactionSearch: (transactionSearchTerm: string) => Writable<Query<TransactionDTO[]>>
+export let onTransactionSearch: (
+	transactionSearchTerm: string,
+) => Writable<Query<TransactionDTO[]>>;
 
-  let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> 
+let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>>;
 
-  const transactionSearchTerm: string = ''
-  $: selectedTransactions = ($matchingTransactionsQuery?.data?.reduce((acc, curr) => { 
-        acc = {...acc, [curr.id.toString()]: new IsSelected(false, curr) } 
-        return acc
-      }, {}) ?? {}) satisfies Record<string, IsSelected<TransactionDTO>> 
-  $: amount = Object.values(selectedTransactions).filter(x => x.state).reduce((acc, curr) => acc + curr.metadata?.amount || 0, 0)
+const transactionSearchTerm: string = "";
+$: selectedTransactions = ($matchingTransactionsQuery?.data?.reduce(
+	(acc, curr) => {
+		acc = { ...acc, [curr.id.toString()]: new IsSelected(false, curr) };
+		return acc;
+	},
+	{},
+) ?? {}) satisfies Record<string, IsSelected<TransactionDTO>>;
+$: amount = Object.values(selectedTransactions)
+	.filter((x) => x.state)
+	.reduce((acc, curr) => acc + curr.metadata?.amount || 0, 0);
 
-  $: {
-    console.log('selec', selectedStatement)
-  }
+$: {
+	console.log("selec", selectedStatement);
+}
 
-  const isFullyPaid = true;
-  const isSaving = false;
+const isFullyPaid = true;
+const isSaving = false;
 
-  class IsSelected<T> {
-    constructor(private __state: boolean, private __metadata: T) { }
-    get state() { return this.__state }
-    set state(newState: boolean) { this.__state = newState}
-    get metadata(): T { return this.__metadata}
-  }
+class IsSelected<T> {
+	constructor(
+		private __state: boolean,
+		private __metadata: T,
+	) {}
+	get state() {
+		return this.__state;
+	}
+	set state(newState: boolean) {
+		this.__state = newState;
+	}
+	get metadata(): T {
+		return this.__metadata;
+	}
+}
 
-  const onAmountSearchBoxFocusout = async () => {
-    try {
-        // console.log('searching,', )
-      matchingTransactionsQuery = await onTransactionSearch(transactionSearchTerm)
-    }
-    catch {}
-  }
+const onAmountSearchBoxFocusout = async () => {
+	try {
+		// console.log('searching,', )
+		matchingTransactionsQuery = await onTransactionSearch(
+			transactionSearchTerm,
+		);
+	} catch {}
+};
 </script>
 
 <div class="container">

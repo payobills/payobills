@@ -1,47 +1,55 @@
 <script lang="ts">
-  import Card from "$lib/card.svelte";
-  import { faCancel } from "@fortawesome/free-solid-svg-icons";
-  import IconButton from "$lib/icon-button.svelte";
-  import { liteServices } from "$lib/stores/lite-services";
-  import { onMount } from "svelte";
-  import { nav } from "$lib/stores/nav";
-  import { Crud } from "$lib/types";
+import { faCancel } from "@fortawesome/free-solid-svg-icons";
+import { onMount } from "svelte";
+import Card from "$lib/card.svelte";
+import IconButton from "$lib/icon-button.svelte";
+import { liteServices } from "$lib/stores/lite-services";
+import { nav } from "$lib/stores/nav";
+import { Crud } from "$lib/types";
 
-  $: billsService = $liteServices?.billsService
-  
-  export let existingBillId: string | null = null;
+$: billsService = $liteServices?.billsService;
 
-  let billingDate: number, payByDate: number, name: string;
-  $: existingBillQuery = existingBillId && billsService ? billsService.queryBillById(existingBillId) : null 
-  $: mode = existingBillId ? Crud.Update : Crud.Create
+export let existingBillId: string | null = null;
 
-  $: {
-    // Bill finished loading without errors
-    if(!$existingBillQuery?.fetching && !$existingBillQuery?.error)
-    {
-      billingDate = $existingBillQuery?.data.billingDate
-      payByDate = $existingBillQuery?.data.payByDate
-      name = $existingBillQuery?.data.name
-    }
-  }
+let billingDate: number, payByDate: number, name: string;
+$: existingBillQuery =
+	existingBillId && billsService
+		? billsService.queryBillById(existingBillId)
+		: null;
+$: mode = existingBillId ? Crud.Update : Crud.Create;
 
-  onMount(() => {
-    nav.update(prev => ({...prev, isOpen: true }))
-    existingBillId = new URLSearchParams(window.location.search).get('existing-bill-id') ?? null 
-  });
+$: {
+	// Bill finished loading without errors
+	if (!$existingBillQuery?.fetching && !$existingBillQuery?.error) {
+		billingDate = $existingBillQuery?.data.billingDate;
+		payByDate = $existingBillQuery?.data.payByDate;
+		name = $existingBillQuery?.data.name;
+	}
+}
 
-  const addBill = async () => {
-    try {
-      const savePromise = existingBillId ? billsService.updateBill(existingBillId, { name, payByDate, billingDate, id: existingBillId })
-        : billsService.addBill({ name, payByDate, billingDate })
+onMount(() => {
+	nav.update((prev) => ({ ...prev, isOpen: true }));
+	existingBillId =
+		new URLSearchParams(window.location.search).get("existing-bill-id") ?? null;
+});
 
-      await savePromise;
-      history.back()
-    }
-    catch(error) {
-      console.error("Unable to save/update the bill", error);
-    }
-  };
+const addBill = async () => {
+	try {
+		const savePromise = existingBillId
+			? billsService.updateBill(existingBillId, {
+					name,
+					payByDate,
+					billingDate,
+					id: existingBillId,
+				})
+			: billsService.addBill({ name, payByDate, billingDate });
+
+		await savePromise;
+		history.back();
+	} catch (error) {
+		console.error("Unable to save/update the bill", error);
+	}
+};
 </script>
 
 {#if existingBillId && (!existingBillQuery || $existingBillQuery?.fetching)}

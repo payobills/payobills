@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { faClose, faFile } from "@fortawesome/free-solid-svg-icons";
-  import IconButton from "./icon-button.svelte";
+import { faClose, faFile } from "@fortawesome/free-solid-svg-icons";
+import IconButton from "./icon-button.svelte";
 
-  export const onFileAdded: (input: { file: File }) => void = (_) => {};
-  export const onFileRemoved: (input: { file: File }) => void = (_) => {};
-  export const fileUrlTransformer: (input: { url: string }) => string = ({
-    url,
-  }) => url;
-  export const editable = false;
-  export const files: any[] = [];
+export const onFileAdded: (input: { file: File }) => void = (_) => {};
+export const onFileRemoved: (input: { file: File }) => void = (_) => {};
+export const fileUrlTransformer: (input: { url: string }) => string = ({
+	url,
+}) => url;
+export const editable = false;
+export const files: any[] = [];
 </script>
 
 <form on:submit|preventDefault={() => {}}>

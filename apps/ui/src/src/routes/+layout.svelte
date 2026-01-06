@@ -1,73 +1,72 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import BottomNav from "$lib/bottom-nav.svelte";
-  import IconButton from "$lib/icon-button.svelte";
-  import Nav from "$lib/nav.svelte";
-  import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
-  import { tryLoadEnv } from "$lib/stores/env";
-  import { uiDrawer } from "$lib/stores/ui-drawer";
-  import {
-    faChevronDown,
-    faDownLeftAndUpRightToCenter,
-    faUpRightAndDownLeftFromCenter
-  } from "@fortawesome/free-solid-svg-icons";
-  import { onMount } from "svelte";
-  import { fade, fly } from "svelte/transition";
-  import { nav } from "$lib/stores/nav";
-  import { CONSTANTS } from '../constants';
+import {
+	faChevronDown,
+	faDownLeftAndUpRightToCenter,
+	faUpRightAndDownLeftFromCenter,
+} from "@fortawesome/free-solid-svg-icons";
+import { onMount } from "svelte";
+import { fade, fly } from "svelte/transition";
+import { goto } from "$app/navigation";
+import BottomNav from "$lib/bottom-nav.svelte";
+import IconButton from "$lib/icon-button.svelte";
+import Nav from "$lib/nav.svelte";
+import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
+import { tryLoadEnv } from "$lib/stores/env";
+import { nav } from "$lib/stores/nav";
+import { uiDrawer } from "$lib/stores/ui-drawer";
+import { CONSTANTS } from "../constants";
 
-  // import "./app.css";
+// import "./app.css";
 
-  onMount(async () => {
-    nav.update(prev => ({
-      ...prev,
-      isOpen: true,
-      title: CONSTANTS.PAYOBILLS,
-      link: '/'
-    }));
-    
-    // Try to load env Urls from localStorage
-    await tryLoadEnv();
+onMount(async () => {
+	nav.update((prev) => ({
+		...prev,
+		isOpen: true,
+		title: CONSTANTS.PAYOBILLS,
+		link: "/",
+	}));
 
+	// Try to load env Urls from localStorage
+	await tryLoadEnv();
 
-    // Guard against going to other pages without login
-    // loadAuthFromLocalStorage();
-    // const authState = get(auth);
-    // if (authState == null) await goto("/timeline");
+	// Guard against going to other pages without login
+	// loadAuthFromLocalStorage();
+	// const authState = get(auth);
+	// if (authState == null) await goto("/timeline");
 
-    // For testing drawer
-    // setInterval(() => {
-    //   uiDrawer.update((curr) => ({ ...curr, state: !curr.state }));
-    // }, 2000);
-  });
+	// For testing drawer
+	// setInterval(() => {
+	//   uiDrawer.update((curr) => ({ ...curr, state: !curr.state }));
+	// }, 2000);
+});
 
-  function randomNotification() {
-    Notification.requestPermission().then((result) => {
-      if (result === "granted") {
-        const notifTitle = "Payobills";
-        const notifBody = `You have a new bill to pay...`;
-        const notifImg = `https://http.cat/images/200.jpg`;
-        const options = {
-          body: notifBody,
-          icon: notifImg,
-        };
-        new Notification(notifTitle, options);
-      }
-    });
-  }
+function randomNotification() {
+	Notification.requestPermission().then((result) => {
+		if (result === "granted") {
+			const notifTitle = "Payobills";
+			const notifBody = `You have a new bill to pay...`;
+			const notifImg = `https://http.cat/images/200.jpg`;
+			const options = {
+				body: notifBody,
+				icon: notifImg,
+			};
+			new Notification(notifTitle, options);
+		}
+	});
+}
 
-  const closeUiDrawer = () => {
-    uiDrawer.update((curr) => {
-      curr.onClose?.();
-      return { ...curr, content: null };
-    });
-  };
+const closeUiDrawer = () => {
+	uiDrawer.update((curr) => {
+		curr.onClose?.();
+		return { ...curr, content: null };
+	});
+};
 
-  const toggleFullScreenUiDrawer = () => {
-    uiDrawer.update((curr) => {
-      return {...curr, isFullScreen: !curr.isFullScreen };
-    })
-  }
+const toggleFullScreenUiDrawer = () => {
+	uiDrawer.update((curr) => {
+		return { ...curr, isFullScreen: !curr.isFullScreen };
+	});
+};
 </script>
 
 <Nav />

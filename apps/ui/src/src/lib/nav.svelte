@@ -1,8 +1,8 @@
 <script>
-  import Icon from "svelte-awesome";
-  import { faBars } from "@fortawesome/free-solid-svg-icons";
-  import { goto } from "$app/navigation";
-  import { nav } from '$lib/stores/nav'
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+import Icon from "svelte-awesome";
+import { goto } from "$app/navigation";
+import { nav } from "$lib/stores/nav";
 </script>
 
 {#if $nav.isOpen}
