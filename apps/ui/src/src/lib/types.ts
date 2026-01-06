@@ -97,6 +97,11 @@ export type LiteServices = {
   transactionsService: ITransactionsService
 }
 
+export type Trip = {
+  id: string,
+  title: string
+}
+
 // COMMON TYPES
 export enum Crud {
   Create,
