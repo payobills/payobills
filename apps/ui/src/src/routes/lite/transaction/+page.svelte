@@ -22,7 +22,7 @@
   let transaction: any;
   let cancelCtaButton: HTMLButtonElement, saveCtaButton: HTMLButtonElement;
   let transactionsQuery: OperationResultStore;
-  let transactionForm: Writable<FormStore<Transaction>> =
+  const transactionForm: Writable<FormStore<Transaction>> =
     formStoreGenerator("transactionById");
   let transactionReparseTriggered = false;
 

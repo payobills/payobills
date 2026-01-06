@@ -6,11 +6,11 @@
   import { nav } from "$lib/stores/nav";
   import { liteServices } from "../../../../lib/stores/lite-services";
 
-  let transactionText = "";
-  let billId = "";
-  let amount: number | null = null;
-  let merchant = "";
-  let notes: string | null = null;
+  const transactionText = "";
+  const billId = "";
+  const amount: number | null = null;
+  const merchant = "";
+  const notes: string | null = null;
 
   onMount(() => {
     nav.update(prev => ({ ...prev, isOpen: true }))

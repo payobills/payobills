@@ -6,9 +6,9 @@
   import RecentTransactions from "./recent-transactions.svelte";
   import BillPayment from "./bills/bill-payment.svelte";
   export let title: string = "";
-  export let items: any[] = [];
-  export let stats: any = {};
-  export let transactions: any[] = [];
+  export const items: any[] = [];
+  export const stats: any = {};
+  export const transactions: any[] = [];
   export let billingStatements: any;
   export let onRecordingPayment: any;
   export let onCurrentBillStatementDoesNotExist: any;
@@ -33,7 +33,7 @@
   });
 
   onMount(() => {
-    let lastDateOfMonth = new Date(
+    const lastDateOfMonth = new Date(
       new Date().getUTCFullYear(),
       new Date().getUTCMonth() + 1,
       0

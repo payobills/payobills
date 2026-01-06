@@ -10,14 +10,14 @@
   export let bill: any;
   export let billStatements: BillStatementDTO[];
   export let onRecordingPayment;
-  export let lockBillStatementCycle = false;
+  export const lockBillStatementCycle = false;
   export let selectedStatement: BillStatementDTO;
 
   export let onTransactionSearch: (transactionSearchTerm: string) => Writable<Query<TransactionDTO[]>>
 
   let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> 
 
-  let transactionSearchTerm: string = ''
+  const transactionSearchTerm: string = ''
   $: selectedTransactions = ($matchingTransactionsQuery?.data?.reduce((acc, curr) => { 
         acc = {...acc, [curr.id.toString()]: new IsSelected(false, curr) } 
         return acc
@@ -28,8 +28,8 @@
     console.log('selec', selectedStatement)
   }
 
-  let isFullyPaid = true;
-  let isSaving = false;
+  const isFullyPaid = true;
+  const isSaving = false;
 
   class IsSelected<T> {
     constructor(private __state: boolean, private __metadata: T) { }

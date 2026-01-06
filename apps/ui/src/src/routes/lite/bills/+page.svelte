@@ -26,9 +26,9 @@
   let refreshKey: number = Date.now();
   let billsService: IBillsService 
 
-  let showUploadStatementSection = false;
-  let showRecordPayment = false;
-  let uploadStatementResult = undefined;
+  const showUploadStatementSection = false;
+  const showRecordPayment = false;
+  let uploadStatementResult ;
 
   onMount(async () => {
     nav.update(prev => ({...prev, isOpen: true }))
@@ -69,7 +69,7 @@
       )
       .toPromise();
 
-    let { error } = await markPaidQuery;
+    const { error } = await markPaidQuery;
 
     if (error) {
       console.error(error);
@@ -197,7 +197,7 @@
         return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
       });
 
-    let allData = orderedData.map((p: any) => {
+    const allData = orderedData.map((p: any) => {
       return {
         x: Intl.DateTimeFormat(undefined, {
           month: "short",
@@ -208,12 +208,12 @@
       };
     });
 
-    let data = allData.reduce(
+    const data = allData.reduce(
       (accumulator: any[], current: any, index: number) => {
         if (index == 0) return [current];
 
         if (current.x == accumulator[accumulator.length - 1].x) {
-          let last = accumulator[accumulator.length - 1];
+          const last = accumulator[accumulator.length - 1];
           return [
             ...accumulator.slice(0, -1),
             {
@@ -236,7 +236,7 @@
       []
     );
 
-    let options: any = {
+    const options: any = {
       colors: ["var(--primary-color)"],
       legend: {
         show: false,
@@ -273,7 +273,7 @@
       },
     };
 
-    let myChart = new (window as any).ApexCharts(node, options);
+    const myChart = new (window as any).ApexCharts(node, options);
     myChart.render();
 
     return {

@@ -10,14 +10,14 @@
   const checkLogin = async (env: EnvStore | null) => {
     if (env === null) return;
 
-    let envStore = env as EnvStore;
+    const envStore = env as EnvStore;
 
-    let params = new URLSearchParams(window.location.search);
-    let code = params.get("code");
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
 
     if (code === null) throw redirect(301, "/login");
 
-    let encodedParams = new URLSearchParams({
+    const encodedParams = new URLSearchParams({
       client_id: envStore.INJECTED_OIDC_CLIENT_ID || "",
       redirect_uri: `${envStore.INJECTED_OWN_URL}/callback`,
       grant_type: "authorization_code",
@@ -27,7 +27,7 @@
 
     const tokenUrl = `${envStore?.INJECTED_OIDC_TENANT_URL}/realms/Homelab-SBX/protocol/openid-connect/token`;
 
-    let accessTokenResponse = await fetch(tokenUrl, {
+    const accessTokenResponse = await fetch(tokenUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -36,9 +36,9 @@
       body: encodedParams,
     });
 
-    let accessTokenResponseJSON = await accessTokenResponse.json();
+    const accessTokenResponseJSON = await accessTokenResponse.json();
     accessToken = accessTokenResponseJSON["access_token"];
-    let refreshToken = accessTokenResponseJSON["refresh_token"];
+    const refreshToken = accessTokenResponseJSON["refresh_token"];
 
     var refreshTokenPayload = refreshToken.split(".")[1];
     var refreshTokenPayloadObject = JSON.parse(

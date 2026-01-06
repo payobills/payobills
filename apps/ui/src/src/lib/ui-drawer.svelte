@@ -1,7 +1,7 @@
 <script lang="ts">
   import { uiDrawer } from "./stores/ui-drawer";
 
-  let { children, onClose } = $props();
+  const { children, onClose } = $props();
 
   $effect(() => {
     uiDrawer.update((curr) => ({

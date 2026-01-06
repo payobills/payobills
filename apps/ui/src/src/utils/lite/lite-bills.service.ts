@@ -1,6 +1,6 @@
 import { writable, type Writable } from "svelte/store";
 import type { IBillsService } from "../interfaces/bills-service.interface";
-import { type BillDTO, type AddBillDTO, type BillStatementDTO, type Query, type TransactionDTO } from "$lib/types";
+import type { BillDTO, AddBillDTO, BillStatementDTO, Query, TransactionDTO } from "$lib/types";
 import type { LiteIndexedDbService } from "./lite-indexed-db.service";
 
 export class LiteBillService implements IBillsService {

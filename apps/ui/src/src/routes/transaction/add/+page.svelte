@@ -5,11 +5,11 @@
     import { onMount } from "svelte";
     import { nav } from "$lib/stores/nav";
 
-  let transactionText = "";
-  let billId = "";
-  let amount: number | null = null;
-  let merchant = "";
-  let notes: string | null = null;
+  const transactionText = "";
+  const billId = "";
+  const amount: number | null = null;
+  const merchant = "";
+  const notes: string | null = null;
 
   onMount(() => {
     nav.prev(prev => ({...prev, isOpen: true})) 

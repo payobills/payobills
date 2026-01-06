@@ -2,10 +2,10 @@
   import { onMount } from "svelte";
   import { formatRelativeDate } from "../utils/format-relative-date";
 
-  export let transactions: any[] = [];
+  export const transactions: any[] = [];
   $: filteredTransactions = transactions
     .reduce((agg: any[], currTransaction) => {
-      let duplicateTransaction = agg.findIndex(
+      const duplicateTransaction = agg.findIndex(
         (p) => p.id === currTransaction.id
       );
       if (duplicateTransaction === -1) {
@@ -26,14 +26,14 @@
     )
     .reduce((acc, curr) => acc + curr.amount, 0);
 
-  export let showViewAllCTA = true;
-  export let showAllTransactions = false;
-  export let showRecentSpends = false;
-  export let showGraph = false;
-  export let showTotalSpend = true;
-  export let title: string | undefined = undefined;
+  export const showViewAllCTA = true;
+  export const showAllTransactions = false;
+  export const showRecentSpends = false;
+  export const showGraph = false;
+  export const showTotalSpend = true;
+  export const title: string | undefined = undefined;
   export let totalSpend = 0;
-  export let initialShowCount = 5;
+  export const initialShowCount = 5;
 
   $: ApexCharts = undefined;
 
@@ -57,15 +57,15 @@
 
     if (transactions.length > 0) {
       // from 1 to last day of the month of the first transaction, add 0s for missing days
-      let firstTransactionDate = new Date(filteredTransactions[0].paidAt);
-      let lastDateOfMonth = new Date(
+      const firstTransactionDate = new Date(filteredTransactions[0].paidAt);
+      const lastDateOfMonth = new Date(
         firstTransactionDate.getUTCFullYear(),
         firstTransactionDate.getUTCMonth() + 1,
         0
       );
-      let lastDay = lastDateOfMonth.getDate();
+      const lastDay = lastDateOfMonth.getDate();
       for (let i = 1; i <= lastDay; i++) {
-        let date = new Date(
+        const date = new Date(
           firstTransactionDate.getUTCFullYear(),
           firstTransactionDate.getUTCMonth(),
           i
@@ -84,7 +84,7 @@
       }
     }
 
-    let allData = filteredTransactions.map((p: any) => {
+    const allData = filteredTransactions.map((p: any) => {
       return {
         x: new Date(p.paidAt).getDate(),
         y: p.amount,
@@ -92,12 +92,12 @@
       };
     });
 
-    let data = allData.reduce(
+    const data = allData.reduce(
       (accumulator: any[], current: any, index: number) => {
         if (index == 0) return [current];
 
         if (current.x == accumulator[accumulator.length - 1].x) {
-          let last = accumulator[accumulator.length - 1];
+          const last = accumulator[accumulator.length - 1];
           return [
             ...accumulator.slice(0, -1),
             {
@@ -126,7 +126,7 @@
 
     totalSpend = data.reduce((acc: number, p: any) => acc + p.y, 0);
 
-    let options: any = {
+    const options: any = {
       colors: ["var(--primary-color)"],
       legend: {
         show: false,
@@ -168,7 +168,7 @@
       },
     };
 
-    let myChart = new (ApexCharts as any)(node, options);
+    const myChart = new (ApexCharts as any)(node, options);
     myChart.render();
 
     return {

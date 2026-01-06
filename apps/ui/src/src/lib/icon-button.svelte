@@ -4,10 +4,10 @@
   import { onMount } from "svelte";
 
   export let icon: IconDefinition;
-  export let backgroundColor: string = "transparent";
-  export let color: string = "white";
-  export let scale = 1.5;
-  export let style = "";
+  export const backgroundColor: string = "transparent";
+  export const color: string = "white";
+  export const scale = 1.5;
+  export const style = "";
 </script>
 
 <!-- Ref: https://fontawesome.com/search?ip=classic&s=solid&o=r -->

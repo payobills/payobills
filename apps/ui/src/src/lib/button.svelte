@@ -2,7 +2,7 @@
   import IconButton from "./icon-button.svelte";
   import { faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 
-  let {
+  const {
     children,
     onclick = undefined,
     state = "DEFAULT",

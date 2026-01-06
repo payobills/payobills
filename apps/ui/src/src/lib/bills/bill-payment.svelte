@@ -12,9 +12,9 @@
 
   export let bill;
   export let billingStatements: BillStatementDTO[] | undefined;
-  export let showRecordPaymentButton = true;
-  export let title = "";
-  export let showBillingCycle = true;
+  export const showRecordPaymentButton = true;
+  export const title = "";
+  export const showBillingCycle = true;
 
   export let onRecordingPayment: any;
   export let onCurrentBillStatementDoesNotExist: any;

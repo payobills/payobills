@@ -23,9 +23,9 @@
   let billId: any;
   let billStatementId: any;
   let billStatementsQuery: any;
-  let refreshKey: number = Date.now();
+  const refreshKey: number = Date.now();
   
-  let showRecordPayment = false;
+  const showRecordPayment = false;
 
   const onRecordingPayment = ({
     amount,
@@ -74,7 +74,7 @@
       });
   }
 
-  let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
+  const matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
     fetching: false,
     data: [],
     error: null
@@ -91,7 +91,7 @@
 
   onMount(() => {
     nav.update(prev => ({ ...prev, isOpen: true }))
-    let urlParams = window.location.search;
+    const urlParams = window.location.search;
     billId = new URLSearchParams(urlParams).get('bill-id')
     billStatementId = new URLSearchParams(urlParams).get('bill-statement-id')
   });

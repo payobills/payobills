@@ -2,8 +2,8 @@
   export let bill: any;
   export let onBillStatementFormUpload: any;
 
-  let rightNow = new Date();
-  let billPeriod: string = `${rightNow.getFullYear()}-${rightNow.getMonth() + 1}`;
+  const rightNow = new Date();
+  const billPeriod: string = `${rightNow.getFullYear()}-${rightNow.getMonth() + 1}`;
   $:  billPeriodDetails ={
       billStartDate: bill.billingDate ? new Date(+billPeriod.split("-")[0], +billPeriod.split("-")[1] - 2 , bill.billingDate + 1) : new Date('invalid'),
       billEndDate: bill.billingDate ? new Date(+billPeriod.split("-")[0], +billPeriod.split("-")[1] - 1, bill.billingDate) : new Date('invalid'),
