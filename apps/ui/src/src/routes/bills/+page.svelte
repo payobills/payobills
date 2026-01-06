@@ -3,6 +3,7 @@ import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
 import { browser } from "$app/environment";
 import { nav } from "$lib/stores/nav";
+import { billsUrql } from '$lib/stores/urql'
 import type { BillDTO } from "$lib/types";
 
 let billId: any;
