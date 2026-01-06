@@ -2,10 +2,10 @@
 import { redirect } from "@sveltejs/kit";
 import { goto } from "$app/navigation";
 import { auth } from "$lib/stores/auth";
-import { type EnvStore, envStore } from "$lib/stores/env";
+import type { EnvStore } from "$lib/stores/env";
 import { CONSTANTS } from "../../constants";
 
-let accessToken: string | null = null;
+let _accessToken: string | null = null;
 
 const checkLogin = async (env: EnvStore | null) => {
 	if (env === null) return;
@@ -37,8 +37,8 @@ const checkLogin = async (env: EnvStore | null) => {
 	});
 
 	const accessTokenResponseJSON = await accessTokenResponse.json();
-	accessToken = accessTokenResponseJSON["access_token"];
-	const refreshToken = accessTokenResponseJSON["refresh_token"];
+	_accessToken = accessTokenResponseJSON.access_token;
+	const refreshToken = accessTokenResponseJSON.refresh_token;
 
 	var refreshTokenPayload = refreshToken.split(".")[1];
 	var refreshTokenPayloadObject = JSON.parse(window.atob(refreshTokenPayload));

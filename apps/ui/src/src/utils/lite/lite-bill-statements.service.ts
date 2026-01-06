@@ -1,7 +1,6 @@
 import { type Writable, writable } from "svelte/store";
 import type {
 	AddBillStatementDTO,
-	BillDTO,
 	BillStatementDTO,
 	LiteBillStatementDTO,
 	Query,

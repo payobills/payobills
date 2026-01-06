@@ -1,12 +1,5 @@
 import { type Writable, writable } from "svelte/store";
-import type {
-	AddBillStatementDTO,
-	BillDTO,
-	BillStatDTO,
-	BillStatementDTO,
-	Query,
-} from "$lib/types";
-import type { IBillStatementsService } from "../interfaces/bill-statements-service.interface";
+import type { AddBillStatementDTO, BillStatDTO, Query } from "$lib/types";
 import type { IBillStatsService } from "../interfaces/bill-stats-service.interface";
 import type { LiteIndexedDbService } from "./lite-indexed-db.service";
 
@@ -20,8 +13,8 @@ export class LiteBillStatsService implements IBillStatsService {
 	});
 
 	queryBillStats(
-		year: string,
-		month: string,
+		_year: string,
+		_month: string,
 	): Writable<Query<BillStatDTO | undefined>> {
 		(async () => {
 			try {

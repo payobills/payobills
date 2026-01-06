@@ -1,23 +1,14 @@
 <script lang="ts">
-import {
-	faChevronLeft,
-	faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
 import { onMount } from "svelte";
-import { Icon } from "svelte-awesome";
-import { goto } from "$app/navigation";
-import RecentTransactions from "$lib/recent-transactions.svelte";
 import { nav } from "$lib/stores/nav";
-import { paymentsUrql } from "$lib/stores/urql";
-import { liteServices } from "../../../lib/stores/lite-services";
 
 $: transactionsService = $liteServices?.transactionsService;
-let transactionId: string;
+let _transactionId: string;
 let currentYear: number;
 
 onMount(() => {
 	nav.update((prev) => ({ ...prev, isOpen: true, title: CONSTANTS.PAYOBILLS }));
-	transactionId = new URLSearchParams(window.location.search)?.get("id") ?? "";
+	_transactionId = new URLSearchParams(window.location.search)?.get("id") ?? "";
 });
 
 $: transactionsQuery =

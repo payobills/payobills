@@ -1,37 +1,18 @@
 <script lang="ts">
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
-import { gql, queryStore } from "@urql/svelte";
+import { gql } from "@urql/svelte";
 import { onMount } from "svelte";
 import { browser } from "$app/environment";
-import { goto } from "$app/navigation";
-import { page } from "$app/stores";
-import BillUploadStatement from "$lib/bill-upload-statement.svelte";
-import BillStatements from "$lib/bills/bill-statements.svelte";
-import Card from "$lib/card.svelte";
-import IconButton from "$lib/icon-button.svelte";
-import Nav from "$lib/nav.svelte";
-import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
-// import type { BillDTO } from "$lib/types";
-import RecordPaymentForm from "$lib/record-payment-form.svelte";
 import { nav } from "$lib/stores/nav";
-import { billsUrql } from "$lib/stores/urql";
-import UiDrawer from "$lib/ui-drawer.svelte";
-import { LiteBillService } from "$utils/lite/lite-bills.service";
-import {
-	liteServices,
-	setupLiteServices,
-} from "../../../lib/stores/lite-services";
 import type { IBillsService } from "../../../utils/interfaces/bills-service.interface";
-import { withOrdinalSuffix } from "../../../utils/ordinal-suffix";
 
 let billId: any;
-let billByIdQuery: any;
-let refreshKey: number = Date.now();
-let billsService: IBillsService;
+let _billByIdQuery: any;
+let _refreshKey: number = Date.now();
+let _billsService: IBillsService;
 
-const showUploadStatementSection = false;
-const showRecordPayment = false;
-let uploadStatementResult;
+const _showUploadStatementSection = false;
+const _showRecordPayment = false;
+let _uploadStatementResult;
 
 onMount(async () => {
 	nav.update((prev) => ({ ...prev, isOpen: true }));
@@ -49,7 +30,7 @@ interface FileUploadResult {
 		id: string;
 	};
 }
-$: billByIdQuery =
+$: _billByIdQuery =
 	billId && $liteServices?.billsService
 		? $liteServices.billsService.queryBillById(billId)
 		: null;
@@ -58,7 +39,7 @@ $: billStatementsQuery =
 		? $liteServices.billStatementsService.queryBillStatementsByBillIds([billId])
 		: null;
 
-async function markPaid() {
+async function _markPaid() {
 	const markPaidQuery = $billsUrql
 		.mutation(
 			gql`
@@ -85,7 +66,7 @@ async function markPaid() {
 		return;
 	}
 
-	refreshKey = Date.now();
+	_refreshKey = Date.now();
 }
 
 let loaded = false;
@@ -95,7 +76,7 @@ $: if (browser) {
 	billId = $page.url.searchParams.get("id");
 }
 
-const onBillStatementFormUpload = async (inputs: {
+const _onBillStatementFormUpload = async (inputs: {
 	bill: BillDTO;
 	billStatementFile: File;
 	billPeriodDetails: any;
@@ -178,11 +159,11 @@ const onBillStatementFormUpload = async (inputs: {
 			throw error;
 		}
 
-		uploadStatementResult = true;
-		refreshKey = Date.now(); // Refresh the query to show the new statement
+		_uploadStatementResult = true;
+		_refreshKey = Date.now(); // Refresh the query to show the new statement
 	} catch (error) {
 		console.error("Error:", error);
-		uploadStatementResult = false;
+		_uploadStatementResult = false;
 		throw error;
 	}
 };
@@ -193,7 +174,7 @@ const load = async () => {
 	(window as any).ApexCharts = ApexCharts;
 };
 
-const chart = (node: any) => {
+const _chart = (node: any) => {
 	if (!loaded) load();
 
 	const orderedData = [
@@ -218,9 +199,9 @@ const chart = (node: any) => {
 
 	const data = allData.reduce(
 		(accumulator: any[], current: any, index: number) => {
-			if (index == 0) return [current];
+			if (index === 0) return [current];
 
-			if (current.x == accumulator[accumulator.length - 1].x) {
+			if (current.x === accumulator[accumulator.length - 1].x) {
 				const last = accumulator[accumulator.length - 1];
 				return [
 					...accumulator.slice(0, -1),
@@ -294,7 +275,7 @@ const chart = (node: any) => {
 	};
 };
 
-const onRecordPayment = () => {};
+const _onRecordPayment = () => {};
 </script>
 
 <Card>

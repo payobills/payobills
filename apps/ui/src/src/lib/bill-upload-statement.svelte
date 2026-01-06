@@ -21,7 +21,7 @@ $: billPeriodDetails = {
 		: new Date("invalid"),
 };
 
-let selectedFiles: any;
+let _selectedFiles: any;
 </script>
 
 <form

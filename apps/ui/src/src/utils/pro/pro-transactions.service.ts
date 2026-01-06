@@ -1,17 +1,10 @@
-import { type Client, gql } from "@urql/svelte";
+import type { Client } from "@urql/svelte";
 import { type Writable, writable } from "svelte/store";
 import type { Query, TransactionDTO } from "$lib/types";
 import type { ITransactionsService } from "../interfaces/transactions-service.interface";
 
 export class ProTransactionsService implements ITransactionsService {
 	constructor(private transactionUrqlClient: Client) {}
-	private transactionsForCurrentMonth = writable<
-		Query<TransactionDTO[] | undefined>
-	>({
-		fetching: false,
-		data: undefined,
-		error: null,
-	});
 
 	queryTransactionsWithSearchTerm(
 		existingStore: Writable<Query<TransactionDTO[]>>,
@@ -52,7 +45,7 @@ export class ProTransactionsService implements ITransactionsService {
 					fetching: false,
 					error: null,
 				}));
-			} catch (err) {
+			} catch (_err) {
 				matchingTransactionsQuery.update((curr) => ({
 					...curr,
 					data: [],

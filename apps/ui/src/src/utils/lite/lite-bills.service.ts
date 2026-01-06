@@ -1,11 +1,5 @@
 import { type Writable, writable } from "svelte/store";
-import type {
-	AddBillDTO,
-	BillDTO,
-	BillStatementDTO,
-	Query,
-	TransactionDTO,
-} from "$lib/types";
+import type { AddBillDTO, BillDTO, Query } from "$lib/types";
 import type { IBillsService } from "../interfaces/bills-service.interface";
 import type { LiteIndexedDbService } from "./lite-indexed-db.service";
 
@@ -34,7 +28,7 @@ export class LiteBillService implements IBillsService {
 				billByIdQuery.update((prevState) => ({
 					...prevState,
 					fetching: false,
-					data: matchingBills.length == 1 ? matchingBills[0] : undefined,
+					data: matchingBills.length === 1 ? matchingBills[0] : undefined,
 				}));
 			} catch (err) {
 				console.error(err);

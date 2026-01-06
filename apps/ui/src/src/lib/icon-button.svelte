@@ -1,7 +1,5 @@
 <script lang="ts">
 import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import { onMount } from "svelte";
-import Icon from "svelte-awesome";
 
 export let icon: IconDefinition;
 export const backgroundColor: string = "transparent";

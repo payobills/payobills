@@ -1,9 +1,5 @@
 <script lang="ts">
-import { faCancel } from "@fortawesome/free-solid-svg-icons";
 import { onMount } from "svelte";
-import Card from "$lib/card.svelte";
-import IconButton from "$lib/icon-button.svelte";
-import { liteServices } from "$lib/stores/lite-services";
 import { nav } from "$lib/stores/nav";
 import { Crud } from "$lib/types";
 
@@ -33,7 +29,7 @@ onMount(() => {
 		new URLSearchParams(window.location.search).get("existing-bill-id") ?? null;
 });
 
-const addBill = async () => {
+const _addBill = async () => {
 	try {
 		const savePromise = existingBillId
 			? billsService.updateBill(existingBillId, {

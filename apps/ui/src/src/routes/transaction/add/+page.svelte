@@ -1,9 +1,8 @@
 <script lang="ts">
 import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
-import { afterNavigate, goto } from "$app/navigation";
+import { goto } from "$app/navigation";
 import { nav } from "$lib/stores/nav";
-import { billsUrql, paymentsUrql } from "$lib/stores/urql";
 
 const transactionText = "";
 const billId = "";
@@ -15,7 +14,7 @@ onMount(() => {
 	nav.prev((prev) => ({ ...prev, isOpen: true }));
 });
 
-const billsQuery = queryStore({
+const _billsQuery = queryStore({
 	client: $billsUrql,
 	query: gql`
       query {
@@ -30,8 +29,8 @@ const billsQuery = queryStore({
     `,
 });
 
-const addTransaction = () => {
-	let client;
+const _addTransaction = () => {
+	let _client;
 	try {
 		$paymentsUrql
 			.mutation(

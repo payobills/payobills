@@ -1,15 +1,7 @@
-import { subscribe } from "graphql";
-import { readable, writable } from "svelte/store";
 import { liteServices } from "$lib/stores/lite-services";
 import type { BillDTO, LiteServices, TransactionDTO } from "$lib/types";
 import { CONSTANTS } from "../../constants";
-import type { IBillStatementsService } from "../../utils/interfaces/bill-statements-service.interface";
-import type { IBillsService } from "../../utils/interfaces/bills-service.interface";
-import type { ITransactionsService } from "../../utils/interfaces/transactions-service.interface";
-import { LiteBillStatementsService } from "../../utils/lite/lite-bill-statements.service";
-import { LiteBillService } from "../../utils/lite/lite-bills.service";
 import { LiteIndexedDbService } from "../../utils/lite/lite-indexed-db.service";
-import { LiteTransactionsService } from "../../utils/lite/lite-transactions.service";
 
 export const liteDb = new LiteIndexedDbService(CONSTANTS.DB_NAME);
 

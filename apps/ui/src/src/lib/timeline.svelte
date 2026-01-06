@@ -1,10 +1,5 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import { goto } from "$app/navigation";
-import BillPayment from "./bills/bill-payment.svelte";
-import IdeaCard from "./idea-card.svelte";
-import PaymentTimelinePill from "./payment-timeline-pill.svelte";
-import RecentTransactions from "./recent-transactions.svelte";
 export let title: string = "";
 export const items: any[] = [];
 export const stats: any = {};
@@ -13,8 +8,8 @@ export let billingStatements: any;
 export let onRecordingPayment: any;
 export let onCurrentBillStatementDoesNotExist: any;
 
-let lastDay = 31;
-let fullPaymentDates: any[] = [];
+let _lastDay = 31;
+let _fullPaymentDates: any[] = [];
 let month = "";
 
 $: filteredItems = items.toSorted((p: any, q: any) => {
@@ -38,13 +33,13 @@ onMount(() => {
 		new Date().getUTCMonth() + 1,
 		0,
 	);
-	lastDay = lastDateOfMonth.getDate();
+	_lastDay = lastDateOfMonth.getDate();
 	month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
 		lastDateOfMonth,
 	);
 	if (title === "") title = `Timeline view for ${month}`;
 
-	fullPaymentDates = Array.isArray(stats?.stats)
+	_fullPaymentDates = Array.isArray(stats?.stats)
 		? stats?.stats?.filter((p: any) => p.type === "FULL_PAYMENT_DATES")
 		: [];
 });

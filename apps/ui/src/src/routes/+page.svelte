@@ -1,17 +1,9 @@
 <script lang="ts">
-import {
-	faBell,
-	faChartSimple,
-	faListOl,
-} from "@fortawesome/free-solid-svg-icons";
 import { onMount } from "svelte";
 import { get } from "svelte/store";
 import { goto } from "$app/navigation";
-import IconButton from "$lib/icon-button.svelte";
 import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
-import { envStore } from "$lib/stores/env";
 import { nav } from "$lib/stores/nav";
-import { getIdpBaseUrl } from "$utils/auth";
 
 onMount(async () => {
 	nav.update((prev) => ({ ...prev, isOpen: false }));
@@ -22,7 +14,7 @@ onMount(async () => {
 	if (authState?.refreshToken) await goto("/timeline");
 });
 
-const iconStyle = (colorsLeftToRight: string[] = []) => `
+const _iconStyle = (colorsLeftToRight: string[] = []) => `
     background: linear-gradient(to right, ${colorsLeftToRight.join(", ")});
     border: none;
     color: white;

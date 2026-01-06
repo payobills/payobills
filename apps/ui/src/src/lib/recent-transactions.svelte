@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import { formatRelativeDate } from "../utils/format-relative-date";
 
 export const transactions: any[] = [];
 $: filteredTransactions = transactions
@@ -52,7 +51,7 @@ const load = async () => {
 	ApexCharts = module.default as any;
 };
 
-const chart = (node: any, transactions: any[]) => {
+const _chart = (node: any, transactions: any[]) => {
 	if (!ApexCharts) return;
 
 	if (transactions.length > 0) {
@@ -94,9 +93,9 @@ const chart = (node: any, transactions: any[]) => {
 
 	const data = allData.reduce(
 		(accumulator: any[], current: any, index: number) => {
-			if (index == 0) return [current];
+			if (index === 0) return [current];
 
-			if (current.x == accumulator[accumulator.length - 1].x) {
+			if (current.x === accumulator[accumulator.length - 1].x) {
 				const last = accumulator[accumulator.length - 1];
 				return [
 					...accumulator.slice(0, -1),

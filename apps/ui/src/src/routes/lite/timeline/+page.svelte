@@ -1,8 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import Timeline from "$lib/timeline.svelte";
 import { CONSTANTS } from "../../../constants";
-import { liteServices } from "../../../lib/stores/lite-services";
 import { nav } from "../../../lib/stores/nav";
 
 $: billsService = $liteServices?.billsService;
@@ -37,7 +35,7 @@ $: transactionsQuery = transactionsService?.queryTransactionsForMonthAndYear({
 	year: currentYear,
 });
 
-const onRecordingPayment = ({
+const _onRecordingPayment = ({
 	bill,
 	amount,
 	isFullyPaid,

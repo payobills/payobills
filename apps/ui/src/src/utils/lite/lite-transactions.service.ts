@@ -32,8 +32,8 @@ export class LiteTransactionsService implements ITransactionsService {
 	}
 
 	queryTransactionsWithSearchTerm(
-		existingStore: Writable<Query<TransactionDTO[]>>,
-		searchTerm: string,
+		_existingStore: Writable<Query<TransactionDTO[]>>,
+		_searchTerm: string,
 	): Writable<Query<TransactionDTO[]>> {
 		throw new Error("Not Implemented");
 	}

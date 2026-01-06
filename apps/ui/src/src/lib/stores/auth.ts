@@ -1,4 +1,4 @@
-import { get, type Writable, writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import { CONSTANTS } from "../../constants";
 
 export const loadAuthFromLocalStorage = (): boolean => {

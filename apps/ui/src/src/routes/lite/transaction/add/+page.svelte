@@ -1,10 +1,6 @@
 <script lang="ts">
-import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
-import { afterNavigate, goto } from "$app/navigation";
 import { nav } from "$lib/stores/nav";
-import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-import { liteServices } from "../../../../lib/stores/lite-services";
 
 const transactionText = "";
 const billId = "";
@@ -18,7 +14,7 @@ onMount(() => {
 
 $: billsQuery = $liteServices?.billsService?.queryBills() ?? null;
 
-const addTransaction = () => {
+const _addTransaction = () => {
 	try {
 		$liteServices?.transactionsService
 			.addTransaction({

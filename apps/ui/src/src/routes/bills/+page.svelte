@@ -2,27 +2,18 @@
 import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
 import { browser } from "$app/environment";
-import { page } from "$app/stores";
-import BillUploadStatement from "$lib/bill-upload-statement.svelte";
-import BillStatements from "$lib/bills/bill-statements.svelte";
-import Card from "$lib/card.svelte";
-import Nav from "$lib/nav.svelte";
-import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
-import RecordPaymentForm from "$lib/record-payment-form.svelte";
 import { nav } from "$lib/stores/nav";
-import { billsUrql } from "$lib/stores/urql";
 import type { BillDTO } from "$lib/types";
-import UiDrawer from "$lib/ui-drawer.svelte";
 
 let billId: any;
-let billByIdQuery: any;
+let _billByIdQuery: any;
 let refreshKey: number = Date.now();
 
-const showUploadStatementSection = false;
-const showRecordPayment = false;
-let uploadStatementResult;
+const _showUploadStatementSection = false;
+const _showRecordPayment = false;
+let _uploadStatementResult;
 
-$: billByIdQuery = billId
+$: _billByIdQuery = billId
 	? queryStore({
 			client: $billsUrql,
 			query: gql`
@@ -64,7 +55,7 @@ $: billByIdQuery = billId
 		})
 	: null;
 
-async function markPaid() {
+async function _markPaid() {
 	const markPaidQuery = $billsUrql
 		.mutation(
 			gql`
@@ -116,7 +107,7 @@ interface FileUploadResult {
 	};
 }
 
-const onBillStatementFormUpload = async (inputs: {
+const _onBillStatementFormUpload = async (inputs: {
 	bill: BillDTO;
 	billStatementFile: File;
 	billPeriodDetails: any;
@@ -199,11 +190,11 @@ const onBillStatementFormUpload = async (inputs: {
 			throw error;
 		}
 
-		uploadStatementResult = true;
+		_uploadStatementResult = true;
 		refreshKey = Date.now(); // Refresh the query to show the new statement
 	} catch (error) {
 		console.error("Error:", error);
-		uploadStatementResult = false;
+		_uploadStatementResult = false;
 		throw error;
 	}
 };
@@ -214,7 +205,7 @@ const load = async () => {
 	(window as any).ApexCharts = ApexCharts;
 };
 
-const chart = (node: any) => {
+const _chart = (node: any) => {
 	if (!loaded) load();
 
 	const orderedData = [
@@ -239,9 +230,9 @@ const chart = (node: any) => {
 
 	const data = allData.reduce(
 		(accumulator: any[], current: any, index: number) => {
-			if (index == 0) return [current];
+			if (index === 0) return [current];
 
-			if (current.x == accumulator[accumulator.length - 1].x) {
+			if (current.x === accumulator[accumulator.length - 1].x) {
 				const last = accumulator[accumulator.length - 1];
 				return [
 					...accumulator.slice(0, -1),
@@ -315,7 +306,7 @@ const chart = (node: any) => {
 	};
 };
 
-const onRecordPayment = () => {};
+const _onRecordPayment = () => {};
 </script>
 
 <Card>

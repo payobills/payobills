@@ -1,13 +1,8 @@
 <script lang="ts">
-import { getContextClient, gql, queryStore } from "@urql/svelte";
+import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
 import { goto } from "$app/navigation";
-import Nav from "$lib/nav.svelte";
-import RecentTransactions from "$lib/recent-transactions.svelte";
-import { auth } from "$lib/stores/auth";
 import { nav } from "$lib/stores/nav";
-import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-import Timeline from "$lib/timeline.svelte";
 
 onMount(() => {
 	nav.update((prev) => ({ ...prev, isOpen: true }));
@@ -16,7 +11,7 @@ onMount(() => {
 	}
 });
 
-const billsQuery = queryStore({
+const _billsQuery = queryStore({
 	client: $billsUrql,
 	query: gql`
       query {
@@ -59,7 +54,7 @@ $: billStatementsQuery =
 const currentMonth = new Date().getUTCMonth() + 1;
 const currentYear = new Date().getUTCFullYear();
 
-const billStatsQuery = queryStore({
+const _billStatsQuery = queryStore({
 	client: $billsUrql,
 	query: gql`
         {
@@ -106,7 +101,7 @@ $: transactionsQuery = queryStore({
     `,
 });
 
-const onCurrentBillStatementDoesNotExist = ({
+const _onCurrentBillStatementDoesNotExist = ({
 	amount = undefined,
 	bill,
 	cycleFromDate,

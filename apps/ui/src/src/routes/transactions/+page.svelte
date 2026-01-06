@@ -1,15 +1,7 @@
 <script lang="ts">
-import {
-	faChevronLeft,
-	faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
 import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
-import { Icon } from "svelte-awesome";
-import { goto } from "$app/navigation";
-import RecentTransactions from "$lib/recent-transactions.svelte";
 import { nav } from "$lib/stores/nav";
-import { paymentsUrql } from "$lib/stores/urql";
 
 let currentYear: number;
 let currentMonth: number;

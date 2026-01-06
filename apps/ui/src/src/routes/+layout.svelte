@@ -1,16 +1,5 @@
 <script lang="ts">
-import {
-	faChevronDown,
-	faDownLeftAndUpRightToCenter,
-	faUpRightAndDownLeftFromCenter,
-} from "@fortawesome/free-solid-svg-icons";
 import { onMount } from "svelte";
-import { fade, fly } from "svelte/transition";
-import { goto } from "$app/navigation";
-import BottomNav from "$lib/bottom-nav.svelte";
-import IconButton from "$lib/icon-button.svelte";
-import Nav from "$lib/nav.svelte";
-import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
 import { tryLoadEnv } from "$lib/stores/env";
 import { nav } from "$lib/stores/nav";
 import { uiDrawer } from "$lib/stores/ui-drawer";
@@ -40,7 +29,7 @@ onMount(async () => {
 	// }, 2000);
 });
 
-function randomNotification() {
+function _randomNotification() {
 	Notification.requestPermission().then((result) => {
 		if (result === "granted") {
 			const notifTitle = "Payobills";
@@ -55,14 +44,14 @@ function randomNotification() {
 	});
 }
 
-const closeUiDrawer = () => {
+const _closeUiDrawer = () => {
 	uiDrawer.update((curr) => {
 		curr.onClose?.();
 		return { ...curr, content: null };
 	});
 };
 
-const toggleFullScreenUiDrawer = () => {
+const _toggleFullScreenUiDrawer = () => {
 	uiDrawer.update((curr) => {
 		return { ...curr, isFullScreen: !curr.isFullScreen };
 	});

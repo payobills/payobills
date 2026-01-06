@@ -1,12 +1,8 @@
 <script lang="ts">
-import { faCancel, faEllipsis } from "@fortawesome/free-solid-svg-icons";
-import { getContextClient, gql, mutationStore, queryStore } from "@urql/svelte";
+import { gql } from "@urql/svelte";
 import { onMount } from "svelte";
-import { afterNavigate, goto } from "$app/navigation";
-import Card from "$lib/card.svelte";
-import IconButton from "$lib/icon-button.svelte";
+import { goto } from "$app/navigation";
 import { nav } from "$lib/stores/nav";
-import { billsUrql } from "$lib/stores/urql";
 
 // import { base } from "$app/paths";
 
@@ -22,8 +18,8 @@ onMount(() => {
 	nav.update((prev) => ({ ...prev, isOpen: true }));
 });
 
-const addBill = () => {
-	let client;
+const _addBill = () => {
+	let _client;
 	try {
 		$billsUrql
 			.mutation(

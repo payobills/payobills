@@ -1,14 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import { fromStore } from "svelte/store";
-import { goto } from "$app/navigation";
-import Card from "$lib/card.svelte";
-import RecordPaymentForm from "$lib/record-payment-form.svelte";
-import { uiDrawer } from "$lib/stores/ui-drawer";
 import type { BillStatementDTO } from "$lib/types";
-import UiDrawer from "$lib/ui-drawer.svelte";
 import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
-import { withOrdinalSuffix } from "../../utils/ordinal-suffix";
 
 export let bill;
 export let billingStatements: BillStatementDTO[] | undefined;
@@ -20,13 +13,13 @@ export let onRecordingPayment: any;
 export let onCurrentBillStatementDoesNotExist: any;
 
 let todaysDay: number;
-let billDueDetails: { status: string; string: string; l2Status?: string };
+let _billDueDetails: { status: string; string: string; l2Status?: string };
 
 export let currentCycleFromDate = "";
 export let currentCycleToDate = "";
 
-let currComponent: HTMLDivElement;
-let currentPayingBill: any;
+let _currComponent: HTMLDivElement;
+let _currentPayingBill: any;
 let currentBillStatement: any;
 
 onMount(() => {
@@ -57,12 +50,12 @@ $: {
 	const diffInDays = bill.payByDate - todaysDay;
 
 	if (!bill.isEnabled) {
-		billDueDetails = {
+		_billDueDetails = {
 			string: "Disabled",
 			status: "disabled",
 		};
 	} else if (!billingStatements) {
-		billDueDetails = {
+		_billDueDetails = {
 			string: `Calculating ...`,
 			status: "loading",
 		};
@@ -71,27 +64,27 @@ $: {
 			currentBillStatement?.isFullyPaid &&
 			currentBillStatement?.amount === 0
 		) {
-			billDueDetails = {
+			_billDueDetails = {
 				string: `No payment due`,
 				status: "paid",
 			};
 		} else if (currentBillStatement?.isFullyPaid) {
-			billDueDetails = {
+			_billDueDetails = {
 				string: `Fully Paid`,
 				status: "paid",
 			};
 		} else if (diffInDays > 0)
-			billDueDetails = {
+			_billDueDetails = {
 				string: `Due in ${diffInDays} days`,
 				status: "due",
 				l2Status: diffInDays <= 5 ? "warning" : "ok",
 			};
 		else if (diffInDays < 0)
-			billDueDetails = {
+			_billDueDetails = {
 				string: `Overdue by ${-diffInDays} days`,
 				status: "overdue",
 			};
-		else billDueDetails = { string: "Due today", status: "today" };
+		else _billDueDetails = { string: "Due today", status: "today" };
 	}
 }
 </script>

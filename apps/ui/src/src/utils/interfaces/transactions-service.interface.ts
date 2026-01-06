@@ -1,10 +1,5 @@
 import type { Writable } from "svelte/store";
-import type {
-	Query,
-	Response,
-	TransactionAddDTOInput,
-	TransactionDTO,
-} from "$lib/types";
+import type { Query, Response, TransactionDTO } from "$lib/types";
 
 export interface ITransactionsService {
 	queryTransactions(input: {

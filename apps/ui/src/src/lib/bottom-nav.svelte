@@ -1,7 +1,5 @@
 <script>
-import { faBars } from "@fortawesome/free-solid-svg-icons";
-import Icon from "svelte-awesome";
-import { goto } from "$app/navigation";
+
 </script>
   
   <nav>

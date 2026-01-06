@@ -1,5 +1,4 @@
-import { subscribe } from "graphql";
-import { readable, writable } from "svelte/store";
+import { writable } from "svelte/store";
 import { CONSTANTS } from "../../constants";
 import type { IBillStatementsService } from "../../utils/interfaces/bill-statements-service.interface";
 import type { IBillsService } from "../../utils/interfaces/bills-service.interface";

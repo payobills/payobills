@@ -1,10 +1,5 @@
 <script lang="ts">
 import type { Writable } from "svelte/store";
-import { formatRelativeDate } from "../utils/format-relative-date";
-import BillPayment from "./bills/bill-payment.svelte";
-import BottomNav from "./bottom-nav.svelte";
-import Button from "./button.svelte";
-import Card from "./card.svelte";
 import type { BillStatementDTO, Query, TransactionDTO } from "./types";
 
 export let bill: any;
@@ -17,7 +12,7 @@ export let onTransactionSearch: (
 	transactionSearchTerm: string,
 ) => Writable<Query<TransactionDTO[]>>;
 
-let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>>;
+let _matchingTransactionsQuery: Writable<Query<TransactionDTO[]>>;
 
 const transactionSearchTerm: string = "";
 $: selectedTransactions = ($matchingTransactionsQuery?.data?.reduce(
@@ -35,8 +30,8 @@ $: {
 	console.log("selec", selectedStatement);
 }
 
-const isFullyPaid = true;
-const isSaving = false;
+const _isFullyPaid = true;
+const _isSaving = false;
 
 class IsSelected<T> {
 	constructor(
@@ -54,10 +49,10 @@ class IsSelected<T> {
 	}
 }
 
-const onAmountSearchBoxFocusout = async () => {
+const _onAmountSearchBoxFocusout = async () => {
 	try {
 		// console.log('searching,', )
-		matchingTransactionsQuery = await onTransactionSearch(
+		_matchingTransactionsQuery = await onTransactionSearch(
 			transactionSearchTerm,
 		);
 	} catch {}

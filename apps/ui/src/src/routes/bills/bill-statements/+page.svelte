@@ -1,33 +1,19 @@
 <script lang="ts">
-import { json } from "@sveltejs/kit";
 import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
 import { type Writable, writable } from "svelte/store";
-import { page } from "$app/stores";
-import BillUploadStatement from "$lib/bill-upload-statement.svelte";
-import BillStatements from "$lib/bills/bill-statements.svelte";
-import Card from "$lib/card.svelte";
-import FileUploader from "$lib/file-uploader.svelte";
-import Nav from "$lib/nav.svelte";
-import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
-import RecentTransactions from "$lib/recent-transactions.svelte";
-import RecordPaymentForm from "$lib/record-payment-form.svelte";
-import { envStore } from "$lib/stores/env";
 import { nav } from "$lib/stores/nav";
-import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-import type { BillStatementDTO, Query, TransactionDTO } from "$lib/types";
-import UiDrawer from "$lib/ui-drawer.svelte";
-import { currencyFormatter } from "$utils/currency-formatter.util";
+import type { Query, TransactionDTO } from "$lib/types";
 import { ProTransactionsService } from "../../../utils/pro/pro-transactions.service";
 
 let billId: any;
 let billStatementId: any;
-let billStatementsQuery: any;
+let _billStatementsQuery: any;
 const refreshKey: number = Date.now();
 
-const showRecordPayment = false;
+const _showRecordPayment = false;
 
-const onRecordingPayment = ({
+const _onRecordingPayment = ({
 	amount,
 	bill,
 	cycleFromDate,
@@ -84,7 +70,7 @@ const matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
 	error: null,
 });
 
-const onTransactionSearch = (transactionSearchTerm: string) => {
+const _onTransactionSearch = (transactionSearchTerm: string) => {
 	if (!$paymentsUrql || !transactionSearchTerm) matchingTransactionsQuery;
 
 	const transactionService = new ProTransactionsService($paymentsUrql);
@@ -103,7 +89,7 @@ onMount(() => {
 	billStatementId = new URLSearchParams(urlParams).get("bill-statement-id");
 });
 
-$: billStatementsQuery = queryStore({
+$: _billStatementsQuery = queryStore({
 	client: $billsUrql,
 	query: gql`
       query billById($billId: String!) {
@@ -186,7 +172,7 @@ $: transactionsFromOCRQuery = currentBillStatement?.statement?.ocrID
 		})
 	: null;
 
-const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
+const _addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
 	return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
 };
 </script>

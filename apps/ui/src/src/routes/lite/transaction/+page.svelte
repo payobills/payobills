@@ -1,30 +1,22 @@
 <script lang="ts">
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import type { OperationResultStore } from "@urql/svelte";
 
-import { gql, mutationStore, queryStore } from "@urql/svelte";
+import { gql, mutationStore } from "@urql/svelte";
 import { onMount } from "svelte";
 import type { Writable } from "svelte/store";
-import FileUploader from "$lib/file-uploader.svelte";
-import IconButton from "$lib/icon-button.svelte";
-import IdeaCard from "$lib/idea-card.svelte";
-import { envStore } from "$lib/stores/env";
 import { type FormStore, formStoreGenerator } from "$lib/stores/form";
-import { liteServices } from "$lib/stores/lite-services";
 import { nav } from "$lib/stores/nav";
-import { paymentsUrql } from "$lib/stores/urql";
 import type { TransactionDTO as Transaction } from "$lib/types";
-import { formatRelativeDate } from "$utils/format-relative-date";
 
 let transactionID: string | null = null;
-let pageMode: "VIEW" | "EDIT" = "VIEW";
-let editCta = "Save";
+let _pageMode: "VIEW" | "EDIT" = "VIEW";
+let _editCta = "Save";
 let transaction: any;
 let cancelCtaButton: HTMLButtonElement, saveCtaButton: HTMLButtonElement;
 let transactionsQuery: OperationResultStore;
 const transactionForm: Writable<FormStore<Transaction>> =
 	formStoreGenerator("transactionById");
-let transactionReparseTriggered = false;
+let _transactionReparseTriggered = false;
 
 const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
 	return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
@@ -68,7 +60,7 @@ onMount(() => {
 	transactionID = new URLSearchParams(window.location.search).get("id");
 });
 
-const onTransactionReceiptAdded = ({ file }: { file: File }) => {
+const _onTransactionReceiptAdded = ({ file }: { file: File }) => {
 	// console.log("file added:", file);
 	transactionForm.update((form) => ({
 		data: {
@@ -82,7 +74,7 @@ const onTransactionReceiptAdded = ({ file }: { file: File }) => {
 	}));
 };
 
-const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
+const _onTransactionReceiptRemoved = ({ file }: { file: File }) => {
 	transactionForm.update((form) => ({
 		data: {
 			amount: form.data.amount,
@@ -97,9 +89,9 @@ const onTransactionReceiptRemoved = ({ file }: { file: File }) => {
 	}));
 };
 
-const triggerReparse = async () => {
+const _triggerReparse = async () => {
 	try {
-		transactionReparseTriggered = true;
+		_transactionReparseTriggered = true;
 		await $paymentsUrql
 			.mutation(
 				gql`
@@ -126,8 +118,8 @@ const triggerReparse = async () => {
 	}
 };
 
-const updateTransaction = async () => {
-	editCta = "Saving...";
+const _updateTransaction = async () => {
+	_editCta = "Saving...";
 
 	cancelCtaButton.disabled = true;
 	saveCtaButton.disabled = true;
@@ -231,8 +223,8 @@ const updateTransaction = async () => {
 
 		if (saveCtaButton) saveCtaButton.disabled = false;
 		if (cancelCtaButton) cancelCtaButton.disabled = false;
-		editCta = "Save";
-		pageMode = "VIEW";
+		_editCta = "Save";
+		_pageMode = "VIEW";
 
 		transaction = {
 			...transaction,

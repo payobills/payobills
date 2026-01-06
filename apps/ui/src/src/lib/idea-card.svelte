@@ -1,7 +1,4 @@
 <script lang="ts">
-import { faLightbulb } from "@fortawesome/free-solid-svg-icons";
-import Icon from "svelte-awesome";
-
 export let idea: string;
 </script>
 

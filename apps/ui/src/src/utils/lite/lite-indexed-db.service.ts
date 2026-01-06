@@ -1,10 +1,5 @@
 import { Dexie, type EntityTable, type Table } from "dexie";
-import type {
-	BillDTO,
-	BillStatementDTO,
-	LiteBillStatementDTO,
-	TransactionDTO,
-} from "$lib/types";
+import type { BillDTO, BillStatementDTO } from "$lib/types";
 
 export class LiteIndexedDbService {
 	private db: Dexie;

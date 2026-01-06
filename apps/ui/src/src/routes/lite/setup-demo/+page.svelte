@@ -2,11 +2,11 @@
 import { onMount } from "svelte";
 import { setupLiteDemoAsync } from "$lib/stores/lite-demo-store";
 
-let isSettingUp = true;
+let _isSettingUp = true;
 
 onMount(async () => {
 	await setupLiteDemoAsync();
-	isSettingUp = false;
+	_isSettingUp = false;
 });
 </script>
 
