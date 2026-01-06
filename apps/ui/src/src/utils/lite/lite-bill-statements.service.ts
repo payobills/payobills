@@ -38,7 +38,7 @@ export class LiteBillStatementsService implements IBillStatementsService {
                     return acc;
                 }, {})
 
-                billIds.forEach(billId => billStatementsGroupedByBills[`${CONSTANTS.BILL_STATEMENTS_KEY_PREFIX}${billId}`] ||= []); 
+                billIds.forEach(billId => { billStatementsGroupedByBills[`${CONSTANTS.BILL_STATEMENTS_KEY_PREFIX}${billId}`] ||= [] }); 
 
                 this.billStatements.update(prevState => ({
                     ...prevState,

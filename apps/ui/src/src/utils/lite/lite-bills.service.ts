@@ -28,7 +28,7 @@ export class LiteBillService implements IBillsService {
                 billByIdQuery.update(prevState => ({
                     ...prevState,
                     fetching: false,
-                    data: matchingBills.length == 1 ? matchingBills[0] : undefined
+                    data: matchingBills.length === 1 ? matchingBills[0] : undefined
                 }));
             }
             catch (err) { console.error(err); }

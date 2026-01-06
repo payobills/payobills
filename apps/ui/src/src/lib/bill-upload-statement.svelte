@@ -1,5 +1,7 @@
 <script lang="ts">
-  export let bill: any;
+  import type { BillDTO } from '$lib/types';
+
+  export let bill: BillDTO;
   export let onBillStatementFormUpload: any;
 
   let rightNow = new Date();

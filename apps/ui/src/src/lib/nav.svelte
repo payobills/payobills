@@ -1,21 +1,10 @@
 <script>
-  import Icon from "svelte-awesome";
-  import { faBars } from "@fortawesome/free-solid-svg-icons";
   import { goto } from "$app/navigation";
   import { nav } from '$lib/stores/nav'
 </script>
 
 {#if $nav.isOpen}
 <nav>
-  <!--
-  <button class="hamburger" role="button">
-    <Icon
-      data={faBars}
-      scale={1.2}
-      style="color: white; padding: 0; cursor: pointer;"
-    />
-  </button>
-  -->
   <button class="app-title" on:click={() => goto($nav.link)}>
       {$nav.title}
   </button>

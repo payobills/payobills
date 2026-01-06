@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { gql, queryStore } from "@urql/svelte";
+  import { Client, gql, queryStore } from "@urql/svelte";
   import { goto, afterNavigate } from "$app/navigation";
   import { billsUrql, paymentsUrql } from "$lib/stores/urql";
     import { onMount } from "svelte";
@@ -31,7 +31,7 @@
   });
 
   const addTransaction = () => {
-    let client;
+    let client: Client;
     try {
       $paymentsUrql
         .mutation(
