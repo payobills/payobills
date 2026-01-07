@@ -102,6 +102,8 @@ export type Trip = {
   title: string
 }
 
+export type TransactionTag = Trip;
+
 // COMMON TYPES
 export enum Crud {
   Create,
