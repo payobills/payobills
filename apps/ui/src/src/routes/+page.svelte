@@ -88,13 +88,10 @@
 
   <a
     class="login-link"
-    href={$envStore?.INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE.replace(
-      "${INJECTED_OWN_URL}",
-      $envStore?.INJECTED_OWN_URL
-    )
-      .replace("${INJECTED_OIDC_CLIENT_ID}", $envStore?.INJECTED_OIDC_CLIENT_ID)
-      .replace(
-        "${INJECTED_OIDC_TENANT_URL}",
+    href={$envStore?.INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE
+      ?.replace("${INJECTED_OWN_URL}", $envStore?.INJECTED_OWN_URL)
+      ?.replace("${INJECTED_OIDC_CLIENT_ID}", $envStore?.INJECTED_OIDC_CLIENT_ID)
+      ?.replace("${INJECTED_OIDC_TENANT_URL}",
         getIdpBaseUrl(
           $envStore?.INJECTED_OWN_URL,
           $envStore?.INJECTED_OIDC_TENANT_URL

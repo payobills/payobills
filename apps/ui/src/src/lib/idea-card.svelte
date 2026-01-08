@@ -1,13 +1,14 @@
 <script lang="ts">
   import Icon from "svelte-awesome";
   import { faLightbulb } from "@fortawesome/free-solid-svg-icons";
+  import IconButton from '$lib/icon-button.svelte'
 
   export let idea: string;
 </script>
 
 <div class="idea-card">
-  <Icon
-    data={faLightbulb}
+  <IconButton
+    icon={faLightbulb}
     scale={1}
     style={`border-radius: 4rem; color: #ffa029; padding: 0 1rem 0 .5rem; cursor: pointer; align-self: center`}
   />

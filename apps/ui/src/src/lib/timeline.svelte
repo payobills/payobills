@@ -60,6 +60,10 @@
       showTotalSpend={false}
     />
 
+      <IdeaCard
+        idea={`Going for a trip? Group your transactions together and manage them easily...`}
+      />
+
     {#if filteredItems.length > 0}
       <h1 class="title_bill">Your bills</h1>
     {/if}

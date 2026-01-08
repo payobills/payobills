@@ -13,7 +13,10 @@
   import FileUploader from "../../lib/file-uploader.svelte";
   import { envStore } from "$lib/stores/env";
   import IdeaCard from "$lib/idea-card.svelte";
-    import { nav } from "$lib/stores/nav";
+  import { nav } from "$lib/stores/nav";
+  import type { TransactionTag } from "$lib/types";
+	import { flip } from 'svelte/animate';
+  import { send, receive } from '$lib/transitions/crossfade';
 
   let transactionID: string | null = null;
   let pageMode: "VIEW" | "EDIT" = "VIEW";
@@ -21,9 +24,17 @@
   let transaction: any;
   let cancelCtaButton: HTMLButtonElement, saveCtaButton: HTMLButtonElement;
   let transactionsQuery: OperationResultStore;
-  let transactionForm: Writable<FormStore<Transaction>> =
-    formStoreGenerator("transactionById");
+  let transactionForm: Writable<FormStore<Transaction>> = formStoreGenerator("transactionById");
+
   let transactionReparseTriggered = false;
+  let showTransactionTagsEdit = false;
+
+  $: availableTags = ($transactionsQuery?.data?.transactionTags || []).filter((t: TransactionTag) => !$transactionForm?.data?.tags?.find(p => p.title === t.title)); 
+  // $: {
+  //   console.log('all', $transactionsQuery?.data?.transactionTags)
+  //   console.log('availableTags', availableTags)
+  //   console.log('for this transaction', $transactionForm?.data?.tags)
+  // }
 
   const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
     return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
@@ -37,6 +48,9 @@
       variables: { id: transactionID },
       query: gql`
         query ($id: String!) {
+          transactionTags {
+            id title 
+          }
           transactionByID(id: $id) {
             id
             amount
@@ -65,12 +79,20 @@
 
     transactionsQuery.subscribe((res) => {
       if (!res.data) return;
-      transaction = res.data?.transactionByID;
+
+      const tags = res.data.transactionByID.tags.map((t: string) => res.data.transactionTags.find((p: TransactionTag) => p.title === t)) 
+
+      transaction = { 
+        ...res.data?.transactionByID,
+        tags
+      };
+
       transactionForm.set({
         data: {
           amount: res.data.transactionByID.amount,
           merchant: res.data.transactionByID.merchant,
           notes: res.data.transactionByID.notes,
+          tags,
           receipts: res.data.transactionByID.receipts.map((receipt: any) => ({
             fileName: receipt.id,
             mimeType: receipt.mimeType,
@@ -217,12 +239,15 @@
           amount: +$transactionForm.data.amount,
           receipts: undefined,
           updatedReceipts: undefined,
+          tags: undefined
         },
+        tags: $transactionForm.data.tags.map((t: TransactionTag) => t.title).join(",")
       },
       query: gql`
         mutation TransactionUpdate(
           $id: String!
           $updateDTO: TransactionUpdateDTOInput!
+          $tags: String!
         ) {
           transactionReceiptsSync(input: { transactionID: $id }) {
             id
@@ -238,8 +263,12 @@
             id
             amount
             transactionText
-            tags
             merchant
+          } 
+
+          setTransactionTags(id: $id, tags: $tags) {
+            id
+            tags
           }
         }
       `,
@@ -288,36 +317,11 @@
             <IconButton
               icon={faEdit}
               backgroundColor="var(--primary-bg-color)"
-              color="black"
+              color="var(--primary-color)"
               scale={1.5}
-              on:click={() => {
-                pageMode = "EDIT";
+              style={'padding: 0'}
+              on:click={() => { pageMode = "EDIT"; }}
 
-                transactionForm.set({
-                  data: {
-                    amount: $transactionsQuery.data.transactionByID.amount,
-                    merchant: $transactionsQuery.data.transactionByID.merchant,
-                    notes: $transactionsQuery.data.transactionByID.notes,
-                    receipts:
-                      $transactionsQuery.data.transactionByID.receipts.map(
-                        (receipt: any) => ({
-                          fileName: receipt.id,
-                          mimeType: receipt.mimeType,
-                          downloadPath: receipt.downloadPath,
-                        })
-                      ),
-                    updatedReceipts:
-                      $transactionsQuery.data.transactionByID.receipts.map(
-                        (receipt: any) => ({
-                          fileName: receipt.id,
-                          mimeType: receipt.mimeType,
-                          downloadPath: receipt.downloadPath,
-                        })
-                      ),
-                  },
-                  isDirty: false,
-                });
-              }}
             />
           </div>
           <div class="transaction-detail">
@@ -357,7 +361,7 @@
           <h1 class="subheader">Associated Billing Account</h1>
           <h2>
             {transaction.bill.name}
-          </h2>
+        </h2>
 
           {#if transaction.transactionText !== ""}
             <h1 class="subheader">Original Transaction Detail</h1>
@@ -391,13 +395,14 @@
           {/if}
 
           <h1 class="subheader">Tags</h1>
-          <!-- <div class="tags_description">
+          {#if transaction.tags?.length === 0}
+           <div class="tags_description">
           This transaction doesn't have any tags.
-        </div> -->
-          {#if transaction.tags?.length === 0}{:else}
+        </div>
+          {:else}
             <div class="tags">
               {#each transaction.tags as tag}
-                <div class="tag">{tag}</div>
+                <div class="tag">{tag.title}</div>
               {/each}
             </div>
           {/if}
@@ -438,7 +443,7 @@
 
           <h1 class="subheader">Parsing Status</h1>
           <h2>
-            {transaction.parseStatus}
+          {transaction.parseStatus}
           </h2>
 
           <h1 class="subheader">Associated Billing Account</h1>
@@ -462,19 +467,39 @@
             />
           </div>
 
-          <!-- TODO: Add the ability to edit tags -->
-          <!-- <h1 class="subheader">Tags</h1>
-        {#if transaction.tags?.length === 0}
+        <section class="tags__edit">
+              <h1 class="subheader tags">Edit Tags</h1>
+        {#if $transactionForm.data.tags?.length === 0}
           <div class="tags_description">
             This transaction doesn't have any tags.
           </div>
         {:else}
-          <div class="tags">
-            {#each transaction.tags as tag}
-              <div class="tag">{tag}</div>
-            {/each}
-          </div>
-        {/if} -->
+              <h2 class="subheader tags">Added Tags</h2>
+              <div class="tags">
+                {#each $transactionForm?.data?.tags as tag (tag.id)}
+                  <button in:receive={{ key: tag.id }}
+                    			out:send={{ key: tag.id }}
+			                    animate:flip={{ duration: 200 }}
+                    on:click={() => { transactionForm.update(prev => ({data: {...prev.data, tags: prev.data.tags.filter(p => p.title !== tag.title) }})); }}>
+                    <div class="tag">{tag.title}</div>
+                  </button>
+                {/each}
+              </div>
+
+        {/if} 
+
+              <h2 class="subheader tags">Available Tags</h2>
+              <div class="tags">
+                {#each availableTags as tag (tag.id)}
+                <button in:receive={{ key: tag.id }}
+                    		out:send={{ key: tag.id }}
+			                  animate:flip={{ duration: 200 }}
+                        on:click={(() => { transactionForm.update(prev => ({data: {...prev.data, tags: [...prev.data.tags, tag]}})); })}>
+                  <div class="tag">{tag.title}</div>
+                </button>
+                {/each}
+              </div>
+        </section>
 
           <h1 class="subheader">Notes</h1>
           <textarea
@@ -545,6 +570,19 @@
     flex-grow: 1;
   }
 
+  .tags--title__edit {
+    display: flex;
+    align-items: center;
+  }
+
+  .tags__edit button {
+    padding: 0; text-transform: unset;
+  }
+
+  h1.tags {
+    display: inline;
+  }
+
   .transaction {
     height: 100%;
     display: flex;
@@ -579,7 +617,6 @@
   }
 
   .amount {
-    margin: 1rem 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
