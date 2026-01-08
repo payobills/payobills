@@ -50,7 +50,7 @@ namespace Payobills.Payments.Services.Contracts.DTOs
             PaidAt = parent.PaidAt;
             CreatedAt = parent.CreatedAt;
             UpdatedAt = parent.UpdatedAt;
-            Tags = parent.Tags?.Split(",", StringSplitOptions.RemoveEmptyEntries) ?? [];
+            Tags = parent.Tags?.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(t => !t.StartsWith("__")) ?? [];
             Notes = parent.Notes;
             ParseStatus = parent.ParseStatus;
             Bill = parent.Bill;

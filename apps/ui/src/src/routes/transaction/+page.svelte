@@ -30,11 +30,11 @@
   let showTransactionTagsEdit = false;
 
   $: availableTags = ($transactionsQuery?.data?.transactionTags || []).filter((t: TransactionTag) => !$transactionForm?.data?.tags?.find(p => p.title === t.title)); 
-  $: {
-    console.log('all', $transactionsQuery?.data?.transactionTags)
-    console.log('availableTags', availableTags)
-    console.log('for this transaction', $transactionForm?.data?.tags)
-  }
+  // $: {
+  //   console.log('all', $transactionsQuery?.data?.transactionTags)
+  //   console.log('availableTags', availableTags)
+  //   console.log('for this transaction', $transactionForm?.data?.tags)
+  // }
 
   const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
     return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
@@ -79,13 +79,20 @@
 
     transactionsQuery.subscribe((res) => {
       if (!res.data) return;
-      transaction = res.data?.transactionByID;
+
+      const tags = res.data.transactionByID.tags.map((t: string) => res.data.transactionTags.find((p: TransactionTag) => p.title === t)) 
+
+      transaction = { 
+        ...res.data?.transactionByID,
+        tags
+      };
+
       transactionForm.set({
         data: {
           amount: res.data.transactionByID.amount,
           merchant: res.data.transactionByID.merchant,
           notes: res.data.transactionByID.notes,
-          tags: res.data.transactionByID.tags.map((t: string) => res.data.transactionTags.find((p: TransactionTag) => p.title === t)),
+          tags,
           receipts: res.data.transactionByID.receipts.map((receipt: any) => ({
             fileName: receipt.id,
             mimeType: receipt.mimeType,
@@ -232,12 +239,15 @@
           amount: +$transactionForm.data.amount,
           receipts: undefined,
           updatedReceipts: undefined,
+          tags: undefined
         },
+        tags: $transactionForm.data.tags.map((t: TransactionTag) => t.title).join(",")
       },
       query: gql`
         mutation TransactionUpdate(
           $id: String!
           $updateDTO: TransactionUpdateDTOInput!
+          $tags: String!
         ) {
           transactionReceiptsSync(input: { transactionID: $id }) {
             id
@@ -253,8 +263,12 @@
             id
             amount
             transactionText
-            tags
             merchant
+          } 
+
+          setTransactionTags(id: $id, tags: $tags) {
+            id
+            tags
           }
         }
       `,
@@ -381,13 +395,14 @@
           {/if}
 
           <h1 class="subheader">Tags</h1>
-          <!-- <div class="tags_description">
+          {#if transaction.tags?.length === 0}
+           <div class="tags_description">
           This transaction doesn't have any tags.
-        </div> -->
-          {#if transaction.tags?.length === 0}{:else}
+        </div>
+          {:else}
             <div class="tags">
               {#each transaction.tags as tag}
-                <div class="tag">{tag}</div>
+                <div class="tag">{tag.title}</div>
               {/each}
             </div>
           {/if}
@@ -453,12 +468,12 @@
           </div>
 
         <section class="tags__edit">
-        {#if transaction.tags?.length === 0}
+              <h1 class="subheader tags">Edit Tags</h1>
+        {#if $transactionForm.data.tags?.length === 0}
           <div class="tags_description">
             This transaction doesn't have any tags.
           </div>
         {:else}
-              <h1 class="subheader tags">Edit Tags</h1>
               <h2 class="subheader tags">Added Tags</h2>
               <div class="tags">
                 {#each $transactionForm?.data?.tags as tag (tag.id)}
@@ -471,6 +486,8 @@
                 {/each}
               </div>
 
+        {/if} 
+
               <h2 class="subheader tags">Available Tags</h2>
               <div class="tags">
                 {#each availableTags as tag (tag.id)}
@@ -482,7 +499,6 @@
                 </button>
                 {/each}
               </div>
-        {/if} 
         </section>
 
           <h1 class="subheader">Notes</h1>
