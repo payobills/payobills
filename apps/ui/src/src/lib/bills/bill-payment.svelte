@@ -18,6 +18,7 @@
 
   export let onRecordingPayment: any;
   export let onCurrentBillStatementDoesNotExist: any;
+  export let onTransactionSearch: any;
 
   let todaysDay: number;
   let billDueDetails: { status: string; string: string; l2Status?: string };
@@ -126,6 +127,7 @@
         {onRecordingPayment}
         billStatements={[currentBillStatement]}
         selectedStatement={currentBillStatement}
+        {onTransactionSearch}
       />
     </UiDrawer>
   {/if}

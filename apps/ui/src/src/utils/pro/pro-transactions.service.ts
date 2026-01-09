@@ -14,30 +14,33 @@ export class ProTransactionsService implements ITransactionsService {
   queryTransactionsWithSearchTerm(
     existingStore: Writable<Query<TransactionDTO[]>>,
     searchTerm: string): Writable<Query<TransactionDTO[]>> {
-    const matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = existingStore ?? writable({
-      fetching: true,
-      data: [],
-      error: null
-    });
+    // console.log({existingStore, searchTerm})
+    // const matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = !existingStore ? writable({
+    //   fetching: true,
+    //   data: [],
+    //   error: null
+    // }) : existingStore;
 
+        // console.log('q', matchingTransactionsQuery );
     (async () => {
       try {
+        console.log('checking matches')
         const matchingTransactions = await this.transactionUrqlClient.query(
           `{
-        transactions(filters: {searchTerm: "${searchTerm}"}) {
-        nodes {
-        id
-        amount
-        merchant
-        paidAt
-        transactionText
-        notes
-        }
-        }
-      }`, {}).toPromise()
-       
-        // console.log(matchingTransactions?.data?.transactions.nodes )
-        matchingTransactionsQuery.update(curr => ({
+          transactions(filters: {searchTerm: "${searchTerm}"}) {
+            nodes {
+              id
+              amount
+              merchant
+              paidAt
+              transactionText
+              notes
+            }
+          }
+        }`, {}).toPromise()
+      
+        console.log('got some', matchingTransactions);
+        existingStore?.update(curr => ({
           ...curr,
           data: matchingTransactions?.data?.transactions.nodes ?? [],
           fetching: false,
@@ -45,7 +48,8 @@ export class ProTransactionsService implements ITransactionsService {
         }))
       } 
       catch (err){
-        matchingTransactionsQuery.update(curr => ({
+        console.log(err)
+        existingStore?.update(curr => ({
           ...curr,
           data: [],         
           fetching: false,
@@ -53,8 +57,6 @@ export class ProTransactionsService implements ITransactionsService {
         }))
       }
     })()
-
-    return matchingTransactionsQuery
   }
 
   queryTransactionsForCurrentMonth(): Writable<Query<TransactionDTO[] | undefined>> {

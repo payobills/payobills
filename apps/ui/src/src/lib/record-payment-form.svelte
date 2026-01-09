@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Writable } from "svelte/store";
+  import { writable, type Writable } from "svelte/store";
   import BillPayment from "./bills/bill-payment.svelte";
   import BottomNav from "./bottom-nav.svelte";
   import Button from "./button.svelte";
@@ -13,9 +13,12 @@
   export let lockBillStatementCycle = false;
   export let selectedStatement: BillStatementDTO;
 
-  export let onTransactionSearch: (transactionSearchTerm: string) => Writable<Query<TransactionDTO[]>>
-
-  let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> 
+  export let onTransactionSearch: any; 
+  let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
+    data: [],
+    fetching: false,
+    error: null
+  });
 
   let transactionSearchTerm: string = ''
   $: selectedTransactions = ($matchingTransactionsQuery?.data?.reduce((acc, curr) => { 
@@ -23,10 +26,6 @@
         return acc
       }, {}) ?? {}) satisfies Record<string, IsSelected<TransactionDTO>> 
   $: amount = Object.values(selectedTransactions).filter(x => x.state).reduce((acc, curr) => acc + curr.metadata?.amount || 0, 0)
-
-  $: {
-    console.log('selec', selectedStatement)
-  }
 
   let isFullyPaid = true;
   let isSaving = false;
@@ -38,10 +37,10 @@
     get metadata(): T { return this.__metadata}
   }
 
-  const onAmountSearchBoxFocusout = async () => {
+  const onAmountSearchBoxFocusout = () => {
     try {
-        // console.log('searching,', )
-      matchingTransactionsQuery = await onTransactionSearch(transactionSearchTerm)
+      console.log('searching,',transactionSearchTerm)
+      onTransactionSearch(matchingTransactionsQuery, transactionSearchTerm)
     }
     catch {}
   }
@@ -76,11 +75,12 @@
       id="record-bill-payment-amount"
       placeholder="Enter amount paid or search"
       bind:value={transactionSearchTerm}
-      onfocusout={onAmountSearchBoxFocusout}
+      on:keydown={(e) =>{ if(e.key === 'Enter') onAmountSearchBoxFocusout() }}
     />
 
     <!-- {#if matchingTransactions.length > 0 } -->
     <!-- {#each [{ amount: 377, merchant: "test merchant"}] as transaction (transaction.id)} -->
+    <!-- <pre>{JSON.stringify(())}</pre> -->
     {#each $matchingTransactionsQuery?.data as transaction (transaction.id)}
       <Card>
         <p> 
@@ -96,8 +96,6 @@
           </p>
       </Card>
     {/each}
-    <!-- </if} -->
-    <!-- <label for="record-bill-transactions"></label> -->
 
     {#if Object.values(selectedTransactions).filter(x => x.state).length > 0}
     <label for="record-bill-payment-amount">Total Amount (calculated from selected transactions)</label>
@@ -113,7 +111,7 @@
         id="record-bill-payment-fullypaid"
       />
     </div>
-    <!-- {#if Object.values(selectedTransactions).filter(x => x.state).length > 0} -->
+
   <Button
     onclick={async () => {
       isSaving = true;

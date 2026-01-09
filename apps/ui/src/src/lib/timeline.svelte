@@ -11,6 +11,7 @@
   export let transactions: any[] = [];
   export let billingStatements: any;
   export let onRecordingPayment: any;
+  export let onTransactionSearch: any;
   export let onCurrentBillStatementDoesNotExist: any;
 
   let lastDay = 31;
@@ -83,6 +84,7 @@
           billingStatements={billingStatements?.[
             `billStatements__bill_${item.id}`
           ]}
+          {onTransactionSearch}
           {onRecordingPayment}
           {onCurrentBillStatementDoesNotExist}
         />

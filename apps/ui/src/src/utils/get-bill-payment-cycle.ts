@@ -15,7 +15,7 @@ export const getBillPaymentCycle = (bill: BillDTO): {
     const pad = (n: number) => n.toString().padStart(2, "0");
 
     function formatDate(y: number, m: number, d: number) {
-        return `${y}-${pad(m + 1)}-${pad(d)}`;
+        return `${y}-${pad(m)}-${pad(d)}`;
     }
 
     let fromYear = year,
@@ -27,10 +27,10 @@ export const getBillPaymentCycle = (bill: BillDTO): {
     fromDay = bill.billingDate + 1;
     toDay = bill.billingDate;
 
-    fromMonth = bill.billingDate > date ? month - 2 : month - 1;
-    toMonth = fromMonth + 1;
+    fromMonth = bill.billingDate > date ? (month - 2 + 12) % 12 + 1: (month - 1 + 12) % 12 + 1;
+    toMonth = (fromMonth) % 12 + 1;
 
-    fromYear = year
+    fromYear = year - (fromMonth > month ? 1 : 0);
     toYear = year
 
     // TODO: Prepaid type of bills will have cycle with current date in the cycle
