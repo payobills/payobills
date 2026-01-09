@@ -24,7 +24,7 @@ export class ProTransactionsService implements ITransactionsService {
         // console.log('q', matchingTransactionsQuery );
     (async () => {
       try {
-        console.log('checking matches')
+        // console.log('checking matches')
         const matchingTransactions = await this.transactionUrqlClient.query(
           `{
           transactions(filters: {searchTerm: "${searchTerm}"}) {
@@ -39,7 +39,7 @@ export class ProTransactionsService implements ITransactionsService {
           }
         }`, {}).toPromise()
       
-        console.log('got some', matchingTransactions);
+        // console.log('got some', matchingTransactions);
         existingStore?.update(curr => ({
           ...curr,
           data: matchingTransactions?.data?.transactions.nodes ?? [],
@@ -48,7 +48,7 @@ export class ProTransactionsService implements ITransactionsService {
         }))
       } 
       catch (err){
-        console.log(err)
+        // console.log(err)
         existingStore?.update(curr => ({
           ...curr,
           data: [],         

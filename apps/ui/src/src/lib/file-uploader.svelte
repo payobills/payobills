@@ -92,7 +92,7 @@
           scale={0.75}
           style={"padding: .125rem"}
           on:click={() => {
-            console.log("trying to remove file", selectedFile);
+            // console.log("trying to remove file", selectedFile);
             onFileRemoved({ file: selectedFile });
           }}
         />

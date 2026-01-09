@@ -39,7 +39,6 @@
 
   const onAmountSearchBoxFocusout = () => {
     try {
-      console.log('searching,',transactionSearchTerm)
       onTransactionSearch(matchingTransactionsQuery, transactionSearchTerm)
     }
     catch {}
