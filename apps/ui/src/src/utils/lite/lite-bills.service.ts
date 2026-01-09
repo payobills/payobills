@@ -62,7 +62,7 @@ export class LiteBillService implements IBillsService {
             updatedAt: currentTimeStamp
         }
 
-        console.log(billToUpdate)
+        // console.log(billToUpdate)
 
         return new Promise(async (resolve, reject) => {
             try {

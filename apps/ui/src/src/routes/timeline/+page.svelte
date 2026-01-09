@@ -8,6 +8,8 @@
   import { nav } from "$lib/stores/nav";
   import { queryStore, gql, getContextClient } from "@urql/svelte";
   import { onMount } from "svelte";
+  import { ProTransactionsService } from "$utils/pro/pro-transactions.service";
+  import type { TransactionDTO } from "$lib/types";
 
   onMount(() => {
     nav.update(prev => ({ ...prev, isOpen: true }))
@@ -116,13 +118,19 @@
     return onRecordingPayment({ amount, bill, cycleFromDate, cycleToDate, isFullyPaid})
   }
 
+  const onTransactionSearch = (store: any, transactionSearchTerm: string, ) => {
+    if (!$paymentsUrql || !transactionSearchTerm) return;
+    const transactionService = new ProTransactionsService($paymentsUrql);
+    transactionService.queryTransactionsWithSearchTerm(store, transactionSearchTerm);
+  }
+
   const onRecordingPayment = ({
-    id,
     amount,
     bill,
     cycleFromDate,
     cycleToDate,
     isFullyPaid,
+    transactions
   }) => {
     return $paymentsUrql
       .mutation(
@@ -143,14 +151,13 @@
         `,
         {
           dto: {
-            id,
             notes: "",
             amount,
             isFullyPaid,
             bill: { id: +bill.id },
             startDate: cycleFromDate,
             endDate: cycleToDate,
-            edges: { paymentIds: [] },
+            edges: { paymentIds: (transactions ?? []).map((transaction: TransactionDTO) => transaction.id) },
           },
         }
       )
@@ -161,7 +168,7 @@
           throw new Error("Failed to record payment");
         }
       });
-  };
+  }
 </script>
 
 <section class="timeline-page">
@@ -176,6 +183,7 @@
       transactions={$transactionsQuery.data.transactions.nodes}
       billingStatements={$billStatementsQuery?.data}
       {onRecordingPayment}
+      {onTransactionSearch}
       {onCurrentBillStatementDoesNotExist}
     />
   {/if}
