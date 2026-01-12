@@ -185,7 +185,7 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.CICD_PAT}}" \
             https://api.github.com/repos/payobills/argo-config/actions/workflows/222120837/dispatches \
-      -d "{\"ref\": \"main\", \"inputs\": { \"APP\": \"$(echo -n '${{ steps.calculate_service_versions.outputs.PR_BODY }}' | grep apps | head -1 | sed 's|.*apps/||' | sed 's| - |/|' | sed 's|/.*$||' | sed 's/\\n//' )\", \"VERSION\": \"$(echo -n '${{ steps.calculate_service_versions.outputs.PR_BODY }}' | grep apps | head -1 | sed 's|.*apps/||' | sed 's| - |/|' | sed 's|^.*/||' | sed 's/\\n//' )\" }  }" 
+            -d "{\"ref\": \"main\", \"inputs\": { \"APP\": \"$(echo -n '${{ steps.calculate_service_versions.outputs.PR_BODY }}' | grep apps | head -1 | sed 's|.*apps/||' | sed 's| - |/|' | sed 's|/.*$||' | sed 's/\\n//' )\", \"VERSION\": \"$(echo -n '${{ steps.calculate_service_versions.outputs.PR_BODY }}' | grep apps | head -1 | sed 's|.*apps/||' | sed 's| - |/|' | sed 's|^.*/||' | sed 's/\\n//' )\" }  }" 
 
   deploy-tmp-pr-docker-buildx-images:
     name: deploy-tmp-pr-docker-buildx-images
