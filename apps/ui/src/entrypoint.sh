@@ -37,6 +37,10 @@ printf "}\n" >> "$OUT_FILE"
 echo "[env] Generated $OUT_FILE:"
 cat "$OUT_FILE"
 
-# SECTION: start the nginx server
+# Try creating nginx log file, continue on fail
+# This is needed when otel is mounting /var/log and file does not exist
+mkdir -p /var/log/nginx || true
+touch /var/log/nginx/error.log || true
 
+# SECTION: start the nginx server
 nginx -g "daemon off;"
