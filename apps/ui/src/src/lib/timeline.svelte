@@ -57,6 +57,7 @@
       {transactions}
       showGraph={true}
       {title}
+      groupTransactionByDate={false}
       showRecentSpends={true}
       showTotalSpend={false}
     />
