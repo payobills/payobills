@@ -17,7 +17,7 @@
     .filter((p) => p.paidAt);
 
   $:transactionsGroupedByDateAndMonth = groupTransactionByDate && filteredTransactions ? filteredTransactions.reduce((agg: any[], transaction) => {
-    let currKey: string = new Intl.DateTimeFormat("en-CA", { month: "long", day: "numeric" }).format(new Date(transaction.paidAt))    
+    let currKey: string = new Intl.DateTimeFormat("en-CA", { month: "long", day: "numeric" }).format(new Date(transaction.paidAt))
 
     if (!agg[currKey]) agg[currKey] = [];
     agg[currKey] = [...agg[currKey], transaction]
@@ -264,7 +264,7 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
   {#each transactionsGroupedByDateAndMonth[day] as transaction (transaction.id) }
     <a class="transaction-card" href={`transaction?id=${transaction.id}`}>
       <div class="recent-transaction">
-        <div class="non-amount-details">
+        <div class="non-amount-details non-amount-details--transactions-grouped">
           {#if transaction.merchant !== null}
             <span>{transaction.merchant}</span>
           {:else}
@@ -357,8 +357,12 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
   .recent-transaction span {
     font-size: 0.75rem;
   }
-  .non-amount-details {
+
+  .non-amount-details--transactions-grouped {
     margin-left: 1rem;
+  }
+
+  .non-amount-details {
     display: flex;
     flex-direction: column;
   }
