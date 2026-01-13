@@ -16,6 +16,14 @@
     }, [])
     .filter((p) => p.paidAt);
 
+  $:transactionsGroupedByDateAndMonth = groupTransactionByDate && filteredTransactions ? filteredTransactions.reduce((agg: any[], transaction) => {
+    let currKey: string = new Intl.DateTimeFormat("en-CA", { month: "long", day: "numeric" }).format(new Date(transaction.paidAt))    
+
+    if (!agg[currKey]) agg[currKey] = [];
+    agg[currKey] = [...agg[currKey], transaction]
+    return agg
+  }, {}) : undefined
+$: {console.log(transactionsGroupedByDateAndMonth)}
   $: todaysDate = new Intl.DateTimeFormat("en-CA").format(new Date());
 
   $: todaysSpend = filteredTransactions
@@ -34,6 +42,7 @@
   export let title: string | undefined = undefined;
   export let totalSpend = 0;
   export let initialShowCount = 5;
+  export let groupTransactionByDate = true;
 
   $: ApexCharts = undefined;
 
@@ -246,6 +255,42 @@
     <hr>
   {/if}
 
+  {#if groupTransactionByDate}
+
+    {#each Object.keys(transactionsGroupedByDateAndMonth) as day}
+
+        <div class='transaction-group-date'>{day}</div>
+        
+  {#each transactionsGroupedByDateAndMonth[day] as transaction (transaction.id) }
+    <a class="transaction-card" href={`transaction?id=${transaction.id}`}>
+      <div class="recent-transaction">
+        <div class="non-amount-details">
+          {#if transaction.merchant !== null}
+            <span>{transaction.merchant}</span>
+          {:else}
+            <span>Unknown</span>
+          {/if}
+          <span class="paid-on"
+            >{formatRelativeDate(new Date(transaction.paidAt))}</span
+          >
+        </div>
+        {#if transaction.amount !== null}
+          <span
+            >{new Intl.NumberFormat(undefined, {
+              style: "currency",
+              currency: "INR",
+            }).format(transaction.amount)}</span
+          >
+        {:else}
+          <span>-</span>
+        {/if}
+      </div>
+    </a>
+  {/each}
+
+    {/each}
+
+  {:else}
   {#each showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
     <a class="transaction-card" href={`transaction?id=${transaction.id}`}>
       <div class="recent-transaction">
@@ -272,6 +317,8 @@
       </div>
     </a>
   {/each}
+
+  {/if}
 
   {#if showViewAllCTA}
     <p>
@@ -311,6 +358,7 @@
     font-size: 0.75rem;
   }
   .non-amount-details {
+    margin-left: 1rem;
     display: flex;
     flex-direction: column;
   }
@@ -334,6 +382,11 @@
 
   .recent-spends__title {
     margin-top: 0;
+  }
+
+  .transaction-group-date {
+    font-weight: 800;
+    margin: .5rem 0;
   }
 
   .recent-spends__spend-tile {
