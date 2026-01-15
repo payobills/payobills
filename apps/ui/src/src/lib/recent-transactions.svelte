@@ -373,6 +373,10 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
     align-items: center;
   }
 
+  .title h1 {
+    margin: 0;
+  }
+
   .title a {
     font-size: 0.8rem;
     color: var(--primary-color);
