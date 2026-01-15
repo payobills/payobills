@@ -385,7 +385,7 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
   }
 
   .recent-spends__title {
-    margin-top: 0;
+    margin: 0 0 0.5rem 0;
   }
 
   .transaction-group-date {
@@ -395,7 +395,6 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
 
   .recent-spends__spend-tile {
     background-color: #383838;
-    /* margin: .25rem; */
     column-gap: 0.25rem;
     padding: 0.5rem;
     border-radius: 0.5rem;
@@ -411,7 +410,7 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
 
   .recent-spends__spend-amount {
     font-weight: 900;
-    font-size: 2.25rem;
+    font-size: 2rem;
     margin: 0.5rem 0;
   }
 
@@ -433,11 +432,5 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
     flex-direction: row;
     gap: 0.5rem;
     margin-bottom: 1rem;
-  }
-
-  .recent-spends__spend-amount {
-    font-weight: 900;
-    font-size: 2.25rem;
-    margin: 0.5rem 0;
   }
 </style>
