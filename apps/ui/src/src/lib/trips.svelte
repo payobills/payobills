@@ -13,9 +13,11 @@
   <p>Looks like you haven't created any trips yet. Tag any transaction to a trip so it shows up here...</p>
 {:else}
   {#each trips as trip (trip.id)}
-    <Card>
-      <h2>{trip.title}</h2>
-    </Card>
+    <a href={`trips?id=${trip.id}&title=${trip.title}`}>
+      <Card>
+        <h2>{trip.title}</h2>
+      </Card>
+    </a>
   {/each}
 {/if}
 </section>
@@ -23,15 +25,20 @@
 {/if}
 
 <style>
-  .trip-cards > :global(.card) {
+  h1 {
+    margin-top: 2rem;
+    margin-bottom: 0;
+  }
+
+  :global(.trip-cards .card) {
     margin: 1rem 0;
   }
 
-  .trip-cards > :global(.card):first-of-type {
+  :global(:first-of-type(.trip-cards .card)) {
     margin-top: 0;
   }
 
-  .trip-cards > :global(.card):last-of-type {
+  :global(:last-of-type(.trip-cards .card)) {
     margin-bottom: 0;
   }
 

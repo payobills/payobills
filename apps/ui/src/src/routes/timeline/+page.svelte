@@ -31,7 +31,7 @@
 
   $: trips = $transactionTagsQuery?.data?.transactionTags
       ?.filter((p: Trip) => p.title.startsWith("Trip"))
-      .map((p: Trip) => ({ ...p, title: p.title.replace(/^Trip:?\s*?/, '')})) ?? undefined
+      .map((p: Trip) => ({ ...p, title: p.title.replace(/^Trip:\s*?/, '')})) ?? undefined
 
   const billsQuery = queryStore({
     client: $billsUrql,
