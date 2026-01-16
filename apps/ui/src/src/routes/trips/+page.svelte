@@ -14,6 +14,6 @@
 <section>
   <h1>{tripTitle}</h1>
 
-  TODO: Add transactions from this trip
+  <!-- TODO: Add transactions from this trip -->
 </section>
 
