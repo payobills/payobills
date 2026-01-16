@@ -29,16 +29,10 @@
     // Try to load env Urls from localStorage
     await tryLoadEnv();
 
-
     // Guard against going to other pages without login
     // loadAuthFromLocalStorage();
     // const authState = get(auth);
     // if (authState == null) await goto("/timeline");
-
-    // For testing drawer
-    // setInterval(() => {
-    //   uiDrawer.update((curr) => ({ ...curr, state: !curr.state }));
-    // }, 2000);
   });
 
   function randomNotification() {

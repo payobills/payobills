@@ -1,12 +1,15 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
+  import type { Trip } from '$types';
   import PaymentTimelinePill from "./payment-timeline-pill.svelte";
   import IdeaCard from "./idea-card.svelte";
   import RecentTransactions from "./recent-transactions.svelte";
   import BillPayment from "./bills/bill-payment.svelte";
+  import Trips from '$lib/trips.svelte';
   export let title: string = "";
   export let items: any[] = [];
+  export let trips: Trip[];
   export let stats: any = {};
   export let transactions: any[] = [];
   export let billingStatements: any;
@@ -91,6 +94,8 @@
         />
       {/each}
     </div>
+
+    <Trips {trips} />
 
     <h1 class="title_bill">Billing Cycles</h1>
 
