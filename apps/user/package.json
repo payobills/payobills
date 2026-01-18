@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "main": "src/index.mjs",
   "scripts": {
-    "build": "(rm -rf dist || true) && mkdir dist && cp src/*.js dist",
+    "build": "(rm -rf dist || true) && mkdir dist && (cp src/*.mjs dist || cp src/*.js dist || true)",
     "format": "prettier --write \"src/**/*.{ts,js}\" \"test/**/*.{ts,js}\" --no-error-on-unmatched-pattern",
     "start": "node .",
     "dev": "nodemon",
