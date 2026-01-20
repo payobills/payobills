@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using AutoMapper;
 using Payobills.Payments.Data.Contracts.Models;
@@ -32,11 +33,14 @@ public class TransactionsNocoDBService : ITransactionsService
         // Build URL params with sorting and filtering
         // -> Add OcrID only if provided
         // -> Add SearchTerm only if provided (searches Merchant, TransactionText, Notes, Amount)
+        // -> Add Tags only if provided 
+
         var sortUrlParam = "s=-PaidAt";
         var filterUrlParam = string.Join("~and", new List<string>{
             string.IsNullOrEmpty(filters?.OcrId) ? string.Empty : $"(OcrId,eq,{filters.OcrId})",
-            string.IsNullOrEmpty(filters.SearchTerm) ? string.Empty : $"((Id,like,%{filters.SearchTerm}%)~or(Merchant,like,%{filters.SearchTerm}%)~or(TransactionText,like,%{filters.SearchTerm}%)~or(Notes,like,%{filters.SearchTerm}%){(filters.SearchTerm.All(char.IsDigit) ? $"~or(Amount,eq,{filters.SearchTerm})" : string.Empty)})",
-    }.Where(p => !string.IsNullOrEmpty(p))
+            string.IsNullOrEmpty(filters?.SearchTerm) ? string.Empty : $"((Id,like,%{filters.SearchTerm}%)~or(Merchant,like,%{filters.SearchTerm}%)~or(TransactionText,like,%{filters.SearchTerm}%)~or(Notes,like,%{filters.SearchTerm}%){(filters.SearchTerm.All(char.IsDigit) ? $"~or(Amount,eq,{filters.SearchTerm})" : string.Empty)})",
+            filters?.Tags.Length > 0 ? string.Join("~or", filters.Tags.Select(tag => $"(Tags,like,{WebUtility.UrlEncode(tag)})")) : string.Empty
+            }.Where(p => !string.IsNullOrEmpty(p))
         );
 
         var urlParams = string.Join("&", new List<string> {
