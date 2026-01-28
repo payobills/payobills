@@ -4,4 +4,5 @@ public class TransactionFiltersInput
 {
     public string? OcrId { get; set; }
     public string? SearchTerm { get; set; }
+    public string[] Tags { get; set; } = [];
 }
