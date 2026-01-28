@@ -1,8 +1,6 @@
 <script lang="ts">
   import Timeline from "$lib/timeline.svelte";
-  import RecentTransactions from "$lib/recent-transactions.svelte";
   import { goto } from "$app/navigation";
-  import Nav from "$lib/nav.svelte";
   import { billsUrql, paymentsUrql } from "$lib/stores/urql";
   import { auth } from "$lib/stores/auth";
   import { nav } from "$lib/stores/nav";
@@ -10,6 +8,7 @@
   import { onMount } from "svelte";
   import { ProTransactionsService } from "$utils/pro/pro-transactions.service";
   import type { TransactionDTO } from "$lib/types";
+  import type { Trip } from '$lib/types';
 
   onMount(() => {
     nav.update(prev => ({ ...prev, isOpen: true }))
@@ -17,6 +16,22 @@
       goto("/");
     }
   });
+
+  $: transactionTagsQuery = queryStore({
+    client: $paymentsUrql,
+    query: gql`
+      query {
+        transactionTags {
+          id
+          title
+        }
+      }
+    `,
+  });
+
+  $: trips = $transactionTagsQuery?.data?.transactionTags
+      ?.filter((p: Trip) => p.title.startsWith("Trip"))
+      .map((p: Trip) => ({ ...p, title: p.title.replace(/^Trip:\s*?/, '')})) ?? undefined
 
   const billsQuery = queryStore({
     client: $billsUrql,
@@ -182,6 +197,7 @@
       stats={$billStatsQuery.data.billStats}
       transactions={$transactionsQuery.data.transactions.nodes}
       billingStatements={$billStatementsQuery?.data}
+      {trips}
       {onRecordingPayment}
       {onTransactionSearch}
       {onCurrentBillStatementDoesNotExist}
@@ -190,10 +206,6 @@
 </section>
 
 <style>
-  .timeline-page {
-    margin: 1rem;
-  }
-
   p {
     margin: 0;
   }

@@ -1,9 +1,18 @@
 <script lang="ts">
+  import { gql, queryStore } from '@urql/svelte';
+  import { onMount } from 'svelte';
+  import { paymentsUrql } from '$lib/stores/urql';
   import type { Trip } from '$lib/types';
-  import { paymentsUrql } from "$lib/stores/urql";
-  import { queryStore, gql } from "@urql/svelte";
+  import RecentTransactions from '../../lib/recent-transactions.svelte';
 
-  $: transactionTagsQuery = queryStore({
+  let tripId: string | undefined;
+  let tripTitle: string | undefined;
+
+  onMount(() => {
+      tripId = new URLSearchParams(window.location.search)?.get('id') ?? '';
+  });
+
+  $: tripsQuery = queryStore({
     client: $paymentsUrql,
     query: gql`
       query {
@@ -15,29 +24,41 @@
     `,
   });
 
-  $: trips = $transactionTagsQuery?.data?.transactionTags
-      ?.filter((p: Trip) => p.title.startsWith("Trip"))
-      .map((p: Trip) => ({ ...p, title: p.title.replace(/^Trip:?\s*?/, '')})) ?? []
+  $: { tripTitle = tripId && $tripsQuery.data ? $tripsQuery.data.transactionTags.find((tag: Trip) => tag.id === tripId)?.title : ''; }
 
+  $: transactionsForTripQuery = tripId && tripTitle ? queryStore({
+    client: $paymentsUrql,
+    query: gql`
+      query TransactionsForTrip($tags: [String!]!) {
+        transactions(filters: { tags: $tags }, first: 50) {
+          nodes {
+            id
+            amount
+            merchant
+            createdAt
+            paidAt
+            updatedAt
+            tags
+          }
+        }
+      }
+    `,
+    variables: {
+      tags: [tripTitle]
+    }
+  }) : null;
 
 </script>
 
 <section>
-  <h1>Your Trips</h1>
+  <h1>{tripTitle}</h1>
 
-  {#if !$transactionTagsQuery?.fetching && $transactionTagsQuery.error} 
-<div>There was an issue getting your trips...</div>
-
-    {:else}
-    {#each trips as trip}
-      <h2>{trip.title}</h2>
-    {/each}
-{/if}
+   <RecentTransactions
+      title=""
+      viewType={'all'}
+      showAllTransactions={true}
+      showGraph={false}
+      showViewAllCTA={false}
+      transactions={$transactionsForTripQuery?.data?.transactions?.nodes ?? []}
+    />
 </section>
-
-
-<style>
-section {
-  padding: 1rem;
-}
-</style>
