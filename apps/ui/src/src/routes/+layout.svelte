@@ -289,4 +289,8 @@
       "Open Sans",
       sans-serif;
   }
+
+  :global(main > section) {
+    padding: 1rem;
+  }
 </style>

@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { formatRelativeDate } from "../utils/format-relative-date";
+  import dayjs from "dayjs";
 
   export let transactions: any[] = [];
   $: filteredTransactions = transactions
     .reduce((agg: any[], currTransaction) => {
       let duplicateTransaction = agg.findIndex(
-        (p) => p.id === currTransaction.id
+        (p) => p.id === currTransaction.id,
       );
       if (duplicateTransaction === -1) {
         return [...agg, currTransaction];
@@ -16,21 +17,27 @@
     }, [])
     .filter((p) => p.paidAt);
 
-  $:transactionsGroupedByDateAndMonth = groupTransactionByDate && filteredTransactions ? filteredTransactions.reduce((agg: any[], transaction) => {
-    let currKey: string = new Intl.DateTimeFormat("en-CA", { month: "long", day: "numeric" }).format(new Date(transaction.paidAt))
+  $: transactionsGroupedByDateAndMonth =
+    groupTransactionByDate && filteredTransactions
+      ? filteredTransactions.reduce((agg: any[], transaction) => {
+          let currKey: string = new Intl.DateTimeFormat("en-CA", {
+            month: "long",
+            day: "numeric",
+          }).format(new Date(transaction.paidAt));
 
-    if (!agg[currKey]) agg[currKey] = [];
-    agg[currKey] = [...agg[currKey], transaction]
-    return agg
-  }, {}) : undefined
-$: {console.log(transactionsGroupedByDateAndMonth)}
+          if (!agg[currKey]) agg[currKey] = [];
+          agg[currKey] = [...agg[currKey], transaction];
+          return agg;
+        }, {})
+      : undefined;
+
   $: todaysDate = new Intl.DateTimeFormat("en-CA").format(new Date());
 
   $: todaysSpend = filteredTransactions
     .filter(
       (p) =>
         new Intl.DateTimeFormat("en-CA").format(new Date(p.paidAt)) ===
-        todaysDate
+        todaysDate,
     )
     .reduce((acc, curr) => acc + curr.amount, 0);
 
@@ -43,8 +50,13 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
   export let totalSpend = 0;
   export let initialShowCount = 5;
   export let groupTransactionByDate = true;
+  export let viewType: "monthly" | "all" = "monthly";
 
   $: ApexCharts = undefined;
+  $: totalSpend = filteredTransactions.reduce(
+    (acc: number, p: any) => acc + p.amount,
+    0,
+  );
 
   onMount(async () => {
     if ((window as any).ApexCharts) {
@@ -64,20 +76,20 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
   const chart = (node: any, transactions: any[]) => {
     if (!ApexCharts) return;
 
-    if (transactions.length > 0) {
+    if (transactions.length > 0 && viewType === "monthly") {
       // from 1 to last day of the month of the first transaction, add 0s for missing days
       let firstTransactionDate = new Date(filteredTransactions[0].paidAt);
       let lastDateOfMonth = new Date(
         firstTransactionDate.getUTCFullYear(),
         firstTransactionDate.getUTCMonth() + 1,
-        0
+        0,
       );
       let lastDay = lastDateOfMonth.getDate();
       for (let i = 1; i <= lastDay; i++) {
         let date = new Date(
           firstTransactionDate.getUTCFullYear(),
           firstTransactionDate.getUTCMonth(),
-          i
+          i,
         );
 
         if (
@@ -85,7 +97,42 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
             (p: any) =>
               new Date(p.paidAt).getDate() === date.getDate() &&
               new Date(p.paidAt).getMonth() === date.getMonth() &&
-              new Date(p.paidAt).getFullYear() === date.getFullYear()
+              new Date(p.paidAt).getFullYear() === date.getFullYear(),
+          )
+        ) {
+          filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
+        }
+      }
+    } else if (filteredTransactions.length > 0 && viewType === "all") {
+      // loop over the transactions and find the oldest and newest date in O(n)
+      let oldestDate: Date | null = null;
+      let newestDate: Date | null = null;
+      for (var t of transactions) {
+        let paidAt = new Date(t.paidAt);
+        if (!oldestDate || paidAt < oldestDate) {
+          oldestDate = paidAt;
+        }
+        if (!newestDate || paidAt > newestDate) {
+          newestDate = paidAt;
+        }
+      }
+
+      let oldestDateDayJS = dayjs(oldestDate);
+      let newestDateDayJS = dayjs(newestDate);
+      console.table({ oldestDateDayJS, newestDateDayJS });
+      for (
+        let d = oldestDateDayJS;
+        d.isBefore(newestDateDayJS) || d.isSame(newestDateDayJS);
+        d = d.add(1, "day")
+      ) {
+        let date = d;
+
+        if (
+          !filteredTransactions.find(
+            (p: any) =>
+              new Date(p.paidAt).getDate() === date.date() &&
+              new Date(p.paidAt).getMonth() === date.month() &&
+              new Date(p.paidAt).getFullYear() === date.year(),
           )
         ) {
           filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
@@ -95,7 +142,10 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
 
     let allData = filteredTransactions.map((p: any) => {
       return {
-        x: new Date(p.paidAt).getDate(),
+        x:
+          viewType === "all"
+            ? `${Intl.DateTimeFormat("en-CA", { month: "long" }).format(new Date(p.paidAt))} ${new Date(p.paidAt).getDate()}`
+            : new Date(p.paidAt).getDate(),
         y: p.amount,
         note: `${p.amount}`,
       };
@@ -126,14 +176,12 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
           },
         ];
       },
-      []
+      [],
     );
 
     data.sort((a: any, b: any) => {
       return a.x - b.x;
     });
-
-    totalSpend = data.reduce((acc: number, p: any) => acc + p.y, 0);
 
     let options: any = {
       colors: ["var(--primary-color)"],
@@ -215,20 +263,24 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
       <div class="recent-spends__content">
         <div class="recent-spends__spend-tile">
           <p>Today's spend</p>
-          <p class="recent-spends__spend-amount">{new Intl.NumberFormat(undefined, {
-          style: "currency",
-          currency: "INR",
-          maximumFractionDigits: 2,
-        }).format(todaysSpend)}</p>
+          <p class="recent-spends__spend-amount">
+            {new Intl.NumberFormat(undefined, {
+              style: "currency",
+              currency: "INR",
+              maximumFractionDigits: 2,
+            }).format(todaysSpend)}
+          </p>
         </div>
 
         <div class="recent-spends__spend-tile">
           <p>This month's spend</p>
-          <p class="recent-spends__spend-amount">{new Intl.NumberFormat(undefined, {
-          style: "currency",
-          currency: "INR",
-          maximumFractionDigits: 2,
-        }).format(totalSpend)}</p>
+          <p class="recent-spends__spend-amount">
+            {new Intl.NumberFormat(undefined, {
+              style: "currency",
+              currency: "INR",
+              maximumFractionDigits: 2,
+            }).format(totalSpend)}
+          </p>
         </div>
       </div>
     {/if}
@@ -244,80 +296,77 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
         <div class="non-amount-details">
           <span>Total spend</span>
         </div>
-           <span
-            >{new Intl.NumberFormat(undefined, {
-              style: "currency",
-              currency: "INR",
-            }).format(totalSpend)}</span
-          >
+        <span
+          >{new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: "INR",
+          }).format(totalSpend)}</span
+        >
       </div>
     </div>
-    <hr>
+    <hr />
   {/if}
 
   {#if groupTransactionByDate}
-
     {#each Object.keys(transactionsGroupedByDateAndMonth) as day}
+      <div class="transaction-group-date">{day}</div>
 
-        <div class='transaction-group-date'>{day}</div>
-        
-  {#each transactionsGroupedByDateAndMonth[day] as transaction (transaction.id) }
-    <a class="transaction-card" href={`transaction?id=${transaction.id}`}>
-      <div class="recent-transaction">
-        <div class="non-amount-details non-amount-details--transactions-grouped">
-          {#if transaction.merchant !== null}
-            <span>{transaction.merchant}</span>
-          {:else}
-            <span>Unknown</span>
-          {/if}
-          <span class="paid-on"
-            >{formatRelativeDate(new Date(transaction.paidAt))}</span
-          >
-        </div>
-        {#if transaction.amount !== null}
-          <span
-            >{new Intl.NumberFormat(undefined, {
-              style: "currency",
-              currency: "INR",
-            }).format(transaction.amount)}</span
-          >
-        {:else}
-          <span>-</span>
-        {/if}
-      </div>
-    </a>
-  {/each}
-
+      {#each transactionsGroupedByDateAndMonth[day] as transaction (transaction.id)}
+        <a class="transaction-card" href={`transaction?id=${transaction.id}`}>
+          <div class="recent-transaction">
+            <div
+              class="non-amount-details non-amount-details--transactions-grouped"
+            >
+              {#if transaction.merchant !== null}
+                <span>{transaction.merchant}</span>
+              {:else}
+                <span>Unknown</span>
+              {/if}
+              <span class="paid-on"
+                >{formatRelativeDate(new Date(transaction.paidAt))}</span
+              >
+            </div>
+            {#if transaction.amount !== null}
+              <span
+                >{new Intl.NumberFormat(undefined, {
+                  style: "currency",
+                  currency: "INR",
+                }).format(transaction.amount)}</span
+              >
+            {:else}
+              <span>-</span>
+            {/if}
+          </div>
+        </a>
+      {/each}
     {/each}
-
   {:else}
-  {#each showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
-    <a class="transaction-card" href={`transaction?id=${transaction.id}`}>
-      <div class="recent-transaction">
-        <div class="non-amount-details">
-          {#if transaction.merchant !== null}
-            <span>{transaction.merchant}</span>
+    {#each showAllTransactions ? filteredTransactions : filteredTransactions.slice(0, initialShowCount) as transaction (transaction.id)}
+      <a class="transaction-card" href={`transaction?id=${transaction.id}`}>
+        <div class="recent-transaction">
+          <div class="non-amount-details">
+            {#if transaction.merchant !== null}
+              <span>{transaction.merchant}</span>
+            {:else}
+              <span>Unknown</span>
+            {/if}
+            <span class="paid-on"
+              >{formatRelativeDate(new Date(transaction.paidAt))}</span
+            >
+          </div>
+          {#if transaction.amount !== null}
+            <span
+              >{new Intl.NumberFormat(undefined, {
+                style: "currency",
+                currency: "INR",
+              }).format(transaction.amount)}</span
+            >
           {:else}
-            <span>Unknown</span>
+            <span>-</span>
           {/if}
-          <span class="paid-on"
-            >{formatRelativeDate(new Date(transaction.paidAt))}</span
-          >
         </div>
-        {#if transaction.amount !== null}
-          <span
-            >{new Intl.NumberFormat(undefined, {
-              style: "currency",
-              currency: "INR",
-            }).format(transaction.amount)}</span
-          >
-        {:else}
-          <span>-</span>
-        {/if}
-      </div>
-    </a>
-  {/each}
-
+      </a>
+    {/each}
   {/if}
 
   {#if showViewAllCTA}
@@ -394,7 +443,7 @@ $: {console.log(transactionsGroupedByDateAndMonth)}
 
   .transaction-group-date {
     font-weight: 800;
-    margin: .5rem 0;
+    margin: 0.5rem 0;
   }
 
   .recent-spends__spend-tile {

@@ -206,10 +206,6 @@
 </section>
 
 <style>
-  .timeline-page {
-    margin: 1rem;
-  }
-
   p {
     margin: 0;
   }
