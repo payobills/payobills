@@ -29,6 +29,7 @@
     // Try to load env Urls from localStorage
     await tryLoadEnv();
 
+    randomNotification()
     // Guard against going to other pages without login
     // loadAuthFromLocalStorage();
     // const authState = get(auth);
@@ -37,7 +38,8 @@
 
   function randomNotification() {
     Notification.requestPermission().then((result) => {
-      if (result === "granted") {
+      alert(result)
+      // if (result === "granted") {
         const notifTitle = "Payobills";
         const notifBody = `You have a new bill to pay...`;
         const notifImg = `https://http.cat/images/200.jpg`;
@@ -46,7 +48,7 @@
           icon: notifImg,
         };
         new Notification(notifTitle, options);
-      }
+      // }
     });
   }
 
