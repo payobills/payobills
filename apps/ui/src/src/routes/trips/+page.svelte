@@ -26,7 +26,7 @@
 
   $: { tripTitle = tripId && $tripsQuery.data ? $tripsQuery.data.transactionTags.find((tag: Trip) => tag.id === tripId)?.title : ''; }
 
-  $: transactionsForTripQuery = tripId ? queryStore({
+  $: transactionsForTripQuery = tripId && tripTitle ? queryStore({
     client: $paymentsUrql,
     query: gql`
       query TransactionsForTrip($tags: [String!]!) {
