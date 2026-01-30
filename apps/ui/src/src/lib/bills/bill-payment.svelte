@@ -150,13 +150,13 @@
       ><strong>{billDueDetails?.string}</strong></span
     >
   </div>
-  {#if currentBillStatement?.amount > 0}
     <div class="card-item">
-      Total Payment made this cycle: <span class="current-bill-amount"
-        >₹{currentBillStatement?.amount}/-</span
-      >
+      {#if currentBillStatement?.amount > 0} Total Payment made this cycle: <span class="current-bill-amount"
+        >₹{currentBillStatement?.amount}/-</span>
+      {:else}
+      No payment was required in this cycle.
+{/if}
     </div>
-  {/if}
 </div>
 
 <style>
@@ -172,6 +172,7 @@
     justify-content: space-between;
     align-items: top;
     margin-top: 1rem;
+    width: 100%;
   }
 
   strong {
