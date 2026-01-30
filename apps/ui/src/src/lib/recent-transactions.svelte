@@ -390,7 +390,8 @@
   .container {
     background-color: var(--primary-bg-color);
     padding-bottom: 0;
-    flex-grow: 1;
+    width: 100%;
+    max-width: unset;
   }
 
   .title--hidden {

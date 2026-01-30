@@ -127,7 +127,7 @@
   @import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Vibes&display=swap");
   @import url("https://fonts.googleapis.com/css2?family=Vibes&display=swap");
 
-  @import "tailwindcss";
+  /* @import "tailwindcss"; */
   /* @plugin "daisyui"; */
   :root {
     --color: #9f9f9f;
@@ -272,6 +272,10 @@
     flex-direction: column;
     overflow-y: scroll;
     align-self: stretch;
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 1rem;
+    padding: 1rem;
   }
 
   :global(h1, h2, h3, h4, h5, h6) {
@@ -289,8 +293,5 @@
       "Open Sans",
       sans-serif;
   }
-
-  :global(main > section) {
-    padding: 1rem;
-  }
 </style>
+

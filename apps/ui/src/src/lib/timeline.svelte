@@ -54,8 +54,9 @@
   });
 </script>
 
-<div class="timeline">
-  <div class="timeline-data">
+<!-- <div class="timeline"> -->
+  <!-- <div class="timeline-data"> -->
+<div class="timeline-view">
     <RecentTransactions
       {transactions}
       showGraph={true}
@@ -68,7 +69,9 @@
       <IdeaCard
         idea={`Going for a trip? Group your transactions together and manage them easily...`}
       />
+  </div>
 
+<div class="bills-view">
     {#if filteredItems.length > 0}
       <h1 class="title_bill">Your bills</h1>
     {/if}
@@ -95,8 +98,11 @@
       {/each}
     </div>
 
+  </div>
+
     <Trips {trips} />
 
+<section class='billing-cycles-view'>
     <h1 class="title_bill">Billing Cycles</h1>
 
     <p>
@@ -121,28 +127,28 @@
       <span>1</span>
       <span>{lastDay}</span>
     </div>
-  </div>
-  <button
-    class="cta"
-    on:click={() => {
-      goto("bills/add");
-    }}
-    >Add bill
-  </button>
+</section>
+
+<div>
+    <button
+      class="cta"
+      on:click={() => {
+        goto("bills/add");
+      }}
+      >Add bill
+    </button>
 </div>
 
 <style>
-  .timeline {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex-grow: 1;
-    padding-top: 0;
+  .title_bill {
+    margin-top: 0;
   }
 
-  .title_bill {
-    margin-top: 1rem;
+  .timeline-view {
+    display: flex;
+    flex-direction: column;
   }
+
   .bill {
     all: unset;
     width: calc(100% - 1rem);
@@ -154,17 +160,6 @@
 
   :global(.bill-payments > div:first-of-type) {
     margin-top: 0;
-  }
-
-  .cta {
-    margin: 1rem 0 0 0;
-    border-radius: 1rem;
-  }
-
-  .timeline-data {
-    display: flex;
-    flex-direction: column;
-    overflow-y: hidden;
   }
 
   .items {
