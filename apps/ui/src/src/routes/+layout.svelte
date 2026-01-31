@@ -21,7 +21,6 @@
   onMount(async () => {
     nav.update(prev => ({
       ...prev,
-      isOpen: true,
       title: CONSTANTS.PAYOBILLS,
       link: '/'
     }));
@@ -267,15 +266,11 @@
   }
 
   main {
-    margin: 0;
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
     align-self: stretch;
-    display: grid;
-    grid-template-columns: 100%;
-    gap: 1rem;
-    padding: 1rem;
+    margin: 1rem;
   }
 
   :global(h1, h2, h3, h4, h5, h6) {

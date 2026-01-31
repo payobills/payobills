@@ -56,21 +56,38 @@
 
 <!-- <div class="timeline"> -->
   <!-- <div class="timeline-data"> -->
+<section>
 <div class="timeline-view">
     <RecentTransactions
       {transactions}
       showGraph={true}
       {title}
       groupTransactionByDate={false}
+      showRecentSpends={false}
+      showTotalSpend={false}
+      initialShowCount={0}
+    />
+
+  </div>
+
+<div class="timeline-view">
+    <RecentTransactions
+      {transactions}
+      showGraph={false}
+      title={"Your Recent Spends"}
+      groupTransactionByDate={false}
       showRecentSpends={true}
       showTotalSpend={false}
+      initialShowCount={5}
     />
+
 
       <IdeaCard
         idea={`Going for a trip? Group your transactions together and manage them easily...`}
       />
-  </div>
 
+    <Trips {trips} />
+  </div>
 <div class="bills-view">
     {#if filteredItems.length > 0}
       <h1 class="title_bill">Your bills</h1>
@@ -100,9 +117,8 @@
 
   </div>
 
-    <Trips {trips} />
 
-<section class='billing-cycles-view'>
+<div class='billing-cycles-view'>
     <h1 class="title_bill">Billing Cycles</h1>
 
     <p>
@@ -127,7 +143,6 @@
       <span>1</span>
       <span>{lastDay}</span>
     </div>
-</section>
 
 <div>
     <button
@@ -138,8 +153,17 @@
       >Add bill
     </button>
 </div>
+</div>
+</section>
 
 <style>
+  section {
+    display: grid;
+    grid-template-columns: 100%;
+    /* place-items: center; */
+    gap: 1rem;
+  }
+
   .title_bill {
     margin-top: 0;
   }
@@ -192,5 +216,31 @@
 
   .stay-updated {
     margin-bottom: 1rem;
+  }
+
+
+  @media (max-width: 64rem) {
+    /* Extra Small Screen Styles */
+  }
+
+  @media (min-width: 65rem) and (max-width: 75rem) {
+    /* Tablet Screen Styles */
+    section {
+      grid-template-columns: 50% 50%;
+    }
+  }
+
+  @media (min-width: 76rem) and (max-width: 100rem) {
+    /* Laptop Screen Styles */
+    section {
+      grid-template-columns: 50% 50%;
+    }
+  }
+
+  @media (min-width: 101rem) {
+    /* Extra Large Display Styles */
+    section {
+      grid-template-columns: 50% 50%;
+    }
   }
 </style>
