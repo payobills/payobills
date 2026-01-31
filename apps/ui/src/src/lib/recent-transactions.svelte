@@ -258,8 +258,9 @@
   {#if showGraph && transactions.length > 0 && ApexCharts}
     <div use:chart={transactions}></div>
 
+  {/if}
     {#if showRecentSpends}
-      <h2 class="recent-spends__title">Your recent spends</h2>
+      <!-- <h2 class="recent-spends__title">Your recent spends</h2> -->
       <div class="recent-spends__content">
         <div class="recent-spends__spend-tile">
           <p>Today's spend</p>
@@ -288,7 +289,6 @@
     <p class="disclaimer">
       It might take upto an hour for latest transactions to show up here...
     </p>
-  {/if}
 
   {#if showTotalSpend}
     <div class="transaction-card">
@@ -459,7 +459,7 @@
     display: flex;
     flex-direction: row;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin: 1rem 0;
   }
 
   .recent-spends__spend-amount {

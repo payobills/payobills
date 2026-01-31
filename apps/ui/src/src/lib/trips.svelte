@@ -8,12 +8,12 @@
 
 <h1>Trips</h1>
 
-<section class='trip-cards'>
 
 {#if trips.length === 0}
   <p>Looks like you haven't created any trips yet. Tag any transaction to a trip so it shows up here...</p>
 {:else}
   <p>Transactions made on a trip can help you track your expenses in one place.</p>
+<section class='trip-cards'>
   {#each trips as trip (trip.id)}
     <a href={`trips?id=${trip.id}&title=${trip.title}`}>
       <Card>
@@ -21,14 +21,18 @@
       </Card>
     </a>
   {/each}
-{/if}
 </section>
+{/if}
 
 {/if}
 
 <style>
   a {
     text-decoration: none;
+  }
+
+  p {
+    margin-top: 1rem;
   }
 
   h2 {
@@ -38,10 +42,6 @@
   h1 {
     margin-bottom: 0;
   }
-
-  /* :global(.trip-cards .card) { */
-    /* margin: 1rem 0; */
-  /* } */
 
   :global(:first-of-type(.trip-cards .card)) {
     margin-top: 0;
