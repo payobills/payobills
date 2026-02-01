@@ -22,6 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 // options
 builder.Services.Configure<NocoDBOptions>(builder.Configuration.GetRequiredSection(nameof(NocoDBOptions)));
 builder.Services.Configure<RabbitMQOptions>(builder.Configuration.GetRequiredSection(nameof(RabbitMQOptions)));
+builder.Services.Configure<PayobillsNocoDBOptions>(builder.Configuration.GetRequiredSection(nameof(PayobillsNocoDBOptions)));
 
 // bills
 builder.Services.AddSingleton<HttpClient>();

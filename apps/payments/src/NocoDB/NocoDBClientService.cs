@@ -3,6 +3,10 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using Payobills.Payments.Services.Contracts;
 using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
+using System.Linq;
+using Payobills.Payments.Services.Contracts.DTOs;
+using System.Data;
 
 namespace Payobills.Payments.NocoDB;
 
@@ -253,5 +257,134 @@ public class NocoDBClientService
         Console.Error.WriteLine($"--- \n Error linking receipt: {request.RequestUri} \n {await response.Content.ReadAsStringAsync()}");
       }
     }));
+  }
+
+  static JsonNode? ConvertJsonElementToJsonNode(JsonElement element)
+  {
+    return element.ValueKind switch
+    {
+      JsonValueKind.Null => null,
+      JsonValueKind.Array => JsonArray.Create(element),
+      JsonValueKind.Object => JsonObject.Create(element),
+      _ => JsonValue.Create(element)
+    };
+  }
+
+  private (NocoDBTableColumn column, bool changedRequired) addMultiSelectOptionToColumn(NocoDBTableColumn column, string? optionId, string newOptionName)
+  {
+    var changeRequired = false;
+
+    var options = new JsonArray();
+    var colOptions = new JsonObject
+    {
+        { "options", options }
+    };
+    var output = new JsonObject();
+    var propertiesToSelect = new List<string> { "title", "column_name", "uidt" };
+
+    var json = JsonSerializer.Deserialize<JsonDocument>(column.ColOptions.ToString());
+    foreach (var p in from p in json.RootElement.EnumerateObject()
+                      where propertiesToSelect.Any(x => x == p.Name)
+                      select p)
+    {
+      output.Add(p.Name, ConvertJsonElementToJsonNode(p.Value));
+    }
+
+    foreach (var property in json.RootElement.GetProperty("options").EnumerateArray())
+    {
+      options.Add(property);
+    }
+
+    
+
+    if (!string.IsNullOrEmpty(optionId))
+    {
+      foreach (var option in options)
+      {
+        if (option["id"]?.GetValue<string>() == optionId)
+        {
+          if(option["title"]?.GetValue<string>() != newOptionName) 
+          {
+            changeRequired = true;
+          }
+
+          option["title"] = newOptionName;
+        }
+      }
+    }
+    else
+    {
+      changeRequired = true;
+      var newOption = new JsonObject
+      {
+        ["title"] = newOptionName
+      };
+      var newOptionJsonString = newOption.ToJsonString();
+      options.Add(JsonDocument.Parse(newOptionJsonString).RootElement);
+    }
+
+    return (new NocoDBTableColumn
+    {
+      Id = column.Id,
+      Title = column.Title,
+      UIDataType = column.UIDataType,
+      ColOptions = colOptions
+    }, changeRequired);
+  }
+
+  public async Task<(string Id, string OptionName)> UpdateMultiSelectColumnMetadata(
+  NocoDBTableColumn column, string? optionId, string newOptionName)
+  {
+
+    if (column.UIDataType != "MultiSelect")
+      throw new InvalidOperationException("Column is not of MultiSelect type.");
+
+    // Throw error if Tags column has the same dto.Title option already
+    var existingTagOption = column.ColOptions.Deserialize<NocoDBColOptions>()?.Options.FirstOrDefault(p => p.Title == newOptionName);
+    if (optionId == null && existingTagOption != null)
+    {
+      throw new DuplicateNameException($"Tag with title '{newOptionName}' already exists.");
+    }
+
+    var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/meta/columns/{column.Id}";
+
+    var (columnToUpdate, changeRequired) = addMultiSelectOptionToColumn(column, optionId, newOptionName);
+
+    if (!changeRequired)
+    {
+      return (optionId!, newOptionName);
+    }
+
+    using var jsonStream = new MemoryStream();
+    await JsonSerializer.SerializeAsync(jsonStream, columnToUpdate);
+    jsonStream.Seek(0, SeekOrigin.Begin);
+
+    using var contentStream = new StreamContent(jsonStream);
+    contentStream.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+    Console.WriteLine($"[HTTP] {HttpMethod.Patch} {url}");
+    using var request = new HttpRequestMessage(
+      HttpMethod.Patch,
+      url
+    )
+    { Content = contentStream };
+
+    request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+
+    var response = await httpClient.SendAsync(request);
+
+    if (response.StatusCode != HttpStatusCode.OK)
+    {
+      var responseText = await response.Content.ReadAsStringAsync();
+      throw new InvalidOperationException($"Failed to update multi-select column metadata. Status: {response.StatusCode}, Response: {responseText}");
+    }
+
+    var responseStream = await response.Content.ReadAsStreamAsync();
+    var updatedTable = await JsonSerializer.DeserializeAsync<NocoDBTable>(responseStream, jsonSerializerOptions);
+    var updatedColumn = updatedTable?.Columns.FirstOrDefault(p => p.Title == column.Title) ?? throw new KeyNotFoundException("Could not find updated column");
+    var colOptions = updatedColumn.ColOptions["options"]!.AsArray();
+    var id = colOptions.FirstOrDefault(o => o?["title"]?.ToString() == newOptionName)?["id"]?.GetValue<string>() ?? throw new KeyNotFoundException("Could not find newly added option ID");
+
+    return (id, newOptionName);
   }
 }
