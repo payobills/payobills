@@ -6,10 +6,11 @@ public record NocoDBTable
 {
     [JsonPropertyName("id")]
     public required string Id { get; set; }
+
     [JsonPropertyName("title")]
-
     public required string Title { get; set; }
-    [JsonPropertyName("columns")]
 
+    [JsonPropertyName("columns")]
     public IEnumerable<NocoDBTableColumn> Columns { get; set; } = [];
 }
+

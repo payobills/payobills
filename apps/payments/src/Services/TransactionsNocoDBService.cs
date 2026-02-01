@@ -7,12 +7,15 @@ using Payobills.Payments.NocoDB;
 using HotChocolate.Data.Sorting;
 using Payobills.Payments.Services.Contracts.DTOs;
 using Payobills.Payments.RabbitMQ;
+using Microsoft.Extensions.Options;
+using System.Data;
 
 namespace Payobills.Payments.Services;
 
 public class TransactionsNocoDBService : ITransactionsService
 {
     private readonly NocoDBClientService nocoDBClientService;
+    private readonly PayobillsNocoDBOptions nocoDBOptions;
     private readonly IMapper mapper;
     private readonly RabbitMQService rabbitMQService;
 
@@ -20,10 +23,12 @@ public class TransactionsNocoDBService : ITransactionsService
 
     public TransactionsNocoDBService(
         NocoDBClientService nocoDBClientService,
+        IOptions<PayobillsNocoDBOptions> nocoDBOptions,
         RabbitMQService rabbitMQService,
         IMapper mapper)
     {
         this.nocoDBClientService = nocoDBClientService;
+        this.nocoDBOptions = nocoDBOptions.Value;
         this.mapper = mapper;
         this.rabbitMQService = rabbitMQService;
     }
@@ -259,5 +264,27 @@ public class TransactionsNocoDBService : ITransactionsService
             {
                 Id = f.Id.ToString(),
             }) ?? [];
+    }
+
+    public async Task<TransactionTagDTO> AddOrUpdateTransactionTagAsync(TransactionTagAddOrUpdateDTO dto)
+    {
+        // Find out Transaction Table ID
+        var getTablesMetaUrl = $"api/v2/meta/bases/{nocoDBOptions.BaseId}/tables";
+        var tables = await nocoDBClientService.GetMetaResourceDataAsync<NocoDBPage<NocoDBMetaResourceIdWithTitle>>(getTablesMetaUrl);
+        var tableId = tables.List.FirstOrDefault(p => p.Title == "transactions")?.Id ?? throw new System.Collections.Generic.KeyNotFoundException("Could not find table");
+
+        // Get Transaction Table Details to find out Tags column
+        var transactionTableDetailUrl = $"api/v2/meta/tables/{tableId}";
+        var transactionTableDetail = await nocoDBClientService.GetMetaResourceDataAsync<NocoDBTable>(transactionTableDetailUrl);
+
+        // Get transaction Tags column and add new option
+        var tagsColumn = transactionTableDetail.Columns.FirstOrDefault(p => p.Title == "Tags") ?? throw new System.Collections.Generic.KeyNotFoundException("Could not find Tags column");
+        var (TagId, TagTitle) = await nocoDBClientService.UpdateMultiSelectColumnMetadata(tagsColumn, dto.Id, dto.Title);
+
+        return new TransactionTagDTO
+        {
+             Id = TagId,
+             Title  = TagTitle
+        };
     }
 }

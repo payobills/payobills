@@ -90,8 +90,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-nodeSelector:
-  kubernetes.io/hostname: pi
+nodeSelector: {}
 
 tolerations: []
 

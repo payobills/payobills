@@ -15,6 +15,9 @@ public class Mutation
   public async Task<TransactionDTO> TransactionAdd([Service] ITransactionsService transactionsService, TransactionAddDTO input)
     => await transactionsService.AddTransactionAsync(input);
 
-  public async Task<IEnumerable<Payobills.Payments.Services.Contracts.DTOs.File>> TransactionReceiptsSync([Service] ITransactionsService transactionsService, TransactionReceiptsSyncInput input)
+  public async Task<IEnumerable<Contracts.DTOs.File>> TransactionReceiptsSync([Service] ITransactionsService transactionsService, TransactionReceiptsSyncInput input)
     => await transactionsService.SyncTransactionReceiptsAsync(input);
+
+  public async Task<TransactionTagDTO> TransactionTagsAddOrUpdate([Service] ITransactionsService transactionsService, TransactionTagAddOrUpdateDTO input)
+    => await transactionsService.AddOrUpdateTransactionTagAsync(input);
 }
