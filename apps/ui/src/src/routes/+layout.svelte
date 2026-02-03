@@ -127,7 +127,7 @@
   @import "tailwindcss";
 
   @plugin "daisyui" {
-  themes: light --default, dark --prefersdark;
+    themes: dark --default; 
     root: ":root";
     logs: true;
   }
@@ -141,11 +141,6 @@
     --primary-accent-color: #3367d6;
 
     --color-primary: #3367d6;
-
-    /* --primary-color: #a0a0a8;
-    --primary-bg-color: #181818;
-    --secondary-bg-color: #bbbbbb;
-    --primary-accent-color: #696adb; */
   }
 
   .drawer-transparent {
