@@ -16,8 +16,6 @@
   import { nav } from "$lib/stores/nav";
   import { CONSTANTS } from '../constants';
 
-  // import "./app.css";
-
   onMount(async () => {
     nav.update(prev => ({
       ...prev,
@@ -66,7 +64,7 @@
 <Nav />
 
 <!-- <button on:click={randomNotification}>Notification</button> -->
-<main style={`${$nav.isOpen ? "height: calc(100% - 4rem)" : "height: 100%"}`}>
+<main class="bg-base-800" style={`${$nav.isOpen ? "height: calc(100% - 4rem)" : "height: 100%"}`}>
   <slot />
   {#if $uiDrawer.content}
     <button
@@ -126,20 +124,28 @@
   @import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Vibes&display=swap");
   @import url("https://fonts.googleapis.com/css2?family=Vibes&display=swap");
 
-  /* @import "tailwindcss"; */
-  /* @plugin "daisyui"; */
+  @import "tailwindcss";
+
+  @plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+    root: ":root";
+    logs: true;
+  }
+
   :root {
     --color: #9f9f9f;
 
-    /* --primary-color: #181818;
+    --primary-color: #181818;
     --primary-bg-color: #f3f3f3;
     --secondary-bg-color: #bbbbbb;
-    --primary-accent-color: #3367d6; */
+    --primary-accent-color: #3367d6;
 
-    --primary-color: #a0a0a8;
+    --color-primary: #3367d6;
+
+    /* --primary-color: #a0a0a8;
     --primary-bg-color: #181818;
     --secondary-bg-color: #bbbbbb;
-    --primary-accent-color: #696adb;
+    --primary-accent-color: #696adb; */
   }
 
   .drawer-transparent {
@@ -200,7 +206,7 @@
 
   :global(a) {
     font-size: 0.8rem;
-    color: var(--primary-color);
+    color: var(--color-primary);
     font-weight: 400;
   }
 
@@ -217,9 +223,9 @@
     padding: 0;
   }
 
-  :global(body) {
-    background-color: var(--primary-bg-color);
-  }
+  /* :global(body) { */
+    /* background-color: var(--primary-bg-color); */
+  /* } */
 
   :global(#app) {
     display: flex;
@@ -227,7 +233,6 @@
   }
 
   :global(*) {
-    color: #a0a0a8;
     font-family:
       "Figtree",
       "Helvetica Neue",
@@ -245,19 +250,14 @@
   }
 
   :global(button) {
-    border: none;
-    border-radius: 0.25rem;
-    background: var(--primary-accent-color);
-    color: white;
-    text-transform: uppercase;
-    padding: 1rem;
+    background-color: var(--color-primary);
   }
 
   :global(h1) {
     margin: 0.5rem 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: var(--color-primary)
   }
 
   :global(h2) {
@@ -270,7 +270,7 @@
     flex-direction: column;
     overflow-y: scroll;
     align-self: stretch;
-    margin: 1rem;
+    padding: 1rem;
   }
 
   :global(h1, h2, h3, h4, h5, h6) {

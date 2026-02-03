@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Trip } from "./types";
   import Card from '$lib/card.svelte';
+  import IdeaCard from "$lib/idea-card.svelte";
   export let trips: Trip[];
 </script>
 
@@ -8,6 +9,10 @@
 
 <h1>Trips</h1>
 
+
+      <IdeaCard
+        idea={`Going for a trip? Group your transactions together and manage them easily...`}
+      />
 
 {#if trips.length === 0}
   <p>Looks like you haven't created any trips yet. Tag any transaction to a trip so it shows up here...</p>

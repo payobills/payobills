@@ -388,7 +388,6 @@
   }
 
   .container {
-    background-color: var(--primary-bg-color);
     padding-bottom: 0;
     width: 100%;
     max-width: unset;
