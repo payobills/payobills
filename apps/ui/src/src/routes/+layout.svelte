@@ -64,7 +64,7 @@
 <Nav />
 
 <!-- <button on:click={randomNotification}>Notification</button> -->
-<main class="bg-base-800" style={`${$nav.isOpen ? "height: calc(100% - 4rem)" : "height: 100%"}`}>
+<main class="bg-base-100" style={`${$nav.isOpen ? "height: calc(100% - 4rem)" : "height: 100%"}`}>
   <slot />
   {#if $uiDrawer.content}
     <button
