@@ -168,7 +168,7 @@
     font-size: 1.5rem;
     text-align: center;
     border-radius: 4rem;
-    cursor: disabled;
+    cursor: not-allowed;
     transition: background 0.3s ease;
   }
 </style>
