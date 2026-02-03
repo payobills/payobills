@@ -19,16 +19,15 @@
 </script>
 
 <section>
-  <h1>Payobills Lite</h1>
   <div class="content">
-    <h2>bills be gone</h2>
+    <h1>Payobills <span>Lite</span></h1>
     <p class="one-liner">
-      <span>payobills lite</span> is your go to app to be on top of your billing
+      <span>payobills lite</span> is your go-to app to be on top of your billing
       and transaction needs, all without sharing your data with third party services.
       Bring and keep your own data.
     </p>
 
-    <div class="card">
+    <div class="card lg:card-side bg-base-300 shadow-lg">
       <IconButton
         icon={faChartSimple}
         scale={0.75}
@@ -43,13 +42,13 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card lg:card-side bg-base-300 shadow-lg">
       <IconButton
         icon={faBell}
         scale={0.75}
         style={iconStyle(["#61C1C7", "#518EE5"])}
       />
-      <div>
+      <div class="">
         <h3>Reminders</h3>
         <p>
           Get notified about when to pay your bills, so you never miss a due
@@ -58,7 +57,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card lg:card-side bg-base-300 shadow-lg">
       <IconButton
         icon={faListOl}
         scale={0.75}
@@ -73,11 +72,16 @@
       </div>
     </div>
 
-    <button on:click={() => {}}>Coming Soon</button>
+
+  <blockquote class="alert not-italic items-start text-xs leading-loose *:m-0!">
     <p class="one-liner">
       * Payobills is an open source project maintained by <span>Sahu, S</span>
-      in his personal time <br /> ❤️ is appreciated
+      in his personal time ❤️ is appreciated
     </p>
+  </blockquote>
+
+  <button on:click={() => {}}>Coming Soon</button>
+
   </div>
 </section>
 
@@ -117,29 +121,29 @@
   span {
     font-weight: 800;
   }
-  p,
-  h2,
-  h3 {
-    color: #a0a0a8;
+
+  h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
   }
 
-  h2 {
-    font-size: 2.5rem;
-    font-weight: 900;
-    text-align: center;
-    color: white;
-    margin: 1rem;
+  h1 > span {
+    font-weight: 100;
+  }
+
+  p,
+  h3 {
+    color: #a0a0a8;
   }
 
   .card {
     display: flex;
     align-items: center;
     min-height: 8rem;
-    background-color: rgb(59, 59, 59);
     padding: 2rem 2.5rem;
     margin-bottom: 1rem;
-    border-radius: 2rem;
     width: 100%;
+    gap: 2rem;
   }
 
   h3 {
@@ -155,14 +159,16 @@
     font-family: "Figtree";
     font-weight: 900;
     text-transform: unset;
-    background-color: #2a276a;
+    background: linear-gradient(to right, darkgray, gray);
     border: none;
     color: white;
-    margin-top: 2rem;
-    padding: 1rem 3.2rem;
-    font-size: 1rem;
-    border-radius: 2rem;
-    cursor: pointer;
+    margin: 1rem 0;
+    margin-top: 4rem;
+    padding: 1rem 10rem;
+    font-size: 1.5rem;
+    text-align: center;
+    border-radius: 4rem;
+    cursor: not-allowed;
     transition: background 0.3s ease;
   }
 </style>

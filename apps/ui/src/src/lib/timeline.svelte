@@ -82,9 +82,6 @@
     />
 
 
-      <IdeaCard
-        idea={`Going for a trip? Group your transactions together and manage them easily...`}
-      />
 
     <Trips {trips} />
   </div>

@@ -67,6 +67,6 @@
   .item-title {
     font-size: 0.75rem;
     margin: 2rem 0;
-    color: var(--primary-color);
+    color: var(--color-primary);
   }
 </style>

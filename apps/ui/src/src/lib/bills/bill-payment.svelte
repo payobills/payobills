@@ -221,6 +221,7 @@
   button {
     margin: 0.5rem;
     padding: 0.5rem;
+    background-color: var(--color-primary);
   }
 
   .due-status {

@@ -36,13 +36,13 @@
 
 <section>
   <h1>Payobills</h1>
-  <!-- <h2>bills be gone</h2> -->
+  
   <p class="one-liner">
-    <span>payobills</span> is your go to app for all billing and transaction needs,
+    <span>payobills</span> is your go-to app for all billing and transaction needs,
     all without sharing your data with third parties
   </p>
 
-  <div class="card">
+  <div class="card lg:card-side bg-base-300 shadow-lg">
     <IconButton
       icon={faChartSimple}
       scale={0.75}
@@ -57,7 +57,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card lg:card-side bg-base-300 shadow-lg">
     <IconButton
       icon={faBell}
       scale={0.75}
@@ -71,7 +71,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card lg:card-side bg-base-300 shadow-lg">
     <IconButton
       icon={faListOl}
       scale={0.75}
@@ -86,7 +86,16 @@
     </div>
   </div>
 
-  <a
+
+
+  <blockquote class="alert not-italic items-start text-xs leading-loose *:m-0!">
+  <p>
+    Payobills is an open source project maintained by <span>Sahu, S</span> in his
+    personal time. ❤️ is appreciated
+  </p>
+  </blockquote>
+
+    <a
     class="login-link"
     href={$envStore?.INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE
       ?.replace("${INJECTED_OWN_URL}", $envStore?.INJECTED_OWN_URL)
@@ -98,11 +107,6 @@
         )
       )}>Login</a
   >
-
-  <p class="one-liner">
-    Payobills is an open source project maintained by <span>Sahu, S</span> in his
-    personal time. ❤️ is appreciated
-  </p>
 </section>
 
 <style>
@@ -126,7 +130,6 @@
   }
 
   p,
-  h2,
   h3 {
     color: #a0a0a8;
   }
@@ -135,7 +138,6 @@
     font-size: 3.5rem;
     font-weight: 900;
     text-align: center;
-    color: var(--primary-accent-color);
     margin: 1rem;
     margin-bottom: 4rem;
   }
@@ -144,10 +146,9 @@
     display: flex;
     align-items: center;
     min-height: 8rem;
-    background-color: rgb(59, 59, 59);
     padding: 2rem 2.5rem;
     margin-bottom: 1rem;
-    border-radius: 2rem;
+    gap: 2rem;
   }
 
   h3 {
@@ -157,24 +158,21 @@
     margin: 0;
   }
 
-  button,
   .login-link {
     align-self: center;
     width: auto;
-
-    /* button with gradient from 696ADB to 633CBD from left to right */
-    /* background:  */
     font-family: "Figtree";
     font-weight: 900;
     text-transform: unset;
-    background: linear-gradient(to right, #696adb, #633cbd);
+    background: linear-gradient(to right, var(--color-primary), #633cbd);
     border: none;
     color: white;
     margin: 1rem 0;
     margin-top: 4rem;
     padding: 1rem 10rem;
     font-size: 1.5rem;
-    border-radius: 1.5rem;
+    text-align: center;
+    border-radius: 4rem;
     cursor: pointer;
     transition: background 0.3s ease;
   }
