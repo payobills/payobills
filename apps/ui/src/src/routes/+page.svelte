@@ -38,7 +38,7 @@
   <h1>Payobills</h1>
   
   <p class="one-liner">
-    <span>payobills</span> is your go to app for all billing and transaction needs,
+    <span>payobills</span> is your go-to app for all billing and transaction needs,
     all without sharing your data with third parties
   </p>
 
@@ -130,7 +130,6 @@
   }
 
   p,
-  h2,
   h3 {
     color: #a0a0a8;
   }
