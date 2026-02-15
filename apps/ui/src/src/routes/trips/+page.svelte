@@ -62,3 +62,9 @@
       transactions={$transactionsForTripQuery?.data?.transactions?.nodes ?? []}
     />
 </section>
+
+<style>
+  section {
+    padding: 1rem;
+  }
+</style>

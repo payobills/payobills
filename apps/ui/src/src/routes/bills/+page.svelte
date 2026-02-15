@@ -320,7 +320,7 @@
   }
 </script>
 
-<Card>
+<section>
   <div class="content">
     {#if $billByIdQuery === null || $billByIdQuery?.fetching}
       <p>Loading...</p>
@@ -329,11 +329,8 @@
     {:else if $billByIdQuery?.data}
       <h1>{$billByIdQuery?.data.billById.name}</h1>
 
-      <!-- {#if $billByIdQuery.data.billById.payments.length == 0}
-        <p>we don't see any payments made for this bill. 😞</p>
-      {:else} -->
       <div use:chart></div>
-      <h2>past payments</h2>
+      <h2>Past Payments</h2>
       {#each $billByIdQuery.data.billById.payments as payment}
         <p class="payment">
           {#if payment.amount}
@@ -378,11 +375,14 @@
       </div>
     {/if}
   </div>
-</Card>
+</section>
 
 <style>
+  section {
+    padding: 1rem;
+  }
+
   h1 {
-    color: var(--primary-color);
     font-size: 1.2rem;
     font-weight: 600;
   }

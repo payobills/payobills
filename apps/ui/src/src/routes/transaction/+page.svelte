@@ -293,7 +293,7 @@
   };
 </script>
 
-<div class="container">
+<section class="container">
   {#if ($transactionsQuery === undefined || $transactionsQuery.fetching) && !transaction}
     <p>Loading...</p>
   {:else if $transactionsQuery.error}
@@ -316,12 +316,9 @@
 
             <IconButton
               icon={faEdit}
-              backgroundColor="var(--primary-bg-color)"
-              color="var(--primary-color)"
               scale={1.5}
               style={'padding: 0'}
               on:click={() => { pageMode = "EDIT"; }}
-
             />
           </div>
           <div class="transaction-detail">
@@ -515,15 +512,19 @@
           <button
             class="submit cta--cancel"
             bind:this={cancelCtaButton}
-            on:click={() => (pageMode = "VIEW")}>cancel</button
+            on:click={() => (pageMode = "VIEW")}>Cancel</button
           >
         </section>
       {/if}
     </div>
   {/if}
-</div>
+</section>
 
 <style>
+  .container {
+    padding: 1rem;
+  }
+
   .submit {
     margin-top: 1rem;
   }
@@ -543,8 +544,9 @@
   }
 
   input {
-    background-color: #e2e2e2;
+    background-color: #0000007f;
     border: none;
+    border-radius: .5rem;
   }
 
   .note {
@@ -556,12 +558,6 @@
     flex-grow: 1;
     border: none;
     font-family: "Courier New", Courier, monospace;
-  }
-  .note__edit {
-    background-color: #e2e2e2;
-  }
-  .note__view {
-    background-color: var(--primary-bg-color);
   }
 
   .content {
@@ -604,7 +600,6 @@
   }
 
   .title {
-    background-color: var(--primary-bg-color);
     margin-bottom: 1rem;
   }
 
@@ -663,7 +658,4 @@
     padding: 0;
   }
 
-  div.container {
-    padding: 1rem;
-  }
 </style>
