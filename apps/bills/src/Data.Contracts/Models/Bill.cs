@@ -10,6 +10,7 @@ public class Bill
     public int? PayByDate { get; set; }
     public int? LatePayByDate { get; set; }
     public bool IsEnabled { get; set; } = false;
+    public string BillingPeriod { get; set; }
     public List<BillPayment> Payments { get; set; } = new();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
