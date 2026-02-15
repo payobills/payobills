@@ -186,6 +186,7 @@
   }
 </script>
 
+<section>
   {#if $billsQuery.fetching || $billStatsQuery.fetching || $transactionsQuery.fetching}
     <p>Loading...</p>
   {:else if $billsQuery.error || $billStatsQuery.error || $transactionsQuery.error}
@@ -202,8 +203,13 @@
       {onCurrentBillStatementDoesNotExist}
     />
   {/if}
+</section>
 
 <style>
+  section {
+    padding: 1rem;
+  }
+
   p {
     margin: 0;
   }

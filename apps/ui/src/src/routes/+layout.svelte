@@ -144,7 +144,7 @@
   }
 
   .drawer-transparent {
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.45);
     position: absolute;
     top: 0;
     width: 100%;
@@ -171,9 +171,9 @@
   }
 
   .drawer-container {
+    background-color: rgba(0, 0, 0, 0.75);
     position: absolute;
     bottom: 0;
-    background-color: var(--primary-bg-color);
     box-shadow: 0px 4px 16px black;
     width: calc(100%);
     height: 70%;
@@ -246,6 +246,7 @@
 
   :global(button) {
     background-color: var(--color-primary);
+    text-transform: uppercase;
   }
 
   :global(h1) {
@@ -265,7 +266,7 @@
     flex-direction: column;
     overflow-y: scroll;
     align-self: stretch;
-    padding: 1rem;
+    /* padding: 1rem; */
   }
 
   :global(h1, h2, h3, h4, h5, h6) {

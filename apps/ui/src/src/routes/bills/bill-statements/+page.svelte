@@ -183,7 +183,7 @@
   };
 </script>
 
-<Card>
+<section>
   <div class="content">
     {#if $billStatementsQuery.fetching}
       <p>Loading...</p>
@@ -291,12 +291,12 @@
         {/if}
       </div>
   </div>
-</Card>
+</section>
 
 <style>
+  section { padding: 1rem; }
   h1,
   a {
-    color: var(--primary-color);
     font-size: 1.2rem;
     font-weight: 600;
   }
