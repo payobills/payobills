@@ -30,11 +30,6 @@
   let showTransactionTagsEdit = false;
 
   $: availableTags = ($transactionsQuery?.data?.transactionTags || []).filter((t: TransactionTag) => !$transactionForm?.data?.tags?.find(p => p.title === t.title)); 
-  // $: {
-  //   console.log('all', $transactionsQuery?.data?.transactionTags)
-  //   console.log('availableTags', availableTags)
-  //   console.log('for this transaction', $transactionForm?.data?.tags)
-  // }
 
   const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
     return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
@@ -241,7 +236,7 @@
           updatedReceipts: undefined,
           tags: undefined
         },
-        tags: $transactionForm.data.tags.map((t: TransactionTag) => t.title).join(",")
+        tags: ($transactionForm.data.tags || []).map((t: TransactionTag) => t.title).join(",")
       },
       query: gql`
         mutation TransactionUpdate(
