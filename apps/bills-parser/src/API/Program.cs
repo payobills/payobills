@@ -62,6 +62,14 @@ class Program
           });
           Console.WriteLine($"Received: {messageString}");
 
+          if (message.Args["type"] !== "BILL_STATEMENT")
+          {
+            Console.WriteLine($"[ID:{message.Args["id"]}] Ignoring message due to type mismatch.");
+            Console.WriteLine("=============== Finished message consumption ===============");
+            channel.BasicAck(eventArgs.DeliveryTag, true);
+            return;
+          }
+
           var fileRecord = await nocodb.GetRecordByIdAsync<NocoDBFile>(message.Args["id"], nocoDbBaseName, "files", "*")
               ?? throw new Exception("NocoDBFile not found");
 
