@@ -179,7 +179,7 @@
     : null;
 
   const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
-    return `${($envStore?.filesBaseUrl ? [$envStore.filesBaseUrl, url] : [url]).join("")}`;
+    return `${($envStore?.INJECTED_FILES_BASE_URL ? [$envStore.INJECTED_FILES_BASE_URL, url] : [url]).join("")}`;
   };
 </script>
 

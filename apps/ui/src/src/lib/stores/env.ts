@@ -20,6 +20,7 @@ export const tryLoadEnv = async (): Promise<boolean> => {
 }
 
 export type EnvStore = {
+    INJECTED_FILES_BASE_URL: string
     INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE: string
     INJECTED_OWN_URL: string
     INJECTED_OIDC_TENANT_URL: string
