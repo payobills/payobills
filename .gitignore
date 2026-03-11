@@ -12,3 +12,7 @@ plz-out
 
 # Ignore git worktree folder
 /w
+
+# ignore ThePrimeagen/99 files
+/tmp
+
