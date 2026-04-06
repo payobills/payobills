@@ -4,11 +4,11 @@ Ready-to-use prompts for the Payobills agent.
 
 ## Rules for all prompts
 
-Every prompt must instruct the agent to:
+Prompts should construct direct GraphQL queries/mutations for the gateway endpoint:
 
-1. **Always call `introspect_gateway()` first** — never assume the schema. Use the introspection result to discover the exact query names, argument names, and types before constructing any GraphQL operation.
-2. Use `graphql_request(query, variables)` to execute operations.
-3. Never hardcode field names or argument shapes — derive them from the introspection result.
+1. Start with a standard GraphQL introspection query: `query IntrospectionQuery { __schema { ... } }`
+2. Use direct POST requests to `$GATEWAY_URL/graphql` with JSON payloads.
+3. Never hardcode field names — derive them from introspection results.
 
 ## Available prompts
 

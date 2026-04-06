@@ -11,21 +11,31 @@ The gateway is a GraphQL Hive supergraph composed of the following subgraphs:
 
 GraphQL endpoint: `$GATEWAY_URL/graphql`
 
-## Tools required in OpenWebUI
+## Direct GraphQL API Access
 
-Two tools must be configured:
+Direct GraphQL API calls to `$GATEWAY_URL/graphql` are the ONLY supported method. 
 
-### `introspect_gateway()`
-- Makes an introspection query to `$GATEWAY_URL`
-- Returns the full schema — available queries, mutations, types, and arguments
-- **Must be called before any other gateway call** to understand the schema
+### GET Method Example
 
-### `graphql_request(query, variables?)`
-- Executes any GraphQL query or mutation against `$GATEWAY_URL`
-- `query`: GraphQL operation string
-- `variables`: optional dict of variables
+A standard practice is to use GET with the query encoded in the URL:
 
-Both tools read `GATEWAY_URL` from the environment. No auth is required — the gateway is VPN-protected.
+```
+GET https://placeholder-gateway.example.com/graphql?query=query%20GetBills%20%7B%20billList%20%7B%20id%20name%20amount%20dueDate%20paid%20category%20%7D%20%7D
+```
+
+### Alternative POST Method
+
+Or use POST with JSON body:
+
+```json
+POST https://placeholder-gateway.example.com/graphql
+Content-Type: application/json
+{
+  "query": "{ billList { id name amount dueDate paid category }}"
+}
+```
+
+No authentication is required — the gateway is VPN-protected.
 
 ## Prompts
 
