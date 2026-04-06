@@ -16,3 +16,5 @@ plz-out
 # ignore ThePrimeagen/99 files
 /tmp
 
+.DS_Store
+
