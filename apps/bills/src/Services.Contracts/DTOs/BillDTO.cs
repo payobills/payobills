@@ -13,6 +13,7 @@ public class BillDTO
     public int? LatePayByDate { get; set; }
     public List<PaymentDTO> Payments { get; set; } = [];
     public bool IsEnabled { get; set; } = false;
+    public string? PrimaryType { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

@@ -6,4 +6,5 @@ public class CreateBillDTO
     public int? BillingDate { get; set; }
     public int? PayByDate { get; set; }
     public int? LatePayByDate { get; set; }
+    public string? PrimaryType { get; set; }
 }
