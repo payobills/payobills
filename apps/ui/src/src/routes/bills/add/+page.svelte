@@ -1,36 +1,31 @@
 <script lang="ts">
-  import Card from "$lib/card.svelte";
-  import { faCancel, faEllipsis } from "@fortawesome/free-solid-svg-icons";
-  import {billsUrql} from '$lib/stores/urql'
-  import IconButton from "$lib/icon-button.svelte";
-  import {
-    queryStore,
-    gql,
-    getContextClient,
-    mutationStore,
-  } from "@urql/svelte";
+import Card from "$lib/card.svelte";
+import { faCancel, faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import { billsUrql } from "$lib/stores/urql";
+import IconButton from "$lib/icon-button.svelte";
+import { queryStore, gql, getContextClient, mutationStore } from "@urql/svelte";
 
-  import { goto, afterNavigate } from "$app/navigation";
-    import { onMount } from "svelte";
-    import { nav } from "$lib/stores/nav";
-  // import { base } from "$app/paths";
+import { goto, afterNavigate } from "$app/navigation";
+import { onMount } from "svelte";
+import { nav } from "$lib/stores/nav";
+// import { base } from "$app/paths";
 
-  // let previousPage: string = base;
+// let previousPage: string = base;
 
-  // afterNavigate(({ from }) => {
-  //   previousPage = from?.url.pathname || "/";
-  // });
+// afterNavigate(({ from }) => {
+//   previousPage = from?.url.pathname || "/";
+// });
 
-  let billingDate: number, payByDate: number, name: string;
+let billingDate: number, payByDate: number, name: string;
 
-  onMount(() => {
-    nav.update(prev => ({ ...prev, isOpen: true }))
-    })
+onMount(() => {
+  nav.update((prev) => ({ ...prev, isOpen: true }));
+});
 
-  const addBill = () => {
-    let client;
-    try{
-      $billsUrql
+const addBill = () => {
+  let client;
+  try {
+    $billsUrql
       .mutation(
         gql`
           mutation ($name: String!, $payByDate: Int!, $billingDate: Int!) {
@@ -52,18 +47,16 @@
             }
           }
         `,
-        { name, payByDate, billingDate }
+        { name, payByDate, billingDate },
       )
       .toPromise()
       .then(() => {
         goto("/");
       });
-    }
-    catch(error) {
-      console.error("couldn't get client", error);
-    }
-    
-  };
+  } catch (error) {
+    console.error("couldn't get client", error);
+  }
+};
 </script>
 
 <Card title="add bill">

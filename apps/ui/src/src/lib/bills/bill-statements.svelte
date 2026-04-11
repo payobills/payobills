@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { BillDTO } from '$lib/types';
-  export let bill: BillDTO;
-  export let statements: any[];
+import type { BillDTO } from "$lib/types";
+export let bill: BillDTO;
+export let statements: any[];
 </script>
 
 <h2>Bill Statements</h2>

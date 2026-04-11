@@ -1,57 +1,57 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
-  import type { Trip } from '$types';
-  import PaymentTimelinePill from "./payment-timeline-pill.svelte";
-  import IdeaCard from "./idea-card.svelte";
-  import RecentTransactions from "./recent-transactions.svelte";
-  import BillPayment from "./bills/bill-payment.svelte";
-  import Trips from '$lib/trips.svelte';
-  export let title: string = "";
-  export let items: any[] = [];
-  export let trips: Trip[];
-  export let stats: any = {};
-  export let transactions: any[] = [];
-  export let billingStatements: any;
-  export let onRecordingPayment: any;
-  export let onTransactionSearch: any;
-  export let onCurrentBillStatementDoesNotExist: any;
+import { goto } from "$app/navigation";
+import { onMount } from "svelte";
+import type { Trip } from "$types";
+import PaymentTimelinePill from "./payment-timeline-pill.svelte";
+import IdeaCard from "./idea-card.svelte";
+import RecentTransactions from "./recent-transactions.svelte";
+import BillPayment from "./bills/bill-payment.svelte";
+import Trips from "$lib/trips.svelte";
+export let title: string = "";
+export let items: any[] = [];
+export let trips: Trip[];
+export let stats: any = {};
+export let transactions: any[] = [];
+export let billingStatements: any;
+export let onRecordingPayment: any;
+export let onTransactionSearch: any;
+export let onCurrentBillStatementDoesNotExist: any;
 
-  let lastDay = 31;
-  let fullPaymentDates: any[] = [];
-  let month = "";
+let lastDay = 31;
+let fullPaymentDates: any[] = [];
+let month = "";
 
-  $: filteredItems = items.toSorted((p: any, q: any) => {
-    if(!p.isEnabled) return Number.POSITIVE_INFINITY;
-    if(!q.isEnabled) return Number.NEGATIVE_INFINITY;
+$: filteredItems = items.toSorted((p: any, q: any) => {
+  if (!p.isEnabled) return Number.POSITIVE_INFINITY;
+  if (!q.isEnabled) return Number.NEGATIVE_INFINITY;
 
-    if (
-      p.billingDate == null &&
-      p.payByDate == null &&
-      q.billingDate == null &&
-      q.payByDate == null
-    )
-      return -1;
+  if (
+    p.billingDate == null &&
+    p.payByDate == null &&
+    q.billingDate == null &&
+    q.payByDate == null
+  )
+    return -1;
 
-    return p.name.localeCompare(q.name);
-  });
+  return p.name.localeCompare(q.name);
+});
 
-  onMount(() => {
-    let lastDateOfMonth = new Date(
-      new Date().getUTCFullYear(),
-      new Date().getUTCMonth() + 1,
-      0
-    );
-    lastDay = lastDateOfMonth.getDate();
-    month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
-      lastDateOfMonth
-    );
-    if (title === "") title = `Timeline view for ${month}`;
-  
-    fullPaymentDates = Array.isArray(stats?.stats) ? stats?.stats?.filter(
-      (p: any) => p.type === "FULL_PAYMENT_DATES"
-    ) : [];
-  });
+onMount(() => {
+  let lastDateOfMonth = new Date(
+    new Date().getUTCFullYear(),
+    new Date().getUTCMonth() + 1,
+    0,
+  );
+  lastDay = lastDateOfMonth.getDate();
+  month = Intl.DateTimeFormat(undefined, { month: "long" }).format(
+    lastDateOfMonth,
+  );
+  if (title === "") title = `Timeline view for ${month}`;
+
+  fullPaymentDates = Array.isArray(stats?.stats)
+    ? stats?.stats?.filter((p: any) => p.type === "FULL_PAYMENT_DATES")
+    : [];
+});
 </script>
 
 <!-- <div class="timeline"> -->
@@ -99,7 +99,7 @@
     {/if}
 
     <div class="items bill-payments">
-      {#each filteredItems.filter((p) => p.payByDate !== null) as item}
+      {#each filteredItems.filter((p) => p.payByDate !== null && p.isEnabled) as item}
         <BillPayment
           bill={item}
           billingStatements={billingStatements?.[

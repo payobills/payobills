@@ -1,18 +1,18 @@
 {
-    "short_name": "payobills",
-    "name": "payobills",
-    "start_url": "/",
-    "icons": [
-      {
-        "src": "favicon.png",
-        "type": "image/png",
-        "sizes": "512x512"
-      }
-    ],
-    "background_color": "#696adb",
-    "display": "standalone",
-    "scope": "/",
-    "theme_color": "#696adb",
-    "shortcuts": [],
-    "description": "pay your bills on time"
+  "short_name": "payobills",
+  "name": "payobills",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "background_color": "#696adb",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#696adb",
+  "shortcuts": [],
+  "description": "pay your bills on time"
 }

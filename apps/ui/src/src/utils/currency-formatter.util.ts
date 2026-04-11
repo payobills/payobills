@@ -1,3 +1,3 @@
 export const currencyFormatter = (value: number) => {
-    return `₹ ${value}`;
-}
+	return `₹ ${value}`;
+};

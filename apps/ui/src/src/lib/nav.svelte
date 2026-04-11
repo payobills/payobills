@@ -1,6 +1,6 @@
 <script>
-  import { goto } from "$app/navigation";
-  import { nav } from '$lib/stores/nav'
+import { goto } from "$app/navigation";
+import { nav } from "$lib/stores/nav";
 </script>
 
 {#if $nav.isOpen}

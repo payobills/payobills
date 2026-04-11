@@ -1,13 +1,13 @@
 <script lang="ts">
-  import Icon from "svelte-awesome";
-  import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
-  import { onMount } from "svelte";
+import Icon from "svelte-awesome";
+import type { IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import { onMount } from "svelte";
 
-  export let icon: IconDefinition;
-  export let backgroundColor: string = "transparent";
-  export let color: string = "white";
-  export let scale = 1.5;
-  export let style = "";
+export let icon: IconDefinition;
+export let backgroundColor: string = "transparent";
+export let color: string = "white";
+export let scale = 1.5;
+export let style = "";
 </script>
 
 <!-- Ref: https://fontawesome.com/search?ip=classic&s=solid&o=r -->
