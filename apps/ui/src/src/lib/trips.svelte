@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { Trip } from "./types";
-  import Card from '$lib/card.svelte';
-  import IdeaCard from "$lib/idea-card.svelte";
-  export let trips: Trip[];
+import type { Trip } from "./types";
+import Card from "$lib/card.svelte";
+import IdeaCard from "$lib/idea-card.svelte";
+export let trips: Trip[];
 </script>
 
 {#if trips}

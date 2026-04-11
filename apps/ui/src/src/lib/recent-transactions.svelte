@@ -1,242 +1,242 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { formatRelativeDate } from "../utils/format-relative-date";
-  import dayjs from "dayjs";
+import { onMount } from "svelte";
+import { formatRelativeDate } from "../utils/format-relative-date";
+import dayjs from "dayjs";
 
-  export let transactions: any[] = [];
-  $: filteredTransactions = transactions
-    .reduce((agg: any[], currTransaction) => {
-      let duplicateTransaction = agg.findIndex(
-        (p) => p.id === currTransaction.id,
-      );
-      if (duplicateTransaction === -1) {
-        return [...agg, currTransaction];
-      }
-
-      return agg;
-    }, [])
-    .filter((p) => p.paidAt);
-
-  $: transactionsGroupedByDateAndMonth =
-    groupTransactionByDate && filteredTransactions
-      ? filteredTransactions.reduce((agg: any[], transaction) => {
-          let currKey: string = new Intl.DateTimeFormat("en-CA", {
-            month: "long",
-            day: "numeric",
-          }).format(new Date(transaction.paidAt));
-
-          if (!agg[currKey]) agg[currKey] = [];
-          agg[currKey] = [...agg[currKey], transaction];
-          return agg;
-        }, {})
-      : undefined;
-
-  $: todaysDate = new Intl.DateTimeFormat("en-CA").format(new Date());
-
-  $: todaysSpend = filteredTransactions
-    .filter(
-      (p) =>
-        new Intl.DateTimeFormat("en-CA").format(new Date(p.paidAt)) ===
-        todaysDate,
-    )
-    .reduce((acc, curr) => acc + curr.amount, 0);
-
-  export let showViewAllCTA = true;
-  export let showAllTransactions = false;
-  export let showRecentSpends = false;
-  export let showGraph = false;
-  export let showTotalSpend = true;
-  export let title: string | undefined = undefined;
-  export let totalSpend = 0;
-  export let initialShowCount = 5;
-  export let groupTransactionByDate = true;
-  export let viewType: "monthly" | "all" = "monthly";
-
-  $: ApexCharts = undefined;
-  $: totalSpend = filteredTransactions.reduce(
-    (acc: number, p: any) => acc + p.amount,
-    0,
-  );
-
-  onMount(async () => {
-    if ((window as any).ApexCharts) {
-      ApexCharts = (window as any).ApexCharts;
-      return;
+export let transactions: any[] = [];
+$: filteredTransactions = transactions
+  .reduce((agg: any[], currTransaction) => {
+    let duplicateTransaction = agg.findIndex(
+      (p) => p.id === currTransaction.id,
+    );
+    if (duplicateTransaction === -1) {
+      return [...agg, currTransaction];
     }
 
-    await load();
+    return agg;
+  }, [])
+  .filter((p) => p.paidAt);
+
+$: transactionsGroupedByDateAndMonth =
+  groupTransactionByDate && filteredTransactions
+    ? filteredTransactions.reduce((agg: any[], transaction) => {
+        let currKey: string = new Intl.DateTimeFormat("en-CA", {
+          month: "long",
+          day: "numeric",
+        }).format(new Date(transaction.paidAt));
+
+        if (!agg[currKey]) agg[currKey] = [];
+        agg[currKey] = [...agg[currKey], transaction];
+        return agg;
+      }, {})
+    : undefined;
+
+$: todaysDate = new Intl.DateTimeFormat("en-CA").format(new Date());
+
+$: todaysSpend = filteredTransactions
+  .filter(
+    (p) =>
+      new Intl.DateTimeFormat("en-CA").format(new Date(p.paidAt)) ===
+      todaysDate,
+  )
+  .reduce((acc, curr) => acc + curr.amount, 0);
+
+export let showViewAllCTA = true;
+export let showAllTransactions = false;
+export let showRecentSpends = false;
+export let showGraph = false;
+export let showTotalSpend = true;
+export let title: string | undefined = undefined;
+export let totalSpend = 0;
+export let initialShowCount = 5;
+export let groupTransactionByDate = true;
+export let viewType: "monthly" | "all" = "monthly";
+
+$: ApexCharts = undefined;
+$: totalSpend = filteredTransactions.reduce(
+  (acc: number, p: any) => acc + p.amount,
+  0,
+);
+
+onMount(async () => {
+  if ((window as any).ApexCharts) {
+    ApexCharts = (window as any).ApexCharts;
+    return;
+  }
+
+  await load();
+});
+
+const load = async () => {
+  const module = await import("apexcharts");
+  (window as any).ApexCharts = module.default;
+  ApexCharts = module.default as any;
+};
+
+const chart = (node: any, transactions: any[]) => {
+  if (!ApexCharts) return;
+
+  if (transactions.length > 0 && viewType === "monthly") {
+    // from 1 to last day of the month of the first transaction, add 0s for missing days
+    let firstTransactionDate = new Date(filteredTransactions[0].paidAt);
+    let lastDateOfMonth = new Date(
+      firstTransactionDate.getUTCFullYear(),
+      firstTransactionDate.getUTCMonth() + 1,
+      0,
+    );
+    let lastDay = lastDateOfMonth.getDate();
+    for (let i = 1; i <= lastDay; i++) {
+      let date = new Date(
+        firstTransactionDate.getUTCFullYear(),
+        firstTransactionDate.getUTCMonth(),
+        i,
+      );
+
+      if (
+        !filteredTransactions.find(
+          (p: any) =>
+            new Date(p.paidAt).getDate() === date.getDate() &&
+            new Date(p.paidAt).getMonth() === date.getMonth() &&
+            new Date(p.paidAt).getFullYear() === date.getFullYear(),
+        )
+      ) {
+        filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
+      }
+    }
+  } else if (filteredTransactions.length > 0 && viewType === "all") {
+    // loop over the transactions and find the oldest and newest date in O(n)
+    let oldestDate: Date | null = null;
+    let newestDate: Date | null = null;
+    for (var t of transactions) {
+      let paidAt = new Date(t.paidAt);
+      if (!oldestDate || paidAt < oldestDate) {
+        oldestDate = paidAt;
+      }
+      if (!newestDate || paidAt > newestDate) {
+        newestDate = paidAt;
+      }
+    }
+
+    let oldestDateDayJS = dayjs(oldestDate);
+    let newestDateDayJS = dayjs(newestDate);
+    console.table({ oldestDateDayJS, newestDateDayJS });
+    for (
+      let d = oldestDateDayJS;
+      d.isBefore(newestDateDayJS) || d.isSame(newestDateDayJS);
+      d = d.add(1, "day")
+    ) {
+      let date = d;
+
+      if (
+        !filteredTransactions.find(
+          (p: any) =>
+            new Date(p.paidAt).getDate() === date.date() &&
+            new Date(p.paidAt).getMonth() === date.month() &&
+            new Date(p.paidAt).getFullYear() === date.year(),
+        )
+      ) {
+        filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
+      }
+    }
+  }
+
+  let allData = filteredTransactions.map((p: any) => {
+    return {
+      x:
+        viewType === "all"
+          ? `${Intl.DateTimeFormat("en-CA", { month: "long" }).format(new Date(p.paidAt))} ${new Date(p.paidAt).getDate()}`
+          : new Date(p.paidAt).getDate(),
+      y: p.amount,
+      note: `${p.amount}`,
+    };
   });
 
-  const load = async () => {
-    const module = await import("apexcharts");
-    (window as any).ApexCharts = module.default;
-    ApexCharts = module.default as any;
-  };
+  let data = allData.reduce(
+    (accumulator: any[], current: any, index: number) => {
+      if (index == 0) return [current];
 
-  const chart = (node: any, transactions: any[]) => {
-    if (!ApexCharts) return;
-
-    if (transactions.length > 0 && viewType === "monthly") {
-      // from 1 to last day of the month of the first transaction, add 0s for missing days
-      let firstTransactionDate = new Date(filteredTransactions[0].paidAt);
-      let lastDateOfMonth = new Date(
-        firstTransactionDate.getUTCFullYear(),
-        firstTransactionDate.getUTCMonth() + 1,
-        0,
-      );
-      let lastDay = lastDateOfMonth.getDate();
-      for (let i = 1; i <= lastDay; i++) {
-        let date = new Date(
-          firstTransactionDate.getUTCFullYear(),
-          firstTransactionDate.getUTCMonth(),
-          i,
-        );
-
-        if (
-          !filteredTransactions.find(
-            (p: any) =>
-              new Date(p.paidAt).getDate() === date.getDate() &&
-              new Date(p.paidAt).getMonth() === date.getMonth() &&
-              new Date(p.paidAt).getFullYear() === date.getFullYear(),
-          )
-        ) {
-          filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
-        }
-      }
-    } else if (filteredTransactions.length > 0 && viewType === "all") {
-      // loop over the transactions and find the oldest and newest date in O(n)
-      let oldestDate: Date | null = null;
-      let newestDate: Date | null = null;
-      for (var t of transactions) {
-        let paidAt = new Date(t.paidAt);
-        if (!oldestDate || paidAt < oldestDate) {
-          oldestDate = paidAt;
-        }
-        if (!newestDate || paidAt > newestDate) {
-          newestDate = paidAt;
-        }
-      }
-
-      let oldestDateDayJS = dayjs(oldestDate);
-      let newestDateDayJS = dayjs(newestDate);
-      console.table({ oldestDateDayJS, newestDateDayJS });
-      for (
-        let d = oldestDateDayJS;
-        d.isBefore(newestDateDayJS) || d.isSame(newestDateDayJS);
-        d = d.add(1, "day")
-      ) {
-        let date = d;
-
-        if (
-          !filteredTransactions.find(
-            (p: any) =>
-              new Date(p.paidAt).getDate() === date.date() &&
-              new Date(p.paidAt).getMonth() === date.month() &&
-              new Date(p.paidAt).getFullYear() === date.year(),
-          )
-        ) {
-          filteredTransactions.push({ paidAt: date.toISOString(), amount: 0 });
-        }
-      }
-    }
-
-    let allData = filteredTransactions.map((p: any) => {
-      return {
-        x:
-          viewType === "all"
-            ? `${Intl.DateTimeFormat("en-CA", { month: "long" }).format(new Date(p.paidAt))} ${new Date(p.paidAt).getDate()}`
-            : new Date(p.paidAt).getDate(),
-        y: p.amount,
-        note: `${p.amount}`,
-      };
-    });
-
-    let data = allData.reduce(
-      (accumulator: any[], current: any, index: number) => {
-        if (index == 0) return [current];
-
-        if (current.x == accumulator[accumulator.length - 1].x) {
-          let last = accumulator[accumulator.length - 1];
-          return [
-            ...accumulator.slice(0, -1),
-            {
-              y: last.y + current.y,
-              x: last.x,
-              note: `${last.note} - + ${current.y}`,
-            },
-          ];
-        }
-
+      if (current.x == accumulator[accumulator.length - 1].x) {
+        let last = accumulator[accumulator.length - 1];
         return [
-          ...accumulator,
+          ...accumulator.slice(0, -1),
           {
-            x: current.x,
-            y: current.y,
-            note: current.note,
+            y: last.y + current.y,
+            x: last.x,
+            note: `${last.note} - + ${current.y}`,
           },
         ];
+      }
+
+      return [
+        ...accumulator,
+        {
+          x: current.x,
+          y: current.y,
+          note: current.note,
+        },
+      ];
+    },
+    [],
+  );
+
+  data.sort((a: any, b: any) => {
+    return a.x - b.x;
+  });
+
+  let options: any = {
+    colors: ["var(--primary-color)"],
+    legend: {
+      show: false,
+    },
+    stroke: {
+      curve: "smooth",
+      width: 2,
+    },
+    chart: {
+      type: "area",
+    },
+    series: [
+      {
+        name: "payments",
+        data: data.map((p: any) => p.y),
       },
-      [],
-    );
-
-    data.sort((a: any, b: any) => {
-      return a.x - b.x;
-    });
-
-    let options: any = {
-      colors: ["var(--primary-color)"],
-      legend: {
+    ],
+    xaxis: {
+      categories: data.map((p: any) => p.x),
+      labels: { show: true },
+    },
+    yaxis: {
+      labels: {
         show: false,
       },
-      stroke: {
-        curve: "smooth",
-        width: 2,
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        colors: ["#5e5e5e"],
       },
-      chart: {
-        type: "area",
+      formatter: (value: number) => {
+        return value === 0
+          ? undefined
+          : `₹ ${Intl.NumberFormat(undefined, {
+              style: "decimal",
+            }).format(value)}`;
       },
-      series: [
-        {
-          name: "payments",
-          data: data.map((p: any) => p.y),
-        },
-      ],
-      xaxis: {
-        categories: data.map((p: any) => p.x),
-        labels: { show: true },
-      },
-      yaxis: {
-        labels: {
-          show: false,
-        },
-      },
-      dataLabels: {
-        enabled: true,
-        style: {
-          colors: ["#5e5e5e"],
-        },
-        formatter: (value: number) => {
-          return value === 0
-            ? undefined
-            : `₹ ${Intl.NumberFormat(undefined, {
-                style: "decimal",
-              }).format(value)}`;
-        },
-      },
-    };
-
-    let myChart = new (ApexCharts as any)(node, options);
-    myChart.render();
-
-    return {
-      update(options: any) {
-        myChart.updateOptions(options);
-      },
-      destroy() {
-        myChart.destroy();
-      },
-    };
+    },
   };
+
+  let myChart = new (ApexCharts as any)(node, options);
+  myChart.render();
+
+  return {
+    update(options: any) {
+      myChart.updateOptions(options);
+    },
+    destroy() {
+      myChart.destroy();
+    },
+  };
+};
 </script>
 
 <div class="container">

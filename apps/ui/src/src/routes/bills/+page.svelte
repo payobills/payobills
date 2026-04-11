@@ -1,31 +1,31 @@
 <script lang="ts">
-  import { queryStore, gql } from "@urql/svelte";
-  import { billsUrql } from "$lib/stores/urql";
-  import { page } from "$app/stores";
-  import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
-  import Nav from "$lib/nav.svelte";
-  import Card from "$lib/card.svelte";
-  import { onMount } from "svelte";
-  import BillUploadStatement from "$lib/bill-upload-statement.svelte";
-  import { nav } from "$lib/stores/nav"
-  import BillStatements from "$lib/bills/bill-statements.svelte";
-  import { browser } from "$app/environment";
-  import type { BillDTO } from "$lib/types";
-  import RecordPaymentForm from "$lib/record-payment-form.svelte";
-    import UiDrawer from "$lib/ui-drawer.svelte";
+import { queryStore, gql } from "@urql/svelte";
+import { billsUrql } from "$lib/stores/urql";
+import { page } from "$app/stores";
+import PaymentTimelinePill from "$lib/payment-timeline-pill.svelte";
+import Nav from "$lib/nav.svelte";
+import Card from "$lib/card.svelte";
+import { onMount } from "svelte";
+import BillUploadStatement from "$lib/bill-upload-statement.svelte";
+import { nav } from "$lib/stores/nav";
+import BillStatements from "$lib/bills/bill-statements.svelte";
+import { browser } from "$app/environment";
+import type { BillDTO } from "$lib/types";
+import RecordPaymentForm from "$lib/record-payment-form.svelte";
+import UiDrawer from "$lib/ui-drawer.svelte";
 
-  let billId: any;
-  let billByIdQuery: any;
-  let refreshKey: number = Date.now();
+let billId: any;
+let billByIdQuery: any;
+let refreshKey: number = Date.now();
 
-  let showUploadStatementSection = false;
-  let showRecordPayment = false;
-  let uploadStatementResult = undefined;
+let showUploadStatementSection = false;
+let showRecordPayment = false;
+let uploadStatementResult = undefined;
 
-  $: billByIdQuery = billId
-    ? queryStore({
-        client: $billsUrql,
-        query: gql`
+$: billByIdQuery = billId
+  ? queryStore({
+      client: $billsUrql,
+      query: gql`
           query billById($billId: String!) {
             billStatements(billId: $billId) {
               id
@@ -60,14 +60,14 @@
             }
           }
         `,
-        variables: { billId, refreshKey },
-      })
-    : null;
+      variables: { billId, refreshKey },
+    })
+  : null;
 
-  async function markPaid() {
-    const markPaidQuery = $billsUrql
-      .mutation(
-        gql`
+async function markPaid() {
+  const markPaidQuery = $billsUrql
+    .mutation(
+      gql`
           mutation markPayment($billId: UUID!) {
             markPayment(dto: { id: $billId }) {
               id
@@ -80,78 +80,78 @@
             }
           }
         `,
-        { billId }
-      )
-      .toPromise();
+      { billId },
+    )
+    .toPromise();
 
-    let { error } = await markPaidQuery;
+  let { error } = await markPaidQuery;
 
-    if (error) {
-      console.error(error);
-      return;
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  refreshKey = Date.now();
+}
+
+let loaded = false;
+let ApexCharts: any;
+
+$: if (browser) {
+  billId = $page.url.searchParams.get("id");
+}
+
+onMount(async () => {
+  nav.update((prev) => ({ ...prev, isOpen: true }));
+  if ((window as any).ApexCharts) {
+    loaded = true;
+    return;
+  }
+  await load();
+});
+
+interface FileUploadResult {
+  data: {
+    id: string;
+  };
+}
+
+const onBillStatementFormUpload = async (inputs: {
+  bill: BillDTO;
+  billStatementFile: File;
+  billPeriodDetails: any;
+}) => {
+  try {
+    const formdata = new FormData();
+    formdata.append(
+      "tags",
+      JSON.stringify({
+        CorrelationID: inputs.bill.id,
+        Type: "BILL_STATEMENT",
+        Note: inputs.billStatementFile.name,
+      }),
+    );
+
+    formdata.append(
+      "file",
+      inputs.billStatementFile,
+      inputs.billStatementFile.name,
+    );
+
+    const response = await fetch("/files/files", {
+      method: "POST",
+      body: formdata,
+    });
+
+    if (!response.ok) {
+      throw new Error(`File upload failed: ${response.statusText}`);
     }
 
-    refreshKey = Date.now();
-  }
+    const fileUploadResult = (await response.json()) as FileUploadResult;
 
-  let loaded = false;
-  let ApexCharts: any;
-
-  $: if (browser) {
-    billId = $page.url.searchParams.get("id");
-  }
-
-  onMount(async () => {
-    nav.update(prev => ({...prev, isOpen: true }))
-    if ((window as any).ApexCharts) {
-      loaded = true;
-      return;
-    }
-    await load();
-  });
-
-  interface FileUploadResult {
-    data: {
-      id: string;
-    };
-  }
-
-  const onBillStatementFormUpload = async (inputs: {
-    bill: BillDTO;
-    billStatementFile: File;
-    billPeriodDetails: any;
-  }) => {
-    try {
-      const formdata = new FormData();
-      formdata.append(
-        "tags",
-        JSON.stringify({
-          CorrelationID: inputs.bill.id,
-          Type: "BILL_STATEMENT",
-          Note: inputs.billStatementFile.name,
-        })
-      );
-
-      formdata.append(
-        "file",
-        inputs.billStatementFile,
-        inputs.billStatementFile.name
-      );
-
-      const response = await fetch("/files/files", {
-        method: "POST",
-        body: formdata,
-      });
-
-      if (!response.ok) {
-        throw new Error(`File upload failed: ${response.statusText}`);
-      }
-
-      const fileUploadResult = (await response.json()) as FileUploadResult;
-
-      const { error } = await $billsUrql
-        .mutation(
-          gql`
+    const { error } = await $billsUrql
+      .mutation(
+        gql`
             mutation (
               $fileId: Int!
               $billId: Int!
@@ -178,146 +178,144 @@
               }
             }
           `,
-          {
-            billId: +inputs.bill.id,
-            fileId: +fileUploadResult.data.id,
-            billPeriodStartDate: Intl.DateTimeFormat("en-CA", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            }).format(inputs.billPeriodDetails.billStartDate.getTime()),
-            billPeriodEndDate: Intl.DateTimeFormat("en-CA", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            }).format(inputs.billPeriodDetails.billEndDate.getTime()),
-          }
-        )
-        .toPromise();
+        {
+          billId: +inputs.bill.id,
+          fileId: +fileUploadResult.data.id,
+          billPeriodStartDate: Intl.DateTimeFormat("en-CA", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).format(inputs.billPeriodDetails.billStartDate.getTime()),
+          billPeriodEndDate: Intl.DateTimeFormat("en-CA", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).format(inputs.billPeriodDetails.billEndDate.getTime()),
+        },
+      )
+      .toPromise();
 
-      if (error) {
-        throw error;
-      }
-
-      uploadStatementResult = true;
-      refreshKey = Date.now(); // Refresh the query to show the new statement
-    } catch (error) {
-      console.error("Error:", error);
-      uploadStatementResult = false;
+    if (error) {
       throw error;
     }
-  };
 
-  const load = async () => {
-    const module = await import("apexcharts");
-    ApexCharts = module.default;
-    (window as any).ApexCharts = ApexCharts;
-  };
+    uploadStatementResult = true;
+    refreshKey = Date.now(); // Refresh the query to show the new statement
+  } catch (error) {
+    console.error("Error:", error);
+    uploadStatementResult = false;
+    throw error;
+  }
+};
 
-  const chart = (node: any) => {
-    if (!loaded) load();
+const load = async () => {
+  const module = await import("apexcharts");
+  ApexCharts = module.default;
+  (window as any).ApexCharts = ApexCharts;
+};
 
-    const orderedData = [
-      $billByIdQuery.data.billById.payments,
-      $billByIdQuery.data.billStatements,
-    ]
-      .flat()
-      .sort((a: any, b: any) => {
-        return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
-      });
+const chart = (node: any) => {
+  if (!loaded) load();
 
-    let allData = orderedData.map((p: any) => {
-      return {
-        x: Intl.DateTimeFormat(undefined, {
-          month: "short",
-          year: "2-digit",
-        }).format(new Date(p.paidAt).getTime()),
-        y: p.amount,
-        note: `${p.amount}`,
-      };
+  const orderedData = [
+    $billByIdQuery.data.billById.payments,
+    $billByIdQuery.data.billStatements,
+  ]
+    .flat()
+    .sort((a: any, b: any) => {
+      return new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime();
     });
 
-    let data = allData.reduce(
-      (accumulator: any[], current: any, index: number) => {
-        if (index == 0) return [current];
+  let allData = orderedData.map((p: any) => {
+    return {
+      x: Intl.DateTimeFormat(undefined, {
+        month: "short",
+        year: "2-digit",
+      }).format(new Date(p.paidAt).getTime()),
+      y: p.amount,
+      note: `${p.amount}`,
+    };
+  });
 
-        if (current.x == accumulator[accumulator.length - 1].x) {
-          let last = accumulator[accumulator.length - 1];
-          return [
-            ...accumulator.slice(0, -1),
-            {
-              y: last.y + current.y,
-              x: last.x,
-              note: `${last.note} - + ${current.y}`,
-            },
-          ];
-        }
+  let data = allData.reduce(
+    (accumulator: any[], current: any, index: number) => {
+      if (index == 0) return [current];
 
+      if (current.x == accumulator[accumulator.length - 1].x) {
+        let last = accumulator[accumulator.length - 1];
         return [
-          ...accumulator,
+          ...accumulator.slice(0, -1),
           {
-            x: current.x,
-            y: current.y,
-            note: current.note,
+            y: last.y + current.y,
+            x: last.x,
+            note: `${last.note} - + ${current.y}`,
           },
         ];
-      },
-      []
-    );
+      }
 
-    let options: any = {
-      colors: ["var(--primary-color)"],
-      legend: {
-        show: false,
-      },
-      stroke: {
-        curve: "smooth",
-        width: 2,
-      },
-      chart: {
-        type: "area",
-      },
-      series: [
+      return [
+        ...accumulator,
         {
-          name: "payments",
-          data: data.map((p: any) => p.y),
+          x: current.x,
+          y: current.y,
+          note: current.note,
         },
-      ],
-      xaxis: {
-        categories: data.map((p: any) => p.x),
+      ];
+    },
+    [],
+  );
+
+  let options: any = {
+    colors: ["var(--primary-color)"],
+    legend: {
+      show: false,
+    },
+    stroke: {
+      curve: "smooth",
+      width: 2,
+    },
+    chart: {
+      type: "area",
+    },
+    series: [
+      {
+        name: "payments",
+        data: data.map((p: any) => p.y),
       },
-      yaxis: {
-        labels: {
-          show: false,
-          formatter: (value: number) => `₹ ${value}`,
-        },
-      },
-      dataLabels: {
-        enabled: true,
-        // textAnchor: 'start',
-        style: {
-          colors: ["#000"],
-        },
+    ],
+    xaxis: {
+      categories: data.map((p: any) => p.x),
+    },
+    yaxis: {
+      labels: {
+        show: false,
         formatter: (value: number) => `₹ ${value}`,
       },
-    };
-
-    let myChart = new (window as any).ApexCharts(node, options);
-    myChart.render();
-
-    return {
-      update(options: any) {
-        myChart.updateOptions(options);
+    },
+    dataLabels: {
+      enabled: true,
+      // textAnchor: 'start',
+      style: {
+        colors: ["#000"],
       },
-      destroy() {
-        myChart.destroy();
-      },
-    };
+      formatter: (value: number) => `₹ ${value}`,
+    },
   };
 
-  const onRecordPayment = () => {
+  let myChart = new (window as any).ApexCharts(node, options);
+  myChart.render();
 
-  }
+  return {
+    update(options: any) {
+      myChart.updateOptions(options);
+    },
+    destroy() {
+      myChart.destroy();
+    },
+  };
+};
+
+const onRecordPayment = () => {};
 </script>
 
 <section>

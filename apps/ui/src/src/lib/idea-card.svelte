@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Icon from "svelte-awesome";
-  import { faLightbulb } from "@fortawesome/free-solid-svg-icons";
-  import IconButton from '$lib/icon-button.svelte'
+import Icon from "svelte-awesome";
+import { faLightbulb } from "@fortawesome/free-solid-svg-icons";
+import IconButton from "$lib/icon-button.svelte";
 
-  export let idea: string;
+export let idea: string;
 </script>
 
 <div class="idea-card">
