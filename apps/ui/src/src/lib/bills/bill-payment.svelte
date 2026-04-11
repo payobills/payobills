@@ -1,108 +1,111 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import Card from "$lib/card.svelte";
-  import { onMount } from "svelte";
-  import { withOrdinalSuffix } from "../../utils/ordinal-suffix";
-  import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
-  import { fromStore } from "svelte/store";
-  import { uiDrawer } from "$lib/stores/ui-drawer";
-  import RecordPaymentForm from "$lib/record-payment-form.svelte";
-  import UiDrawer from "$lib/ui-drawer.svelte";
-  import type { BillStatementDTO } from "$lib/types";
+import { goto } from "$app/navigation";
+import Card from "$lib/card.svelte";
+import { onMount } from "svelte";
+import { withOrdinalSuffix } from "../../utils/ordinal-suffix";
+import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
+import { fromStore } from "svelte/store";
+import { uiDrawer } from "$lib/stores/ui-drawer";
+import RecordPaymentForm from "$lib/record-payment-form.svelte";
+import UiDrawer from "$lib/ui-drawer.svelte";
+import type { BillStatementDTO } from "$lib/types";
 
-  export let bill;
-  export let billingStatements: BillStatementDTO[] | undefined;
-  export let showRecordPaymentButton = true;
-  export let title = "";
-  export let showBillingCycle = true;
+export let bill;
+export let billingStatements: BillStatementDTO[] | undefined;
+export let showRecordPaymentButton = true;
+export let title = "";
+export let showBillingCycle = true;
 
-  export let onRecordingPayment: any;
-  export let onCurrentBillStatementDoesNotExist: any;
-  export let onTransactionSearch: any;
+export let onRecordingPayment: any;
+export let onCurrentBillStatementDoesNotExist: any;
+export let onTransactionSearch: any;
 
-  let todaysDay: number;
-  let billDueDetails: { status: string; string: string; l2Status?: string };
+let todaysDay: number;
+let billDueDetails: { status: string; string: string; l2Status?: string };
 
-  export let currentCycleFromDate = "";
-  export let currentCycleToDate = "";
+export let currentCycleFromDate = "";
+export let currentCycleToDate = "";
 
-  let currComponent: HTMLDivElement;
-  let currentPayingBill: any;
-  let currentBillStatement: any;
+let currComponent: HTMLDivElement;
+let currentPayingBill: any;
+let currentBillStatement: any;
 
-  onMount(() => {
-    todaysDay = new Date().getDate();
-  });
+onMount(() => {
+  todaysDay = new Date().getDate();
+});
 
-  $: {
-    // TODO: Prepaid type of bills will have cycle with current date in the cycle
-    // Add edge case once Type field is exposed on BillDTO
-    const cycle = getBillPaymentCycle(bill);
+$: {
+  // TODO: Prepaid type of bills will have cycle with current date in the cycle
+  // Add edge case once Type field is exposed on BillDTO
+  const cycle = getBillPaymentCycle(bill);
 
-    currentBillStatement = billingStatements?.find(
-      (statement) =>
-        statement.startDate === cycle?.fromDate &&
-        cycle?.toDate === statement.endDate
-    );
+  currentBillStatement = billingStatements?.find(
+    (statement) =>
+      statement.startDate === cycle?.fromDate &&
+      cycle?.toDate === statement.endDate,
+  );
 
-    if (!currentBillStatement)
-    {
-      currentBillStatement = {
-        startDate: cycle?.fromDate,
-        endDate: cycle?.toDate,
-        amount: undefined,
-      }
-    }
-    
-    currentCycleFromDate = cycle?.fromDate || "";
-    currentCycleToDate = cycle?.toDate || "";
-    const diffInDays = bill.payByDate - todaysDay;
-
-    if(!bill.isEnabled) {
-      billDueDetails = {
-        string: 'Disabled',
-        status: 'disabled'
-      }
-    }
-    else if (!billingStatements) {
-      billDueDetails = {
-        string: `Calculating ...`,
-        status: "loading",
-      };
-    } else {
-      if (
-        currentBillStatement?.isFullyPaid &&
-        currentBillStatement?.amount === 0
-      ) {
-        billDueDetails = {
-          string: `No payment due`,
-          status: "paid",
-        };
-      } else if (currentBillStatement?.isFullyPaid) {
-        billDueDetails = {
-          string: `Fully Paid`,
-          status: "paid",
-        };
-      } else if (diffInDays > 0)
-        billDueDetails = {
-          string: `Due in ${diffInDays} days`,
-          status: "due",
-          l2Status: diffInDays <= 5 ? "warning" : "ok",
-        };
-      else if (diffInDays < 0)
-        billDueDetails = {
-          string: `Overdue by ${-diffInDays} days`,
-          status: "overdue",
-        };
-      else billDueDetails = { string: "Due today", status: "today" };
-    }
+  if (!currentBillStatement) {
+    currentBillStatement = {
+      startDate: cycle?.fromDate,
+      endDate: cycle?.toDate,
+      amount: undefined,
+    };
   }
+
+  currentCycleFromDate = cycle?.fromDate || "";
+  currentCycleToDate = cycle?.toDate || "";
+  const diffInDays = bill.payByDate - todaysDay;
+
+  if (!bill.isEnabled) {
+    billDueDetails = {
+      string: "Disabled",
+      status: "disabled",
+    };
+  } else if (!billingStatements) {
+    billDueDetails = {
+      string: `Calculating ...`,
+      status: "loading",
+    };
+  } else {
+    if (
+      currentBillStatement?.isFullyPaid &&
+      currentBillStatement?.amount === 0
+    ) {
+      billDueDetails = {
+        string: `No payment due`,
+        status: "paid",
+      };
+    } else if (currentBillStatement?.isFullyPaid) {
+      billDueDetails = {
+        string: `Fully Paid`,
+        status: "paid",
+      };
+    } else if (diffInDays > 0)
+      billDueDetails = {
+        string: `Due in ${diffInDays} days`,
+        status: "due",
+        l2Status: diffInDays <= 5 ? "warning" : "ok",
+      };
+    else if (diffInDays < 0)
+      billDueDetails = {
+        string: `Overdue by ${-diffInDays} days`,
+        status: "overdue",
+      };
+    else billDueDetails = { string: "Due today", status: "today" };
+  }
+}
 </script>
 
 <div class="container" bind:this={currComponent}>
   <a href={`#payment__bill_${bill.id}`} aria-label="anchor"></a>
   <div class="header">
-    <div class="name">{title?.length > 0 ? title : bill.name}</div>
+    <div class="name">
+      {title?.length > 0 ? title : bill.name}
+      {#if bill.primaryType}
+        <span class="bill-type">{bill.primaryType}</span>
+      {/if}
+    </div>
     {#if bill.isEnabled && showRecordPaymentButton}
       <div class="actions">
         <button
@@ -196,9 +199,22 @@
 
   .name {
     font-size: 1rem;
-    font-weight: 400;
-    margin: 0.5rem 1rem 0.5rem 1rem;
     font-weight: 900;
+    margin: 0.5rem 1rem 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .bill-type {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: rgb(180, 180, 180);
+    background-color: rgb(80, 80, 80);
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
 
   strong {
@@ -220,8 +236,18 @@
 
   button {
     margin: 0.5rem;
-    padding: 0.5rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  button:hover {
     background-color: var(--color-primary);
+    color: white;
   }
 
   .due-status {
