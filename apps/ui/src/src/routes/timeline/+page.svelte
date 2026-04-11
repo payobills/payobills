@@ -1,25 +1,25 @@
 <script lang="ts">
-  import Timeline from "$lib/timeline.svelte";
-  import { goto } from "$app/navigation";
-  import { billsUrql, paymentsUrql } from "$lib/stores/urql";
-  import { auth } from "$lib/stores/auth";
-  import { nav } from "$lib/stores/nav";
-  import { queryStore, gql, getContextClient } from "@urql/svelte";
-  import { onMount } from "svelte";
-  import { ProTransactionsService } from "$utils/pro/pro-transactions.service";
-  import type { TransactionDTO } from "$lib/types";
-  import type { Trip } from '$lib/types';
+import Timeline from "$lib/timeline.svelte";
+import { goto } from "$app/navigation";
+import { billsUrql, paymentsUrql } from "$lib/stores/urql";
+import { auth } from "$lib/stores/auth";
+import { nav } from "$lib/stores/nav";
+import { queryStore, gql, getContextClient } from "@urql/svelte";
+import { onMount } from "svelte";
+import { ProTransactionsService } from "$utils/pro/pro-transactions.service";
+import type { TransactionDTO } from "$lib/types";
+import type { Trip } from "$lib/types";
 
-  onMount(() => {
-    nav.update(prev => ({ ...prev, isOpen: true }))
-    if (!$auth?.refreshToken) {
-      goto("/");
-    }
-  });
+onMount(() => {
+  nav.update((prev) => ({ ...prev, isOpen: true }));
+  if (!$auth?.refreshToken) {
+    goto("/");
+  }
+});
 
-  $: transactionTagsQuery = queryStore({
-    client: $paymentsUrql,
-    query: gql`
+$: transactionTagsQuery = queryStore({
+  client: $paymentsUrql,
+  query: gql`
       query {
         transactionTags {
           id
@@ -27,15 +27,17 @@
         }
       }
     `,
-  });
+});
 
-  $: trips = $transactionTagsQuery?.data?.transactionTags
-      ?.filter((p: Trip) => p.title.startsWith("Trip"))
-      .map((p: Trip) => ({ ...p, title: p.title.replace(/^Trip:\s*?/, '')})) ?? undefined
+$: trips =
+  $transactionTagsQuery?.data?.transactionTags
+    ?.filter((p: Trip) => p.title.startsWith("Trip"))
+    .map((p: Trip) => ({ ...p, title: p.title.replace(/^Trip:\s*?/, "") })) ??
+  undefined;
 
-  const billsQuery = queryStore({
-    client: $billsUrql,
-    query: gql`
+const billsQuery = queryStore({
+  client: $billsUrql,
+  query: gql`
       query {
         bills {
           id
@@ -43,19 +45,20 @@
           billingDate
           payByDate
           isEnabled
+          primaryType
         }
       }
     `,
-  });
+});
 
-  $: billStatementsQuery =
-    !$billsQuery.fetching && !$billsQuery.error
-      ? queryStore({
-          client: $billsUrql,
-          query: gql(
-            `query { ${$billsQuery.data.bills.reduce(
-              (acc: string, currentBill: any) =>
-                (acc += `billStatements__bill_${currentBill.id}: billStatements(billId: "${currentBill.id}") {
+$: billStatementsQuery =
+  !$billsQuery.fetching && !$billsQuery.error
+    ? queryStore({
+        client: $billsUrql,
+        query: gql(
+          `query { ${$billsQuery.data.bills.reduce(
+            (acc: string, currentBill: any) =>
+              (acc += `billStatements__bill_${currentBill.id}: billStatements(billId: "${currentBill.id}") {
       id
       startDate
       endDate
@@ -67,18 +70,18 @@
       }
     }
      `),
-              ""
-            )} }`
-          ),
-        })
-      : null;
+            "",
+          )} }`,
+        ),
+      })
+    : null;
 
-  const currentMonth = new Date().getUTCMonth() + 1;
-  const currentYear = new Date().getUTCFullYear();
+const currentMonth = new Date().getUTCMonth() + 1;
+const currentYear = new Date().getUTCFullYear();
 
-  const billStatsQuery = queryStore({
-    client: $billsUrql,
-    query: gql`
+const billStatsQuery = queryStore({
+  client: $billsUrql,
+  query: gql`
         {
         billStats(year: ${currentYear.toString()}, month: ${currentMonth.toString()}) {
             startDate,
@@ -94,12 +97,12 @@
         }
     }
     `,
-  });
+});
 
-  $: transactionsQuery = queryStore({
-    client: $paymentsUrql,
-    variables: { year: currentYear, month: currentMonth },
-    query: gql`
+$: transactionsQuery = queryStore({
+  client: $paymentsUrql,
+  variables: { year: currentYear, month: currentMonth },
+  query: gql`
       query ($year: Int!, $month: Int!) {
         transactions: transactionsByYearAndMonth(
           year: $year
@@ -121,35 +124,44 @@
         }
       }
     `,
-  });
+});
 
-  const onCurrentBillStatementDoesNotExist = ({
-    amount = undefined,
-    bill,
-    cycleFromDate,
-    cycleToDate,
-    isFullyPaid,
-  }) => {
-    return onRecordingPayment({ amount, bill, cycleFromDate, cycleToDate, isFullyPaid})
-  }
-
-  const onTransactionSearch = (store: any, transactionSearchTerm: string, ) => {
-    if (!$paymentsUrql || !transactionSearchTerm) return;
-    const transactionService = new ProTransactionsService($paymentsUrql);
-    transactionService.queryTransactionsWithSearchTerm(store, transactionSearchTerm);
-  }
-
-  const onRecordingPayment = ({
+const onCurrentBillStatementDoesNotExist = ({
+  amount = undefined,
+  bill,
+  cycleFromDate,
+  cycleToDate,
+  isFullyPaid,
+}) => {
+  return onRecordingPayment({
     amount,
     bill,
     cycleFromDate,
     cycleToDate,
     isFullyPaid,
-    transactions
-  }) => {
-    return $paymentsUrql
-      .mutation(
-        gql`
+  });
+};
+
+const onTransactionSearch = (store: any, transactionSearchTerm: string) => {
+  if (!$paymentsUrql || !transactionSearchTerm) return;
+  const transactionService = new ProTransactionsService($paymentsUrql);
+  transactionService.queryTransactionsWithSearchTerm(
+    store,
+    transactionSearchTerm,
+  );
+};
+
+const onRecordingPayment = ({
+  amount,
+  bill,
+  cycleFromDate,
+  cycleToDate,
+  isFullyPaid,
+  transactions,
+}) => {
+  return $paymentsUrql
+    .mutation(
+      gql`
           mutation AddBillStatement($dto: AddOrUpdateBillStatementDTOInput!) {
             addOrUpdateBillStatement(dto: $dto) {
               id
@@ -164,26 +176,30 @@
             }
           }
         `,
-        {
-          dto: {
-            notes: "",
-            amount,
-            isFullyPaid,
-            bill: { id: +bill.id },
-            startDate: cycleFromDate,
-            endDate: cycleToDate,
-            edges: { paymentIds: (transactions ?? []).map((transaction: TransactionDTO) => transaction.id) },
+      {
+        dto: {
+          notes: "",
+          amount,
+          isFullyPaid,
+          bill: { id: +bill.id },
+          startDate: cycleFromDate,
+          endDate: cycleToDate,
+          edges: {
+            paymentIds: (transactions ?? []).map(
+              (transaction: TransactionDTO) => transaction.id,
+            ),
           },
-        }
-      )
-      .toPromise()
-      .then((res) => {
-        if (res.error) {
-          console.error("Error recording payment:", res.error);
-          throw new Error("Failed to record payment");
-        }
-      });
-  }
+        },
+      },
+    )
+    .toPromise()
+    .then((res) => {
+      if (res.error) {
+        console.error("Error recording payment:", res.error);
+        throw new Error("Failed to record payment");
+      }
+    });
+};
 </script>
 
 <section>
