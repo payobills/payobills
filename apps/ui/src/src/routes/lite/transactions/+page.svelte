@@ -91,7 +91,7 @@ $: transactionsQuery =
   p {
     margin: 0;
     font-size: 0.8125rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
   }
 
   .title {
@@ -100,7 +100,7 @@ $: transactionsQuery =
     background-color: transparent;
     margin-bottom: 1rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-base-300, #1c1c26);
+    border-bottom: 1px solid var(--color-base-300);
   }
 
   .title > h1 {
@@ -116,16 +116,16 @@ $: transactionsQuery =
 
   .title button {
     background-color: transparent;
-    border: 1px solid var(--color-base-300, #1c1c26);
+    border: 1px solid var(--color-base-300);
     border-radius: 0.375rem;
     padding: 0.4rem 0.5rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     transition: all 0.15s ease;
   }
 
   .title button:hover {
     border-color: rgba(0, 212, 184, 0.3);
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
   }
 </style>
 

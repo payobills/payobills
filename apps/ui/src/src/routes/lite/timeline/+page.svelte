@@ -82,6 +82,6 @@ const onRecordingPayment = ({
   .timeline-page > p {
     margin: 1rem;
     font-size: 0.8125rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
   }
 </style>

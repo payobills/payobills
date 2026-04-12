@@ -83,7 +83,7 @@ const addBill = async () => {
 <style>
   div {
     font-size: 0.75rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     font-family: "Syne", sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -92,10 +92,10 @@ const addBill = async () => {
   }
 
   input {
-    background-color: var(--color-base-300, #1c1c26);
+    background-color: var(--color-base-300);
     border: 1px solid #2a2a38;
     border-radius: 0.375rem;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     margin: 0.25rem 0 0;
     padding: 0.625rem 0.75rem;
     font-size: 0.875rem;
@@ -107,7 +107,7 @@ const addBill = async () => {
 
   input:focus {
     outline: none;
-    border-color: var(--color-primary, #00d4b8);
+    border-color: var(--color-primary);
   }
 
   input::placeholder {
@@ -128,8 +128,8 @@ const addBill = async () => {
   }
 
   .actions button {
-    background-color: var(--color-primary, #00d4b8);
-    color: var(--color-primary-content, #000a09);
+    background-color: var(--color-primary);
+    color: var(--color-primary-content);
     border: none;
     border-radius: 0.375rem;
     padding: 0.625rem 1.5rem;

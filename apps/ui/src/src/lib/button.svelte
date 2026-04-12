@@ -30,8 +30,8 @@ let {
   button {
     width: 100%;
     padding: 0.75rem 1.5rem;
-    background-color: var(--color-primary, #00d4b8);
-    color: var(--color-primary-content, #000a09);
+    background-color: var(--color-primary);
+    color: var(--color-primary-content);
     border: none;
     border-radius: 0.5rem;
     font-family: "Syne", system-ui, sans-serif;

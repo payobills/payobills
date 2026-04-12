@@ -158,7 +158,6 @@ const toggleFullScreenUiDrawer = () => {
     --primary-bg-color: #09090e;
     --secondary-bg-color: #1c1c26;
     --primary-accent-color: #00d4b8;
-    --color-primary: #00d4b8;
   }
 
   .drawer-transparent {

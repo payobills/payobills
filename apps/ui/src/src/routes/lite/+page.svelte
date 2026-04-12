@@ -116,19 +116,19 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     font-size: 3rem;
     font-weight: 800;
     letter-spacing: -0.04em;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     line-height: 1.05;
     margin: 0 0 0.75rem 0;
   }
 
   h1 .accent {
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
     font-weight: 300;
   }
 
   .one-liner {
     font-size: 0.875rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     text-align: center;
     line-height: 1.65;
     max-width: 28rem;
@@ -136,7 +136,7 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
   }
 
   .one-liner .bold {
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     font-weight: 600;
   }
 
@@ -153,8 +153,8 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     align-items: center;
     gap: 1rem;
     padding: 1rem 1.25rem;
-    background-color: var(--color-base-200, #111118);
-    border: 1px solid var(--color-base-300, #1c1c26);
+    background-color: var(--color-base-200);
+    border: 1px solid var(--color-base-300);
     border-radius: 0.625rem;
     width: 100%;
     transition: border-color 0.2s ease;
@@ -178,14 +178,14 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     font-family: "Syne", system-ui, sans-serif;
     font-size: 0.9375rem;
     font-weight: 700;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     margin: 0 0 0.2rem 0;
     letter-spacing: -0.01em;
   }
 
   .feature-text p {
     font-size: 0.8rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin: 0;
     line-height: 1.5;
   }
@@ -196,13 +196,13 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     text-align: center;
     line-height: 1.6;
     padding: 0.75rem;
-    border-top: 1px solid var(--color-base-300, #1c1c26);
+    border-top: 1px solid var(--color-base-300);
     width: 100%;
     margin-top: 0.5rem;
   }
 
   .footnote .bold {
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     font-weight: 600;
   }
 
@@ -213,9 +213,9 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     font-weight: 700;
     text-transform: none;
     letter-spacing: 0.03em;
-    background: var(--color-base-300, #1c1c26);
+    background: var(--color-base-300);
     border: 1px solid #2a2a38;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin: 1.5rem 0 1rem;
     padding: 0.875rem 3rem;
     font-size: 1rem;

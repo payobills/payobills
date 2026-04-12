@@ -34,7 +34,7 @@ export let title: string;
 
   .title {
     font-family: "Syne", system-ui, sans-serif;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     font-weight: 600;
     font-size: 1rem;
     text-transform: uppercase;

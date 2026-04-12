@@ -60,7 +60,7 @@ export let showLabel = true;
     margin: 1rem 0 0 0;
   }
   .pill--filled {
-    background-color: var(--color-primary, #00d4b8);
+    background-color: var(--color-primary);
     box-shadow: 0 0 4px rgba(0, 212, 184, 0.4);
   }
   .pill--empty {
@@ -71,7 +71,7 @@ export let showLabel = true;
     font-size: 0.6875rem;
     font-weight: 500;
     margin: 1.75rem 0;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     letter-spacing: 0.01em;
   }
 </style>

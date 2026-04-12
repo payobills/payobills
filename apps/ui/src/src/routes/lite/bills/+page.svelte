@@ -393,12 +393,12 @@ const onRecordPayment = () => {};
     align-items: center;
     margin-bottom: 0.75rem;
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--color-base-300, #1c1c26);
+    border-bottom: 1px solid var(--color-base-300);
   }
 
   h1 {
     font-family: "Syne", sans-serif;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -412,13 +412,13 @@ const onRecordPayment = () => {};
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin: 1.25rem 0 0.5rem 0;
   }
 
   p {
     font-size: 0.8rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
   }
 
   .content {
@@ -432,8 +432,8 @@ const onRecordPayment = () => {};
     grid-template-columns: auto 1fr;
     gap: 0.375rem 1rem;
     font-size: 0.75rem;
-    color: var(--color-neutral-content, #8892a4);
-    background-color: var(--color-base-300, #1c1c26);
+    color: var(--color-neutral-content);
+    background-color: var(--color-base-300);
     border-radius: 0.5rem;
     padding: 0.625rem 0.75rem;
     margin-bottom: 0.25rem;
@@ -462,7 +462,7 @@ const onRecordPayment = () => {};
     padding: 0.625rem 1rem;
     background-color: rgba(0, 212, 184, 0.1);
     border: 1px solid rgba(0, 212, 184, 0.25);
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
     border-radius: 0.5rem;
     font-family: "Syne", sans-serif;
     font-size: 0.8125rem;
@@ -491,7 +491,7 @@ const onRecordPayment = () => {};
     flex-grow: 1;
     font-family: "JetBrains Mono", monospace;
     font-weight: 600;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     font-size: 0.8125rem;
   }
 
@@ -509,6 +509,6 @@ const onRecordPayment = () => {};
   span.bill-detail {
     font-family: "JetBrains Mono", monospace;
     font-weight: 700;
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
   }
 </style>

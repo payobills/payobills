@@ -381,7 +381,7 @@ const chart = (node: any, transactions: any[]) => {
 <style>
   .transaction-add-cta {
     font-weight: 700;
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
   }
 
   .transaction-card {
@@ -423,11 +423,11 @@ const chart = (node: any, transactions: any[]) => {
 
   .recent-transaction span {
     font-size: 0.75rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
   }
 
   .recent-transaction span:first-child {
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     font-weight: 500;
   }
 
@@ -436,7 +436,7 @@ const chart = (node: any, transactions: any[]) => {
     font-family: "JetBrains Mono", monospace;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     white-space: nowrap;
   }
 
@@ -468,13 +468,13 @@ const chart = (node: any, transactions: any[]) => {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     font-family: "Syne", system-ui, sans-serif;
   }
 
   .title a {
     font-size: 0.7rem;
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -492,7 +492,7 @@ const chart = (node: any, transactions: any[]) => {
     font-size: 0.6875rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin: 0.75rem 0 0.25rem 0;
   }
 
@@ -504,8 +504,8 @@ const chart = (node: any, transactions: any[]) => {
   }
 
   .recent-spends__spend-tile {
-    background-color: var(--color-base-200, #111118);
-    border: 1px solid var(--color-base-300, #1c1c26);
+    background-color: var(--color-base-200);
+    border: 1px solid var(--color-base-300);
     padding: 0.75rem;
     border-radius: 0.5rem;
     flex: 1;
@@ -513,7 +513,7 @@ const chart = (node: any, transactions: any[]) => {
 
   .recent-spends__spend-tile p {
     font-size: 0.6875rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     font-weight: 600;
@@ -525,7 +525,7 @@ const chart = (node: any, transactions: any[]) => {
     font-family: "JetBrains Mono", monospace !important;
     font-weight: 700 !important;
     font-size: 1.375rem !important;
-    color: var(--color-base-content, #dde1eb) !important;
+    color: var(--color-base-content) !important;
     margin: 0 !important;
     letter-spacing: -0.02em;
   }

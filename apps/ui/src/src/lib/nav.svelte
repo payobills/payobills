@@ -68,7 +68,7 @@ function handleOverlayClick() {
 
 <style>
   nav {
-    background-color: var(--color-base-100, #09090e);
+    background-color: var(--color-base-100);
     border-bottom: 1px solid #1c1c26;
     display: flex;
     align-items: center;
@@ -93,7 +93,7 @@ function handleOverlayClick() {
     text-transform: none;
     letter-spacing: -0.03em;
     background-color: transparent;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     border: none;
     cursor: pointer;
   }
@@ -101,7 +101,7 @@ function handleOverlayClick() {
   .logo-text {
     font-family: "Syne";
     font-weight: 800;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
   }
 
   /* Hamburger */
@@ -129,7 +129,7 @@ function handleOverlayClick() {
     display: block;
     width: 100%;
     height: 1.5px;
-    background-color: var(--color-base-content, #dde1eb);
+    background-color: var(--color-base-content);
     border-radius: 1px;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
@@ -196,7 +196,7 @@ function handleOverlayClick() {
     background: transparent;
     border: 1px solid #2a2a38;
     border-radius: 0.375rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     font-size: 0.75rem;
     width: 1.75rem;
     height: 1.75rem;
@@ -210,7 +210,7 @@ function handleOverlayClick() {
 
   .menu-close:hover {
     border-color: rgba(0, 212, 184, 0.4);
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
   }
 
   .menu-links {
@@ -232,7 +232,7 @@ function handleOverlayClick() {
     padding: 0.875rem 1.25rem;
     background: transparent;
     border: none;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     font-family: "Syne", sans-serif;
     font-size: 1rem;
     font-weight: 600;
@@ -246,14 +246,14 @@ function handleOverlayClick() {
 
   .menu-link:hover {
     background-color: rgba(28, 28, 38, 0.8);
-    border-left-color: var(--color-primary, #00d4b8);
-    color: var(--color-primary, #00d4b8);
+    border-left-color: var(--color-primary);
+    color: var(--color-primary);
   }
 
   .menu-link.active {
     background-color: rgba(0, 212, 184, 0.06);
-    border-left-color: var(--color-primary, #00d4b8);
-    color: var(--color-primary, #00d4b8);
+    border-left-color: var(--color-primary);
+    color: var(--color-primary);
   }
 
   .link-arrow {
@@ -264,6 +264,6 @@ function handleOverlayClick() {
 
   .menu-link:hover .link-arrow,
   .menu-link.active .link-arrow {
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
   }
 </style>

@@ -165,8 +165,8 @@ $: {
 <style>
   .container {
     border-radius: 0.625rem;
-    background-color: var(--color-base-200, #111118);
-    border: 1px solid var(--color-base-300, #1c1c26);
+    background-color: var(--color-base-200);
+    border: 1px solid var(--color-base-300);
     display: flex;
     flex-direction: column;
     margin-top: 0.625rem;
@@ -185,7 +185,7 @@ $: {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 0.875rem 0;
-    border-bottom: 1px solid var(--color-base-300, #1c1c26);
+    border-bottom: 1px solid var(--color-base-300);
     padding-bottom: 0.625rem;
   }
 
@@ -194,7 +194,7 @@ $: {
     font-size: 0.9375rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -204,8 +204,8 @@ $: {
     font-family: "DM Sans", sans-serif;
     font-size: 0.6rem;
     font-weight: 600;
-    color: var(--color-neutral-content, #8892a4);
-    background-color: var(--color-base-300, #1c1c26);
+    color: var(--color-neutral-content);
+    background-color: var(--color-base-300);
     border: 1px solid #2a2a38;
     padding: 0.15rem 0.45rem;
     border-radius: 0.25rem;
@@ -215,14 +215,14 @@ $: {
 
   strong {
     font-weight: 700;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
   }
 
   .card-item {
     margin: 0;
     padding: 0.4rem 0.875rem;
     font-size: 0.75rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     border-bottom: 1px solid rgba(28, 28, 38, 0.5);
     display: flex;
     align-items: center;
@@ -239,7 +239,7 @@ $: {
     font-family: "JetBrains Mono", monospace;
     font-weight: 700;
     font-size: 0.875rem;
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
   }
 
   button {
@@ -252,7 +252,7 @@ $: {
     cursor: pointer;
     background-color: rgba(0, 212, 184, 0.1);
     border: 1px solid rgba(0, 212, 184, 0.25);
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
     text-transform: none;
     transition: all 0.15s ease;
   }

@@ -24,7 +24,7 @@ export let statements: any[];
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin: 1rem 0 0.5rem 0;
   }
 
@@ -32,7 +32,7 @@ export let statements: any[];
     display: block;
     font-family: "JetBrains Mono", monospace;
     font-size: 0.75rem;
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
     margin-bottom: 0.375rem;
     padding: 0.375rem 0.5rem;
     background-color: rgba(0, 212, 184, 0.05);

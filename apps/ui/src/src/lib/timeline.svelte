@@ -165,7 +165,7 @@ onMount(() => {
   .bills-view,
   .billing-cycles-view {
     padding: 1rem;
-    border-bottom: 1px solid var(--color-base-300, #1c1c26);
+    border-bottom: 1px solid var(--color-base-300);
   }
 
   .billing-cycles-view {
@@ -178,7 +178,7 @@ onMount(() => {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin: 0 0 0.75rem 0;
   }
 
@@ -189,7 +189,7 @@ onMount(() => {
 
   .stay-updated {
     font-size: 0.75rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin-bottom: 0.75rem;
     margin-top: 0;
   }
@@ -244,7 +244,7 @@ onMount(() => {
     padding: 0.625rem 1rem;
     background-color: rgba(0, 212, 184, 0.1);
     border: 1px solid rgba(0, 212, 184, 0.3);
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
     border-radius: 0.5rem;
     font-family: "Syne", system-ui, sans-serif;
     font-size: 0.8125rem;
@@ -263,7 +263,7 @@ onMount(() => {
 
   p {
     font-size: 0.75rem;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin: 0 0 0.75rem 0;
     line-height: 1.6;
   }
@@ -276,7 +276,7 @@ onMount(() => {
     .timeline-view,
     .bills-view,
     .billing-cycles-view {
-      border-right: 1px solid var(--color-base-300, #1c1c26);
+      border-right: 1px solid var(--color-base-300);
       border-bottom: none;
     }
 

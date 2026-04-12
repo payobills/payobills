@@ -166,7 +166,7 @@ const onAmountSearchBoxFocusout = () => {
     font-size: 1rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     margin: 0 0 0.5rem 0;
   }
 
@@ -176,7 +176,7 @@ const onAmountSearchBoxFocusout = () => {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    color: var(--color-neutral-content, #8892a4);
+    color: var(--color-neutral-content);
     margin-top: 0.5rem;
   }
 
@@ -190,16 +190,16 @@ const onAmountSearchBoxFocusout = () => {
 
   .bill-statement--selected {
     opacity: 1;
-    border: 2px solid var(--color-primary, #00d4b8);
+    border: 2px solid var(--color-primary);
     border-radius: 0.5rem;
   }
 
   input[type="text"],
   input:not([type="checkbox"]) {
-    background-color: var(--color-base-300, #1c1c26);
+    background-color: var(--color-base-300);
     border: 1px solid #2a2a38;
     border-radius: 0.375rem;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
     padding: 0.625rem 0.75rem;
     font-family: "JetBrains Mono", monospace;
     font-size: 1.25rem;
@@ -210,7 +210,7 @@ const onAmountSearchBoxFocusout = () => {
 
   input:not([type="checkbox"]):focus {
     outline: none;
-    border-color: var(--color-primary, #00d4b8);
+    border-color: var(--color-primary);
   }
 
   input::placeholder {
@@ -232,14 +232,14 @@ const onAmountSearchBoxFocusout = () => {
     font-size: 0.8125rem;
     text-transform: none;
     letter-spacing: 0;
-    color: var(--color-base-content, #dde1eb);
+    color: var(--color-base-content);
   }
 
   .total-amount {
     font-family: "JetBrains Mono", monospace;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--color-primary, #00d4b8);
+    color: var(--color-primary);
     margin: 0.25rem 0;
   }
 </style>
