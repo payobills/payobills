@@ -163,31 +163,20 @@ $: {
 </div>
 
 <style>
-  .current-bill-amount {
-    font-weight: 800;
-  }
-
   .container {
-    border-radius: 0.425rem;
-    background-color: rgb(59, 59, 59);
+    border-radius: 0.625rem;
+    background-color: var(--color-base-200);
+    border: 1px solid var(--color-base-300);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: top;
-    margin-top: 1rem;
+    margin-top: 0.625rem;
     width: 100%;
+    transition: border-color 0.2s ease;
+    overflow: hidden;
   }
 
-  strong {
-    color:white;
-  }
-
-  .container > div:nth-of-type(2) {
-    margin-top: 1rem;
-  }
-
-  .container > div:last-of-type {
-    margin-bottom: 1rem;
+  .container:hover {
+    border-color: rgba(0, 212, 184, 0.2);
   }
 
   .header {
@@ -195,102 +184,133 @@ $: {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    padding: 0.75rem 0.875rem 0;
+    border-bottom: 1px solid var(--color-base-300);
+    padding-bottom: 0.625rem;
   }
 
   .name {
-    font-size: 1rem;
-    font-weight: 900;
-    margin: 0.5rem 1rem 0.5rem 1rem;
+    font-family: "Syne", system-ui, sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-base-content);
     display: flex;
     align-items: center;
     gap: 0.5rem;
   }
 
   .bill-type {
-    font-size: 0.65rem;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.6rem;
     font-weight: 600;
-    color: rgb(180, 180, 180);
-    background-color: rgb(80, 80, 80);
-    padding: 0.1rem 0.4rem;
-    border-radius: 0.75rem;
+    color: var(--color-neutral-content);
+    background-color: var(--color-base-300);
+    border: 1px solid #2a2a38;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.25rem;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.06em;
   }
 
   strong {
-    font-weight: 800;
+    font-weight: 700;
+    color: var(--color-base-content);
   }
 
   .card-item {
-    margin: 0.5rem 1rem;
+    margin: 0;
+    padding: 0.4rem 0.875rem;
     font-size: 0.75rem;
+    color: var(--color-neutral-content);
+    border-bottom: 1px solid rgba(28, 28, 38, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 
-  /* hr { */
-  /*   width: 100%; */
-  /*   height: 0.125rem; */
-  /*   border: none; */
-  /*   background-color: rgb(216, 216, 216); */
-  /*   margin: 0; */
-  /* } */
+  .card-item:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0.625rem;
+  }
+
+  .current-bill-amount {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--color-primary);
+  }
 
   button {
-    margin: 0.5rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 1rem;
+    margin: 0.5rem 0.625rem 0.5rem 0;
+    padding: 0.3rem 0.875rem;
+    border-radius: 0.375rem;
     font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    background-color: rgba(0, 212, 184, 0.1);
+    border: 1px solid rgba(0, 212, 184, 0.25);
+    color: var(--color-primary);
+    text-transform: none;
+    transition: all 0.15s ease;
   }
 
   button:hover {
-    background-color: var(--color-primary);
-    color: white;
+    background-color: rgba(0, 212, 184, 0.18);
+    border-color: rgba(0, 212, 184, 0.5);
   }
 
   .due-status {
-    padding: 0.25rem 0.5rem;
-    min-width: 40%;
-    text-align: center;
-    /* padding: 0.25rem; */
-    border-radius: 1rem;
-    /* margin: 0.5rem 1rem 1rem 1rem; */
+    padding: 0.2rem 0.625rem;
+    border-radius: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-family: "DM Sans", sans-serif;
   }
 
   .due-status--due {
-    color: white;
-    background-color: var(--primary-accent-color);
+    color: #38bdf8;
+    background-color: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
   }
 
   .due-status--disabled {
-    color: white;
-    background-color: rgb(55, 55, 55);
+    color: #4a5568;
+    background-color: rgba(26, 26, 38, 0.5);
+    border: 1px solid #2a2a38;
   }
 
   .due-status--paid {
-    color: white;
-    background-color: rgb(9, 174, 9);
+    color: #22d3a0;
+    background-color: rgba(34, 211, 160, 0.12);
+    border: 1px solid rgba(34, 211, 160, 0.25);
   }
 
   .due-status--loading {
-    color: white;
-    background-color: rgb(55, 55, 55);
+    color: #4a5568;
+    background-color: rgba(26, 26, 38, 0.5);
+    border: 1px solid #2a2a38;
   }
 
   .due-status--due--warning {
-    color: white;
-    background-color: rgb(225, 153, 20);
+    color: #fbbf24;
+    background-color: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.25);
   }
 
   .due-status--overdue {
-    color: white;
-    background-color: red;
+    color: #f43f5e;
+    background-color: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.25);
   }
 
   .due-status--today {
-    color: white;
-    background-color: orange;
+    color: #fb923c;
+    background-color: rgba(251, 146, 60, 0.12);
+    border: 1px solid rgba(251, 146, 60, 0.25);
   }
 </style>

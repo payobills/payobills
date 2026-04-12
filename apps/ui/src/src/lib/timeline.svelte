@@ -157,12 +157,29 @@ onMount(() => {
   section {
     display: grid;
     grid-template-columns: 100%;
-    /* place-items: center; */
-    gap: 1rem;
+    gap: 0;
+    padding: 0;
+  }
+
+  .timeline-view,
+  .bills-view,
+  .billing-cycles-view {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-base-300);
+  }
+
+  .billing-cycles-view {
+    border-bottom: none;
   }
 
   .title_bill {
-    margin-top: 0;
+    font-family: "Syne", system-ui, sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-content);
+    margin: 0 0 0.75rem 0;
   }
 
   .timeline-view {
@@ -170,13 +187,25 @@ onMount(() => {
     flex-direction: column;
   }
 
+  .stay-updated {
+    font-size: 0.75rem;
+    color: var(--color-neutral-content);
+    margin-bottom: 0.75rem;
+    margin-top: 0;
+  }
+
   .bill {
     all: unset;
-    width: calc(100% - 1rem);
-    margin: 0.5rem 0;
-    padding: 0 0.5rem;
-    align-self: flex-end;
-    border-radius: 0.25rem;
+    width: 100%;
+    padding: 0;
+    cursor: pointer;
+    display: block;
+    border-radius: 0.375rem;
+    transition: background-color 0.1s ease;
+  }
+
+  .bill:hover {
+    background-color: rgba(28, 28, 38, 0.5);
   }
 
   :global(.bill-payments > div:first-of-type) {
@@ -189,55 +218,77 @@ onMount(() => {
     flex-direction: column;
   }
 
-  /* Hide scrollbar for Chrome, Safari and Opera */
   .items::-webkit-scrollbar {
     display: none;
   }
 
-  /* Hide scrollbar for IE, Edge and Firefox */
   .items {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
   .legend {
     display: flex;
     justify-content: space-between;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    margin: 0.25rem 0.25rem;
+    color: #3a3a50;
+  }
+
+  .cta {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.625rem 1rem;
+    background-color: rgba(0, 212, 184, 0.1);
+    border: 1px solid rgba(0, 212, 184, 0.3);
+    color: var(--color-primary);
+    border-radius: 0.5rem;
+    font-family: "Syne", system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .cta:hover {
+    background-color: rgba(0, 212, 184, 0.18);
+    border-color: rgba(0, 212, 184, 0.5);
+  }
+
+  p {
     font-size: 0.75rem;
-    margin: 0.5rem;
+    color: var(--color-neutral-content);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.6;
   }
 
-  span {
-    color: #9f9f9f;
-  }
-
-  .stay-updated {
-    margin-bottom: 1rem;
-  }
-
-
-  @media (max-width: 64rem) {
-    /* Extra Small Screen Styles */
-  }
-
-  @media (min-width: 65rem) and (max-width: 75rem) {
-    /* Tablet Screen Styles */
+  @media (min-width: 65rem) {
     section {
-      grid-template-columns: 50% 50%;
+      grid-template-columns: 1fr 1fr;
     }
-  }
 
-  @media (min-width: 76rem) and (max-width: 100rem) {
-    /* Laptop Screen Styles */
-    section {
-      grid-template-columns: 50% 50%;
+    .timeline-view,
+    .bills-view,
+    .billing-cycles-view {
+      border-right: 1px solid var(--color-base-300);
+      border-bottom: none;
+    }
+
+    .billing-cycles-view,
+    .bills-view {
+      border-right: none;
     }
   }
 
   @media (min-width: 101rem) {
-    /* Extra Large Display Styles */
     section {
-      grid-template-columns: 50% 50%;
+      grid-template-columns: repeat(4, 1fr);
     }
   }
 </style>

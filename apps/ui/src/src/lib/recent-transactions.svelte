@@ -380,11 +380,21 @@ const chart = (node: any, transactions: any[]) => {
 
 <style>
   .transaction-add-cta {
-    font-weight: 800;
+    font-weight: 700;
+    color: var(--color-primary);
   }
 
   .transaction-card {
     all: unset;
+    display: block;
+    cursor: pointer;
+  }
+
+  .transaction-card:hover .recent-transaction {
+    background-color: rgba(28, 28, 38, 0.6);
+    border-radius: 0.375rem;
+    padding: 0 0.5rem;
+    margin: 0.25rem -0.5rem;
   }
 
   .container {
@@ -395,95 +405,128 @@ const chart = (node: any, transactions: any[]) => {
 
   .title--hidden {
     height: 0;
+    overflow: hidden;
   }
 
   .recent-transaction {
     display: flex;
     justify-content: space-between;
-    margin: 1rem 0;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(28, 28, 38, 0.8);
+    transition: all 0.1s ease;
+  }
+
+  .recent-transaction:last-child {
+    border-bottom: none;
   }
 
   .recent-transaction span {
     font-size: 0.75rem;
+    color: var(--color-neutral-content);
+  }
+
+  .recent-transaction span:first-child {
+    color: var(--color-base-content);
+    font-weight: 500;
+  }
+
+  /* Amount display */
+  .recent-transaction > span:last-child {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-base-content);
+    white-space: nowrap;
   }
 
   .non-amount-details--transactions-grouped {
-    margin-left: 1rem;
+    margin-left: 0.75rem;
   }
 
   .non-amount-details {
     display: flex;
     flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .paid-on {
+    font-size: 0.6875rem !important;
+    color: #4a5568 !important;
   }
 
   .title {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 0.75rem;
   }
 
   .title h1 {
     margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-content);
+    font-family: "Syne", system-ui, sans-serif;
   }
 
   .title a {
-    font-size: 0.8rem;
-    color: var(--primary-color);
-    font-weight: 400;
+    font-size: 0.7rem;
+    color: var(--color-primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .disclaimer {
-    font-size: 0.75rem;
-    margin-top: 0;
-  }
-
-  .recent-spends__title {
-    margin: 0 0 0.5rem 0;
+    font-size: 0.6875rem;
+    margin-top: 0.25rem;
+    color: #3a3a50;
   }
 
   .transaction-group-date {
-    font-weight: 800;
-    margin: 0.5rem 0;
-  }
-
-  .recent-spends__spend-tile {
-    background-color: #383838;
-    column-gap: 0.25rem;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    width: 50%;
+    font-family: "Syne", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-neutral-content);
+    margin: 0.75rem 0 0.25rem 0;
   }
 
   .recent-spends__content {
     display: flex;
     flex-direction: row;
     gap: 0.5rem;
-    margin: 1rem 0;
+    margin: 0.75rem 0;
+  }
+
+  .recent-spends__spend-tile {
+    background-color: var(--color-base-200);
+    border: 1px solid var(--color-base-300);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    flex: 1;
+  }
+
+  .recent-spends__spend-tile p {
+    font-size: 0.6875rem;
+    color: var(--color-neutral-content);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    font-family: "Syne", sans-serif;
   }
 
   .recent-spends__spend-amount {
-    font-weight: 900;
-    font-size: 2rem;
-    margin: 0.5rem 0;
-  }
-
-  .recent-spends__title {
-    margin-top: 0;
-  }
-
-  .recent-spends__spend-tile {
-    background-color: #383838;
-    /* margin: .25rem; */
-    column-gap: 0.25rem;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    width: 50%;
-  }
-
-  .recent-spends__content {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    font-family: "JetBrains Mono", monospace !important;
+    font-weight: 700 !important;
+    font-size: 1.375rem !important;
+    color: var(--color-base-content) !important;
+    margin: 0 !important;
+    letter-spacing: -0.02em;
   }
 </style>

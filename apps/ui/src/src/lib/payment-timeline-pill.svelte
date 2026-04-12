@@ -50,23 +50,28 @@ export let showLabel = true;
   .pill {
     display: flex;
     width: 100%;
-    padding: 0.25rem 0 0.25rem 0;
+    padding: 0.25rem 0;
     margin: 0;
+    align-items: center;
   }
   .pill > span {
-    height: 0.3125rem;
-    border-radius: 0.25rem;
-    margin: 1.25rem 0 0 0;
+    height: 3px;
+    border-radius: 2px;
+    margin: 1rem 0 0 0;
   }
   .pill--filled {
-    background-color: var(--primary-color);
+    background-color: var(--color-primary);
+    box-shadow: 0 0 4px rgba(0, 212, 184, 0.4);
   }
   .pill--empty {
-    background-color: #e1e1e1;
+    background-color: #1c1c26;
   }
   .item-title {
-    font-size: 0.75rem;
-    margin: 2rem 0;
-    color: var(--color-primary);
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    margin: 1.75rem 0;
+    color: var(--color-neutral-content);
+    letter-spacing: 0.01em;
   }
 </style>

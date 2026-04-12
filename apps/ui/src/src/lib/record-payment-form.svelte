@@ -150,11 +150,7 @@ const onAmountSearchBoxFocusout = () => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 1rem;
-    border-radius: 8px;
-    background-color: var(--color-background);
-    box-shadow: var(--shadow-elevation-2);
+    gap: 0.75rem;
     overflow-y: scroll;
   }
 
@@ -162,43 +158,88 @@ const onAmountSearchBoxFocusout = () => {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    padding-bottom: 3rem;
   }
 
-  .form-container:last-child {
-    margin-bottom: 4rem;
+  .form-container h2 {
+    font-family: "Syne", sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-base-content);
+    margin: 0 0 0.5rem 0;
   }
-  
+
+  .form-container label {
+    font-family: "Syne", sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-neutral-content);
+    margin-top: 0.5rem;
+  }
+
   .bill-statement {
-    margin: .25rem 0
+    margin: 0.25rem 0;
   }
 
   .bill-statement--locked {
-    /* border: .25rem solid var(--primary-accent-color); */
-    /* border-radius: 0.425rem; */
-    opacity: .3;
+    opacity: 0.3;
   }
 
   .bill-statement--selected {
     opacity: 1;
-    border: .25rem solid var(--primary-accent-color);
-    border-radius: 0.425rem;
+    border: 2px solid var(--color-primary);
+    border-radius: 0.5rem;
   }
 
-  input {
-    border: 0;
-    border-radius: 0.25rem;
-    padding: 0.5rem;
-    font-size: 1.5rem;
+  input[type="text"],
+  input:not([type="checkbox"]) {
+    background-color: var(--color-base-300);
+    border: 1px solid #2a2a38;
+    border-radius: 0.375rem;
+    color: var(--color-base-content);
+    padding: 0.625rem 0.75rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.25rem;
+    font-weight: 600;
+    width: 100%;
+    transition: border-color 0.15s ease;
+  }
+
+  input:not([type="checkbox"]):focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+
+  input::placeholder {
+    color: #3a3a50;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
   }
 
   .checkbox-group {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+
+  .checkbox-group label {
+    margin-top: 0;
+    font-size: 0.8125rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-base-content);
   }
 
   .total-amount {
-    margin-left: 1rem;
-    font-size: 2rem
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0.25rem 0;
   }
 </style>

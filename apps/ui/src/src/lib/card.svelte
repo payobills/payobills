@@ -14,15 +14,19 @@ export let title: string = "";
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    /* background-color: #f3f3f3; */
-    background-color: rgb(59, 59, 59);
-    /* background-color: #f3f3f3; */
-    padding: 1rem 1rem;
-    border-radius: 0.425rem;
+    background-color: var(--color-base-200);
+    border: 1px solid var(--color-base-300);
+    padding: 1rem;
+    border-radius: 0.5rem;
   }
 
   .title {
-    color: #9f9f9f;
-    margin: 0.5rem 0 1rem 0;
+    font-family: "Syne", system-ui, sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-content);
+    margin: 0 0 0.75rem 0;
   }
 </style>
