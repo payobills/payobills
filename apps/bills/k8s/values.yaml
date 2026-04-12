@@ -80,6 +80,7 @@ supergraphHook:
   enabled: false
   configMapName: supergraph-config
   namespace: payobills
+  gatewayDeploymentName: payobills-gateway
   roverConfig: ""
 
 autoscaling:

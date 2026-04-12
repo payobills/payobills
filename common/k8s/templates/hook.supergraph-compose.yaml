@@ -2,6 +2,7 @@
 {{- $hookName := printf "%s-supergraph-compose" .Release.Name }}
 {{- $configMapName := default "supergraph-config" .Values.supergraphHook.configMapName }}
 {{- $namespace := default .Release.Namespace .Values.supergraphHook.namespace }}
+{{- $gatewayDeployment := default "payobills-gateway" .Values.supergraphHook.gatewayDeploymentName }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -30,6 +31,10 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     resourceNames: [{{ $configMapName | quote }}]
+    verbs: ["get", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: [{{ $gatewayDeployment | quote }}]
     verbs: ["get", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -95,7 +100,7 @@ spec:
             name: {{ $hookName }}-rover-config
       containers:
         - name: compose-supergraph
-          image: node:22-alpine
+          image: node:22-slim
           volumeMounts:
             - name: rover-config
               mountPath: /config
@@ -105,7 +110,7 @@ spec:
               set -e
 
               echo "Installing kubectl..."
-              apk add --no-cache curl
+              apt-get update -qq && apt-get install -y -qq curl
               KUBECTL_VERSION=$(curl -Ls https://dl.k8s.io/release/stable.txt)
               curl -fsSLo /usr/local/bin/kubectl \
                 "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/arm64/kubectl"
@@ -114,7 +119,8 @@ spec:
               echo "Running supergraph composition..."
               npx --yes @apollo/rover supergraph compose \
                 --config /config/rover.yaml \
-                --output /tmp/supergraph.gql
+                --output /tmp/supergraph.gql \
+                --elv2-license=accept
 
               echo "Building patch payload..."
               node -e "
@@ -134,6 +140,10 @@ spec:
                 -n {{ $namespace }} \
                 --type merge \
                 --patch-file /tmp/patch.json
+
+              echo "Restarting gateway deployment {{ $gatewayDeployment }}..."
+              kubectl rollout restart deployment/{{ $gatewayDeployment }} \
+                -n {{ $namespace }}
 
               echo "Done."
 {{- end }}
