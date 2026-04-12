@@ -76,6 +76,12 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
+supergraphHook:
+  enabled: false
+  configMapName: supergraph-config
+  namespace: payobills
+  roverConfig: ""
+
 autoscaling:
   enabled: false
   minReplicas: 1
