@@ -2,7 +2,6 @@
 const { ApolloServer } = require('@apollo/server');
 const { expressMiddleware } = require('@as-integrations/express5');
 const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
-const { printSchema } = require('graphql');
 const { buildSubgraphSchema } = require('@apollo/subgraph');
 const Express = require("express");
 const multer = require('multer');
@@ -120,6 +119,15 @@ input FilesInput {
 
   await apolloServer.start();
 
+  app.get('/graphql', async (req, res, next) => {
+    if (req.query.sdl !== undefined) {
+      const result = await apolloServer.executeOperation({ query: '{ _service { sdl } }' });
+      const sdl = result.body.singleResult?.data?._service?.sdl;
+      return res.type('text/plain').send(sdl);
+    }
+    next();
+  });
+
   app.use(
     '/graphql',
     Express.json(),
@@ -141,3 +149,4 @@ input FilesInput {
 }
 
 main().catch(console.error)
+
