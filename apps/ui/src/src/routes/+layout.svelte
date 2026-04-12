@@ -120,36 +120,55 @@ const toggleFullScreenUiDrawer = () => {
 </main>
 
 <style>
-  @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
-  @import url("https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&family=Vibes&display=swap");
-  @import url("https://fonts.googleapis.com/css2?family=Vibes&display=swap");
+  @import url("https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap");
+  @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap");
+  @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300..700&display=swap");
 
   @import "tailwindcss";
 
   @plugin "daisyui" {
-    themes: dark --default; 
+    themes: dark --default;
     root: ":root";
     logs: true;
   }
 
-  :root {
-    --color: #9f9f9f;
+  /* Override DaisyUI dark theme with sharper financial terminal palette */
+  :root,
+  [data-theme="dark"] {
+    --color-base-100: #09090e;
+    --color-base-200: #111118;
+    --color-base-300: #1c1c26;
+    --color-base-content: #dde1eb;
+    --color-primary: #00d4b8;
+    --color-primary-content: #000a09;
+    --color-secondary: #6d28d9;
+    --color-secondary-content: #f0ebff;
+    --color-accent: #00d4b8;
+    --color-accent-content: #000a09;
+    --color-neutral: #1c1c26;
+    --color-neutral-content: #a8b0c0;
+    --color-info: #38bdf8;
+    --color-success: #22d3a0;
+    --color-warning: #fbbf24;
+    --color-error: #f43f5e;
 
-    --primary-color: #181818;
-    --primary-bg-color: #f3f3f3;
-    --secondary-bg-color: #bbbbbb;
-    --primary-accent-color: #3367d6;
-
-    --color-primary: #3367d6;
+    /* Legacy vars for backward compat */
+    --color: #8892a4;
+    --primary-color: #00d4b8;
+    --primary-bg-color: #09090e;
+    --secondary-bg-color: #1c1c26;
+    --primary-accent-color: #00d4b8;
+    --color-primary: #00d4b8;
   }
 
   .drawer-transparent {
-    background-color: rgba(0, 0, 0, 0.45);
+    background-color: rgba(0, 0, 0, 0.6);
     position: absolute;
     top: 0;
     width: 100%;
     height: 100%;
     z-index: 1001;
+    backdrop-filter: blur(2px);
   }
 
   .drawer-content-container {
@@ -171,14 +190,15 @@ const toggleFullScreenUiDrawer = () => {
   }
 
   .drawer-container {
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: #111118;
+    border-top: 1px solid #1c1c26;
     position: absolute;
     bottom: 0;
-    box-shadow: 0px 4px 16px black;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.6);
     width: calc(100%);
     height: 70%;
     padding: 1rem;
-    border-radius: 1rem 1rem 0 0;
+    border-radius: 0.75rem 0.75rem 0 0;
     transition: height cubic-bezier(0.19, 1, 0.22, 1) .3s;
     z-index: 1002;
   }
@@ -202,11 +222,14 @@ const toggleFullScreenUiDrawer = () => {
   :global(a) {
     font-size: 0.8rem;
     color: var(--color-primary);
-    font-weight: 400;
+    font-weight: 500;
+    text-decoration: none;
   }
 
   :global(p) {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--color-neutral-content);
+    line-height: 1.6;
   }
 
   :global(div#app) {
@@ -218,47 +241,55 @@ const toggleFullScreenUiDrawer = () => {
     padding: 0;
   }
 
-  /* :global(body) { */
-    /* background-color: var(--primary-bg-color); */
-  /* } */
-
   :global(#app) {
     display: flex;
     flex-direction: column;
+    background-color: var(--color-base-100);
   }
 
   :global(*) {
-    font-family:
-      "Figtree",
-      "Helvetica Neue",
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      Roboto,
-      Oxygen,
-      Ubuntu,
-      Cantarell,
-      "Open Sans",
-      sans-serif;
+    font-family: "DM Sans", system-ui, -apple-system, sans-serif;
     font-weight: 400;
+    box-sizing: border-box;
   }
 
-  :global(button) {
-    background-color: var(--color-primary);
-    text-transform: uppercase;
+  :global(h1, h2, h3, h4, h5, h6) {
+    font-family: "Syne", system-ui, sans-serif;
+    letter-spacing: -0.02em;
+    color: var(--color-base-content);
   }
 
   :global(h1) {
     margin: 0.5rem 0;
     font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--color-primary)
+    font-weight: 700;
+    color: var(--color-base-content);
   }
 
   :global(h2) {
     font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-base-content);
+  }
+
+  :global(h3) {
+    font-size: 0.9375rem;
     font-weight: 600;
+  }
+
+  :global(button) {
+    font-family: "DM Sans", system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+  }
+
+  /* Numbers get monospace treatment */
+  :global(.mono, .amount, .stat-value) {
+    font-family: "JetBrains Mono", monospace;
+    font-feature-settings: "tnum";
   }
 
   main {
@@ -266,23 +297,20 @@ const toggleFullScreenUiDrawer = () => {
     flex-direction: column;
     overflow-y: scroll;
     align-self: stretch;
-    /* padding: 1rem; */
+    background-color: var(--color-base-100);
   }
 
-  :global(h1, h2, h3, h4, h5, h6) {
-    font-family:
-      "Figtree",
-      "Helvetica Neue",
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      "Segoe UI",
-      Roboto,
-      Oxygen,
-      Ubuntu,
-      Cantarell,
-      "Open Sans",
-      sans-serif;
+  /* Scrollbar styling */
+  :global(*::-webkit-scrollbar) {
+    width: 4px;
+    height: 4px;
+  }
+  :global(*::-webkit-scrollbar-track) {
+    background: transparent;
+  }
+  :global(*::-webkit-scrollbar-thumb) {
+    background: #2a2a38;
+    border-radius: 2px;
   }
 </style>
 

@@ -18,15 +18,19 @@ export let idea: string;
 <style>
   .idea-card {
     display: flex;
-    padding: 1rem 1rem 1rem .5rem;
-    background-color: #454545;
-    border-radius: .2rem;
+    padding: 0.625rem 0.75rem;
+    background-color: rgba(251, 191, 36, 0.07);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 0.5rem;
     align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
   }
 
   p {
     margin: 0;
-    color: #eee;
+    color: rgba(251, 191, 36, 0.9);
     font-size: 0.75rem;
+    line-height: 1.5;
   }
 </style>

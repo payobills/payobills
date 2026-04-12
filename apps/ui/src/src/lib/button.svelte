@@ -29,6 +29,23 @@ let {
 <style>
   button {
     width: 100%;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-primary, #00d4b8);
+    color: var(--color-primary-content, #000a09);
+    border: none;
+    border-radius: 0.5rem;
+    font-family: "Syne", system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+    margin-top: 0.5rem;
+  }
+
+  button:hover {
+    opacity: 0.85;
   }
 
   :global(.button-container > .icon-button) {

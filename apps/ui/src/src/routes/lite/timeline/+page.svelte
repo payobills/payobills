@@ -73,7 +73,15 @@ const onRecordingPayment = ({
 </section>
 
 <style>
-  p {
-    margin: 0;
+  .timeline-page {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .timeline-page > p {
+    margin: 1rem;
+    font-size: 0.8125rem;
+    color: var(--color-neutral-content, #8892a4);
   }
 </style>

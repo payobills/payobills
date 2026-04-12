@@ -21,8 +21,16 @@ export let style = "";
 
 <style>
   button {
-    /* background-color: transparent; */
     margin: 0;
-    padding: 1.6rem;
+    padding: 0.6rem;
+    border-radius: 0.375rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease;
+  }
+
+  button:hover {
+    opacity: 0.8;
   }
 </style>

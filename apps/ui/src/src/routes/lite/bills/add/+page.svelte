@@ -82,15 +82,36 @@ const addBill = async () => {
 
 <style>
   div {
-    font-size: 0.8rem;
-    color: var(--color);
+    font-size: 0.75rem;
+    color: var(--color-neutral-content, #8892a4);
+    font-family: "Syne", sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-top: 0.75rem;
   }
 
   input {
-    border: none;
-    margin: 0.5rem 0;
-    padding: 0.5rem;
+    background-color: var(--color-base-300, #1c1c26);
+    border: 1px solid #2a2a38;
+    border-radius: 0.375rem;
+    color: var(--color-base-content, #dde1eb);
+    margin: 0.25rem 0 0;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    font-family: "DM Sans", sans-serif;
     align-self: stretch;
+    transition: border-color 0.15s ease;
+    width: 100%;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--color-primary, #00d4b8);
+  }
+
+  input::placeholder {
+    color: #3a3a50;
   }
 
   .add-bill-form {
@@ -102,6 +123,26 @@ const addBill = async () => {
   .actions {
     display: flex;
     justify-content: space-between;
-    align-self: flex;
+    align-items: center;
+    margin-top: 1.25rem;
+  }
+
+  .actions button {
+    background-color: var(--color-primary, #00d4b8);
+    color: var(--color-primary-content, #000a09);
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.625rem 1.5rem;
+    font-family: "Syne", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  .actions button:hover {
+    opacity: 0.85;
   }
 </style>

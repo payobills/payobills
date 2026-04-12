@@ -391,49 +391,124 @@ const onRecordPayment = () => {};
   .heading-section {
     display: flex;
     align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-base-300, #1c1c26);
   }
 
   h1 {
-    color: var(--primary-color);
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-family: "Syne", sans-serif;
+    color: var(--color-base-content, #dde1eb);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     flex-grow: 1;
+    margin: 0;
   }
 
   h2 {
-    margin-top: 2rem;
+    font-family: "Syne", sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-neutral-content, #8892a4);
+    margin: 1.25rem 0 0.5rem 0;
   }
 
   p {
     font-size: 0.8rem;
+    color: var(--color-neutral-content, #8892a4);
   }
+
   .content {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
   }
+
+  .bill-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.375rem 1rem;
+    font-size: 0.75rem;
+    color: var(--color-neutral-content, #8892a4);
+    background-color: var(--color-base-300, #1c1c26);
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .bill-details div:nth-child(odd) {
+    font-family: "Syne", sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #4a5568;
+  }
+
   .actions {
     display: flex;
     flex-grow: 1;
     justify-content: flex-end;
     flex-direction: column;
+    margin-top: 1rem;
   }
 
   .actions > button {
     margin: 0.25rem 0;
     width: 100%;
+    padding: 0.625rem 1rem;
+    background-color: rgba(0, 212, 184, 0.1);
+    border: 1px solid rgba(0, 212, 184, 0.25);
+    color: var(--color-primary, #00d4b8);
+    border-radius: 0.5rem;
+    font-family: "Syne", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .actions > button:hover {
+    background-color: rgba(0, 212, 184, 0.18);
+    border-color: rgba(0, 212, 184, 0.5);
   }
 
   .payment {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(28, 28, 38, 0.8);
+    font-size: 0.75rem;
   }
 
-  .amount,
+  .amount {
+    flex-grow: 1;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 600;
+    color: var(--color-base-content, #dde1eb);
+    font-size: 0.8125rem;
+  }
+
   .amount--unknown {
     flex-grow: 1;
+    color: #4a5568;
+    font-style: italic;
+  }
+
+  .paid-on {
+    color: #4a5568;
+    font-size: 0.6875rem;
   }
 
   span.bill-detail {
-    font-weight: 800;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 700;
+    color: var(--color-primary, #00d4b8);
   }
 </style>
