@@ -1,6 +1,6 @@
 use std::{error::Error, future::Future};
 
-pub(crate) fn cli() -> impl Future<Output = Result<(), Box<(dyn Error)>>> {
+pub(crate) fn cli() -> impl Future<Output = Result<(), Box<dyn Error + Send + Sync>>> {
     let nocodb_env = crate::payobills::transaction_parser::NocoDBEnv {
         base_url: std::env::var("NOCODB__BASE_URL").expect("NOCODB__BASE_URL must be set"),
 

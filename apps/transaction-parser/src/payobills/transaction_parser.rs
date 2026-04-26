@@ -137,7 +137,7 @@ impl SerializeImpl for Value {
 async fn parse_transaction(
     record: Transaction,
     nocodb_env: NocoDBEnv,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Bag to keep all changes to be made to the transaction during parsing
     let mut changes: HashMap<String, Value> = HashMap::new();
 
@@ -549,7 +549,7 @@ async fn get_nocodb_records<T>(
     base_name: String,
     table_name: String,
     filter: &str,
-) -> Result<NocoDBResponse<T>, Box<dyn Error>>
+) -> Result<NocoDBResponse<T>, Box<dyn Error + Send + Sync>>
 where
     T: serde::de::DeserializeOwned,
 {
@@ -572,7 +572,7 @@ where
     Ok(response)
 }
 
-pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: String) -> Result<(), Box<dyn Error>> {
+pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: String) -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut map = HeaderMap::new();
     map.insert("xc-token", nocodb_env.api_key.parse().unwrap());
 
@@ -595,7 +595,7 @@ pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: Stri
     parse_transaction(response, nocodb_env).await
 }
 
-pub async fn process_transactions(nocodb_env: NocoDBEnv) -> Result<(), Box<dyn Error>> {
+pub async fn process_transactions(nocodb_env: NocoDBEnv) -> Result<(), Box<dyn Error + Send + Sync>> {
     // let mut offset = 0;
     let mut parse_more = true;
 
@@ -649,7 +649,7 @@ fn parse_custom_date(
     input_date: &str,
     date_format: &str,
     use_jiff: bool,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if use_jiff {
         let zdt = jiff::Timestamp::strptime(date_format, input_date)?;
         println!("{}", zdt);

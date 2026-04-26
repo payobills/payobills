@@ -4,6 +4,10 @@ use std::collections::HashMap;
 
 use crate::payobills::transaction_parser::NocoDBEnv;
 
+pub struct OXREnv {
+    pub app_id: String,
+}
+
 #[derive(Deserialize)]
 struct OpenExchangeRatesResponse {
     base: String,
@@ -38,7 +42,7 @@ pub async fn fetch_and_store_rates(
     nocodb_env: NocoDBEnv,
     app_id: String,
     date: String,
-) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+) -> Result<HashMap<String, f64>, Box<dyn std::error::Error + Send + Sync>> {
     let mut headers = HeaderMap::new();
     headers.insert("xc-token", nocodb_env.api_key.parse()?);
 
@@ -122,6 +126,6 @@ pub async fn get_conversion_rates(
     nocodb_env: NocoDBEnv,
     app_id: String,
     date: String,
-) -> Result<HashMap<String, f64>, Box<dyn std::error::Error>> {
+) -> Result<HashMap<String, f64>, Box<dyn std::error::Error + Send + Sync>> {
     fetch_and_store_rates(nocodb_env, app_id, date).await
 }
