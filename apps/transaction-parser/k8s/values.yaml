@@ -45,6 +45,11 @@ pod:
     value: "m80bahqoxl4l25k"
   - name: NOCODB__TABLE_NAME__CURRENCIES__CURRENCIES
     value: "mh2815f1o7yc3c2"
+  - name: EXTERNAL_CONVERSION_SERVICE__APP_ID
+    valueFrom:
+      secretKeyRef:
+        name: oxr
+        key: app-id
   - name: RUST_BACKTRACE
     value: "full"
 
