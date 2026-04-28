@@ -15,7 +15,7 @@ sh_cmd(
     name = "helm_chart",
     srcs = [":version"],
     deps = [":helm_tarball"],
-    cmd = 'mv plz-out/gen/apps/{svc}/{svc}.tgz plz-out/gen/apps/{svc}/{svc}-v$(cat $SRCS).tgz'.format(svc=svc)
+    cmd = 'mv plz-out/gen/apps/{svc}/{svc}.tgz plz-out/gen/apps/{svc}/{svc}-$(cat $SRCS).tgz'.format(svc=svc)
 )
 
 tarball(
