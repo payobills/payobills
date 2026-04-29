@@ -32,19 +32,6 @@ struct CurrencyRecord {
     aliases: Vec<String>
 }
 
-#[derive(Serialize, Deserialize)]
-struct CurrencyExchangeData {
-    rates: HashMap<String, f64>,
-}
-
-#[derive(Serialize, Deserialize)]
-struct HistoricalCurrencyExchangeRateRecord {
-    #[serde(rename = "Date")]
-    date: String,
-    #[serde(rename = "ExchangeData")]
-    exchange_data: CurrencyExchangeData,
-}
-
 #[derive(Clone)]
 pub struct NocoDBEnv {
     pub base_url: String,
@@ -150,7 +137,7 @@ impl SerializeImpl for Value {
 async fn parse_transaction(
     record: Transaction,
     nocodb_env: NocoDBEnv,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Bag to keep all changes to be made to the transaction during parsing
     let mut changes: HashMap<String, Value> = HashMap::new();
 
@@ -459,73 +446,67 @@ async fn parse_transaction(
             if currency != "INR" {
                 let paid_at =
                     DateTime::parse_from_rfc3339(record.paid_at.clone().unwrap().as_str()).unwrap();
-                let transaction_date_string = paid_at.format("%Y-%m-%d").to_string(); // Extract the date part
-                                                                                      // println!("{:?}", date_str); // Output: "2022-07-25"
-                                                                                      // println!("(Date,eq,exactDate,{})&l=1", transaction_date_string);
-                let exchange_records: NocoDBResponse<HistoricalCurrencyExchangeRateRecord> =
-                    get_nocodb_records(
-                        nocodb_env.clone(),
-                        nocodb_env.clone().base_name_currencies,
-                        nocodb_env.clone().table_name_currencies_historical,
-                        format!("(Date,eq,exactDate,{})&l=1", transaction_date_string).as_str(),
-                    )
-                    .await?;
+                let transaction_date_string = paid_at.format("%Y-%m-%d").to_string();
 
-                if exchange_records.list.len() > 0 {
-                    let exchange_rates: HashMap<String, f64> = exchange_records
-                        .list
-                        .get(0)
-                        .unwrap()
-                        .exchange_data
-                        .rates
-                        .clone();
+                let app_id = std::env::var("EXTERNAL_CONVERSION_SERVICE__APP_ID")
+                    .unwrap_or_default();
 
-                    match record.amount {
-                        Some(amount) => {
-                            let currencies: Vec<CurrencyRecord> = get_nocodb_records(
-                                nocodb_env.clone(),
-                                nocodb_env.clone().base_name_currencies,
-                                nocodb_env.clone().table_name_currencies_currencies,
-                                "(Code,neq,'')",
-                            )
-                            .await?
-                            .list;
+                match crate::payobills::currency_sync::get_conversion_rates(
+                    nocodb_env.clone(),
+                    app_id,
+                    transaction_date_string,
+                )
+                .await
+                {
+                    Ok(exchange_rates) => {
+                        match record.amount {
+                            Some(amount) => {
+                                let currencies: Vec<CurrencyRecord> = get_nocodb_records(
+                                    nocodb_env.clone(),
+                                    nocodb_env.clone().base_name_currencies,
+                                    nocodb_env.clone().table_name_currencies_currencies,
+                                    "(Code,neq,'')",
+                                )
+                                .await?
+                                .list;
 
-                            let matching_currency_records: Vec<&CurrencyRecord> = currencies
-                                .iter()
-                                .filter(|curr| currency == curr.code || curr.aliases.contains(&currency) || currency == curr.symbol)
-                                .clone()
-                                .collect();
+                                let matching_currency_records: Vec<&CurrencyRecord> = currencies
+                                    .iter()
+                                    .filter(|curr| currency == curr.code || curr.aliases.contains(&currency) || currency == curr.symbol)
+                                    .collect();
 
-                            if matching_currency_records.len() > 0 {
-                                let matching_currency_record = matching_currency_records[0];
+                                if matching_currency_records.len() > 0 {
+                                    let matching_currency_record = matching_currency_records[0];
 
-                                let exchange_rate_usd_to_source: f64 = exchange_rates
-                                    .get(matching_currency_record.code.as_str())
-                                    .unwrap()
-                                    .clone();
-                                let exchange_rate_usd_to_inr: f64 =
-                                    exchange_rates.get("INR").unwrap().clone();
-                                let normalized_amount =
-                                    amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
+                                    let exchange_rate_usd_to_source: f64 = exchange_rates
+                                        .get(matching_currency_record.code.as_str())
+                                        .unwrap()
+                                        .clone();
+                                    let exchange_rate_usd_to_inr: f64 =
+                                        exchange_rates.get("INR").unwrap().clone();
+                                    let normalized_amount =
+                                        amount / exchange_rate_usd_to_source * exchange_rate_usd_to_inr;
 
-                                changes.insert(
-                                    "Currency".to_string(),
-                                    Value::Str(matching_currency_record.code.as_str().to_string()),
-                                );
-                                changes.insert(
-                                    "NormalizedAmount".to_string(),
-                                    Value::F64(normalized_amount),
-                                );
+                                    changes.insert(
+                                        "Currency".to_string(),
+                                        Value::Str(matching_currency_record.code.as_str().to_string()),
+                                    );
+                                    changes.insert(
+                                        "NormalizedAmount".to_string(),
+                                        Value::F64(normalized_amount),
+                                    );
+                                }
                             }
+                            None => {}
                         }
-                        None => {}
                     }
-                } else {
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str(String::from("ReParse")),
-                    );
+                    Err(e) => {
+                        eprintln!("Failed to get conversion rates: {}", e);
+                        changes.insert(
+                            "ParseStatus".to_string(),
+                            Value::Str(String::from("ReParse")),
+                        );
+                    }
                 }
             }
             // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
@@ -568,7 +549,7 @@ async fn get_nocodb_records<T>(
     base_name: String,
     table_name: String,
     filter: &str,
-) -> Result<NocoDBResponse<T>, Box<dyn Error>>
+) -> Result<NocoDBResponse<T>, Box<dyn Error + Send + Sync>>
 where
     T: serde::de::DeserializeOwned,
 {
@@ -591,7 +572,7 @@ where
     Ok(response)
 }
 
-pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: String) -> Result<(), Box<dyn Error>> {
+pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: String) -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut map = HeaderMap::new();
     map.insert("xc-token", nocodb_env.api_key.parse().unwrap());
 
@@ -614,7 +595,7 @@ pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: Stri
     parse_transaction(response, nocodb_env).await
 }
 
-pub async fn process_transactions(nocodb_env: NocoDBEnv) -> Result<(), Box<dyn Error>> {
+pub async fn process_transactions(nocodb_env: NocoDBEnv) -> Result<(), Box<dyn Error + Send + Sync>> {
     // let mut offset = 0;
     let mut parse_more = true;
 
@@ -668,7 +649,7 @@ fn parse_custom_date(
     input_date: &str,
     date_format: &str,
     use_jiff: bool,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if use_jiff {
         let zdt = jiff::Timestamp::strptime(date_format, input_date)?;
         println!("{}", zdt);
