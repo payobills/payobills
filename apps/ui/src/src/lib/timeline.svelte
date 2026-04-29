@@ -168,6 +168,10 @@ onMount(() => {
     border-bottom: 1px solid var(--color-base-300);
   }
 
+  :global(.timeline-view > .idea-card) {
+    margin-top: 1rem;
+  }
+
   .billing-cycles-view {
     border-bottom: none;
   }
