@@ -244,6 +244,7 @@ const toggleFullScreenUiDrawer = () => {
     display: flex;
     flex-direction: column;
     background-color: var(--color-base-100);
+    padding-top: env(safe-area-inset-top);
   }
 
   :global(*) {
