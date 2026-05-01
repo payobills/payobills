@@ -70,14 +70,18 @@ async fn fetch_historical_rates(
     oxr_base_url: &str,
     app_id: &str,
     date: &str,
-) -> Result<HashMap<String, f64>, Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<Option<HashMap<String, f64>>, Box<dyn std::error::Error + Send + Sync>> {
     let url = format!(
         "{}/api/historical/{}.json?app_id={}",
         oxr_base_url, date, app_id
     );
     let resp = reqwest::Client::new().get(&url).send().await?;
-    if !resp.status().is_success() {
-        let status = resp.status();
+    let status = resp.status();
+    if status == reqwest::StatusCode::NOT_FOUND {
+        // 404 means the day hasn't closed in the westernmost timezone yet
+        return Ok(None);
+    }
+    if !status.is_success() {
         let body = resp.text().await.unwrap_or_default();
         return Err(format!(
             "openexchangerates.org historical request failed ({}): {}",
@@ -93,7 +97,7 @@ async fn fetch_historical_rates(
         )
         .into());
     }
-    Ok(data.rates)
+    Ok(Some(data.rates))
 }
 
 async fn insert_rate_record(
@@ -227,8 +231,8 @@ async fn fetch_and_store_rates_inner(
             }
             Some(row) => {
                 // current=true row from a past date — try to promote to historical
-                match fetch_historical_rates(oxr_base_url, &app_id, &date).await {
-                    Ok(rates) => {
+                match fetch_historical_rates(oxr_base_url, &app_id, &date).await? {
+                    Some(rates) => {
                         patch_rate_record(
                             &nocodb_env,
                             headers,
@@ -238,14 +242,14 @@ async fn fetch_and_store_rates_inner(
                         .await?;
                         Ok(rates)
                     }
-                    // Date hasn't closed in the westernmost timezone yet — reuse cached rates
-                    Err(_) => Ok(row.exchange_data.rates),
+                    // 404: date hasn't closed in the westernmost timezone yet — reuse cached rates
+                    None => Ok(row.exchange_data.rates),
                 }
             }
             None => {
-                // No record at all — try historical, fall back to latest if not yet available
-                match fetch_historical_rates(oxr_base_url, &app_id, &date).await {
-                    Ok(rates) => {
+                // No record at all — try historical, fall back to latest only on 404
+                match fetch_historical_rates(oxr_base_url, &app_id, &date).await? {
+                    Some(rates) => {
                         insert_rate_record(
                             &nocodb_env,
                             headers,
@@ -255,8 +259,8 @@ async fn fetch_and_store_rates_inner(
                         .await?;
                         Ok(rates)
                     }
-                    // Date hasn't closed in the westernmost timezone — store as current
-                    Err(_) => {
+                    // 404: date hasn't closed in the westernmost timezone — store as current
+                    None => {
                         let rates = fetch_latest_rates(oxr_base_url, &app_id).await?;
                         insert_rate_record(
                             &nocodb_env,
