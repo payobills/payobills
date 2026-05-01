@@ -9,10 +9,10 @@
       "sizes": "512x512"
     }
   ],
-  "background_color": "#696adb",
+  "background_color": "#09090e",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#696adb",
+  "theme_color": "#09090e",
   "shortcuts": [],
   "description": "pay your bills on time"
 }
