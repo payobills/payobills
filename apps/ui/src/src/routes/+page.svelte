@@ -26,15 +26,15 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     background: linear-gradient(to right, ${colorsLeftToRight.join(", ")});
     border: none;
     color: white;
-    margin-right: 2rem;
     border-radius: 2.5rem;
     height: 5rem;
-    width: 5rem;
+    width: 20%; 
     cursor: pointer;
   `;
 </script>
 
 <section>
+  <div class="content">
   <h1>Payobills</h1>
   
   <p class="one-liner">
@@ -95,6 +95,7 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
   </p>
   </blockquote>
 
+    </div>
     <a
     class="login-link"
     href={$envStore?.INJECTED_OIDC_TENANT_LOGIN_URL_TEMPLATE
@@ -117,6 +118,11 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     display: flex;
     flex-direction: column;
     max-width: 60rem;
+    height: 100%;
+  }
+
+  .content {
+    flex-grow: 1;
   }
 
   .one-liner {
@@ -144,6 +150,7 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
 
   .card {
     display: flex;
+    flex-direction: row;
     align-items: center;
     min-height: 8rem;
     padding: 2rem 2.5rem;
@@ -161,13 +168,13 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
   .login-link {
     align-self: center;
     width: auto;
-    font-family: "Figtree";
+    font-family: "Syne";
     font-weight: 900;
-    text-transform: unset;
+    text-transform: uppercase;
     background: linear-gradient(to right, var(--color-primary), #633cbd);
     border: none;
     color: white;
-    margin: 1rem 0;
+    margin: 2rem;
     margin-top: 4rem;
     padding: 1rem 10rem;
     font-size: 1.5rem;
