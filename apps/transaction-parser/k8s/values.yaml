@@ -50,6 +50,11 @@ pod:
       secretKeyRef:
         name: oxr
         key: app-id
+  - name: SLMPARSER__BASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: slm-parser
+        key: base-url
   - name: RUST_BACKTRACE
     value: "full"
 
