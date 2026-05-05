@@ -23,9 +23,16 @@ pub(crate) fn cli() -> impl Future<Output = Result<(), Box<dyn Error + Send + Sy
 
         api_key: std::env::var("NOCODB__INTEGRATION_TOKEN")
             .expect("NOCODB__INTEGRATION_TOKEN must be set"),
+
+        table_name_regex_patterns: std::env::var("NOCODB__TABLE_NAME__REGEX_PATTERNS")
+            .unwrap_or_else(|_| String::from("transaction_regex_patterns")),
     };
 
-    return crate::payobills::transaction_parser::process_transactions(nocodb_env.clone());
+    let slm_env = std::env::var("SLMPARSER__BASE_URL")
+        .ok()
+        .map(|url| crate::payobills::transaction_parser::SLMParserEnv { base_url: url });
+
+    return crate::payobills::transaction_parser::process_transactions(nocodb_env.clone(), slm_env);
         // .await
         // .map_err(|e| {
         //     eprintln!("Error processing transactions: {}", e);

@@ -7,17 +7,26 @@ use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::error::Error;
 
+// Kept until patterns are pre-populated in NocoDB (Step 6) and hardcoded block is removed (Step 7)
+#[allow(dead_code)]
 const BILL_TYPE_AMEX: &str = "Amex";
+#[allow(dead_code)]
 const BILL_TYPE_SAVINGS_ACCOUNT: &str = "SavingsAccount";
+#[allow(dead_code)]
 const BILL_TYPE_TESTING: &str = "Testing";
+#[allow(dead_code)]
 const BILL_TYPE_JUPITER: &str = "Jupiter";
+#[allow(dead_code)]
 const BILL_TYPE_SBI_PRIME: &str = "SBI-Prime";
 
 // References
 // https://docs.rs/jiff/latest/jiff/#parsing-an-rfc-2822-datetime-string
 // https://docs.rs/strptime/latest/strptime/struct.Parser.html
+#[allow(dead_code)]
 const TRANSACTION_DATE_FORMAT_AMEX: &str = "%d %B %Y at %I:%M %p %z";
+#[allow(dead_code)]
 const TRANSACTION_DATE_FORMAT_JUPITER: &str = "%-m/%-d/%y, %I:%M %p %z";
+#[allow(dead_code)]
 const TRANSACTION_DATE_FORMAT_SBI_PRIME: &str = "%d/%m/%y %H:%M %z";
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -33,6 +42,11 @@ struct CurrencyRecord {
 }
 
 #[derive(Clone)]
+pub struct SLMParserEnv {
+    pub base_url: String,
+}
+
+#[derive(Clone)]
 pub struct NocoDBEnv {
     pub base_url: String,
     pub api_key: String,
@@ -41,6 +55,7 @@ pub struct NocoDBEnv {
     pub table_name_currencies_historical: String,
     pub table_name_currencies_currencies: String,
     pub table_name_payobills_transactions: String,
+    pub table_name_regex_patterns: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -133,10 +148,42 @@ impl SerializeImpl for Value {
     }
 }
 
-// Function to parse the transaction text for AMEX transactions
+fn apply_captures(
+    caps: &regex::Captures,
+    fields: &[crate::payobills::slm_client::FieldDescriptor],
+    changes: &mut HashMap<String, Value>,
+) {
+    for field in fields {
+        let Some(m) = caps.name(&field.name) else { continue };
+        let raw = m.as_str().trim();
+        match field.field_type.as_str() {
+            "date" => {
+                if let Some(ref fmt) = field.format {
+                    match parse_custom_date(raw, fmt, true) {
+                        Ok(date_str) => { changes.insert("BackDate".to_string(), Value::Str(date_str)); }
+                        Err(e) => { eprintln!("Unable to parse date from transaction text - {}", e); }
+                    }
+                }
+            }
+            _ => match field.name.as_str() {
+                "amount" => {
+                    let cleaned = raw.replace(',', "");
+                    if let Ok(val) = cleaned.parse::<f64>() {
+                        changes.insert("Amount".to_string(), Value::F64(val));
+                    }
+                }
+                "merchant" => { changes.insert("Merchant".to_string(), Value::Str(raw.to_string())); }
+                "currency" => { changes.insert("Currency".to_string(), Value::Str(raw.to_string())); }
+                _ => {}
+            },
+        }
+    }
+}
+
 async fn parse_transaction(
     record: Transaction,
     nocodb_env: NocoDBEnv,
+    slm_env: Option<&SLMParserEnv>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Bag to keep all changes to be made to the transaction during parsing
     let mut changes: HashMap<String, Value> = HashMap::new();
@@ -165,277 +212,149 @@ async fn parse_transaction(
 
     match record.bill_type {
         Some(ref bill_type) => {
-            if bill_type == BILL_TYPE_AMEX {
-                let re = Regex::new(
-            r"^Alert: You've spent (?P<currency>[^\d\s]+)\s{0,1}(?P<amount>[\d,]+\.?\d+) on your AMEX card \*\* (?P<card>\d+)( at ){0,1}(?P<merchant>.*) on (?P<date>[\d]{1,2} \w+,? [\d]{4} at \d{2,2}:\d{2,2} [A-Z]{2,2}) (?P<timezone>[A-Z]{2,3})\..*$",
-        )
-        .unwrap();
-                if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-                    let amount = caps
-                        .name("amount")
-                        .expect("CAPTURE TO BE PRESENT")
-                        .as_str()
-                        .trim()
-                        .to_string()
-                        .replace(',', "");
-
-                    let date_string_capture = caps
-                        .name("date")
-                        .expect("CAPTURE TO BE PRESENT")
-                        .as_str()
-                        .replace(',', "")
-                        .trim()
-                        .to_string();
-
-                    let time_zone_capture = caps
-                        .name("timezone")
-                        .expect("CAPTURE TO BE PRESENT")
-                        .as_str();
-                    let time_zone_percentage_z_format = timezone_to_offset(time_zone_capture);
-
-                    let full_back_date_capture =
-                        format!("{} {}", date_string_capture, time_zone_percentage_z_format);
-
-                    // println!("captured date string - {}", date_string_capture.clone());
-                    match parse_custom_date(
-                        full_back_date_capture.clone().as_str(),
-                        TRANSACTION_DATE_FORMAT_AMEX,
-                        false,
-                    ) {
-                        Ok(date_string) => {
-                            // println!("Parsed date: {:?}", date_string);
-                            changes.insert("BackDate".to_string(), Value::Str(date_string));
+            match slm_env {
+                Some(slm) => {
+                    let transaction_text = record.transaction_text.clone().unwrap_or_default();
+                    let stored_patterns = crate::payobills::regex_store::get_patterns(&nocodb_env, bill_type).await?;
+                    let matched = stored_patterns.iter().find_map(|stored| {
+                        Regex::new(&stored.pattern).ok().and_then(|re| {
+                            re.captures(&transaction_text).map(|caps| (caps, stored))
+                        })
+                    });
+                    match matched {
+                        Some((caps, stored)) => {
+                            apply_captures(&caps, &stored.fields, &mut changes);
+                            changes.insert(
+                                "ParseStatus".to_string(),
+                                Value::Str("ParsedV1".to_string()),
+                            );
                         }
-                        Err(e) => {
-                            // No worries if parsing failed, other fallbacks are present
-                            // Ignore this error
-                            eprintln!("Unable to parse date from transaction text - {}", e);
+                        None if !stored_patterns.is_empty() => {
+                            changes.insert(
+                                "ParseStatus".to_string(),
+                                Value::Str("FailedV1".to_string()),
+                            );
                         }
-                    }
-
-                    changes.insert(
-                        "Merchant".to_string(),
-                        Value::Str(
-                            caps.name("merchant")
-                                .expect("CAPTURE")
-                                .as_str()
-                                .trim()
-                                .to_string(),
-                        ),
-                    );
-                    changes.insert(
-                        "Currency".to_string(),
-                        Value::Str(
-                            caps.name("currency")
-                                .expect("CAPTURE")
-                                .as_str()
-                                .trim()
-                                .to_string(),
-                        ),
-                    );
-                    changes.insert(
-                        "Amount".to_string(),
-                        Value::F64(amount.parse::<f64>().unwrap()),
-                    );
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("ParsedV1".to_string()),
-                    );
-                } else {
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("FailedV1".to_string()),
-                    );
-                }
-            } else if bill_type == BILL_TYPE_JUPITER {
-                // println!("trying to parse SB");
-                // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
-                let re = Regex::new(r"Rs (\d+\.\d+) debited .* on ([^-]*) -").unwrap();
-                if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-                    // changes.insert("Currency".to_string(), Value::Str("INR".to_string()));
-                    changes.insert(
-                        "Amount".to_string(),
-                        Value::F64(
-                            caps.get(1)
-                                .unwrap()
-                                .as_str()
-                                .trim()
-                                .to_string()
-                                .parse::<f64>()
-                                .unwrap(),
-                        ),
-                    );
-
-                    let date_string_capture = caps.get(2).unwrap().as_str().trim().to_string();
-                    let full_back_date_capture = format!("{} +0530", date_string_capture);
-                    println!("Date string captured {}", full_back_date_capture);
-
-                    match parse_custom_date(
-                        full_back_date_capture.clone().as_str(),
-                        TRANSACTION_DATE_FORMAT_JUPITER,
-                        true,
-                    ) {
-                        Ok(date_string) => {
-                            println!("Parsed date: {:?}", date_string);
-                            changes.insert("BackDate".to_string(), Value::Str(date_string));
-                        }
-                        Err(e) => {
-                            // No worries if parsing failed, other fallbacks are present
-                            // Ignore this error
-                            eprintln!("Unable to parse date from transaction text - {}", e);
+                        None => {
+                            match crate::payobills::slm_client::generate_regex(
+                                &slm.base_url,
+                                bill_type,
+                                &transaction_text,
+                            )
+                            .await
+                            {
+                                Ok(generated) => {
+                                    match Regex::new(&generated.regex) {
+                                        Ok(re) if re.is_match(&transaction_text) => {
+                                            let _ = crate::payobills::regex_store::save_pattern(
+                                                &nocodb_env,
+                                                bill_type,
+                                                &generated.regex,
+                                                &generated.fields,
+                                            )
+                                            .await;
+                                            let caps = re.captures(&transaction_text).unwrap();
+                                            apply_captures(&caps, &generated.fields, &mut changes);
+                                            changes.insert(
+                                                "ParseStatus".to_string(),
+                                                Value::Str("ParsedBySLM".to_string()),
+                                            );
+                                        }
+                                        _ => {
+                                            changes.insert(
+                                                "ParseStatus".to_string(),
+                                                Value::Str("FailedNoPattern".to_string()),
+                                            );
+                                        }
+                                    }
+                                }
+                                Err(e) => {
+                                    eprintln!("SLM unreachable for {}: {}", bill_type, e);
+                                    changes.insert(
+                                        "ParseStatus".to_string(),
+                                        Value::Str("NotStarted".to_string()),
+                                    );
+                                }
+                            }
                         }
                     }
-
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("ParsedV1".to_string()),
-                    );
-                } else {
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("FailedV1".to_string()),
-                    );
                 }
-            } else if bill_type == BILL_TYPE_SBI_PRIME {
-                // println!("trying to parse SB");
-                // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
-                let re = Regex::new(
-                    r"([\w\.]*)(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\*]*) on ([\d\/]*)\.",
+                None => {
+                    // SLM not configured — fall back to hardcoded regex per BillType
+                    if bill_type == BILL_TYPE_AMEX {
+                        let re = Regex::new(
+                    r"^Alert: You've spent (?P<currency>[^\d\s]+)\s{0,1}(?P<amount>[\d,]+\.?\d+) on your AMEX card \*\* (?P<card>\d+)( at ){0,1}(?P<merchant>.*) on (?P<date>[\d]{1,2} \w+,? [\d]{4} at \d{2,2}:\d{2,2} [A-Z]{2,2}) (?P<timezone>[A-Z]{2,3})\..*$",
                 )
                 .unwrap();
-                if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-                    changes.insert(
-                        "Currency".to_string(),
-                        Value::Str(caps.get(1).unwrap().as_str().trim().to_string()),
-                    );
-                    // println!("amount cpature {}", caps.get(1).unwrap().as_str());
-                    changes.insert(
-                        "Amount".to_string(),
-                        Value::F64(
-                            caps.get(2)
-                                .unwrap()
-                                .as_str()
-                                .trim()
-                                .to_string()
-                                .replace(',', "")
-                                .parse::<f64>()
-                                .unwrap(),
-                        ),
-                    );
-
-                    changes.insert(
-                        "Merchant".to_string(),
-                        Value::Str(caps.get(3).unwrap().as_str().trim().to_string()),
-                    );
-
-                    let date_string_capture = caps.get(4).unwrap().as_str().trim().to_string();
-                    let full_back_date_capture = format!("{} 00:00 +0530", date_string_capture);
-                    println!("Date string captured {}", full_back_date_capture);
-
-                    match parse_custom_date(
-                        full_back_date_capture.clone().as_str(),
-                        TRANSACTION_DATE_FORMAT_SBI_PRIME,
-                        true,
-                    ) {
-                        Ok(date_string) => {
-                            println!("Parsed date: {:?}", date_string);
-                            changes.insert("BackDate".to_string(), Value::Str(date_string));
+                        if let Some(caps) = re.captures(&record.transaction_text.clone().unwrap_or_default()) {
+                            let amount = caps.name("amount").expect("CAPTURE TO BE PRESENT").as_str().trim().to_string().replace(',', "");
+                            let date_string_capture = caps.name("date").expect("CAPTURE TO BE PRESENT").as_str().replace(',', "").trim().to_string();
+                            let time_zone_capture = caps.name("timezone").expect("CAPTURE TO BE PRESENT").as_str();
+                            let full_back_date_capture = format!("{} {}", date_string_capture, timezone_to_offset(time_zone_capture));
+                            match parse_custom_date(full_back_date_capture.as_str(), TRANSACTION_DATE_FORMAT_AMEX, false) {
+                                Ok(date_string) => { changes.insert("BackDate".to_string(), Value::Str(date_string)); }
+                                Err(e) => { eprintln!("Unable to parse date from transaction text - {}", e); }
+                            }
+                            changes.insert("Merchant".to_string(), Value::Str(caps.name("merchant").expect("CAPTURE").as_str().trim().to_string()));
+                            changes.insert("Currency".to_string(), Value::Str(caps.name("currency").expect("CAPTURE").as_str().trim().to_string()));
+                            changes.insert("Amount".to_string(), Value::F64(amount.parse::<f64>().unwrap()));
+                            changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
+                        } else {
+                            changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
                         }
-                        Err(e) => {
-                            // No worries if parsing failed, other fallbacks are present
-                            // Ignore this error
-                            eprintln!("Unable to parse date from transaction text - {}", e);
+                    } else if bill_type == BILL_TYPE_JUPITER {
+                        let re = Regex::new(r"Rs (\d+\.\d+) debited .* on ([^-]*) -").unwrap();
+                        if let Some(caps) = re.captures(&record.transaction_text.clone().unwrap_or_default()) {
+                            changes.insert("Amount".to_string(), Value::F64(caps.get(1).unwrap().as_str().trim().parse::<f64>().unwrap()));
+                            let full_back_date_capture = format!("{} +0530", caps.get(2).unwrap().as_str().trim());
+                            match parse_custom_date(&full_back_date_capture, TRANSACTION_DATE_FORMAT_JUPITER, true) {
+                                Ok(date_string) => { changes.insert("BackDate".to_string(), Value::Str(date_string)); }
+                                Err(e) => { eprintln!("Unable to parse date from transaction text - {}", e); }
+                            }
+                            changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
+                        } else {
+                            changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
                         }
+                    } else if bill_type == BILL_TYPE_SBI_PRIME {
+                        let re = Regex::new(r"([\w\.]*)(\d+\,?\d+.\d+) spent .* at ([a-zA-Z\*]*) on ([\d\/]*)\.",).unwrap();
+                        if let Some(caps) = re.captures(&record.transaction_text.clone().unwrap_or_default()) {
+                            changes.insert("Currency".to_string(), Value::Str(caps.get(1).unwrap().as_str().trim().to_string()));
+                            changes.insert("Amount".to_string(), Value::F64(caps.get(2).unwrap().as_str().trim().replace(',', "").parse::<f64>().unwrap()));
+                            changes.insert("Merchant".to_string(), Value::Str(caps.get(3).unwrap().as_str().trim().to_string()));
+                            let full_back_date_capture = format!("{} 00:00 +0530", caps.get(4).unwrap().as_str().trim());
+                            match parse_custom_date(&full_back_date_capture, TRANSACTION_DATE_FORMAT_SBI_PRIME, true) {
+                                Ok(date_string) => { changes.insert("BackDate".to_string(), Value::Str(date_string)); }
+                                Err(e) => { eprintln!("Unable to parse date from transaction text - {}", e); }
+                            }
+                            changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
+                        } else {
+                            changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
+                        }
+                    } else if bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
+                        let re = Regex::new(r"Dear UPI user A/C X\d{4} debited by (\d+\.\d+) on date .* trf to ([\s\w]*) Refno .*",).unwrap();
+                        if let Some(caps) = re.captures(&record.transaction_text.clone().unwrap_or_default()) {
+                            changes.insert("Merchant".to_string(), Value::Str(caps.get(2).unwrap().as_str().trim().to_string()));
+                            changes.insert("Currency".to_string(), Value::Str("INR".to_string()));
+                            changes.insert("Amount".to_string(), Value::F64(caps.get(1).unwrap().as_str().trim().parse::<f64>().unwrap()));
+                            changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
+                        } else {
+                            changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
+                        }
+                    } else if bill_type == BILL_TYPE_TESTING {
+                        let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",).unwrap();
+                        if let Some(caps) = re.captures(&record.transaction_text.clone().unwrap_or_default()) {
+                            let amount = caps.get(3).unwrap().as_str().trim().replace(',', "");
+                            changes.insert("Merchant".to_string(), Value::Str(caps.get(4).unwrap().as_str().trim().to_string()));
+                            changes.insert("Currency".to_string(), Value::Str(caps.get(2).unwrap().as_str().trim().to_string()));
+                            changes.insert("Amount".to_string(), Value::F64(amount.parse::<f64>().unwrap()));
+                            changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
+                        } else {
+                            changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
+                        }
+                    } else {
+                        changes.insert("ParseStatus".to_string(), Value::Str("FailedV1".to_string()));
                     }
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("ParsedV1".to_string()),
-                    );
-                } else {
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("FailedV1".to_string()),
-                    );
                 }
-            } else if bill_type == BILL_TYPE_SAVINGS_ACCOUNT {
-                // println!("trying to parse SB");
-                // let re = Regex::new(r"(\w+): You've spent (\w+) (\d+\.\d+) on your AMEX card .* at (.*)\s*on")
-                let re = Regex::new(
-            r"Dear UPI user A/C X\d{4} debited by (\d+\.\d+) on date .* trf to ([\s\w]*) Refno .*",
-        )
-        .unwrap();
-                if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-                    // changes.insert("Merchant".to_string(), Value::Str("".to_string()));
-                    changes.insert(
-                        "Merchant".to_string(),
-                        Value::Str(caps.get(2).unwrap().as_str().trim().to_string()),
-                    );
-                    changes.insert("Currency".to_string(), Value::Str("INR".to_string()));
-                    changes.insert(
-                        "Amount".to_string(),
-                        Value::F64(
-                            caps.get(1)
-                                .unwrap()
-                                .as_str()
-                                .trim()
-                                .to_string()
-                                .parse::<f64>()
-                                .unwrap(),
-                        ),
-                    );
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("ParsedV1".to_string()),
-                    );
-                } else {
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("FailedV1".to_string()),
-                    );
-                }
-            } else if bill_type == BILL_TYPE_TESTING {
-                println!("Parsing for test bill");
-                let re = Regex::new(
-                    r"(\w+): You've spent (\w+) (\d+\,?\d+.\d+) on your AMEX card .* at (.*)\s*on",
-                )
-                .unwrap();
-                if let Some(caps) = re.captures(&record.transaction_text.unwrap()) {
-                    println!("captured details");
-                    let amount = caps
-                        .get(3)
-                        .unwrap()
-                        .as_str()
-                        .trim()
-                        .to_string()
-                        .replace(',', "");
-
-                    changes.insert(
-                        "Merchant".to_string(),
-                        Value::Str(caps.get(4).unwrap().as_str().trim().to_string()),
-                    );
-                    changes.insert(
-                        "Currency".to_string(),
-                        Value::Str(caps.get(2).unwrap().as_str().trim().to_string()),
-                    );
-                    changes.insert(
-                        "Amount".to_string(),
-                        Value::F64(amount.parse::<f64>().unwrap()),
-                    );
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("ParsedV1".to_string()),
-                    );
-                } else {
-                    changes.insert(
-                        "ParseStatus".to_string(),
-                        Value::Str("FailedV1".to_string()),
-                    );
-                }
-            } else {
-                changes.insert(
-                    "ParseStatus".to_string(),
-                    Value::Str("FailedV1".to_string()),
-                );
             }
         }
         None => {}
@@ -572,7 +491,7 @@ where
     Ok(response)
 }
 
-pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: String) -> Result<(), Box<dyn Error + Send + Sync>> {
+pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: String, slm_env: Option<SLMParserEnv>) -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut map = HeaderMap::new();
     map.insert("xc-token", nocodb_env.api_key.parse().unwrap());
 
@@ -592,10 +511,10 @@ pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: Stri
         .json::<Transaction>()
         .await?;
 
-    parse_transaction(response, nocodb_env).await
+    parse_transaction(response, nocodb_env, slm_env.as_ref()).await
 }
 
-pub async fn process_transactions(nocodb_env: NocoDBEnv) -> Result<(), Box<dyn Error + Send + Sync>> {
+pub async fn process_transactions(nocodb_env: NocoDBEnv, slm_env: Option<SLMParserEnv>) -> Result<(), Box<dyn Error + Send + Sync>> {
     // let mut offset = 0;
     let mut parse_more = true;
 
@@ -633,7 +552,7 @@ pub async fn process_transactions(nocodb_env: NocoDBEnv) -> Result<(), Box<dyn E
         // Parse transactions only if it is attached to a bill
         for transaction in response.list {
             match transaction.bills {
-                Some(_) => parse_transaction(transaction.clone(), nocodb_env.clone()).await?,
+                Some(_) => parse_transaction(transaction.clone(), nocodb_env.clone(), slm_env.as_ref()).await?,
                 None => {}
             }
         }
@@ -680,6 +599,7 @@ fn parse_custom_date(
 
 /// Converts a timezone abbreviation (e.g., "IST") to standard %z notation (e.g., "+0530").
 /// Returns "+0000" for unrecognized timezones.
+#[allow(dead_code)]
 fn timezone_to_offset(tz: &str) -> String {
     let timezone_map = get_timezone_offset_map();
 
@@ -694,6 +614,7 @@ fn timezone_to_offset(tz: &str) -> String {
 }
 
 /// Returns a map of timezone abbreviations to their offsets in seconds.
+#[allow(dead_code)]
 fn get_timezone_offset_map() -> HashMap<&'static str, i32> {
     let mut map = HashMap::new();
 

@@ -27,9 +27,16 @@ pub(crate) async fn post_new_parse_handler(Path(transaction_id): Path<String>) -
 
         api_key: std::env::var("NOCODB__INTEGRATION_TOKEN")
             .expect("NOCODB__INTEGRATION_TOKEN must be set"),
+
+        table_name_regex_patterns: std::env::var("NOCODB__TABLE_NAME__REGEX_PATTERNS")
+            .unwrap_or_else(|_| String::from("transaction_regex_patterns")),
     };
 
-    let _ = crate::payobills::transaction_parser::parse_transaction_by_id(nocodb_env, transaction_id)
+    let slm_env = std::env::var("SLMPARSER__BASE_URL")
+        .ok()
+        .map(|url| crate::payobills::transaction_parser::SLMParserEnv { base_url: url });
+
+    let _ = crate::payobills::transaction_parser::parse_transaction_by_id(nocodb_env, transaction_id, slm_env)
             .await;
 
     Json(json!({ "message": "Transaction parsed successfully"}))
