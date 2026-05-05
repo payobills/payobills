@@ -1,5 +1,6 @@
 use chrono::DateTime;
 use clap::Parser;
+use log::{debug, error, info, warn};
 use regex::Regex;
 use reqwest::header::HeaderMap;
 use serde::{Serialize as SerializeImpl, Serializer};
@@ -161,7 +162,7 @@ fn apply_captures(
                 if let Some(ref fmt) = field.format {
                     match parse_custom_date(raw, fmt, true) {
                         Ok(date_str) => { changes.insert("BackDate".to_string(), Value::Str(date_str)); }
-                        Err(e) => { eprintln!("Unable to parse date from transaction text - {}", e); }
+                        Err(e) => { warn!("apply_captures: unable to parse date {:?} with format {:?}: {}", raw, fmt, e); }
                     }
                 }
             }
@@ -192,7 +193,6 @@ async fn parse_transaction(
     // This is near real time time so it's a good fallback
     let format = "%a, %d %b %Y %H:%M:%S %z";
 
-    // println!("Trying to parse {:?}", record.back_date_string.clone());
     if record.back_date_string != None {
         match parse_custom_date(
             record.back_date_string.clone().unwrap().as_str(),
@@ -200,12 +200,10 @@ async fn parse_transaction(
             false,
         ) {
             Ok(date_string) => {
-                // println!("Parsed date: {:?}", date_string);
                 changes.insert("BackDate".to_string(), Value::Str(date_string));
             }
-            Err(_) => {
-                // If this parsing also failed, there is nothing we can do, NocoDB will pick
-                // Transaction Creation Date as the payment date
+            Err(e) => {
+                debug!("Could not parse back_date_string for tx {}, falling back to NocoDB CreatedAt: {}", record.id, e);
             }
         }
     }
@@ -216,6 +214,7 @@ async fn parse_transaction(
                 Some(slm) => {
                     let transaction_text = record.transaction_text.clone().unwrap_or_default();
                     let stored_patterns = crate::payobills::regex_store::get_patterns(&nocodb_env, bill_type).await?;
+                    info!("tx {}: bill_type={} stored_patterns={} transaction_text={:?}", record.id, bill_type, stored_patterns.len(), transaction_text);
                     let matched = stored_patterns.iter().find_map(|stored| {
                         Regex::new(&stored.pattern).ok().and_then(|re| {
                             re.captures(&transaction_text).map(|caps| (caps, stored))
@@ -224,12 +223,14 @@ async fn parse_transaction(
                     match matched {
                         Some((caps, stored)) => {
                             apply_captures(&caps, &stored.fields, &mut changes);
+                            info!("tx {}: ParsedV1 using stored pattern", record.id);
                             changes.insert(
                                 "ParseStatus".to_string(),
                                 Value::Str("ParsedV1".to_string()),
                             );
                         }
                         None if !stored_patterns.is_empty() => {
+                            warn!("tx {}: bill_type={} has {} stored pattern(s) but none matched — FailedV1", record.id, bill_type, stored_patterns.len());
                             changes.insert(
                                 "ParseStatus".to_string(),
                                 Value::Str("FailedV1".to_string()),
@@ -246,6 +247,7 @@ async fn parse_transaction(
                                 Ok(generated) => {
                                     match Regex::new(&generated.regex) {
                                         Ok(re) if re.is_match(&transaction_text) => {
+                                            info!("tx {}: SLM generated regex for bill_type={} — regex={:?}", record.id, bill_type, generated.regex);
                                             let _ = crate::payobills::regex_store::save_pattern(
                                                 &nocodb_env,
                                                 bill_type,
@@ -255,12 +257,14 @@ async fn parse_transaction(
                                             .await;
                                             let caps = re.captures(&transaction_text).unwrap();
                                             apply_captures(&caps, &generated.fields, &mut changes);
+                                            info!("tx {}: ParsedBySLM", record.id);
                                             changes.insert(
                                                 "ParseStatus".to_string(),
                                                 Value::Str("ParsedBySLM".to_string()),
                                             );
                                         }
                                         _ => {
+                                            error!("tx {}: SLM returned regex that does not match transaction text — FailedNoPattern — regex={:?}", record.id, generated.regex);
                                             changes.insert(
                                                 "ParseStatus".to_string(),
                                                 Value::Str("FailedNoPattern".to_string()),
@@ -269,7 +273,7 @@ async fn parse_transaction(
                                     }
                                 }
                                 Err(e) => {
-                                    eprintln!("SLM unreachable for {}: {}", bill_type, e);
+                                    error!("tx {}: SLM unreachable for bill_type={}: {}", record.id, bill_type, e);
                                     changes.insert(
                                         "ParseStatus".to_string(),
                                         Value::Str("NotStarted".to_string()),
@@ -293,7 +297,7 @@ async fn parse_transaction(
                             let full_back_date_capture = format!("{} {}", date_string_capture, timezone_to_offset(time_zone_capture));
                             match parse_custom_date(full_back_date_capture.as_str(), TRANSACTION_DATE_FORMAT_AMEX, false) {
                                 Ok(date_string) => { changes.insert("BackDate".to_string(), Value::Str(date_string)); }
-                                Err(e) => { eprintln!("Unable to parse date from transaction text - {}", e); }
+                                Err(e) => { warn!("tx {}: unable to parse date from transaction text - {}", record.id, e); }
                             }
                             changes.insert("Merchant".to_string(), Value::Str(caps.name("merchant").expect("CAPTURE").as_str().trim().to_string()));
                             changes.insert("Currency".to_string(), Value::Str(caps.name("currency").expect("CAPTURE").as_str().trim().to_string()));
@@ -309,7 +313,7 @@ async fn parse_transaction(
                             let full_back_date_capture = format!("{} +0530", caps.get(2).unwrap().as_str().trim());
                             match parse_custom_date(&full_back_date_capture, TRANSACTION_DATE_FORMAT_JUPITER, true) {
                                 Ok(date_string) => { changes.insert("BackDate".to_string(), Value::Str(date_string)); }
-                                Err(e) => { eprintln!("Unable to parse date from transaction text - {}", e); }
+                                Err(e) => { warn!("tx {}: unable to parse date from transaction text - {}", record.id, e); }
                             }
                             changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
                         } else {
@@ -324,7 +328,7 @@ async fn parse_transaction(
                             let full_back_date_capture = format!("{} 00:00 +0530", caps.get(4).unwrap().as_str().trim());
                             match parse_custom_date(&full_back_date_capture, TRANSACTION_DATE_FORMAT_SBI_PRIME, true) {
                                 Ok(date_string) => { changes.insert("BackDate".to_string(), Value::Str(date_string)); }
-                                Err(e) => { eprintln!("Unable to parse date from transaction text - {}", e); }
+                                Err(e) => { warn!("tx {}: unable to parse date from transaction text - {}", record.id, e); }
                             }
                             changes.insert("ParseStatus".to_string(), Value::Str("ParsedV1".to_string()));
                         } else {
@@ -420,7 +424,7 @@ async fn parse_transaction(
                         }
                     }
                     Err(e) => {
-                        eprintln!("Failed to get conversion rates: {}", e);
+                        error!("tx {}: failed to get conversion rates: {}", record.id, e);
                         changes.insert(
                             "ParseStatus".to_string(),
                             Value::Str(String::from("ReParse")),
@@ -428,7 +432,6 @@ async fn parse_transaction(
                     }
                 }
             }
-            // println!("Parsing currency exchange data on ReParse - Transaction ID{:?}", record.clone().id);
         }
         None => {}
     }
@@ -458,8 +461,7 @@ async fn parse_transaction(
         .json::<Transaction>()
         .await?;
 
-    // println!("Transaction updated - {}", response);
-    println!("Transaction updated - {}", response.id);
+    info!("tx {}: updated in NocoDB — changes={:?}", response.id, serde_json::to_string(&changes).unwrap_or_default());
     Ok(())
 }
 
@@ -529,7 +531,7 @@ pub async fn process_transactions(nocodb_env: NocoDBEnv, slm_env: Option<SLMPars
             nocodb_env.table_name_payobills_transactions
         );
 
-        println!("{}", url.clone());
+        debug!("process_transactions fetching: {}", url);
 
         // let response: NocoBDResponse
         let response = reqwest::Client::new()
@@ -540,14 +542,7 @@ pub async fn process_transactions(nocodb_env: NocoDBEnv, slm_env: Option<SLMPars
             .json::<NocoDBResponse<Transaction>>()
             .await?;
 
-        println!(
-            "Retrieved transactions. Transaction Count - {}",
-            response.list.len()
-        );
-        // println!("{}", serde_json::to_string(&response)?);
-        // parse_more = !response.page_info.is_last_page;
-        // println!("parse_more: {}", parse_more);
-        // offset = offset + response.page_info.page_size;
+        info!("process_transactions: fetched {} transaction(s) to parse", response.list.len());
 
         // Parse transactions only if it is attached to a bill
         for transaction in response.list {
@@ -571,20 +566,18 @@ fn parse_custom_date(
 ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     if use_jiff {
         let zdt = jiff::Timestamp::strptime(date_format, input_date)?;
-        println!("{}", zdt);
+        debug!("parse_custom_date (jiff): {:?} -> {}", input_date, zdt);
         return Ok(zdt.to_string());
     }
 
     // Parse the date without timezone into NaiveDateTime
     match DateTime::parse_from_str(input_date, date_format) {
         Ok(date) => {
-            // println!("Parsed date: {:?}", date);
             let parsed_date_time_string = date.clone().to_rfc3339();
             return Ok(parsed_date_time_string);
         }
         Err(_) => match DateTime::parse_from_rfc3339(input_date) {
             Ok(date) => {
-                // println!("Parsed date from RFC 3339 Fallback: {:?}", date);
                 let parsed_date_string = date.clone().to_rfc3339();
                 return Ok(parsed_date_string);
             }
