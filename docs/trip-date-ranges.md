@@ -130,11 +130,17 @@ May 1 – May 15, 2025
 
 **Trip create/edit form** — add two date inputs (`startDate`, `endDate`). Both optional so existing trips without dates keep working.
 
+When creating a trip, the UI checks existing trips for date-range overlap before submitting. Same-day boundaries are allowed — a trip ending May 15 and a new trip starting May 15 is fine (morning/evening split). Exact date overlap triggers a warning inline on the form listing the conflicting trip(s); the user cannot submit until the conflict is resolved. Editing an existing trip uses the same overlap check but excludes the trip being edited from the comparison.
+
+The edit form is accessed via an **Edit button on the trip detail page** — no separate `/trips/:id/edit` route.
+
 **Trip detail page (`/trips/:id`)** — change the query strategy:
 - If trip has `startDate`/`endDate`: query `transactions(filters: { fromDate, toDate })` and merge with tagged transactions, deduplicating by id
 - If no date range: fall back to current tag-only query
 
 Show a visual indicator on each transaction: "in date range" vs "manually tagged" vs both.
+
+**Tag auto-suggestion on the transaction edit page** — when a transaction's `paidAt` / `backDate` falls inside one or more trip date ranges, surface those trips as suggested tags at the top of the available-tags list, visually distinguished (e.g. a small calendar badge). If the user adds the suggested tag, it moves to the added-tags section as normal. This handles the case where multiple trips match (e.g. a one-day overlap at a boundary) by surfacing all matches.
 
 ### 4. Transaction Parser — Rust
 
@@ -186,9 +192,3 @@ Steps 1–4 can be done in one PR. Steps 5–8 in a second. Step 9–10 as a thi
 
 ---
 
-## Open Questions
-
-- **Overlap handling:** if a transaction falls in two trip date ranges (e.g. a stopover), inject context for both trips in the prompt, separated by newline.
-- **Trip edit UI placement:** add an edit button on the trip detail page rather than a separate `/trips/:id/edit` route — keeps navigation simple.
-- **Tag auto-suggestion:** when a transaction's date falls inside a trip range, the UI could suggest adding the trip tag automatically. Out of scope for this phase.
-- **Existing `transactionTags` query:** keep it alongside the new `trips` query during transition. `transactionTags` reads from NocoDB column meta; `trips` reads from the `Trips` table. Reconcile titles manually if there are mismatches.
