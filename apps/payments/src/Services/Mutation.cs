@@ -20,4 +20,10 @@ public class Mutation
 
   public async Task<TransactionTagDTO> TransactionTagsAddOrUpdate([Service] ITransactionsService transactionsService, TransactionTagAddOrUpdateDTO input)
     => await transactionsService.AddOrUpdateTransactionTagAsync(input);
+
+  public async Task<TripDTO> TripCreate([Service] TripsNocoDBService tripsService, TripCreateDTO input)
+    => await tripsService.CreateTripAsync(input);
+
+  public async Task<TripDTO> TripUpdate([Service] TripsNocoDBService tripsService, string id, TripUpdateDTO input)
+    => await tripsService.UpdateTripAsync(id, input);
 }

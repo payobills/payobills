@@ -3,30 +3,36 @@ import type { Trip } from "./types";
 import Card from "$lib/card.svelte";
 import IdeaCard from "$lib/idea-card.svelte";
 export let trips: Trip[];
+
+function formatDateRange(trip: Trip): string {
+  if (!trip.startDate || !trip.endDate) return '';
+  const fmt = (d: string) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  return `${fmt(trip.startDate)} – ${fmt(trip.endDate)}`;
+}
 </script>
 
 {#if trips}
 
 <h1>Trips</h1>
 
-
-      <IdeaCard
-        idea={`Going for a trip? Group your transactions together and manage them easily...`}
-      />
+<IdeaCard idea={`Going for a trip? Group your transactions together and manage them easily...`} />
 
 {#if trips.length === 0}
-  <p>Looks like you haven't created any trips yet. Tag any transaction to a trip so it shows up here...</p>
+  <p>Looks like you haven't created any trips yet. Create one below to start tracking expenses.</p>
 {:else}
   <p>Transactions made on a trip can help you track your expenses in one place.</p>
-<section class='trip-cards'>
-  {#each trips as trip (trip.id)}
-    <a href={`trips?id=${trip.id}&title=${trip.title}`}>
-      <Card>
-        <h2>{trip.title}</h2>
-      </Card>
-    </a>
-  {/each}
-</section>
+  <section class='trip-cards'>
+    {#each trips as trip (trip.id)}
+      <a href={`trips?id=${trip.id}`}>
+        <Card>
+          <h2>{trip.title}</h2>
+          {#if trip.startDate && trip.endDate}
+            <p class="date-range">{formatDateRange(trip)}</p>
+          {/if}
+        </Card>
+      </a>
+    {/each}
+  </section>
 {/if}
 
 {/if}
@@ -48,15 +54,17 @@ export let trips: Trip[];
     margin-bottom: 0;
   }
 
+  .date-range {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    opacity: 0.65;
+  }
+
   :global(:first-of-type(.trip-cards .card)) {
     margin-top: 0;
   }
 
   :global(:last-of-type(.trip-cards .card)) {
     margin-bottom: 0;
-  }
-
-  .trip-cards > p {
-    margin-top: 0;
   }
 </style>
