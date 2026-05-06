@@ -342,6 +342,49 @@ Remove or disable the GenAI step in the n8n workflow. The Rust parser now handle
 
 ---
 
+## Engineering Note: Harness Loop for Currency Parsing
+
+**Question:** Would currency parsing be better implemented with a harness loop — an agentic retry where the SLM is given feedback about a failed currency extraction and asked to refine the pattern?
+
+**Short answer: No, not for currency specifically.**
+
+### What a harness loop would look like here
+
+After the regex extracts the `currency` capture group, check the captured string against the NocoDB currency alias table. If unrecognised, re-prompt the SLM with feedback ("you captured 'XYZ' as the currency but that's not in our currency list — please refine the pattern") and retry with the full regex generation call.
+
+### Why it's not the right fit for currency
+
+**1. Currency is a small part of a larger regex.**
+The SLM generates one regex covering amount, merchant, currency, and date together. Re-running the whole generation call just because the currency capture is wrong risks breaking captures that were already correct. It's a blunt instrument for a localised problem.
+
+**2. The failure surface is already small.**
+`currency_sync.rs` handles ISO codes, symbols, and aliases. Real bank SMS formats use predictable, stable representations for currency (e.g. "₹", "USD", "EUR"). In practice this table rarely misses. The actual failure mode is not "SLM captures the wrong thing" — it's "the alias table has a gap."
+
+**3. The real fix is alias coverage and better failure diagnostics.**
+When currency normalisation fails today, the status is set to `ReParse` — a generic retry queue that obscures what actually went wrong. A more useful response is: log the unrecognised currency string, set a specific status like `FailedCurrencyUnknown`, and expand the alias table. This makes failures observable and fixable without adding SLM round trips.
+
+**4. Adding latency for a marginal gain.**
+The SLM now runs on a PC (llama3.1), which is fast enough that an extra call is not a hard blocker. But it still adds per-transaction overhead and a new failure mode (SLM unavailable during the feedback round trip). The benefit does not justify it.
+
+**5. Harness loops are most valuable when output is complex and hard to validate syntactically.**
+Currency symbols are short, structured, and checkable against a fixed lookup table. This is exactly the case where a simple post-extraction validation pass is sufficient — no LLM feedback loop needed.
+
+### Where a harness loop would add genuine value
+
+If the goal is to improve SLM output quality through feedback, the higher-value targets in this pipeline are:
+
+- **`date_format` output.** strptime format strings are hard to get right, have many variants, and a wrong format silently produces an incorrect date. A loop that attempts to parse the captured date string with the generated format, and re-prompts if parsing fails, would meaningfully reduce silent date errors.
+- **Regex match validation.** The current retry loop in `slm_client.rs` checks that the regex *compiles* but not that it actually *matches the sample text*. Feeding a mismatch back to the SLM ("this pattern didn't match the input, here's what it failed on") is a higher-leverage improvement than doing the same for currency.
+
+### Recommendation
+
+Skip the harness loop for currency. Instead:
+1. After `apply_captures`, validate the extracted currency string against the alias table early and set a specific failure status if it misses.
+2. Expand the alias table to cover known gaps.
+3. If a harness loop is worth implementing at all, target `date_format` validation first.
+
+---
+
 ## Future Problems
 
 ### Bank format changes
