@@ -28,6 +28,7 @@ builder.Services.Configure<PayobillsNocoDBOptions>(builder.Configuration.GetRequ
 builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddScoped<NocoDBClientService>();
 builder.Services.AddScoped<ITransactionsService, TransactionsNocoDBService>();
+builder.Services.AddScoped<TripsNocoDBService>();
 // builder.Services.AddScoped<StatsQueryService>();
 
 // utils

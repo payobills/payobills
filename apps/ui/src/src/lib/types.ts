@@ -100,6 +100,8 @@ export type LiteServices = {
 export type Trip = {
 	id: string;
 	title: string;
+	startDate: string | null;
+	endDate: string | null;
 };
 
 export type TransactionTag = Trip;

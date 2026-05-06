@@ -22,4 +22,7 @@ public class Query
 
   public async Task<IEnumerable<TransactionTagDTO>> TransactionTags([Service] ITransactionsService transactionsService)
     => await transactionsService.GetTransactionTagsAsync();
+
+  public async Task<IEnumerable<TripDTO>> Trips([Service] TripsNocoDBService tripsService)
+    => await tripsService.GetTripsAsync();
 }
