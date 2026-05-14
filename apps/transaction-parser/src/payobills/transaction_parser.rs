@@ -493,6 +493,113 @@ where
     Ok(response)
 }
 
+pub async fn normalize_transaction_amount(
+    nocodb_env: NocoDBEnv,
+    transaction_id: String,
+    target_currency_code: String,
+) -> Result<Option<()>, Box<dyn Error + Send + Sync>> {
+    let mut headers = HeaderMap::new();
+    headers.insert("xc-token", nocodb_env.api_key.parse().unwrap());
+
+    let url = format!(
+        "{}/api/v1/db/data/nc/{}/{}/{}",
+        nocodb_env.base_url,
+        nocodb_env.base_name_payobills,
+        nocodb_env.table_name_payobills_transactions,
+        transaction_id
+    );
+
+    let transaction = reqwest::Client::new()
+        .get(&url)
+        .headers(headers.clone())
+        .send()
+        .await?
+        .json::<Transaction>()
+        .await?;
+
+    let source_currency = match &transaction.currency {
+        Some(c) if c != &target_currency_code => c.clone(),
+        _ => return Ok(None),
+    };
+
+    let paid_at = transaction
+        .paid_at
+        .as_deref()
+        .ok_or("transaction missing PaidAt")?;
+    let date = DateTime::parse_from_rfc3339(paid_at)
+        .map_err(|e| format!("invalid PaidAt: {}", e))?
+        .format("%Y-%m-%d")
+        .to_string();
+
+    let app_id = std::env::var("EXTERNAL_CONVERSION_SERVICE__APP_ID").unwrap_or_default();
+    let exchange_rates =
+        crate::payobills::currency_sync::get_conversion_rates(nocodb_env.clone(), app_id, date)
+            .await?;
+
+    let amount = transaction
+        .amount
+        .ok_or("transaction missing Amount")?;
+
+    let currencies: Vec<CurrencyRecord> = get_nocodb_records(
+        nocodb_env.clone(),
+        nocodb_env.base_name_currencies.clone(),
+        nocodb_env.table_name_currencies_currencies.clone(),
+        "(Code,neq,'')",
+    )
+    .await?
+    .list;
+
+    let matching_source = currencies
+        .iter()
+        .find(|c| source_currency == c.code || c.aliases.contains(&source_currency) || source_currency == c.symbol)
+        .ok_or_else(|| format!("unknown source currency: {}", source_currency))?;
+
+    let rate_source = exchange_rates
+        .get(matching_source.code.as_str())
+        .ok_or_else(|| format!("no exchange rate for {}", matching_source.code))?;
+    let rate_target = exchange_rates
+        .get(target_currency_code.as_str())
+        .ok_or_else(|| format!("no exchange rate for {}", target_currency_code))?;
+    let normalized_amount = amount / rate_source * rate_target;
+
+    let mut patch_headers = HeaderMap::new();
+    patch_headers.insert("xc-token", nocodb_env.api_key.parse().unwrap());
+    patch_headers.insert("Content-Type", "application/json".parse().unwrap());
+
+    let patch_url = format!(
+        "{}/api/v1/db/data/nc/{}/{}/{}",
+        nocodb_env.base_url,
+        nocodb_env.base_name_payobills,
+        nocodb_env.table_name_payobills_transactions,
+        transaction.id
+    );
+
+    #[derive(Serialize)]
+    struct NormalizedAmountPatch {
+        #[serde(rename = "NormalizedAmount")]
+        normalized_amount: f64,
+    }
+
+    let resp = reqwest::Client::new()
+        .patch(&patch_url)
+        .headers(patch_headers)
+        .json(&NormalizedAmountPatch { normalized_amount })
+        .send()
+        .await?;
+
+    if !resp.status().is_success() {
+        let status = resp.status();
+        let body = resp.text().await.unwrap_or_default();
+        return Err(format!("NocoDB patch failed ({}): {}", status, body).into());
+    }
+
+    info!(
+        "tx {}: NormalizedAmount set to {} ({}→{})",
+        transaction.id, normalized_amount, source_currency, target_currency_code
+    );
+    Ok(Some(()))
+}
+
 pub async fn parse_transaction_by_id(nocodb_env: NocoDBEnv, transaction_id: String, slm_env: Option<SLMParserEnv>) -> Result<(), Box<dyn Error + Send + Sync>> {
     let mut map = HeaderMap::new();
     map.insert("xc-token", nocodb_env.api_key.parse().unwrap());
