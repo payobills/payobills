@@ -496,6 +496,7 @@ where
 pub async fn normalize_transaction_amount(
     nocodb_env: NocoDBEnv,
     transaction_id: String,
+    target_currency_code: String,
 ) -> Result<Option<()>, Box<dyn Error + Send + Sync>> {
     let mut headers = HeaderMap::new();
     headers.insert("xc-token", nocodb_env.api_key.parse().unwrap());
@@ -516,8 +517,8 @@ pub async fn normalize_transaction_amount(
         .json::<Transaction>()
         .await?;
 
-    let currency = match &transaction.currency {
-        Some(c) if c != "INR" => c.clone(),
+    let source_currency = match &transaction.currency {
+        Some(c) if c != &target_currency_code => c.clone(),
         _ => return Ok(None),
     };
 
@@ -548,18 +549,18 @@ pub async fn normalize_transaction_amount(
     .await?
     .list;
 
-    let matching = currencies
+    let matching_source = currencies
         .iter()
-        .find(|c| currency == c.code || c.aliases.contains(&currency) || currency == c.symbol)
-        .ok_or_else(|| format!("unknown currency: {}", currency))?;
+        .find(|c| source_currency == c.code || c.aliases.contains(&source_currency) || source_currency == c.symbol)
+        .ok_or_else(|| format!("unknown source currency: {}", source_currency))?;
 
     let rate_source = exchange_rates
-        .get(matching.code.as_str())
-        .ok_or_else(|| format!("no exchange rate for {}", matching.code))?;
-    let rate_inr = exchange_rates
-        .get("INR")
-        .ok_or("no exchange rate for INR")?;
-    let normalized_amount = amount / rate_source * rate_inr;
+        .get(matching_source.code.as_str())
+        .ok_or_else(|| format!("no exchange rate for {}", matching_source.code))?;
+    let rate_target = exchange_rates
+        .get(target_currency_code.as_str())
+        .ok_or_else(|| format!("no exchange rate for {}", target_currency_code))?;
+    let normalized_amount = amount / rate_source * rate_target;
 
     let mut patch_headers = HeaderMap::new();
     patch_headers.insert("xc-token", nocodb_env.api_key.parse().unwrap());
@@ -593,8 +594,8 @@ pub async fn normalize_transaction_amount(
     }
 
     info!(
-        "tx {}: NormalizedAmount set to {} ({}→INR)",
-        transaction.id, normalized_amount, currency
+        "tx {}: NormalizedAmount set to {} ({}→{})",
+        transaction.id, normalized_amount, source_currency, target_currency_code
     );
     Ok(Some(()))
 }

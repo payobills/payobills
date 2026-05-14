@@ -1,5 +1,11 @@
-use axum::{extract::Path, http::StatusCode, response::Json};
+use axum::{extract::{Path, Query}, http::StatusCode, response::Json};
+use serde_derive::Deserialize;
 use serde_json::{json, Value};
+
+#[derive(Deserialize)]
+pub(crate) struct NormalizedAmountQuery {
+    target_currency_code: Option<String>,
+}
 
 fn build_nocodb_env() -> crate::payobills::transaction_parser::NocoDBEnv {
     crate::payobills::transaction_parser::NocoDBEnv {
@@ -25,12 +31,15 @@ fn build_nocodb_env() -> crate::payobills::transaction_parser::NocoDBEnv {
 
 pub(crate) async fn patch_normalized_amount_handler(
     Path(transaction_id): Path<String>,
+    Query(params): Query<NormalizedAmountQuery>,
 ) -> (StatusCode, Json<Value>) {
     let nocodb_env = build_nocodb_env();
+    let target_currency_code = params.target_currency_code.unwrap_or_else(|| "USD".to_string());
 
     match crate::payobills::transaction_parser::normalize_transaction_amount(
         nocodb_env,
         transaction_id,
+        target_currency_code.clone(),
     )
     .await
     {
@@ -40,7 +49,7 @@ pub(crate) async fn patch_normalized_amount_handler(
         ),
         Ok(None) => (
             StatusCode::OK,
-            Json(json!({ "message": "Transaction is INR — skipped" })),
+            Json(json!({ "message": format!("Transaction already in {} — skipped", target_currency_code) })),
         ),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
