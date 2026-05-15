@@ -7,6 +7,7 @@ import IdeaCard from "./idea-card.svelte";
 import RecentTransactions from "./recent-transactions.svelte";
 import BillPayment from "./bills/bill-payment.svelte";
 import Trips from "$lib/trips.svelte";
+import { getBillPaymentCycle } from "../utils/get-bill-payment-cycle";
 export let title: string = "";
 export let items: any[] = [];
 export let trips: Trip[];
@@ -21,19 +22,28 @@ let lastDay = 31;
 let fullPaymentDates: any[] = [];
 let month = "";
 
+const isBillPaid = (bill: any): boolean => {
+  const stmts = billingStatements?.[`billStatements__bill_${bill.id}`];
+  if (!stmts) return false;
+  const cycle = getBillPaymentCycle(bill);
+  const stmt = stmts.find((s: any) => s.startDate === cycle?.fromDate && s.endDate === cycle?.toDate);
+  return !!stmt?.isFullyPaid;
+};
+
 $: filteredItems = items.toSorted((p: any, q: any) => {
-  if (!p.isEnabled) return Number.POSITIVE_INFINITY;
-  if (!q.isEnabled) return Number.NEGATIVE_INFINITY;
+  if (!p.isEnabled && !q.isEnabled) return 0;
+  if (!p.isEnabled) return 1;
+  if (!q.isEnabled) return -1;
 
-  if (
-    p.billingDate == null &&
-    p.payByDate == null &&
-    q.billingDate == null &&
-    q.payByDate == null
-  )
-    return -1;
+  const pPaid = isBillPaid(p);
+  const qPaid = isBillPaid(q);
+  if (pPaid && !qPaid) return 1;
+  if (!pPaid && qPaid) return -1;
 
-  return p.name.localeCompare(q.name);
+  const todaysDay = new Date().getDate();
+  const daysP = p.payByDate != null ? p.payByDate - todaysDay : Number.POSITIVE_INFINITY;
+  const daysQ = q.payByDate != null ? q.payByDate - todaysDay : Number.POSITIVE_INFINITY;
+  return daysP - daysQ;
 });
 
 onMount(() => {
@@ -65,7 +75,10 @@ onMount(() => {
       groupTransactionByDate={false}
       showRecentSpends={false}
       showTotalSpend={false}
+      showViewAllCTA={false}
+      showDisclaimer={false}
       initialShowCount={0}
+      chartHeight="100%"
     />
 
   </div>
@@ -189,7 +202,18 @@ onMount(() => {
   .timeline-view {
     display: flex;
     flex-direction: column;
+    align-self: stretch;
   }
+
+  .timeline-view:first-of-type {
+    height: 100%;
+  }
+
+  .timeline-view:first-of-type :global(.container) {
+    flex: 1;
+    height: 100%;
+  }
+
 
   .stay-updated {
     font-size: 0.75rem;
