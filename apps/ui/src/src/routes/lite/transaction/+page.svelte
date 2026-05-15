@@ -6,6 +6,7 @@ import { queryStore, gql, mutationStore } from "@urql/svelte";
 import type { OperationResultStore } from "@urql/svelte";
 import { onMount } from "svelte";
 import { formatRelativeDate } from "$utils/format-relative-date";
+import { formatCurrencyAmount } from "$utils/currency-formatter.util";
 import { formStoreGenerator, type FormStore } from "$lib/stores/form";
 import IconButton from "$lib/icon-button.svelte";
 import type { Writable } from "svelte/store";
@@ -254,12 +255,7 @@ const updateTransaction = async () => {
         <section class="title">
           <div class="amount">
             {#if transaction.amount !== null}
-              <span class="value"
-                >{new Intl.NumberFormat(undefined, {
-                  style: "currency",
-                  currency: "INR",
-                }).format(transaction.amount)}</span
-              >
+              <span class="value">{formatCurrencyAmount(transaction.amount, transaction.currency)}</span>
             {:else}
               <span class="value">Unknown Amount</span>
             {/if}
@@ -299,6 +295,11 @@ const updateTransaction = async () => {
               }}
             />
           </div>
+          {#if transaction.currency && transaction.currency !== 'INR' && transaction.normalizedAmount != null}
+            <div class="normalized-amount">
+              ≈ {new Intl.NumberFormat(undefined, { style: 'currency', currency: 'INR' }).format(transaction.normalizedAmount)} (INR)
+            </div>
+          {/if}
           <div class="transaction-detail">
             {formatRelativeDate(new Date(transaction.paidAt))} • {new Intl.DateTimeFormat(
               "en-GB",
@@ -607,6 +608,12 @@ const updateTransaction = async () => {
 
   div.container {
     padding: 1rem;
+  }
+
+  .normalized-amount {
+    font-size: 0.875rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
   }
 </style>
 
