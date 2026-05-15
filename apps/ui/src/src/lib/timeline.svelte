@@ -161,6 +161,10 @@ onMount(() => {
     padding: 0;
   }
 
+  :global(.timeline-view .idea-card) {
+    margin: 1rem 0;
+  }
+
   .timeline-view,
   .bills-view,
   .billing-cycles-view {
