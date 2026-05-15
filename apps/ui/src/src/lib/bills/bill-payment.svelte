@@ -97,7 +97,7 @@ $: {
 }
 </script>
 
-<div class="container" bind:this={currComponent}>
+<div class={`container container--${billDueDetails?.status}${billDueDetails?.l2Status ? `--${billDueDetails.l2Status}` : ''}`} bind:this={currComponent}>
   <a href={`#payment__bill_${bill.id}`} aria-label="anchor"></a>
   <div class="header">
     <div class="name">
@@ -179,6 +179,31 @@ $: {
     border-color: rgba(0, 212, 184, 0.2);
   }
 
+  .container--due--ok {
+    background-color: rgba(56, 189, 248, 0.06);
+    border-color: rgba(56, 189, 248, 0.2);
+  }
+
+  .container--due--warning {
+    background-color: rgba(251, 191, 36, 0.08);
+    border-color: rgba(251, 191, 36, 0.2);
+  }
+
+  .container--overdue {
+    background-color: rgba(244, 63, 94, 0.08);
+    border-color: rgba(244, 63, 94, 0.2);
+  }
+
+  .container--today {
+    background-color: rgba(251, 146, 60, 0.08);
+    border-color: rgba(251, 146, 60, 0.2);
+  }
+
+  .container--paid {
+    background-color: rgba(34, 211, 160, 0.06);
+    border-color: rgba(34, 211, 160, 0.2);
+  }
+
   .header {
     display: flex;
     flex-direction: row;
@@ -226,7 +251,6 @@ $: {
     border-bottom: 1px solid rgba(28, 28, 38, 0.5);
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
   }
 

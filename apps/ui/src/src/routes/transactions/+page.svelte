@@ -10,7 +10,7 @@ import {
 
 import { queryStore, gql } from "@urql/svelte";
 import { onMount } from "svelte";
-import { Icon } from "svelte-awesome";
+import IconButton from "$lib/icon-button.svelte";
 
 let currentYear: number;
 let currentMonth: number;
@@ -69,10 +69,10 @@ $: transactionsQuery =
           goto(`transactions?year=${currentYear}&month=${currentMonth}`);
         }}
       >
-        <Icon
-          data={faChevronLeft}
+        <IconButton
+          icon={faChevronLeft}
           scale={1.5}
-          style={`border-radius: 4rem; color: var(--primary-color); padding: 0 1rem 0 .5rem; cursor: pointer; align-self: center`}
+          color="#00d4b8"
         />
       </button>
       <h1>
@@ -91,10 +91,10 @@ $: transactionsQuery =
           goto(`transactions?year=${currentYear}&month=${currentMonth}`);
         }}
       >
-        <Icon
-          data={faChevronRight}
+        <IconButton
+          icon={faChevronRight}
           scale={1.5}
-          style={`border-radius: 4rem; color: var(--primary-color); padding: 0 1rem 0 .5rem; cursor: pointer; align-self: center`}
+          color="#00d4b8"
         />
       </button>
     </section>
@@ -113,7 +113,9 @@ $: transactionsQuery =
 
 <style>
   .monthly-transactions {
-    margin: 1rem;
+    margin: 1rem auto;
+    width: 100%;
+    max-width: 90rem;
   }
 
   p {
@@ -134,5 +136,6 @@ $: transactionsQuery =
   .title button {
     background-color: unset;
     padding: 0.5rem;
+    color: var(--color-primary);
   }
 </style>

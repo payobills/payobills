@@ -52,6 +52,8 @@ export let totalSpend = 0;
 export let initialShowCount = 5;
 export let groupTransactionByDate = true;
 export let viewType: "monthly" | "all" = "monthly";
+export let chartHeight: string | number = "auto";
+export let showDisclaimer = true;
 
 $: ApexCharts = undefined;
 $: totalSpend = filteredTransactions.reduce(
@@ -195,6 +197,7 @@ const chart = (node: any, transactions: any[]) => {
     },
     chart: {
       type: "area",
+      height: chartHeight,
     },
     series: [
       {
@@ -257,7 +260,7 @@ const chart = (node: any, transactions: any[]) => {
   {/if}
 
   {#if showGraph && transactions.length > 0 && ApexCharts}
-    <div use:chart={transactions}></div>
+    <div class="chart-container" use:chart={transactions}></div>
 
   {/if}
     {#if showRecentSpends}
@@ -287,9 +290,11 @@ const chart = (node: any, transactions: any[]) => {
       </div>
     {/if}
 
+  {#if showDisclaimer}
     <p class="disclaimer">
       It might take upto an hour for latest transactions to show up here...
     </p>
+  {/if}
 
   {#if showTotalSpend}
     <div class="transaction-card">
@@ -519,5 +524,9 @@ const chart = (node: any, transactions: any[]) => {
     color: var(--color-base-content) !important;
     margin: 0 !important;
     letter-spacing: -0.02em;
+  }
+
+  .chart-container {
+    min-height: 24rem;
   }
 </style>

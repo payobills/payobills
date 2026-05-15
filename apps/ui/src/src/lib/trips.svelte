@@ -37,7 +37,7 @@ export let trips: Trip[];
   }
 
   p {
-    margin-top: 1rem;
+    margin-top: 0 0 1rem 0;
   }
 
   h2 {
@@ -56,7 +56,7 @@ export let trips: Trip[];
     margin-bottom: 0;
   }
 
-  .trip-cards > p {
-    margin-top: 0;
+  :global(.trip-cards .card) {
+    margin: 1rem 0;
   }
 </style>
