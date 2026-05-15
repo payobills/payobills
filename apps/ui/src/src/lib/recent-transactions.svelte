@@ -260,7 +260,7 @@ const chart = (node: any, transactions: any[]) => {
   {/if}
 
   {#if showGraph && transactions.length > 0 && ApexCharts}
-    <div use:chart={transactions}></div>
+    <div class="chart-container" use:chart={transactions}></div>
 
   {/if}
     {#if showRecentSpends}
@@ -524,5 +524,9 @@ const chart = (node: any, transactions: any[]) => {
     color: var(--color-base-content) !important;
     margin: 0 !important;
     letter-spacing: -0.02em;
+  }
+
+  .chart-container {
+    min-height: 24rem;
   }
 </style>
