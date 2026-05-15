@@ -30,7 +30,7 @@ const isBillPaid = (bill: any): boolean => {
   return !!stmt?.isFullyPaid;
 };
 
-$: filteredItems = items.toSorted((p: any, q: any) => {
+$: filteredItems = (billingStatements, items.toSorted((p: any, q: any) => {
   if (!p.isEnabled && !q.isEnabled) return 0;
   if (!p.isEnabled) return 1;
   if (!q.isEnabled) return -1;
@@ -44,7 +44,7 @@ $: filteredItems = items.toSorted((p: any, q: any) => {
   const daysP = p.payByDate != null ? p.payByDate - todaysDay : Number.POSITIVE_INFINITY;
   const daysQ = q.payByDate != null ? q.payByDate - todaysDay : Number.POSITIVE_INFINITY;
   return daysP - daysQ;
-});
+}));
 
 onMount(() => {
   let lastDateOfMonth = new Date(
