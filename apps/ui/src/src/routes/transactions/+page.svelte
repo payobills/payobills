@@ -41,6 +41,7 @@ $: transactionsQuery =
             merchant
             paidAt
             tags
+            currency
           }
           pageInfo {
             hasNextPage

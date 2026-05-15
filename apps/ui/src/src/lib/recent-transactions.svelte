@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import { formatRelativeDate } from "../utils/format-relative-date";
+import { formatCurrencyAmount } from "../utils/currency-formatter.util";
 import dayjs from "dayjs";
 
 export let transactions: any[] = [];
@@ -327,12 +328,7 @@ const chart = (node: any, transactions: any[]) => {
               >
             </div>
             {#if transaction.amount !== null}
-              <span
-                >{new Intl.NumberFormat(undefined, {
-                  style: "currency",
-                  currency: "INR",
-                }).format(transaction.amount)}</span
-              >
+              <span>{formatCurrencyAmount(transaction.amount, transaction.currency)}</span>
             {:else}
               <span>-</span>
             {/if}
@@ -355,12 +351,7 @@ const chart = (node: any, transactions: any[]) => {
             >
           </div>
           {#if transaction.amount !== null}
-            <span
-              >{new Intl.NumberFormat(undefined, {
-                style: "currency",
-                currency: "INR",
-              }).format(transaction.amount)}</span
-            >
+            <span>{formatCurrencyAmount(transaction.amount, transaction.currency)}</span>
           {:else}
             <span>-</span>
           {/if}
