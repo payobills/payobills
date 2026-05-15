@@ -1,0 +1,1040 @@
+[
+  {
+    "code": "AED",
+    "name": "United Arab Emirates Dirham",
+    "symbol": "د.إ",
+    "notes": "Official currency of the UAE, pegged to the USD since 1997."
+  },
+  {
+    "code": "AFN",
+    "name": "Afghan Afghani",
+    "symbol": "؋",
+    "notes": "Currency of Afghanistan, introduced in 2002 replacing the old afghani."
+  },
+  {
+    "code": "ALL",
+    "name": "Albanian Lek",
+    "symbol": "L",
+    "notes": "Albanian lek, named after Alexander the Great ('Leka' in Albanian)."
+  },
+  {
+    "code": "AMD",
+    "name": "Armenian Dram",
+    "symbol": "֏",
+    "notes": "Armenian dram, reintroduced in 1993 after the Soviet-era ruble."
+  },
+  {
+    "code": "ANG",
+    "name": "Netherlands Antillean Guilder",
+    "symbol": "ƒ",
+    "notes": "Used in Curaçao and Sint Maarten, will be replaced by the Caribbean guilder."
+  },
+  {
+    "code": "AOA",
+    "name": "Angolan Kwanza",
+    "symbol": "Kz",
+    "notes": "Angolan kwanza, named after the Kwanza river."
+  },
+  {
+    "code": "ARS",
+    "name": "Argentine Peso",
+    "symbol": "$",
+    "notes": "Argentine peso, has experienced significant inflation over recent decades."
+  },
+  {
+    "code": "AUD",
+    "name": "Australian Dollar",
+    "symbol": "$",
+    "notes": "Australian dollar, also used in several Pacific island nations."
+  },
+  {
+    "code": "AWG",
+    "name": "Aruban Florin",
+    "symbol": "ƒ",
+    "notes": "Aruban florin, pegged to the USD at 1.79 florin per dollar."
+  },
+  {
+    "code": "AZN",
+    "name": "Azerbaijani Manat",
+    "symbol": "₼",
+    "notes": "Azerbaijani manat, introduced in 2006 replacing the old manat."
+  },
+  {
+    "code": "BAM",
+    "name": "Bosnia-Herzegovina Convertible Mark",
+    "symbol": "KM",
+    "notes": "Bosnian convertible mark, pegged to the euro since its introduction in 1995."
+  },
+  {
+    "code": "BBD",
+    "name": "Barbadian Dollar",
+    "symbol": "$",
+    "notes": "Barbadian dollar, pegged to the USD at 2:1."
+  },
+  {
+    "code": "BDT",
+    "name": "Bangladeshi Taka",
+    "symbol": "৳",
+    "notes": "Bangladeshi taka, the word 'taka' is also the Bengali word for money."
+  },
+  {
+    "code": "BGN",
+    "name": "Bulgarian Lev",
+    "symbol": "лв",
+    "notes": "Bulgarian lev, pegged to the euro at 1.95583 lev per euro."
+  },
+  {
+    "code": "BHD",
+    "name": "Bahraini Dinar",
+    "symbol": ".د.ب",
+    "notes": "Bahraini dinar, one of the highest-valued currency units in the world."
+  },
+  {
+    "code": "BIF",
+    "name": "Burundian Franc",
+    "symbol": "Fr",
+    "notes": "Burundian franc, one of the lowest-valued currency units in the world."
+  },
+  {
+    "code": "BMD",
+    "name": "Bermudan Dollar",
+    "symbol": "$",
+    "notes": "Bermudian dollar, pegged 1:1 to the USD."
+  },
+  {
+    "code": "BND",
+    "name": "Brunei Dollar",
+    "symbol": "$",
+    "notes": "Brunei dollar, interchangeable at par with the Singapore dollar."
+  },
+  {
+    "code": "BOB",
+    "name": "Bolivian Boliviano",
+    "symbol": "Bs.",
+    "notes": "Boliviano, named after Simón Bolívar, the South American liberator."
+  },
+  {
+    "code": "BRL",
+    "name": "Brazilian Real",
+    "symbol": "R$",
+    "notes": "Brazilian real, introduced in 1994 as part of the Plano Real to curb hyperinflation."
+  },
+  {
+    "code": "BSD",
+    "name": "Bahamian Dollar",
+    "symbol": "$",
+    "notes": "Bahamian dollar, pegged 1:1 to the USD."
+  },
+  {
+    "code": "BTC",
+    "name": "Bitcoin",
+    "symbol": "₿",
+    "notes": "Decentralized digital currency created in 2009, not issued by any government."
+  },
+  {
+    "code": "BTN",
+    "name": "Bhutanese Ngultrum",
+    "symbol": "Nu",
+    "notes": "Bhutanese ngultrum, pegged at par with the Indian rupee."
+  },
+  {
+    "code": "BWP",
+    "name": "Botswanan Pula",
+    "symbol": "P",
+    "notes": "Botswana pula, meaning 'rain' in Setswana — a symbol of good fortune."
+  },
+  {
+    "code": "BYN",
+    "name": "Belarusian Ruble",
+    "symbol": "Br",
+    "notes": "Belarusian ruble, redenominated in 2016 (1 new = 10,000 old)."
+  },
+  {
+    "code": "BZD",
+    "name": "Belize Dollar",
+    "symbol": "$",
+    "notes": "Belize dollar, pegged to the USD at 2:1."
+  },
+  {
+    "code": "CAD",
+    "name": "Canadian Dollar",
+    "symbol": "$",
+    "notes": "Canadian dollar, one of the world's major reserve currencies."
+  },
+  {
+    "code": "CDF",
+    "name": "Congolese Franc",
+    "symbol": "Fr",
+    "notes": "Congolese franc, currency of the Democratic Republic of Congo."
+  },
+  {
+    "code": "CHF",
+    "name": "Swiss Franc",
+    "symbol": "Fr",
+    "notes": "Swiss franc, considered a safe-haven currency globally."
+  },
+  {
+    "code": "CLF",
+    "name": "Chilean Unit of Account (UF)",
+    "symbol": "UF",
+    "notes": "An inflation-indexed unit of account used in Chile for financial contracts, not a banknote currency."
+  },
+  {
+    "code": "CLP",
+    "name": "Chilean Peso",
+    "symbol": "$",
+    "notes": "Chilean peso, Chile is a major copper exporter influencing its value."
+  },
+  {
+    "code": "CNH",
+    "name": "Chinese Yuan (Offshore)",
+    "symbol": "¥",
+    "notes": "Offshore version of the Chinese yuan traded freely outside mainland China."
+  },
+  {
+    "code": "CNY",
+    "name": "Chinese Yuan",
+    "symbol": "¥",
+    "notes": "Chinese yuan renminbi, the world's most traded emerging-market currency."
+  },
+  {
+    "code": "COP",
+    "name": "Colombian Peso",
+    "symbol": "$",
+    "notes": "Colombian peso, Colombia is a major coffee and oil exporter."
+  },
+  {
+    "code": "CRC",
+    "name": "Costa Rican Colón",
+    "symbol": "₡",
+    "notes": "Costa Rican colón, named after Christopher Columbus ('Colón' in Spanish)."
+  },
+  {
+    "code": "CUC",
+    "name": "Cuban Convertible Peso",
+    "symbol": "$",
+    "notes": "Cuban convertible peso, pegged 1:1 to the USD; phased out in 2021 as Cuba unified its currencies."
+  },
+  {
+    "code": "CUP",
+    "name": "Cuban Peso",
+    "symbol": "$",
+    "notes": "Cuban peso, the sole official currency of Cuba since the 2021 monetary unification."
+  },
+  {
+    "code": "CVE",
+    "name": "Cape Verdean Escudo",
+    "symbol": "$",
+    "notes": "Cape Verdean escudo, pegged to the euro via agreement with Portugal."
+  },
+  {
+    "code": "CZK",
+    "name": "Czech Republic Koruna",
+    "symbol": "Kč",
+    "notes": "Czech koruna, the EU member Czech Republic has yet to adopt the euro."
+  },
+  {
+    "code": "DJF",
+    "name": "Djiboutian Franc",
+    "symbol": "Fr",
+    "notes": "Djiboutian franc, pegged to the USD since 1973."
+  },
+  {
+    "code": "DKK",
+    "name": "Danish Krone",
+    "symbol": "kr",
+    "notes": "Danish krone, Denmark uses it despite being an EU member."
+  },
+  {
+    "code": "DOP",
+    "name": "Dominican Peso",
+    "symbol": "$",
+    "notes": "Dominican peso, the Dominican Republic has one of the largest Caribbean economies."
+  },
+  {
+    "code": "DZD",
+    "name": "Algerian Dinar",
+    "symbol": "د.ج",
+    "notes": "Algerian dinar, Algeria is a major natural gas and oil exporter."
+  },
+  {
+    "code": "EGP",
+    "name": "Egyptian Pound",
+    "symbol": "£",
+    "notes": "Egyptian pound, one of the oldest currencies still in use."
+  },
+  {
+    "code": "ERN",
+    "name": "Eritrean Nakfa",
+    "symbol": "Nfk",
+    "notes": "Eritrean nakfa, introduced in 1997 after Eritrea's independence from Ethiopia."
+  },
+  {
+    "code": "ETB",
+    "name": "Ethiopian Birr",
+    "symbol": "Br",
+    "notes": "Ethiopian birr, 'birr' means silver in Amharic."
+  },
+  {
+    "code": "EUR",
+    "name": "Euro",
+    "symbol": "€",
+    "notes": "Euro, shared by 20 EU member states and the world's second reserve currency."
+  },
+  {
+    "code": "FJD",
+    "name": "Fijian Dollar",
+    "symbol": "$",
+    "notes": "Fijian dollar, Fiji is a major Pacific island tourism destination."
+  },
+  {
+    "code": "FKP",
+    "name": "Falkland Islands Pound",
+    "symbol": "£",
+    "notes": "Falkland Islands pound, pegged 1:1 to the British pound sterling."
+  },
+  {
+    "code": "GBP",
+    "name": "British Pound Sterling",
+    "symbol": "£",
+    "notes": "British pound sterling, the world's oldest currency still in use."
+  },
+  {
+    "code": "GEL",
+    "name": "Georgian Lari",
+    "symbol": "₾",
+    "notes": "Georgian lari, introduced in 1995 replacing the Soviet-era coupon."
+  },
+  {
+    "code": "GGP",
+    "name": "Guernsey Pound",
+    "symbol": "£",
+    "notes": "Guernsey pound, a local issue pegged 1:1 to the British pound; not legal tender in the UK."
+  },
+  {
+    "code": "GHS",
+    "name": "Ghanaian Cedi",
+    "symbol": "₵",
+    "notes": "Ghanaian cedi, redenominated in 2007 (1 new cedi = 10,000 old cedis)."
+  },
+  {
+    "code": "GIP",
+    "name": "Gibraltar Pound",
+    "symbol": "£",
+    "notes": "Gibraltar pound, pegged 1:1 to the British pound."
+  },
+  {
+    "code": "GMD",
+    "name": "Gambian Dalasi",
+    "symbol": "D",
+    "notes": "Gambian dalasi, 'dalasi' derives from the five-franc coin used historically."
+  },
+  {
+    "code": "GNF",
+    "name": "Guinean Franc",
+    "symbol": "Fr",
+    "notes": "Guinean franc, Guinea holds some of the world's largest bauxite reserves."
+  },
+  {
+    "code": "GTQ",
+    "name": "Guatemalan Quetzal",
+    "symbol": "Q",
+    "notes": "Guatemalan quetzal, named after the resplendent quetzal bird."
+  },
+  {
+    "code": "GYD",
+    "name": "Guyanaese Dollar",
+    "symbol": "$",
+    "notes": "Guyanese dollar, Guyana has seen rapid growth from offshore oil discoveries."
+  },
+  {
+    "code": "HKD",
+    "name": "Hong Kong Dollar",
+    "symbol": "$",
+    "notes": "Hong Kong dollar, a major financial hub currency freely convertible worldwide."
+  },
+  {
+    "code": "HNL",
+    "name": "Honduran Lempira",
+    "symbol": "L",
+    "notes": "Honduran lempira, named after a 16th-century indigenous chief."
+  },
+  {
+    "code": "HRK",
+    "name": "Croatian Kuna",
+    "symbol": "kn",
+    "notes": "Croatian kuna, replaced by the euro in January 2023."
+  },
+  {
+    "code": "HTG",
+    "name": "Haitian Gourde",
+    "symbol": "G",
+    "notes": "Haitian gourde, Haiti shares the island of Hispaniola with the Dominican Republic."
+  },
+  {
+    "code": "HUF",
+    "name": "Hungarian Forint",
+    "symbol": "Ft",
+    "notes": "Hungarian forint, Hungary is an EU member but retains its own currency."
+  },
+  {
+    "code": "IDR",
+    "name": "Indonesian Rupiah",
+    "symbol": "Rp",
+    "notes": "Indonesian rupiah, Indonesia has the largest economy in Southeast Asia."
+  },
+  {
+    "code": "ILS",
+    "name": "Israeli New Sheqel",
+    "symbol": "₪",
+    "notes": "Israeli new shekel, introduced in 1986 replacing the hyperinflated old shekel."
+  },
+  {
+    "code": "IMP",
+    "name": "Manx pound",
+    "symbol": "£",
+    "notes": "Isle of Man pound, a local issue pegged 1:1 to the British pound; not legal tender in the UK."
+  },
+  {
+    "code": "INR",
+    "name": "Indian Rupee",
+    "symbol": "₹",
+    "notes": "Indian rupee, currency of the world's most populous country."
+  },
+  {
+    "code": "IQD",
+    "name": "Iraqi Dinar",
+    "symbol": "ع.د",
+    "notes": "Iraqi dinar, Iraq holds some of the world's largest proven oil reserves."
+  },
+  {
+    "code": "IRR",
+    "name": "Iranian Rial",
+    "symbol": "﷼",
+    "notes": "Iranian rial, one of the lowest-valued currency units due to sanctions."
+  },
+  {
+    "code": "ISK",
+    "name": "Icelandic Króna",
+    "symbol": "kr",
+    "notes": "Icelandic króna, Iceland recovered strongly after its 2008 banking collapse."
+  },
+  {
+    "code": "JEP",
+    "name": "Jersey Pound",
+    "symbol": "£",
+    "notes": "Jersey pound, a local issue pegged 1:1 to the British pound; not legal tender in the UK."
+  },
+  {
+    "code": "JMD",
+    "name": "Jamaican Dollar",
+    "symbol": "$",
+    "notes": "Jamaican dollar, Jamaica is known globally for reggae music and athletics."
+  },
+  {
+    "code": "JOD",
+    "name": "Jordanian Dinar",
+    "symbol": "د.ا",
+    "notes": "Jordanian dinar, one of the highest-valued currency units in the world."
+  },
+  {
+    "code": "JPY",
+    "name": "Japanese Yen",
+    "symbol": "¥",
+    "notes": "Japanese yen, the world's third most traded currency and a safe-haven asset."
+  },
+  {
+    "code": "KES",
+    "name": "Kenyan Shilling",
+    "symbol": "Ksh",
+    "notes": "Kenyan shilling, Kenya is East Africa's largest economy."
+  },
+  {
+    "code": "KGS",
+    "name": "Kyrgystani Som",
+    "symbol": "с",
+    "notes": "Kyrgyzstani som, 'som' means pure (as in pure gold) in Kyrgyz."
+  },
+  {
+    "code": "KHR",
+    "name": "Cambodian Riel",
+    "symbol": "៛",
+    "notes": "Cambodian riel, the USD is widely used alongside it in Cambodia."
+  },
+  {
+    "code": "KMF",
+    "name": "Comorian Franc",
+    "symbol": "Fr",
+    "notes": "Comorian franc, pegged to the euro via France."
+  },
+  {
+    "code": "KPW",
+    "name": "North Korean Won",
+    "symbol": "₩",
+    "notes": "North Korean won, tightly controlled and not convertible internationally."
+  },
+  {
+    "code": "KRW",
+    "name": "South Korean Won",
+    "symbol": "₩",
+    "notes": "South Korean won, South Korea is a global leader in electronics and cars."
+  },
+  {
+    "code": "KWD",
+    "name": "Kuwaiti Dinar",
+    "symbol": "د.ك",
+    "notes": "Kuwaiti dinar, the highest-valued currency unit in the world."
+  },
+  {
+    "code": "KYD",
+    "name": "Cayman Islands Dollar",
+    "symbol": "$",
+    "notes": "Cayman Islands dollar, pegged to the USD at 1.2:1."
+  },
+  {
+    "code": "KZT",
+    "name": "Kazakhstani Tenge",
+    "symbol": "₸",
+    "notes": "Kazakhstani tenge, Kazakhstan is a major oil and uranium producer."
+  },
+  {
+    "code": "LAK",
+    "name": "Laotian Kip",
+    "symbol": "₭",
+    "notes": "Lao kip, Laos is a landlocked nation in Southeast Asia."
+  },
+  {
+    "code": "LBP",
+    "name": "Lebanese Pound",
+    "symbol": "ل.ل",
+    "notes": "Lebanese pound, has severely depreciated amid Lebanon's ongoing financial crisis."
+  },
+  {
+    "code": "LKR",
+    "name": "Sri Lankan Rupee",
+    "symbol": "Rs",
+    "notes": "Sri Lankan rupee, Sri Lanka faced a major economic crisis in 2022."
+  },
+  {
+    "code": "LRD",
+    "name": "Liberian Dollar",
+    "symbol": "$",
+    "notes": "Liberian dollar, Liberia was founded by freed American slaves in 1847."
+  },
+  {
+    "code": "LSL",
+    "name": "Lesotho Loti",
+    "symbol": "L",
+    "notes": "Lesotho loti, pegged 1:1 to the South African rand."
+  },
+  {
+    "code": "LYD",
+    "name": "Libyan Dinar",
+    "symbol": "ل.د",
+    "notes": "Libyan dinar, Libya holds Africa's largest proven oil reserves."
+  },
+  {
+    "code": "MAD",
+    "name": "Moroccan Dirham",
+    "symbol": "د.م.",
+    "notes": "Moroccan dirham, Morocco is Africa's largest phosphate exporter."
+  },
+  {
+    "code": "MDL",
+    "name": "Moldovan Leu",
+    "symbol": "L",
+    "notes": "Moldovan leu, Moldova is one of Europe's smallest and poorest countries."
+  },
+  {
+    "code": "MGA",
+    "name": "Malagasy Ariary",
+    "symbol": "Ar",
+    "notes": "Malagasy ariary, one of only two non-decimal currencies in the world."
+  },
+  {
+    "code": "MKD",
+    "name": "Macedonian Denar",
+    "symbol": "ден",
+    "notes": "Macedonian denar, North Macedonia is a candidate EU member state."
+  },
+  {
+    "code": "MMK",
+    "name": "Myanma Kyat",
+    "symbol": "K",
+    "notes": "Myanmar kyat, Myanmar has faced economic turmoil following the 2021 coup."
+  },
+  {
+    "code": "MNT",
+    "name": "Mongolian Tugrik",
+    "symbol": "₮",
+    "notes": "Mongolian tögrög, Mongolia has vast coal and copper reserves."
+  },
+  {
+    "code": "MOP",
+    "name": "Macanese Pataca",
+    "symbol": "P",
+    "notes": "Macanese pataca, Macau is the world's largest gambling revenue hub."
+  },
+  {
+    "code": "MRU",
+    "name": "Mauritanian Ouguiya",
+    "symbol": "UM",
+    "notes": "Mauritanian ouguiya, one of only two non-decimal currencies in the world."
+  },
+  {
+    "code": "MUR",
+    "name": "Mauritian Rupee",
+    "symbol": "Rs",
+    "notes": "Mauritian rupee, Mauritius is a high-income African island economy."
+  },
+  {
+    "code": "MVR",
+    "name": "Maldivian Rufiyaa",
+    "symbol": "Rf",
+    "notes": "Maldivian rufiyaa, the Maldives is famous for luxury tourism and coral atolls."
+  },
+  {
+    "code": "MWK",
+    "name": "Malawian Kwacha",
+    "symbol": "MK",
+    "notes": "Malawian kwacha, Malawi is one of the world's least developed countries."
+  },
+  {
+    "code": "MXN",
+    "name": "Mexican Peso",
+    "symbol": "$",
+    "notes": "Mexican peso, the most traded Latin American currency."
+  },
+  {
+    "code": "MYR",
+    "name": "Malaysian Ringgit",
+    "symbol": "RM",
+    "notes": "Malaysian ringgit, Malaysia is a major palm oil and electronics exporter."
+  },
+  {
+    "code": "MZN",
+    "name": "Mozambican Metical",
+    "symbol": "MT",
+    "notes": "Mozambican metical, Mozambique has significant natural gas reserves."
+  },
+  {
+    "code": "NAD",
+    "name": "Namibian Dollar",
+    "symbol": "$",
+    "notes": "Namibian dollar, pegged 1:1 to the South African rand."
+  },
+  {
+    "code": "NGN",
+    "name": "Nigerian Naira",
+    "symbol": "₦",
+    "notes": "Nigerian naira, Nigeria has Africa's largest economy."
+  },
+  {
+    "code": "NIO",
+    "name": "Nicaraguan Córdoba",
+    "symbol": "C$",
+    "notes": "Nicaraguan córdoba, named after Francisco Hernández de Córdoba."
+  },
+  {
+    "code": "NOK",
+    "name": "Norwegian Krone",
+    "symbol": "kr",
+    "notes": "Norwegian krone, Norway manages its oil wealth through a sovereign wealth fund."
+  },
+  {
+    "code": "NPR",
+    "name": "Nepalese Rupee",
+    "symbol": "Rs",
+    "notes": "Nepalese rupee, pegged to the Indian rupee at 1.6:1."
+  },
+  {
+    "code": "NZD",
+    "name": "New Zealand Dollar",
+    "symbol": "$",
+    "notes": "New Zealand dollar, also used in several Pacific island territories."
+  },
+  {
+    "code": "OMR",
+    "name": "Omani Rial",
+    "symbol": "ر.ع.",
+    "notes": "Omani rial, pegged to the USD; one of the world's highest-valued currencies."
+  },
+  {
+    "code": "PAB",
+    "name": "Panamanian Balboa",
+    "symbol": "B/.",
+    "notes": "Panamanian balboa, pegged 1:1 to the USD; USD is legal tender in Panama."
+  },
+  {
+    "code": "PEN",
+    "name": "Peruvian Nuevo Sol",
+    "symbol": "S/.",
+    "notes": "Peruvian sol, Peru is a major copper and gold producer."
+  },
+  {
+    "code": "PGK",
+    "name": "Papua New Guinean Kina",
+    "symbol": "K",
+    "notes": "Papua New Guinean kina, PNG has rich mineral and natural gas resources."
+  },
+  {
+    "code": "PHP",
+    "name": "Philippine Peso",
+    "symbol": "₱",
+    "notes": "Philippine peso, the Philippines is a major source of global remittances."
+  },
+  {
+    "code": "PKR",
+    "name": "Pakistani Rupee",
+    "symbol": "Rs",
+    "notes": "Pakistani rupee, Pakistan is the world's fifth most populous country."
+  },
+  {
+    "code": "PLN",
+    "name": "Polish Zloty",
+    "symbol": "zł",
+    "notes": "Polish złoty, Poland has one of the largest economies in Central Europe."
+  },
+  {
+    "code": "PYG",
+    "name": "Paraguayan Guarani",
+    "symbol": "₲",
+    "notes": "Paraguayan guaraní, Paraguay is a major soy and beef exporter."
+  },
+  {
+    "code": "QAR",
+    "name": "Qatari Rial",
+    "symbol": "ر.ق",
+    "notes": "Qatari riyal, Qatar has one of the world's highest GDPs per capita."
+  },
+  {
+    "code": "RON",
+    "name": "Romanian Leu",
+    "symbol": "lei",
+    "notes": "Romanian leu, Romania is an EU member targeting euro adoption."
+  },
+  {
+    "code": "RSD",
+    "name": "Serbian Dinar",
+    "symbol": "din",
+    "notes": "Serbian dinar, Serbia is a candidate EU member state."
+  },
+  {
+    "code": "RUB",
+    "name": "Russian Ruble",
+    "symbol": "₽",
+    "notes": "Russian ruble, has faced significant depreciation due to sanctions."
+  },
+  {
+    "code": "RWF",
+    "name": "Rwandan Franc",
+    "symbol": "Fr",
+    "notes": "Rwandan franc, Rwanda has one of Africa's fastest-growing economies."
+  },
+  {
+    "code": "SAR",
+    "name": "Saudi Riyal",
+    "symbol": "ر.س",
+    "notes": "Saudi riyal, pegged to the USD; Saudi Arabia is the world's top oil exporter."
+  },
+  {
+    "code": "SBD",
+    "name": "Solomon Islands Dollar",
+    "symbol": "$",
+    "notes": "Solomon Islands dollar, the Solomons are a Pacific archipelago nation."
+  },
+  {
+    "code": "SCR",
+    "name": "Seychellois Rupee",
+    "symbol": "Rs",
+    "notes": "Seychellois rupee, the Seychelles has Africa's highest GDP per capita."
+  },
+  {
+    "code": "SDG",
+    "name": "Sudanese Pound",
+    "symbol": "£",
+    "notes": "Sudanese pound, Sudan split into two countries in 2011."
+  },
+  {
+    "code": "SEK",
+    "name": "Swedish Krona",
+    "symbol": "kr",
+    "notes": "Swedish krona, Sweden is an EU member that voted to keep its own currency."
+  },
+  {
+    "code": "SGD",
+    "name": "Singapore Dollar",
+    "symbol": "$",
+    "notes": "Singapore dollar, one of the world's most stable and valued currencies."
+  },
+  {
+    "code": "SHP",
+    "name": "Saint Helena Pound",
+    "symbol": "£",
+    "notes": "Saint Helena pound, used on the remote South Atlantic island of Saint Helena."
+  },
+  {
+    "code": "SLE",
+    "name": "Sierra Leonean Leone",
+    "symbol": "Le",
+    "notes": "Sierra Leonean leone (new), redenominated in 2022 at 1 SLE = 1000 SLL."
+  },
+  {
+    "code": "SLL",
+    "name": "Sierra Leonean Leone (Old)",
+    "symbol": "Le",
+    "notes": "Old Sierra Leonean leone, replaced by SLE in 2022; Sierra Leone is a major diamond producer."
+  },
+  {
+    "code": "SOS",
+    "name": "Somali Shilling",
+    "symbol": "Sh",
+    "notes": "Somali shilling, Somalia has faced decades of civil conflict."
+  },
+  {
+    "code": "SRD",
+    "name": "Surinamese Dollar",
+    "symbol": "$",
+    "notes": "Surinamese dollar, Suriname is a small South American nation with gold reserves."
+  },
+  {
+    "code": "SSP",
+    "name": "South Sudanese Pound",
+    "symbol": "£",
+    "notes": "South Sudanese pound, introduced in 2011 when South Sudan gained independence."
+  },
+  {
+    "code": "STD",
+    "name": "São Tomé and Príncipe Dobra (pre-2018)",
+    "symbol": "Db",
+    "notes": "Old São Tomé and Príncipe dobra, replaced by STN in 2018 at 1 STN = 1000 STD."
+  },
+  {
+    "code": "STN",
+    "name": "São Tomé and Príncipe Dobra",
+    "symbol": "Db",
+    "notes": "São Tomé and Príncipe dobra, pegged to the euro via Portugal."
+  },
+  {
+    "code": "SVC",
+    "name": "Salvadoran Colón",
+    "symbol": "₡",
+    "notes": "Salvadoran colón, El Salvador adopted Bitcoin as legal tender in 2021."
+  },
+  {
+    "code": "SYP",
+    "name": "Syrian Pound",
+    "symbol": "£",
+    "notes": "Syrian pound, has collapsed dramatically due to the ongoing civil war."
+  },
+  {
+    "code": "SZL",
+    "name": "Swazi Lilangeni",
+    "symbol": "L",
+    "notes": "Swazi lilangeni, pegged 1:1 to the South African rand."
+  },
+  {
+    "code": "THB",
+    "name": "Thai Baht",
+    "symbol": "฿",
+    "notes": "Thai baht, Thailand is Southeast Asia's second-largest economy."
+  },
+  {
+    "code": "TJS",
+    "name": "Tajikistani Somoni",
+    "symbol": "SM",
+    "notes": "Tajikistani somoni, named after Ismoil Somoni, a Samanid ruler."
+  },
+  {
+    "code": "TMT",
+    "name": "Turkmenistani Manat",
+    "symbol": "T",
+    "notes": "Turkmenistani manat, Turkmenistan has the world's fourth-largest gas reserves."
+  },
+  {
+    "code": "TND",
+    "name": "Tunisian Dinar",
+    "symbol": "د.ت",
+    "notes": "Tunisian dinar, Tunisia is a major North African tourism destination."
+  },
+  {
+    "code": "TOP",
+    "name": "Tongan Pa'anga",
+    "symbol": "T$",
+    "notes": "Tongan paʻanga, Tonga is a Polynesian island kingdom in the Pacific."
+  },
+  {
+    "code": "TRY",
+    "name": "Turkish Lira",
+    "symbol": "₺",
+    "notes": "Turkish lira, Turkey has faced high inflation in recent years."
+  },
+  {
+    "code": "TTD",
+    "name": "Trinidad and Tobago Dollar",
+    "symbol": "$",
+    "notes": "Trinidad and Tobago dollar, T&T is a major Caribbean energy exporter."
+  },
+  {
+    "code": "TWD",
+    "name": "New Taiwan Dollar",
+    "symbol": "$",
+    "notes": "New Taiwan dollar, Taiwan is the world's leading semiconductor manufacturer."
+  },
+  {
+    "code": "TZS",
+    "name": "Tanzanian Shilling",
+    "symbol": "Sh",
+    "notes": "Tanzanian shilling, Tanzania hosts Kilimanjaro and the Serengeti."
+  },
+  {
+    "code": "UAH",
+    "name": "Ukrainian Hryvnia",
+    "symbol": "₴",
+    "notes": "Ukrainian hryvnia, Ukraine has faced significant economic strain since 2022."
+  },
+  {
+    "code": "UGX",
+    "name": "Ugandan Shilling",
+    "symbol": "Sh",
+    "notes": "Ugandan shilling, Uganda is a major coffee producer in Africa."
+  },
+  {
+    "code": "USD",
+    "name": "United States Dollar",
+    "symbol": "$",
+    "notes": "US dollar, the world's primary reserve currency used in global trade."
+  },
+  {
+    "code": "UYU",
+    "name": "Uruguayan Peso",
+    "symbol": "$",
+    "notes": "Uruguayan peso, Uruguay is known for political stability in South America."
+  },
+  {
+    "code": "UZS",
+    "name": "Uzbekistan Som",
+    "symbol": "so'm",
+    "notes": "Uzbekistani som, Uzbekistan is a major cotton and gold producer."
+  },
+  {
+    "code": "VEF",
+    "name": "Venezuelan Bolívar Fuerte (Old)",
+    "symbol": "Bs.F",
+    "notes": "Old Venezuelan bolívar fuerte, replaced by VES in 2018 due to hyperinflation."
+  },
+  {
+    "code": "VES",
+    "name": "Venezuelan Bolívar Soberano",
+    "symbol": "Bs.S",
+    "notes": "Venezuelan bolívar soberano, Venezuela has faced extreme hyperinflation."
+  },
+  {
+    "code": "VND",
+    "name": "Vietnamese Dong",
+    "symbol": "₫",
+    "notes": "Vietnamese dong, Vietnam is one of Asia's fastest-growing economies."
+  },
+  {
+    "code": "VUV",
+    "name": "Vanuatu Vatu",
+    "symbol": "Vt",
+    "notes": "Vanuatu vatu, Vanuatu is a Pacific archipelago of 80+ islands."
+  },
+  {
+    "code": "WST",
+    "name": "Samoan Tala",
+    "symbol": "T",
+    "notes": "Samoan tālā, Samoa is a small Polynesian island nation."
+  },
+  {
+    "code": "XAF",
+    "name": "CFA Franc BEAC",
+    "symbol": "Fr",
+    "notes": "Central African CFA franc, shared by six Central African nations."
+  },
+  {
+    "code": "XAG",
+    "name": "Silver Ounce",
+    "symbol": "",
+    "notes": "Spot price unit for silver, used in commodity markets; not a circulating currency."
+  },
+  {
+    "code": "XAU",
+    "name": "Gold Ounce",
+    "symbol": "",
+    "notes": "Spot price unit for gold, used in commodity markets; not a circulating currency."
+  },
+  {
+    "code": "XCD",
+    "name": "East Caribbean Dollar",
+    "symbol": "$",
+    "notes": "East Caribbean dollar, shared by eight Eastern Caribbean states."
+  },
+  {
+    "code": "XCG",
+    "name": "Caribbean Guilder",
+    "symbol": "ƒ",
+    "notes": "Caribbean guilder, set to replace the Netherlands Antillean guilder in Curaçao and Sint Maarten."
+  },
+  {
+    "code": "XDR",
+    "name": "Special Drawing Rights",
+    "symbol": "SDR",
+    "notes": "IMF reserve asset, not a currency but used for international settlements between member states."
+  },
+  {
+    "code": "XOF",
+    "name": "CFA Franc BCEAO",
+    "symbol": "Fr",
+    "notes": "West African CFA franc, shared by eight West African nations."
+  },
+  {
+    "code": "XPD",
+    "name": "Palladium Ounce",
+    "symbol": "",
+    "notes": "Spot price unit for palladium, used in commodity markets; not a circulating currency."
+  },
+  {
+    "code": "XPF",
+    "name": "CFP Franc",
+    "symbol": "Fr",
+    "notes": "CFP franc, used in French Polynesia, New Caledonia, and Wallis and Futuna."
+  },
+  {
+    "code": "XPT",
+    "name": "Platinum Ounce",
+    "symbol": "",
+    "notes": "Spot price unit for platinum, used in commodity markets; not a circulating currency."
+  },
+  {
+    "code": "YER",
+    "name": "Yemeni Rial",
+    "symbol": "﷼",
+    "notes": "Yemeni rial, Yemen has been in civil conflict since 2015."
+  },
+  {
+    "code": "ZAR",
+    "name": "South African Rand",
+    "symbol": "R",
+    "notes": "South African rand, the most traded African currency globally."
+  },
+  {
+    "code": "ZMW",
+    "name": "Zambian Kwacha",
+    "symbol": "ZK",
+    "notes": "Zambian kwacha, Zambia is one of Africa's largest copper producers."
+  },
+  {
+    "code": "ZWG",
+    "name": "Zimbabwean ZiG",
+    "symbol": "ZiG",
+    "notes": "Zimbabwe Gold (ZiG), introduced in 2024 and backed by gold reserves to stabilize the economy."
+  },
+  {
+    "code": "ZWL",
+    "name": "Zimbabwean Dollar",
+    "symbol": "$",
+    "notes": "Zimbabwean dollar, Zimbabwe experienced one of history's worst hyperinflations."
+  }
+]
