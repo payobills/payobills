@@ -7,3 +7,7 @@ The `w/` folder contains git worktrees. Do not read files from `w/` unless expli
 ## Rebasing
 
 Always rebase against `origin/main`. Do not check `develop` or `master`.
+
+## CSS
+
+Do not use negative margins or negative padding.

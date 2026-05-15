@@ -226,7 +226,6 @@ $: {
     border-bottom: 1px solid rgba(28, 28, 38, 0.5);
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
   }
 
