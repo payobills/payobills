@@ -272,27 +272,56 @@ onMount(() => {
     line-height: 1.6;
   }
 
-  @media (min-width: 65rem) {
+  @media (min-width: 72rem) {
     section {
       grid-template-columns: 1fr 1fr;
+      max-width: 90rem;
+      margin: 0 auto;
+    }
+
+    .timeline-view:first-of-type {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .bills-view {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .timeline-view:last-of-type {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .billing-cycles-view {
+      grid-column: 2;
+      grid-row: 2;
     }
 
     .timeline-view,
     .bills-view,
     .billing-cycles-view {
+      border-right: none;
+      border-bottom: 1px solid var(--color-base-300);
+    }
+
+    .timeline-view:first-of-type,
+    .timeline-view:last-of-type {
       border-right: 1px solid var(--color-base-300);
+    }
+
+    .timeline-view:last-of-type {
+      border-right: none;
+    }
+
+    .bills-view,
+    .billing-cycles-view {
       border-bottom: none;
     }
 
-    .billing-cycles-view,
     .bills-view {
-      border-right: none;
-    }
-  }
-
-  @media (min-width: 101rem) {
-    section {
-      grid-template-columns: repeat(4, 1fr);
+      border-right: 1px solid var(--color-base-300);
     }
   }
 </style>
