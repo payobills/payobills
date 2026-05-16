@@ -20,17 +20,27 @@ public class TransactionStatsNocoDBService : ITransactionStatsService
             ? string.Empty
             : $"w=(PaidAt,gte,{filters.FromDate})";
 
-        var urlParams = string.Join("&", new[] { "l=10000", filterUrlParam }
-            .Where(p => !string.IsNullOrEmpty(p)));
+        var records = new List<Transaction>();
+        var pageNumber = 1;
+        const int pageSize = 1000;
 
-        var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
-            "payobills",
-            "transactions",
-            "ParseStatus",
-            urlParams
-        );
+        while (true)
+        {
+            var urlParams = string.Join("&", new[] { $"l={pageSize}", $"p={pageNumber}", filterUrlParam }
+                .Where(p => !string.IsNullOrEmpty(p)));
 
-        var records = (page?.List ?? Enumerable.Empty<Transaction>()).ToList();
+            var page = await nocoDBClientService.GetRecordsPageAsync<Transaction>(
+                "payobills",
+                "transactions",
+                "ParseStatus",
+                urlParams
+            );
+
+            records.AddRange(page?.List ?? Enumerable.Empty<Transaction>());
+
+            if (page?.PageInfo.IsLastPage != false) break;
+            pageNumber++;
+        }
 
         var grouped = records
             .GroupBy(t => t.ParseStatus)
