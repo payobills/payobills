@@ -196,6 +196,30 @@ public class NocoDBClientService
     return await JsonSerializer.DeserializeAsync<NocoDBPage<T>>(responseStream, jsonSerializerOptions);
   }
 
+  public async Task<long> GetCountAsync(string baseName, string table, string extraArgs = "")
+  {
+    var extraArgsToPassInUrl = !string.IsNullOrEmpty(extraArgs) ? $"?{extraArgs}" : string.Empty;
+    var url = $"{nocoDBOptions.BaseUrl}/api/v1/db/data/v1/{baseName}/{table}/count{extraArgsToPassInUrl}";
+
+    Console.WriteLine($"[NocoDB] Count: {url}");
+
+    using var request = new HttpRequestMessage(HttpMethod.Get, url);
+    request.Headers.Add("xc-token", nocoDBOptions.XCToken);
+
+    var response = await httpClient.SendAsync(request);
+
+    if (!response.IsSuccessStatusCode)
+    {
+      var errorBody = await response.Content.ReadAsStringAsync();
+      Console.WriteLine($"[NocoDB] {(int)response.StatusCode} {response.StatusCode} — {url}\n{errorBody}");
+      response.EnsureSuccessStatusCode();
+    }
+
+    var responseStream = await response.Content.ReadAsStreamAsync();
+    var doc = await JsonSerializer.DeserializeAsync<JsonDocument>(responseStream);
+    return doc?.RootElement.GetProperty("count").GetInt64() ?? 0;
+  }
+
   public async Task<TOutput> GetMetaResourceDataAsync<TOutput>(string metaUrl)
   {
     using var request = new HttpRequestMessage(
