@@ -206,8 +206,8 @@ function onTileClick(_stat: string) {
   }
 
   .tiles {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
     gap: 0.625rem;
   }
 
@@ -220,7 +220,6 @@ function onTileClick(_stat: string) {
     border: 1px solid var(--color-base-300);
     border-radius: 0.375rem;
     padding: 0.75rem 1.25rem;
-    min-width: 5rem;
     cursor: pointer;
     transition: border-color 0.15s ease, background-color 0.15s ease;
   }

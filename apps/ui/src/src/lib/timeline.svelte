@@ -365,8 +365,8 @@ onMount(() => {
   }
 
   .stat-tiles {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
     gap: 0.5rem;
   }
 
@@ -379,7 +379,6 @@ onMount(() => {
     border: 1px solid var(--color-base-300);
     border-radius: 0.375rem;
     padding: 0.625rem 1rem;
-    min-width: 4.5rem;
     cursor: pointer;
     transition: border-color 0.15s ease;
   }
