@@ -1,109 +1,94 @@
 # Transaction Summary Page — Implementation Plan
 
 ## Context
-Users currently only have a monthly view of transactions. We need a summary/overview page that shows aggregate stats (total, parsed, pending, failed) filterable by date range. The UI will offer preset windows (last 7/30/60/90 days) calculated client-side as ISO date strings. This is implemented service-by-service.
+Users need a summary/overview page showing aggregate transaction stats filterable by date range. The `TransactionStats` GraphQL query returns a generic array of `{ stat: string, value: string }` objects so the UI can render any stat without schema changes. A `scope` enum filter lets the UI request one group of stats at a time (parse status, tags, or currency).
+
+## Current state (merged to `feat/payments-transaction-stats-query`)
+- `TransactionStatDTO`, `TransactionStatsFiltersInput`, `ITransactionStatsService` — created
+- `TransactionStatScope` enum — created (`Parse`, `Tags`, `Currency`)
+- `TransactionStatsFiltersInput.Scope` — added
+- `NocoDBClientService.GetGroupByAsync<T>` — added with error logging
+- `NocoDBClientService.GetCountAsync` — added (hits `/count` endpoint)
+- `TransactionStatsNocoDBService` — routes by scope; all three groups fire concurrently via `Task.WhenAll` when scope is null
+- Parse scope: `GetGroupByAsync(ParseStatus)` → `total`, `completed`, `notStarted`, `pending`, `failed`
+- Tags scope: `GetCountAsync` with `isnotblank`/`isblank` → `tagged`, `untagged`
+- Currency scope: `GetGroupByAsync(Currency)` → `currency_{code}` per distinct value
+- `Query.TransactionStats` field and DI registration — wired up
+- ParseStatus values mapped: `ParsedV1/Parsed/OcrParsedV1` → completed, `Parsing` → pending, `FailedV1/OcrFailedV1` → failed
 
 ---
 
-## Scope
+## Remaining work
 
-| Service | Change |
-|---------|--------|
-| `apps/payments` (C#/.NET GraphQL) | Add `TransactionStats` GraphQL query with `fromDate` filter |
-| `apps/ui` (SvelteKit) | Add `/transactions/summary` page |
-
-`apps/transaction-parser` (Rust) — no changes for this phase.
+### ~~1. Scope enum + filter field~~ ✓ Done
+### ~~2. `GetCountAsync` in NocoDBClientService~~ ✓ Done
+### ~~3. Expand `TransactionStatsNocoDBService`~~ ✓ Done
 
 ---
 
-## Phase 1 — Payments service: `TransactionStats` query
-
-**New files:**
-- `apps/payments/src/Services.Contracts/DTOs/TransactionStatsDTO.cs`
-- `apps/payments/src/Services.Contracts/DTOs/TransactionStatsFiltersInput.cs`
-- `apps/payments/src/Services.Contracts/ITransactionStatsService.cs`
-- `apps/payments/src/Services/TransactionStatsNocoDBService.cs`
-
-**Modify:**
-- `apps/payments/src/Services/Query.cs` — add `TransactionStats` field
-- `apps/payments/src/Program.cs` — register the new service
-
-### DTO shapes
-
-```csharp
-// TransactionStatsFiltersInput.cs
-public class TransactionStatsFiltersInput {
-    public string? FromDate { get; set; }  // ISO date string, e.g. "2025-04-15"
-}
-
-// TransactionStatsDTO.cs
-public record TransactionStatsDTO(
-    int Total,
-    int NotStarted,
-    int Pending,
-    int Completed,
-    int Failed
-);
-```
-
-### Service implementation
-
-Follow the exact same NocoDB URL-param filter pattern used in `TransactionsNocoDBService.GetTransactionsAsync`:
-
-- Build `where` clause with `(PaidAt,gte,{filters.FromDate})` when `FromDate` is not null/empty.
-- Fetch all matching rows with `fields=ParseStatus` only, then group in memory to count by `ParseStatus`.
-
-### Query registration
-
-```csharp
-// Query.cs — new field
-public async Task<TransactionStatsDTO> TransactionStats(
-    [Service] ITransactionStatsService statsService,
-    TransactionStatsFiltersInput? filters = null)
-  => await statsService.GetTransactionStatsAsync(filters);
-```
-
----
-
-## Phase 2 — UI: `/transactions/summary` page
+### 4. UI: `/transactions/summary` page
 
 **New file:** `apps/ui/src/src/routes/transactions/summary/+page.svelte`
 
-**Modify:** `apps/ui/src/src/lib/Nav.svelte` — add "Summary" nav link
+- Period selector buttons: Last 7 / 30 / 60 / 90 days — computes `fromDate` via `dayjs().subtract(N, 'day').toISOString()`
+- Three separate `queryStore` calls (one per scope: `PARSE`, `TAGS`, `CURRENCY`) so each card group loads independently
+- Render one stat card per `{ stat, value }` entry using existing DaisyUI/color tokens
 
-### Page layout
+**Modify `apps/ui/src/src/lib/Nav.svelte`** — add "Summary" nav link pointing to `/transactions/summary`
 
-- **Period selector**: buttons for Last 7 / 30 / 60 / 90 days — each sets `fromDate` as `dayjs().subtract(N, 'day').toISOString()`
-- **Stat cards** (DaisyUI card + existing color tokens):
-  - Total | Completed | Not Started | Pending | Failed
-- **Transaction list**: reuse existing `Transactions` query with `parseStatus` field showing a status badge per row
-
-### GraphQL query
-
+### GraphQL queries (UI)
 ```graphql
-query ($fromDate: String) {
-  transactionStats(filters: { fromDate: $fromDate }) {
-    total
-    notStarted
-    pending
-    completed
-    failed
-  }
+query ParseStats($fromDate: String) {
+  transactionStats(filters: { fromDate: $fromDate, scope: PARSE }) { stat value }
+}
+query TagStats($fromDate: String) {
+  transactionStats(filters: { fromDate: $fromDate, scope: TAGS }) { stat value }
+}
+query CurrencyStats($fromDate: String) {
+  transactionStats(filters: { fromDate: $fromDate, scope: CURRENCY }) { stat value }
 }
 ```
 
 ---
 
-## Implementation Order
+## Critical files
 
-1. **Branch**: `feature/transaction-summary-page` off `main` ✅
-2. **payments**: DTO + filter input + service interface + NocoDB service + Query field + DI registration
-3. **UI**: summary page with period selector + stat cards + nav link
+| File | Action |
+|------|--------|
+| `apps/payments/src/Services.Contracts/DTOs/TransactionStatScopeEnum.cs` | Create |
+| `apps/payments/src/Services.Contracts/DTOs/TransactionStatsFiltersInput.cs` | Modify — add `Scope` |
+| `apps/payments/src/NocoDB/NocoDBClientService.cs` | Modify — add `GetCountAsync` |
+| `apps/payments/src/Services/TransactionStatsNocoDBService.cs` | Modify — add Tags + Currency scopes |
+| `apps/ui/src/src/routes/transactions/summary/+page.svelte` | Create |
+| `apps/ui/src/src/lib/Nav.svelte` | Modify |
+
+**Reference implementations:**
+- GroupBy pattern: `apps/payments/src/Services/TransactionStatsNocoDBService.cs`
+- Count endpoint pattern: mirror `GetGroupByAsync` in `apps/payments/src/NocoDB/NocoDBClientService.cs`
+- UI query pattern: `apps/ui/src/src/routes/transactions/+page.svelte`
 
 ---
 
 ## Verification
 
-- `cd apps/payments && dotnet build` — no errors
-- GraphQL: `{ transactionStats(filters: { fromDate: "2025-01-01" }) { total notStarted pending completed failed } }`
-- UI: navigate to `/transactions/summary`, toggle period buttons, verify card counts update
+1. `cd apps/payments && dotnet build` — no errors
+2. GraphQL (no scope — all stats):
+```graphql
+{ transactionStats(filters: { fromDate: "2025-01-01T00:00:00Z" }) { stat value } }
+```
+Expected shape:
+```json
+[
+  { "stat": "total",        "value": "87" },
+  { "stat": "completed",    "value": "54" },
+  { "stat": "notStarted",   "value": "20" },
+  { "stat": "pending",      "value": "10" },
+  { "stat": "failed",       "value": "3"  },
+  { "stat": "tagged",       "value": "60" },
+  { "stat": "untagged",     "value": "27" },
+  { "stat": "currency_INR", "value": "70" },
+  { "stat": "currency_USD", "value": "17" }
+]
+```
+3. GraphQL (scoped): `scope: PARSE` returns only parse stats, `scope: TAGS` returns only tagged/untagged, `scope: CURRENCY` returns only currency entries.
+4. UI: navigate to `/transactions/summary`, toggle period buttons, verify each card group loads.
