@@ -8,6 +8,8 @@ import RecentTransactions from "./recent-transactions.svelte";
 import BillPayment from "./bills/bill-payment.svelte";
 import Trips from "$lib/trips.svelte";
 import { getBillPaymentCycle } from "../utils/get-bill-payment-cycle";
+import { queryStore, gql } from "@urql/svelte";
+import { paymentsUrql } from "$lib/stores/urql";
 export let title: string = "";
 export let items: any[] = [];
 export let trips: Trip[];
@@ -21,6 +23,33 @@ export let onCurrentBillStatementDoesNotExist: any;
 let lastDay = 31;
 let fullPaymentDates: any[] = [];
 let month = "";
+
+const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+const firstOfMonthLabel = Intl.DateTimeFormat(undefined, { month: "long", day: "numeric" }).format(
+  new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+);
+
+const parseStatsQuery = queryStore({
+  client: $paymentsUrql,
+  variables: { fromDate: firstOfMonth },
+  query: gql`
+    query ParseStats($fromDate: String) {
+      transactionStats(filters: { fromDate: $fromDate, scope: PARSE }) { stat value }
+    }
+  `,
+});
+
+const statLabels: Record<string, string> = {
+  total: "Total", completed: "Completed", notStarted: "Not Started",
+  pending: "Pending", failed: "Failed",
+};
+const statColors: Record<string, string> = {
+  total: "var(--color-base-content)",
+  completed: "var(--color-success, #22c55e)",
+  notStarted: "var(--color-neutral-content)",
+  pending: "var(--color-warning, #f59e0b)",
+  failed: "var(--color-error, #ef4444)",
+};
 
 const isBillPaid = (bill: any): boolean => {
   const stmts = billingStatements?.[`billStatements__bill_${bill.id}`];
@@ -164,6 +193,33 @@ onMount(() => {
     </button>
 </div>
 </div>
+
+<div class="stats-view">
+  <div class="stats-header">
+    <div>
+      <h1 class="title_bill">Transaction Stats</h1>
+      <p class="stats-since">Since {firstOfMonthLabel}</p>
+    </div>
+    <button class="view-all-btn" on:click={() => goto("/transactions/summary")}>View all →</button>
+  </div>
+  {#if $parseStatsQuery.fetching}
+    <p>Loading…</p>
+  {:else if $parseStatsQuery.error}
+    <p>Failed to load stats</p>
+  {:else}
+    <div class="stat-tiles">
+      {#each $parseStatsQuery.data?.transactionStats ?? [] as { stat, value }}
+        <button
+          class="stat-tile"
+          on:click={() => goto("/transactions/summary")}
+        >
+          <span class="stat-tile-value" style="color: {statColors[stat] ?? 'var(--color-primary)'}">{value}</span>
+          <span class="stat-tile-label">{statLabels[stat] ?? stat}</span>
+        </button>
+      {/each}
+    </div>
+  {/if}
+</div>
 </section>
 
 <style>
@@ -287,6 +343,77 @@ onMount(() => {
   .cta:hover {
     background-color: rgba(0, 212, 184, 0.18);
     border-color: rgba(0, 212, 184, 0.5);
+  }
+
+  .stats-view {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-base-300);
+  }
+
+  .stats-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .stats-header .title_bill {
+    margin: 0 0 0.125rem;
+  }
+
+  .stats-since {
+    font-size: 0.6875rem;
+    color: var(--color-neutral-content);
+    margin: 0;
+  }
+
+  .view-all-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    font-family: "Syne", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .stat-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+    gap: 0.5rem;
+  }
+
+  .stat-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    background-color: rgba(28, 28, 38, 0.5);
+    border: 1px solid var(--color-base-300);
+    border-radius: 0.375rem;
+    padding: 0.625rem 1rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+
+  .stat-tile:hover {
+    border-color: rgba(0, 212, 184, 0.35);
+  }
+
+  .stat-tile-value {
+    font-family: "Syne", sans-serif;
+    font-size: 1.375rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .stat-tile-label {
+    font-size: 0.625rem;
+    color: var(--color-neutral-content);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
   }
 
   p {
