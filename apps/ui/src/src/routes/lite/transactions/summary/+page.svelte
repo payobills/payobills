@@ -95,6 +95,11 @@ function onTileClick(_stat: string) {
 </script>
 
 <section class="summary-page">
+  <div class="page-intro">
+    <h1 class="page-title">Transaction Stats</h1>
+    <p class="page-desc">A breakdown of your transactions by parse status, tags, and currency. Use the period selector to narrow down the data.</p>
+  </div>
+
   <div class="period-selector">
     {#each periodOptions as { key, label }}
       <button
@@ -171,6 +176,27 @@ function onTileClick(_stat: string) {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+  }
+
+  .page-intro {
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--color-base-300);
+  }
+
+  .page-title {
+    font-family: "Syne", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 0.375rem;
+    color: var(--color-base-content);
+  }
+
+  .page-desc {
+    font-size: 0.8125rem;
+    color: var(--color-neutral-content);
+    margin: 0;
+    line-height: 1.6;
   }
 
   .period-selector {
