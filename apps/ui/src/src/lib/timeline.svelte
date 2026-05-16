@@ -200,7 +200,7 @@ onMount(() => {
       <h1 class="title_bill">Transaction Stats</h1>
       <p class="stats-since">Since {firstOfMonthLabel}</p>
     </div>
-    <button class="view-all-btn" on:click={() => goto("/lite/transactions/summary")}>View all →</button>
+    <button class="view-all-btn" on:click={() => goto("/transactions/summary")}>View all →</button>
   </div>
   {#if $parseStatsQuery.fetching}
     <p>Loading…</p>
@@ -211,7 +211,7 @@ onMount(() => {
       {#each $parseStatsQuery.data?.transactionStats ?? [] as { stat, value }}
         <button
           class="stat-tile"
-          on:click={() => goto("/lite/transactions/summary")}
+          on:click={() => goto("/transactions/summary")}
         >
           <span class="stat-tile-value" style="color: {statColors[stat] ?? 'var(--color-primary)'}">{value}</span>
           <span class="stat-tile-label">{statLabels[stat] ?? stat}</span>
