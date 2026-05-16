@@ -27,24 +27,25 @@ public class TransactionStatsNocoDBService : ITransactionStatsService
             filterUrlParam
         );
 
-        var rows = page?.List ?? Enumerable.Empty<Dictionary<string, JsonElement>>();
+        var rows = (page?.List ?? Enumerable.Empty<Dictionary<string, JsonElement>>()).ToList();
 
-        int GetCount(string status) => rows
-            .Where(r => r.TryGetValue("ParseStatus", out var v) && v.GetString() == status)
-            .Select(r => r.TryGetValue("count", out var c) ? c.GetInt32() : 0)
-            .FirstOrDefault();
+        int CountWhere(IEnumerable<string> statuses)
+        {
+            var set = new HashSet<string>(statuses, StringComparer.OrdinalIgnoreCase);
+            return rows
+                .Where(r => r.TryGetValue("ParseStatus", out var v) && set.Contains(v.GetString() ?? ""))
+                .Sum(r => r.TryGetValue("count", out var c) ? c.GetInt32() : 0);
+        }
 
-        var total = rows
-            .Select(r => r.TryGetValue("count", out var c) ? c.GetInt32() : 0)
-            .Sum();
+        var total = rows.Sum(r => r.TryGetValue("count", out var c) ? c.GetInt32() : 0);
 
         return new List<TransactionStatDTO>
         {
             new TransactionStatDTO { Stat = "total",      Value = total.ToString() },
-            new TransactionStatDTO { Stat = "completed",  Value = GetCount("Completed").ToString() },
-            new TransactionStatDTO { Stat = "notStarted", Value = GetCount("NotStarted").ToString() },
-            new TransactionStatDTO { Stat = "pending",    Value = GetCount("Pending").ToString() },
-            new TransactionStatDTO { Stat = "failed",     Value = GetCount("Failed").ToString() },
+            new TransactionStatDTO { Stat = "completed",  Value = CountWhere(new[] { "ParsedV1", "Parsed", "OcrParsedV1" }).ToString() },
+            new TransactionStatDTO { Stat = "notStarted", Value = CountWhere(new[] { "NotStarted" }).ToString() },
+            new TransactionStatDTO { Stat = "pending",    Value = CountWhere(new[] { "Parsing" }).ToString() },
+            new TransactionStatDTO { Stat = "failed",     Value = CountWhere(new[] { "FailedV1", "OcrFailedV1" }).ToString() },
         };
     }
 }
