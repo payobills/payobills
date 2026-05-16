@@ -366,7 +366,7 @@ onMount(() => {
 
   .stat-tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
     gap: 0.5rem;
   }
 

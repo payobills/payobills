@@ -207,7 +207,7 @@ function onTileClick(_stat: string) {
 
   .tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
     gap: 0.625rem;
   }
 
