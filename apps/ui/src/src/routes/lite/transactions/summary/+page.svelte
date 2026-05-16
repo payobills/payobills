@@ -6,10 +6,24 @@ import { queryStore, gql } from "@urql/svelte";
 import { onMount } from "svelte";
 import dayjs from "dayjs";
 
-let selectedDays: number = 30;
-const periodOptions = [7, 30, 60, 90];
+type PeriodKey = "month" | "30" | "60" | "90" | "all";
+let selectedPeriod: PeriodKey = "month";
 
-$: fromDate = dayjs().subtract(selectedDays, "day").toISOString();
+const firstOfMonth = dayjs().startOf("month");
+
+const periodOptions: { key: PeriodKey; label: string }[] = [
+  { key: "month", label: `Since ${firstOfMonth.format("MMM D")}` },
+  { key: "30",    label: "Last 30d" },
+  { key: "60",    label: "Last 60d" },
+  { key: "90",    label: "Last 90d" },
+  { key: "all",   label: "All" },
+];
+
+$: fromDate = (() => {
+  if (selectedPeriod === "all")   return undefined;
+  if (selectedPeriod === "month") return firstOfMonth.toISOString();
+  return dayjs().subtract(+selectedPeriod, "day").toISOString();
+})();
 
 onMount(() => {
   nav.update((prev) => ({ ...prev, isOpen: true }));
@@ -17,7 +31,7 @@ onMount(() => {
 
 $: parseStatsQuery = queryStore({
   client: $paymentsUrql,
-  variables: { fromDate },
+  variables: { fromDate: fromDate ?? null },
   query: gql`
     query ParseStats($fromDate: String) {
       transactionStats(filters: { fromDate: $fromDate, scope: PARSE }) { stat value }
@@ -27,7 +41,7 @@ $: parseStatsQuery = queryStore({
 
 $: tagStatsQuery = queryStore({
   client: $paymentsUrql,
-  variables: { fromDate },
+  variables: { fromDate: fromDate ?? null },
   query: gql`
     query TagStats($fromDate: String) {
       transactionStats(filters: { fromDate: $fromDate, scope: TAGS }) { stat value }
@@ -37,7 +51,7 @@ $: tagStatsQuery = queryStore({
 
 $: currencyStatsQuery = queryStore({
   client: $paymentsUrql,
-  variables: { fromDate },
+  variables: { fromDate: fromDate ?? null },
   query: gql`
     query CurrencyStats($fromDate: String) {
       transactionStats(filters: { fromDate: $fromDate, scope: CURRENCY }) { stat value }
@@ -82,13 +96,13 @@ function onTileClick(_stat: string) {
 
 <section class="summary-page">
   <div class="period-selector">
-    {#each periodOptions as days}
+    {#each periodOptions as { key, label }}
       <button
         class="period-btn"
-        class:active={selectedDays === days}
-        on:click={() => (selectedDays = days)}
+        class:active={selectedPeriod === key}
+        on:click={() => (selectedPeriod = key)}
       >
-        Last {days}d
+        {label}
       </button>
     {/each}
   </div>

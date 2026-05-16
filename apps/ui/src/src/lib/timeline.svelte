@@ -24,12 +24,17 @@ let lastDay = 31;
 let fullPaymentDates: any[] = [];
 let month = "";
 
+const firstOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+const firstOfMonthLabel = Intl.DateTimeFormat(undefined, { month: "long", day: "numeric" }).format(
+  new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+);
+
 const parseStatsQuery = queryStore({
   client: $paymentsUrql,
-  variables: {},
+  variables: { fromDate: firstOfMonth },
   query: gql`
-    query ParseStats {
-      transactionStats(filters: { scope: PARSE }) { stat value }
+    query ParseStats($fromDate: String) {
+      transactionStats(filters: { fromDate: $fromDate, scope: PARSE }) { stat value }
     }
   `,
 });
@@ -191,7 +196,10 @@ onMount(() => {
 
 <div class="stats-view">
   <div class="stats-header">
-    <h1 class="title_bill">Transaction Stats</h1>
+    <div>
+      <h1 class="title_bill">Transaction Stats</h1>
+      <p class="stats-since">Since {firstOfMonthLabel}</p>
+    </div>
     <button class="view-all-btn" on:click={() => goto("/lite/transactions/summary")}>View all →</button>
   </div>
   {#if $parseStatsQuery.fetching}
@@ -350,6 +358,12 @@ onMount(() => {
   }
 
   .stats-header .title_bill {
+    margin: 0 0 0.125rem;
+  }
+
+  .stats-since {
+    font-size: 0.6875rem;
+    color: var(--color-neutral-content);
     margin: 0;
   }
 
