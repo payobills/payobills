@@ -200,7 +200,7 @@ onMount(() => {
       <h1 class="title_bill">Transaction Stats</h1>
       <p class="stats-since">Since {firstOfMonthLabel}</p>
     </div>
-    <button class="view-all-btn" on:click={() => goto("/transactions/summary")}>View all →</button>
+    <button class="view-all-btn" on:click={() => goto("/transactions/summary")}>View All →</button>
   </div>
   {#if $parseStatsQuery.fetching}
     <p>Loading…</p>
@@ -372,15 +372,17 @@ onMount(() => {
     border: none;
     color: var(--color-primary);
     font-family: "Syne", sans-serif;
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.7rem;
+    font-weight: 500;
     cursor: pointer;
     padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .stat-tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
   }
 
@@ -402,7 +404,7 @@ onMount(() => {
   }
 
   .stat-tile-value {
-    font-family: "Syne", sans-serif;
+    font-family: "JetBrains Mono", monospace;
     font-size: 1.375rem;
     font-weight: 800;
     line-height: 1;

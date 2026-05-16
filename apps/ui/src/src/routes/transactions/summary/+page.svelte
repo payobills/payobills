@@ -270,7 +270,7 @@ function onTileClick(_stat: string) {
   }
 
   .tile-value {
-    font-family: "Syne", sans-serif;
+    font-family: "JetBrains Mono", monospace;
     font-size: 2rem;
     font-weight: 800;
     line-height: 1;

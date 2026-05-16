@@ -251,7 +251,7 @@ const chart = (node: any, transactions: any[]) => {
       <h1>Recent Transactions</h1>
     {/if}
     {#if showViewAllCTA}
-      <a href={`transactions`}>view all</a>
+      <a href={`transactions`}>View All →</a>
     {/if}
   </div>
 
