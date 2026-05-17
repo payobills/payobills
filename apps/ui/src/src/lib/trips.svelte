@@ -3,6 +3,7 @@ import type { Trip } from "./types";
 import Card from "$lib/card.svelte";
 export let trips: Trip[];
 export let onNewTrip: () => void;
+export let fetching: boolean = false;
 
 function formatDateRange(trip: Trip): string {
   if (!trip.startDate || !trip.endDate) return '';
@@ -18,7 +19,9 @@ function formatDateRange(trip: Trip): string {
   <button class="new-trip-btn" on:click={onNewTrip}>+ New Trip</button>
 </div>
 
-{#if trips.length === 0}
+{#if fetching}
+  <p>Loading...</p>
+{:else if trips.length === 0}
   <p>No trips yet.</p>
 {:else}
   <section class='trip-cards'>

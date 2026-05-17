@@ -79,7 +79,7 @@ async function submitCreate() {
 </script>
 
 <section>
-  <Trips trips={allTrips} onNewTrip={() => (showCreateForm = true)} />
+  <Trips trips={allTrips} fetching={$tripsQuery.fetching} onNewTrip={() => (showCreateForm = true)} />
 
   {#if showCreateForm}
     <div class="create-area">

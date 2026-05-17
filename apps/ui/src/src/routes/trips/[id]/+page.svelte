@@ -176,6 +176,9 @@ async function submitEdit() {
 </script>
 
 <section>
+  {#if $tripsQuery.fetching && !currentTrip}
+    <p class="loading">Loading...</p>
+  {:else}
   <div class="trip-header">
     <a href="/trips" class="back">← Trips</a>
     <div class="trip-title-row">
@@ -246,6 +249,7 @@ async function submitEdit() {
       {/if}
     {/if}
   </div>
+  {/if}
 </section>
 
 <style>
