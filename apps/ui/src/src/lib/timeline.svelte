@@ -95,6 +95,7 @@ onMount(() => {
 
 <!-- <div class="timeline"> -->
   <!-- <div class="timeline-data"> -->
+<div class="page-container">
 <section>
 <div class="timeline-view">
     <RecentTransactions
@@ -183,15 +184,6 @@ onMount(() => {
       <span>{lastDay}</span>
     </div>
 
-<div>
-    <button
-      class="cta"
-      on:click={() => {
-        goto("bills/add");
-      }}
-      >Add bill
-    </button>
-</div>
 </div>
 
 <div class="stats-view">
@@ -200,7 +192,7 @@ onMount(() => {
       <h1 class="title_bill">Transaction Stats</h1>
       <p class="stats-since">Since {firstOfMonthLabel}</p>
     </div>
-    <button class="view-all-btn" on:click={() => goto("/transactions/summary")}>View all →</button>
+    <button class="view-all-btn" on:click={() => goto("/transactions/summary")}>View All →</button>
   </div>
   {#if $parseStatsQuery.fetching}
     <p>Loading…</p>
@@ -221,8 +213,13 @@ onMount(() => {
   {/if}
 </div>
 </section>
+</div>
 
 <style>
+  .page-container {
+    width: 100%;
+  }
+
   section {
     display: grid;
     grid-template-columns: 100%;
@@ -237,8 +234,16 @@ onMount(() => {
   .timeline-view,
   .bills-view,
   .billing-cycles-view {
-    padding: 1rem;
+    padding: 1rem 0;
     border-bottom: 1px solid var(--color-base-300);
+  }
+
+  @media (min-width: 72rem) {
+    .timeline-view,
+    .bills-view,
+    .billing-cycles-view {
+      padding: 1rem;
+    }
   }
 
   .billing-cycles-view {
@@ -288,18 +293,26 @@ onMount(() => {
     transition: background-color 0.1s ease;
   }
 
-  .bill:hover {
-    background-color: rgba(28, 28, 38, 0.5);
-  }
+
 
   :global(.bill-payments > div:first-of-type) {
     margin-top: 0;
   }
 
+  :global(.bill-payments > div) {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   .items {
-    overflow-y: scroll;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .items:not(.bill-payments) {
+    overflow-y: scroll;
   }
 
   .items::-webkit-scrollbar {
@@ -319,30 +332,6 @@ onMount(() => {
     font-weight: 500;
     margin: 0.25rem 0.25rem;
     color: #3a3a50;
-  }
-
-  .cta {
-    display: block;
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0.625rem 1rem;
-    background-color: rgba(0, 212, 184, 0.1);
-    border: 1px solid rgba(0, 212, 184, 0.3);
-    color: var(--color-primary);
-    border-radius: 0.5rem;
-    font-family: "Syne", system-ui, sans-serif;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .cta:hover {
-    background-color: rgba(0, 212, 184, 0.18);
-    border-color: rgba(0, 212, 184, 0.5);
   }
 
   .stats-view {
@@ -372,15 +361,17 @@ onMount(() => {
     border: none;
     color: var(--color-primary);
     font-family: "Syne", sans-serif;
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.7rem;
+    font-weight: 500;
     cursor: pointer;
     padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .stat-tiles {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
   }
 
@@ -397,12 +388,10 @@ onMount(() => {
     transition: border-color 0.15s ease;
   }
 
-  .stat-tile:hover {
-    border-color: rgba(0, 212, 184, 0.35);
-  }
+
 
   .stat-tile-value {
-    font-family: "Syne", sans-serif;
+    font-family: "JetBrains Mono", monospace;
     font-size: 1.375rem;
     font-weight: 800;
     line-height: 1;
@@ -424,10 +413,14 @@ onMount(() => {
   }
 
   @media (min-width: 72rem) {
-    section {
-      grid-template-columns: 1fr 1fr;
+    .page-container {
       max-width: 90rem;
       margin: 0 auto;
+      padding-bottom: 0;
+    }
+
+    section {
+      grid-template-columns: 1fr 1fr;
     }
 
     .timeline-view:first-of-type {

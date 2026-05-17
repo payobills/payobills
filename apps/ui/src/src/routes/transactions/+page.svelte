@@ -55,7 +55,7 @@ $: transactionsQuery =
     : null;
 </script>
 
-<section class="monthly-transactions">
+<section class="page-container">
   {#if $transactionsQuery == null || $transactionsQuery.fetching}
     <p>Loading...</p>
   {:else if $transactionsQuery?.error}
@@ -112,10 +112,11 @@ $: transactionsQuery =
 </section>
 
 <style>
-  .monthly-transactions {
-    margin: 1rem auto;
+  .page-container {
+    padding: 1rem;
     width: 100%;
     max-width: 90rem;
+    margin: 0 auto;
   }
 
   p {

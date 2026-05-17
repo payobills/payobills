@@ -142,7 +142,5 @@ const addBill = async () => {
     transition: opacity 0.15s ease;
   }
 
-  .actions button:hover {
-    opacity: 0.85;
-  }
+
 </style>

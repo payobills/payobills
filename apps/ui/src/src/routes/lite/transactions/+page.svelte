@@ -123,9 +123,5 @@ $: transactionsQuery =
     transition: all 0.15s ease;
   }
 
-  .title button:hover {
-    border-color: rgba(0, 212, 184, 0.3);
-    color: var(--color-primary);
-  }
 </style>
 

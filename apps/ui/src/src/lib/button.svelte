@@ -44,11 +44,7 @@ let {
     margin-top: 0.5rem;
   }
 
-  button:hover {
-    opacity: 0.85;
-  }
-
-  :global(.button-container > .icon-button) {
+:global(.button-container > .icon-button) {
     animation: spin 1.5s linear infinite;
   }
 

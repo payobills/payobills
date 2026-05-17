@@ -88,7 +88,7 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
   }
 
   section {
-    padding: 1.5rem 1.25rem;
+    padding: 1rem;
     align-items: stretch;
     display: flex;
     flex-direction: column;
@@ -160,9 +160,7 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     transition: border-color 0.2s ease;
   }
 
-  .feature-card:hover {
-    border-color: rgba(0, 212, 184, 0.25);
-  }
+
 
   .feature-icon {
     flex-shrink: 0;

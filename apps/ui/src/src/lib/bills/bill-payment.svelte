@@ -175,9 +175,7 @@ $: {
     overflow: hidden;
   }
 
-  .container:hover {
-    border-color: rgba(0, 212, 184, 0.2);
-  }
+
 
   .container--due--ok {
     background-color: rgba(56, 189, 248, 0.06);
@@ -281,10 +279,6 @@ $: {
     transition: all 0.15s ease;
   }
 
-  button:hover {
-    background-color: rgba(0, 212, 184, 0.18);
-    border-color: rgba(0, 212, 184, 0.5);
-  }
 
   .due-status {
     padding: 0.2rem 0.625rem;

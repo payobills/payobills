@@ -473,10 +473,6 @@ const onRecordPayment = () => {};
     transition: all 0.2s ease;
   }
 
-  .actions > button:hover {
-    background-color: rgba(0, 212, 184, 0.18);
-    border-color: rgba(0, 212, 184, 0.5);
-  }
 
   .payment {
     display: flex;
