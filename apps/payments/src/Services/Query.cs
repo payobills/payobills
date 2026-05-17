@@ -23,8 +23,13 @@ public class Query
   public async Task<IEnumerable<TransactionTagDTO>> TransactionTags([Service] ITransactionsService transactionsService)
     => await transactionsService.GetTransactionTagsAsync();
 
+<<<<<<< HEAD
   public async Task<IEnumerable<TransactionStatDTO>> TransactionStats(
     [Service] ITransactionStatsService statsService,
     TransactionStatsFiltersInput? filters = null)
     => await statsService.GetTransactionStatsAsync(filters);
+=======
+  public async Task<IEnumerable<TripDTO>> Trips([Service] TripsNocoDBService tripsService)
+    => await tripsService.GetTripsAsync();
+>>>>>>> e8eeb8f (Feat(payments): add trip create/update API and UI)
 }
