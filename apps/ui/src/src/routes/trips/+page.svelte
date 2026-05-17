@@ -3,8 +3,9 @@ import { gql, queryStore, mutationStore, getContextClient } from "@urql/svelte";
 import { onMount } from "svelte";
 import { paymentsUrql } from "$lib/stores/urql";
 import type { Trip } from "$lib/types";
-import RecentTransactions from "../../lib/recent-transactions.svelte";
 import Trips from "$lib/trips.svelte";
+import { formatCurrencyAmount } from "../../utils/currency-formatter.util";
+import { formatRelativeDate } from "../../utils/format-relative-date";
 
 let tripId: string | undefined;
 let showCreateForm = false;
@@ -21,6 +22,11 @@ let editStart = '';
 let editEnd = '';
 let editError = '';
 let editLoading = false;
+
+let loadingMore = false;
+let endCursor: string | null = null;
+let hasNextPage = true;
+let extraTransactions: any[] = [];
 
 onMount(() => {
   const id = new URLSearchParams(window.location.search)?.get("id");
@@ -52,27 +58,94 @@ $: if (currentTrip && showEditForm) {
   editEnd = currentTrip.endDate ? currentTrip.endDate.split('T')[0] : '';
 }
 
-$: transactionsQuery = currentTrip
-  ? queryStore({
-      client: $paymentsUrql,
-      query: gql`
-        query TransactionsForTrip($tags: [String!]!) {
-          transactions(filters: { tags: $tags }, first: 50) {
+const TRIP_TRANSACTIONS_QUERY = gql`
+  query TripTransactions {
+    trips {
+      id
+      transactions(first: 15) {
+        nodes {
+          id
+          merchant
+          amount
+          normalizedAmount
+          currency
+          paidAt
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+      }
+    }
+  }
+`;
+
+$: tripTransactionsQuery = currentTrip
+  ? queryStore({ client: $paymentsUrql, query: TRIP_TRANSACTIONS_QUERY })
+  : null;
+
+$: currentTripData = tripId && $tripTransactionsQuery?.data
+  ? ($tripTransactionsQuery.data.trips as any[]).find((t: any) => t.id === tripId)
+  : null;
+
+$: initialTransactions = currentTripData?.transactions?.nodes ?? [];
+
+$: {
+  if (currentTripData?.transactions?.pageInfo && endCursor === null) {
+    endCursor = currentTripData.transactions.pageInfo.endCursor ?? null;
+    hasNextPage = currentTripData.transactions.pageInfo.hasNextPage ?? false;
+  }
+}
+
+$: allTransactions = [...initialTransactions, ...extraTransactions];
+
+async function loadMore() {
+  if (loadingMore || !endCursor) return;
+  loadingMore = true;
+  try {
+    const result = await $paymentsUrql.query(
+      `query TripTransactionsMore($after: String) {
+        trips {
+          id
+          transactions(first: 15, after: $after) {
             nodes {
               id
-              amount
               merchant
-              createdAt
+              amount
+              normalizedAmount
+              currency
               paidAt
-              updatedAt
-              tags
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
             }
           }
         }
-      `,
-      variables: { tags: [currentTrip.title] },
-    })
-  : null;
+      }`,
+      { after: endCursor },
+    ).toPromise();
+
+    const tripData = (result?.data?.trips as any[])?.find((t: any) => t.id === tripId);
+    if (tripData) {
+      const existingIds = new Set(allTransactions.map((t: any) => t.id));
+      const newNodes = (tripData.transactions?.nodes ?? []).filter((t: any) => !existingIds.has(t.id));
+      extraTransactions = [...extraTransactions, ...newNodes];
+      endCursor = tripData.transactions?.pageInfo?.endCursor ?? null;
+      hasNextPage = tripData.transactions?.pageInfo?.hasNextPage ?? false;
+    }
+  } finally {
+    loadingMore = false;
+  }
+}
+
+function resetPagination() {
+  endCursor = null;
+  hasNextPage = true;
+  extraTransactions = [];
+}
+
+$: if (tripId) resetPagination();
 
 function hasOverlap(start: string, end: string, trips: Trip[], excludeId?: string): Trip[] {
   if (!start || !end) return [];
@@ -224,14 +297,35 @@ async function submitEdit() {
       </form>
     {/if}
 
-    <RecentTransactions
-      title=""
-      viewType={'all'}
-      showAllTransactions={true}
-      showGraph={false}
-      showViewAllCTA={false}
-      transactions={$transactionsQuery?.data?.transactions?.nodes ?? []}
-    />
+    <div class="transactions-section">
+      {#if $tripTransactionsQuery?.fetching && allTransactions.length === 0}
+        <p class="loading">Loading transactions...</p>
+      {:else if allTransactions.length === 0}
+        <p class="empty">No transactions found for this trip.</p>
+      {:else}
+        <ul class="transaction-list">
+          {#each allTransactions as txn (txn.id)}
+            <li class="transaction-item">
+              <a href={`/transaction?id=${txn.id}`} class="transaction-link">
+                <div class="txn-left">
+                  <span class="txn-merchant">{txn.merchant ?? 'Unknown'}</span>
+                  <span class="txn-date">{txn.paidAt ? formatRelativeDate(new Date(txn.paidAt)) : ''}</span>
+                </div>
+                <span class="txn-amount">
+                  {formatCurrencyAmount(txn.normalizedAmount ?? txn.amount, txn.currency)}
+                </span>
+              </a>
+            </li>
+          {/each}
+        </ul>
+
+        {#if hasNextPage}
+          <button class="load-more" on:click={loadMore} disabled={loadingMore}>
+            {loadingMore ? 'Loading...' : 'Load more'}
+          </button>
+        {/if}
+      {/if}
+    </div>
 
   {/if}
 </section>
@@ -308,6 +402,77 @@ async function submitEdit() {
   .edit-form {
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-base-300);
+  }
+
+  .transactions-section {
+    margin-top: 1rem;
+  }
+
+  .transaction-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .transaction-item {
+    border-bottom: 1px solid var(--color-base-200);
+  }
+
+  .transaction-item:last-child {
+    border-bottom: none;
+  }
+
+  .transaction-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .txn-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .txn-merchant {
+    font-weight: 500;
+  }
+
+  .txn-date {
+    font-size: 0.8rem;
+    opacity: 0.6;
+  }
+
+  .txn-amount {
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .load-more {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.6rem;
+    background: transparent;
+    border: 1px solid var(--color-base-300);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .load-more:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .loading, .empty {
+    opacity: 0.6;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
   }
 </style>

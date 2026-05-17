@@ -7,14 +7,15 @@ import {
   faPlus,
   faFileInvoiceDollar,
   faListUl,
+  faRoute,
 } from "@fortawesome/free-solid-svg-icons";
 
 const navItems = [
   { label: "Home", icon: faHouse, href: "/timeline" },
   { label: "Txns", icon: faListUl, href: "/transactions" },
+  { label: "Trips", icon: faRoute, href: "/trips" },
   { label: "Bills", icon: faFileInvoiceDollar, href: "/bills" },
   { label: "Add Txn", icon: faPlus, href: "/transaction/add" },
-  { label: "Add Bill", icon: faPlus, href: "/bills/add" },
 ];
 
 $: currentPath = $page.url.pathname;
