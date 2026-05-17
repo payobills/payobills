@@ -95,6 +95,7 @@ onMount(() => {
 
 <!-- <div class="timeline"> -->
   <!-- <div class="timeline-data"> -->
+<div class="page-container">
 <section>
 <div class="timeline-view">
     <RecentTransactions
@@ -221,8 +222,13 @@ onMount(() => {
   {/if}
 </div>
 </section>
+</div>
 
 <style>
+  .page-container {
+    width: 100%;
+  }
+
   section {
     display: grid;
     grid-template-columns: 100%;
@@ -237,7 +243,6 @@ onMount(() => {
   .timeline-view,
   .bills-view,
   .billing-cycles-view {
-    padding: 1rem;
     border-bottom: 1px solid var(--color-base-300);
   }
 
@@ -288,18 +293,26 @@ onMount(() => {
     transition: background-color 0.1s ease;
   }
 
-  .bill:hover {
-    background-color: rgba(28, 28, 38, 0.5);
-  }
+
 
   :global(.bill-payments > div:first-of-type) {
     margin-top: 0;
   }
 
+  :global(.bill-payments > div) {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   .items {
-    overflow-y: scroll;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .items:not(.bill-payments) {
+    overflow-y: scroll;
   }
 
   .items::-webkit-scrollbar {
@@ -340,10 +353,7 @@ onMount(() => {
     transition: all 0.2s ease;
   }
 
-  .cta:hover {
-    background-color: rgba(0, 212, 184, 0.18);
-    border-color: rgba(0, 212, 184, 0.5);
-  }
+
 
   .stats-view {
     padding: 1rem;
@@ -399,9 +409,7 @@ onMount(() => {
     transition: border-color 0.15s ease;
   }
 
-  .stat-tile:hover {
-    border-color: rgba(0, 212, 184, 0.35);
-  }
+
 
   .stat-tile-value {
     font-family: "JetBrains Mono", monospace;
@@ -426,10 +434,13 @@ onMount(() => {
   }
 
   @media (min-width: 72rem) {
-    section {
-      grid-template-columns: 1fr 1fr;
+    .page-container {
       max-width: 90rem;
       margin: 0 auto;
+    }
+
+    section {
+      grid-template-columns: 1fr 1fr;
     }
 
     .timeline-view:first-of-type {

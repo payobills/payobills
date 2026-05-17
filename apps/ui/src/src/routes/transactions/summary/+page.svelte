@@ -218,12 +218,7 @@ function onTileClick(_stat: string) {
     transition: all 0.15s ease;
   }
 
-  .period-btn:hover {
-    border-color: rgba(0, 212, 184, 0.4);
-    color: var(--color-primary);
-  }
-
-  .period-btn.active {
+.period-btn.active {
     border-color: var(--color-primary);
     color: var(--color-primary);
     background-color: rgba(0, 212, 184, 0.08);
@@ -264,12 +259,7 @@ function onTileClick(_stat: string) {
     transition: border-color 0.15s ease, background-color 0.15s ease;
   }
 
-  .tile:hover {
-    border-color: rgba(0, 212, 184, 0.35);
-    background-color: rgba(28, 28, 38, 0.8);
-  }
-
-  .tile-value {
+.tile-value {
     font-family: "JetBrains Mono", monospace;
     font-size: 2rem;
     font-weight: 800;

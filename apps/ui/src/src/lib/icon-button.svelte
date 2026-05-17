@@ -30,7 +30,5 @@ export let style = "";
     transition: opacity 0.15s ease;
   }
 
-  button:hover {
-    opacity: 0.8;
-  }
+
 </style>

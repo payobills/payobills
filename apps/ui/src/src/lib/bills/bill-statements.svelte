@@ -41,7 +41,5 @@ export let statements: any[];
     transition: all 0.15s ease;
   }
 
-  a:hover {
-    background-color: rgba(0, 212, 184, 0.1);
-  }
+
 </style>

@@ -386,12 +386,6 @@ const chart = (node: any, transactions: any[]) => {
     cursor: pointer;
   }
 
-  .transaction-card:hover .recent-transaction {
-    background-color: rgba(28, 28, 38, 0.6);
-    border-radius: 0.375rem;
-    padding: 0 0.5rem;
-    margin: 0.25rem -0.5rem;
-  }
 
   .container {
     padding-bottom: 0;

@@ -122,9 +122,7 @@ function handleOverlayClick() {
     transition: border-color 0.2s ease;
   }
 
-  .hamburger:hover {
-    border-color: rgba(0, 212, 184, 0.4);
-  }
+
 
   .bar {
     display: block;
@@ -209,10 +207,6 @@ function handleOverlayClick() {
     transition: all 0.15s ease;
   }
 
-  .menu-close:hover {
-    border-color: rgba(0, 212, 184, 0.4);
-    color: var(--color-primary);
-  }
 
   .menu-links {
     list-style: none;
@@ -245,12 +239,6 @@ function handleOverlayClick() {
     text-transform: none;
   }
 
-  .menu-link:hover {
-    background-color: rgba(28, 28, 38, 0.8);
-    border-left-color: var(--color-primary);
-    color: var(--color-primary);
-  }
-
   .menu-link.active {
     background-color: rgba(0, 212, 184, 0.06);
     border-left-color: var(--color-primary);
@@ -263,7 +251,6 @@ function handleOverlayClick() {
     transition: color 0.15s ease;
   }
 
-  .menu-link:hover .link-arrow,
   .menu-link.active .link-arrow {
     color: var(--color-primary);
   }
