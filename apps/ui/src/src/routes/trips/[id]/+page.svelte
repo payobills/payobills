@@ -231,7 +231,7 @@ async function submitEdit() {
               <div class="txn-amount-group">
                 <span class="txn-amount">{formatCurrencyAmount(txn.amount, txn.currency)}</span>
                 {#if txn.normalizedAmount != null && txn.normalizedAmount !== txn.amount}
-                  <span class="txn-normalized">({formatCurrencyAmount(txn.normalizedAmount, txn.currency)})</span>
+                  <span class="txn-normalized">({formatCurrencyAmount(txn.normalizedAmount, "INR")})</span>
                 {/if}
               </div>
             </a>
