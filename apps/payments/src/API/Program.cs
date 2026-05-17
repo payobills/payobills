@@ -29,6 +29,7 @@ builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddScoped<NocoDBClientService>();
 builder.Services.AddScoped<ITransactionsService, TransactionsNocoDBService>();
 builder.Services.AddScoped<ITransactionStatsService, TransactionStatsNocoDBService>();
+builder.Services.AddScoped<TripsNocoDBService>();
 // builder.Services.AddScoped<StatsQueryService>();
 
 // utils
@@ -57,7 +58,8 @@ builder.Services
   .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
   .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
   .AddType<Payobills.Payments.Services.Contracts.DTOs.File>()
-  .AddType<TransactionDTOType>();
+  .AddType<TransactionDTOType>()
+  .AddType<TripDTOType>();
 
 var app = builder.Build();
 

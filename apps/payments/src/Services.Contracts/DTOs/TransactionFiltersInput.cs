@@ -10,4 +10,7 @@ public class TransactionFiltersInput
     }
 
     private string[]? tags;
+
+    public DateTime? StartPaidAt { get; set; }
+    public DateTime? EndPaidAt { get; set; }
 }

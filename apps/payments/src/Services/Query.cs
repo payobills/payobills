@@ -27,4 +27,7 @@ public class Query
     [Service] ITransactionStatsService statsService,
     TransactionStatsFiltersInput? filters = null)
     => await statsService.GetTransactionStatsAsync(filters);
+
+  public async Task<IEnumerable<TripDTO>> Trips([Service] TripsNocoDBService tripsService)
+    => await tripsService.GetTripsAsync();
 }
