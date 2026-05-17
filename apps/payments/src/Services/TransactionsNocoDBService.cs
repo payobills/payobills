@@ -44,7 +44,9 @@ public class TransactionsNocoDBService : ITransactionsService
         var filterUrlParam = string.Join("~and", new List<string>{
             string.IsNullOrEmpty(filters?.OcrId) ? string.Empty : $"(OcrId,eq,{filters.OcrId})",
             string.IsNullOrEmpty(filters?.SearchTerm) ? string.Empty : $"((Id,like,%{filters.SearchTerm}%)~or(Merchant,like,%{filters.SearchTerm}%)~or(TransactionText,like,%{filters.SearchTerm}%)~or(Notes,like,%{filters.SearchTerm}%){(filters.SearchTerm.All(char.IsDigit) ? $"~or(Amount,eq,{filters.SearchTerm})" : string.Empty)})",
-            filters?.Tags.Length > 0 ? string.Join("~or", filters.Tags.Select(tag => $"(Tags,like,{WebUtility.UrlEncode(tag)})")) : string.Empty
+            filters?.Tags.Length > 0 ? string.Join("~or", filters.Tags.Select(tag => $"(Tags,like,{WebUtility.UrlEncode(tag)})")) : string.Empty,
+            filters?.StartPaidAt is not null ? $"(PaidAt,gte,{filters.StartPaidAt.Value:yyyy-MM-dd})" : string.Empty,
+            filters?.EndPaidAt is not null ? $"(PaidAt,lte,{filters.EndPaidAt.Value:yyyy-MM-dd})" : string.Empty
             }.Where(p => !string.IsNullOrEmpty(p))
         );
 
