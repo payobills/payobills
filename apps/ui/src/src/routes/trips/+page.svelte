@@ -1,5 +1,5 @@
 <script lang="ts">
-import { gql, queryStore, mutationStore, getContextClient } from "@urql/svelte";
+import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
 import { paymentsUrql } from "$lib/stores/urql";
 import type { Trip } from "$lib/types";
@@ -33,7 +33,6 @@ onMount(() => {
   tripId = id ?? undefined;
 });
 
-const client = getContextClient();
 
 $: tripsQuery = queryStore({
   client: $paymentsUrql,
@@ -175,22 +174,20 @@ async function submitCreate() {
   }
 
   createLoading = true;
-  mutationStore({
-    client,
-    query: gql`
-      mutation TripCreate($input: TripCreateDTOInput!) {
+  try {
+    const r = await $paymentsUrql.mutation(
+      gql`mutation TripCreate($input: TripCreateDTOInput!) {
         tripCreate(input: $input) { id title startDate endDate }
-      }
-    `,
-    variables: { input: { title: createTitle, startDate: createStart || null, endDate: createEnd || null } },
-  }).subscribe((r) => {
-    if (r.fetching) return;
-    createLoading = false;
+      }`,
+      { input: { title: createTitle, startDate: createStart || null, endDate: createEnd || null } },
+    ).toPromise();
     if (r.error) { createError = r.error.message; return; }
     showCreateForm = false;
     createTitle = ''; createStart = ''; createEnd = '';
     refreshTrips();
-  });
+  } finally {
+    createLoading = false;
+  }
 }
 
 async function submitEdit() {
@@ -205,21 +202,19 @@ async function submitEdit() {
   }
 
   editLoading = true;
-  mutationStore({
-    client,
-    query: gql`
-      mutation TripUpdate($id: String!, $input: TripUpdateDTOInput!) {
+  try {
+    const r = await $paymentsUrql.mutation(
+      gql`mutation TripUpdate($id: String!, $input: TripUpdateDTOInput!) {
         tripUpdate(id: $id, input: $input) { id title startDate endDate }
-      }
-    `,
-    variables: { id: tripId, input: { title: editTitle, startDate: editStart || null, endDate: editEnd || null } },
-  }).subscribe((r) => {
-    if (r.fetching) return;
-    editLoading = false;
+      }`,
+      { id: tripId, input: { title: editTitle, startDate: editStart || null, endDate: editEnd || null } },
+    ).toPromise();
     if (r.error) { editError = r.error.message; return; }
     showEditForm = false;
     refreshTrips();
-  });
+  } finally {
+    editLoading = false;
+  }
 }
 </script>
 
