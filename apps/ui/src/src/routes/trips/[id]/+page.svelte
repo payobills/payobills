@@ -231,9 +231,12 @@ async function submitEdit() {
                 <span class="txn-merchant">{txn.merchant ?? 'Unknown'}</span>
                 <span class="txn-date">{txn.paidAt ? formatRelativeDate(new Date(txn.paidAt)) : ''}</span>
               </div>
-              <span class="txn-amount">
-                {formatCurrencyAmount(txn.normalizedAmount ?? txn.amount, txn.currency)}
-              </span>
+              <div class="txn-amount-group">
+                <span class="txn-amount">{formatCurrencyAmount(txn.amount, txn.currency)}</span>
+                {#if txn.normalizedAmount != null && txn.normalizedAmount !== txn.amount}
+                  <span class="txn-normalized">({formatCurrencyAmount(txn.normalizedAmount, txn.currency)})</span>
+                {/if}
+              </div>
             </a>
           </li>
         {/each}
@@ -365,12 +368,26 @@ async function submitEdit() {
     color: var(--color-neutral-content);
   }
 
+  .txn-amount-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.1rem;
+  }
+
   .txn-amount {
     font-family: "JetBrains Mono", monospace;
     font-size: 0.9rem;
     font-weight: 600;
     white-space: nowrap;
     color: var(--color-base-content);
+  }
+
+  .txn-normalized {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--color-neutral-content);
+    white-space: nowrap;
   }
 
   .load-more {
