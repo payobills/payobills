@@ -79,12 +79,10 @@ async function submitCreate() {
 </script>
 
 <section>
-  <Trips trips={allTrips} />
+  <Trips trips={allTrips} onNewTrip={() => (showCreateForm = true)} />
 
-  <div class="create-area">
-    {#if !showCreateForm}
-      <button class="new-trip-btn" on:click={() => (showCreateForm = true)}>+ New Trip</button>
-    {:else}
+  {#if showCreateForm}
+    <div class="create-area">
       <form on:submit|preventDefault={submitCreate}>
         <h2>New Trip</h2>
         <label>
@@ -107,8 +105,8 @@ async function submitCreate() {
           <button type="button" on:click={() => { showCreateForm = false; createError = ''; }}>Cancel</button>
         </div>
       </form>
-    {/if}
-  </div>
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -117,16 +115,7 @@ async function submitCreate() {
   }
 
   .create-area {
-    margin-top: 1.5rem;
-  }
-
-  .new-trip-btn {
-    background: transparent;
-    border: 1px solid var(--color-base-300);
-    border-radius: 6px;
-    color: var(--color-primary);
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
+    margin-top: 1rem;
   }
 
   form {

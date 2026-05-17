@@ -1,8 +1,8 @@
 <script lang="ts">
 import type { Trip } from "./types";
 import Card from "$lib/card.svelte";
-import IdeaCard from "$lib/idea-card.svelte";
 export let trips: Trip[];
+export let onNewTrip: () => void;
 
 function formatDateRange(trip: Trip): string {
   if (!trip.startDate || !trip.endDate) return '';
@@ -13,14 +13,14 @@ function formatDateRange(trip: Trip): string {
 
 {#if trips}
 
-<h1>Trips</h1>
-
-<IdeaCard idea={`Going for a trip? Group your transactions together and manage them easily...`} />
+<div class="trips-header">
+  <h1>Trips</h1>
+  <button class="new-trip-btn" on:click={onNewTrip}>+ New Trip</button>
+</div>
 
 {#if trips.length === 0}
-  <p>Looks like you haven't created any trips yet. Create one below to start tracking expenses.</p>
+  <p>No trips yet.</p>
 {:else}
-  <p>Transactions made on a trip can help you track your expenses in one place.</p>
   <section class='trip-cards'>
     {#each trips as trip (trip.id)}
       <a href={`/trips/${trip.id}`}>
@@ -38,12 +38,23 @@ function formatDateRange(trip: Trip): string {
 {/if}
 
 <style>
-  a {
-    text-decoration: none;
+  .trips-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
-  p {
-    margin-top: 1rem;
+  .new-trip-btn {
+    background: transparent;
+    border: 1px solid var(--color-base-300);
+    border-radius: 6px;
+    color: var(--color-primary);
+    padding: 0.4rem 0.875rem;
+    font-size: 0.85rem;
+  }
+
+  a {
+    text-decoration: none;
   }
 
   h2 {
@@ -58,13 +69,5 @@ function formatDateRange(trip: Trip): string {
     margin: 0.25rem 0 0;
     font-size: 0.85rem;
     opacity: 0.65;
-  }
-
-  :global(:first-of-type(.trip-cards .card)) {
-    margin-top: 0;
-  }
-
-  :global(:last-of-type(.trip-cards .card)) {
-    margin-bottom: 0;
   }
 </style>
