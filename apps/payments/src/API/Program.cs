@@ -28,11 +28,8 @@ builder.Services.Configure<PayobillsNocoDBOptions>(builder.Configuration.GetRequ
 builder.Services.AddSingleton<HttpClient>();
 builder.Services.AddScoped<NocoDBClientService>();
 builder.Services.AddScoped<ITransactionsService, TransactionsNocoDBService>();
-<<<<<<< HEAD
 builder.Services.AddScoped<ITransactionStatsService, TransactionStatsNocoDBService>();
-=======
 builder.Services.AddScoped<TripsNocoDBService>();
->>>>>>> e8eeb8f (Feat(payments): add trip create/update API and UI)
 // builder.Services.AddScoped<StatsQueryService>();
 
 // utils
