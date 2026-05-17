@@ -4,8 +4,6 @@ import Card from "$lib/card.svelte";
 import { onMount } from "svelte";
 import { withOrdinalSuffix } from "../../utils/ordinal-suffix";
 import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
-import { fromStore } from "svelte/store";
-import { uiDrawer } from "$lib/stores/ui-drawer";
 import RecordPaymentForm from "$lib/record-payment-form.svelte";
 import UiDrawer from "$lib/ui-drawer.svelte";
 import type { BillStatementDTO } from "$lib/types";
@@ -19,6 +17,8 @@ export let showBillingCycle = true;
 export let onRecordingPayment: any;
 export let onCurrentBillStatementDoesNotExist: any;
 export let onTransactionSearch: any;
+export let onLoadMoreTransactions: any;
+export let transactions: any[] = [];
 
 let todaysDay: number;
 let billDueDetails: { status: string; string: string; l2Status?: string };
@@ -131,6 +131,8 @@ $: {
         billStatements={[currentBillStatement]}
         selectedStatement={currentBillStatement}
         {onTransactionSearch}
+        {onLoadMoreTransactions}
+        initialTransactions={transactions.slice(0, 5)}
       />
     </UiDrawer>
   {/if}
