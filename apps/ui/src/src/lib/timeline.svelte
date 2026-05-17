@@ -184,15 +184,6 @@ onMount(() => {
       <span>{lastDay}</span>
     </div>
 
-<div>
-    <button
-      class="cta"
-      on:click={() => {
-        goto("bills/add");
-      }}
-      >Add bill
-    </button>
-</div>
 </div>
 
 <div class="stats-view">
@@ -243,7 +234,16 @@ onMount(() => {
   .timeline-view,
   .bills-view,
   .billing-cycles-view {
+    padding: 1rem 0;
     border-bottom: 1px solid var(--color-base-300);
+  }
+
+  @media (min-width: 72rem) {
+    .timeline-view,
+    .bills-view,
+    .billing-cycles-view {
+      padding: 1rem;
+    }
   }
 
   .billing-cycles-view {
@@ -334,27 +334,6 @@ onMount(() => {
     color: #3a3a50;
   }
 
-  .cta {
-    display: block;
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0.625rem 1rem;
-    background-color: rgba(0, 212, 184, 0.1);
-    border: 1px solid rgba(0, 212, 184, 0.3);
-    color: var(--color-primary);
-    border-radius: 0.5rem;
-    font-family: "Syne", system-ui, sans-serif;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-
-
   .stats-view {
     padding: 1rem;
     border-bottom: 1px solid var(--color-base-300);
@@ -437,6 +416,7 @@ onMount(() => {
     .page-container {
       max-width: 90rem;
       margin: 0 auto;
+      padding-bottom: 0;
     }
 
     section {

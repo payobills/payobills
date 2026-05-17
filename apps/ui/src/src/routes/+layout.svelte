@@ -62,6 +62,7 @@ const toggleFullScreenUiDrawer = () => {
 </script>
 
 <Nav />
+<BottomNav />
 
 <!-- <button on:click={randomNotification}>Notification</button> -->
 <main class="bg-base-100" style={`${$nav.isOpen ? "height: calc(100% - 4rem)" : "height: 100%"}`}>
@@ -298,6 +299,14 @@ const toggleFullScreenUiDrawer = () => {
     overflow-y: scroll;
     align-self: stretch;
     background-color: var(--color-base-100);
+    padding-bottom: 4.5rem;
+  }
+
+  @media (min-width: 72rem) {
+    main {
+      padding-bottom: 0;
+      padding-left: 5rem;
+    }
   }
 
   /* Scrollbar styling */
