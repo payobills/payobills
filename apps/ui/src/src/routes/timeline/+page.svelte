@@ -142,6 +142,12 @@ const onCurrentBillStatementDoesNotExist = ({
   });
 };
 
+const onLoadMoreTransactions = (store: any, after: string | null, first: number = 5) => {
+  if (!$paymentsUrql) return;
+  const transactionService = new ProTransactionsService($paymentsUrql);
+  return transactionService.loadMoreTransactions(store, after, first);
+};
+
 const onTransactionSearch = (store: any, transactionSearchTerm: string) => {
   if (!$paymentsUrql || !transactionSearchTerm) return;
   const transactionService = new ProTransactionsService($paymentsUrql);
@@ -216,6 +222,7 @@ const onRecordingPayment = ({
       {trips}
       {onRecordingPayment}
       {onTransactionSearch}
+      {onLoadMoreTransactions}
       {onCurrentBillStatementDoesNotExist}
     />
   {/if}

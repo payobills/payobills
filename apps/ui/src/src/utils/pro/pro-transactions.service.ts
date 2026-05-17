@@ -65,6 +65,43 @@ export class ProTransactionsService implements ITransactionsService {
 		})();
 	}
 
+	async loadMoreTransactions(
+		existingStore: Writable<any>,
+		after: string | null,
+		first: number = 10,
+	): Promise<void> {
+		const result = await this.transactionUrqlClient
+			.query(
+				`query ($first: Int!, $after: String) {
+          transactions(first: $first, after: $after, order: [{ paidAt: DESC }]) {
+            pageInfo { endCursor hasNextPage }
+            nodes {
+              id
+              amount
+              merchant
+              paidAt
+              transactionText
+              notes
+            }
+          }
+        }`,
+				{ first, after },
+			)
+			.toPromise();
+		existingStore.update((curr: any) => {
+			const existingIds = new Set((curr.data ?? []).map((t: any) => t.id));
+			const newNodes = (result?.data?.transactions?.nodes ?? []).filter(
+				(t: any) => !existingIds.has(t.id),
+			);
+			return {
+				...curr,
+				data: [...(curr.data ?? []), ...newNodes],
+				endCursor: result?.data?.transactions?.pageInfo?.endCursor ?? null,
+				hasNextPage: result?.data?.transactions?.pageInfo?.hasNextPage ?? false,
+			};
+		});
+	}
+
 	queryTransactionsForCurrentMonth(): Writable<
 		Query<TransactionDTO[] | undefined>
 	> {

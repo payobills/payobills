@@ -1,10 +1,8 @@
 <script lang="ts">
-import { writable, type Writable } from "svelte/store";
+import { writable } from "svelte/store";
 import BillPayment from "./bills/bill-payment.svelte";
-import BottomNav from "./bottom-nav.svelte";
 import Button from "./button.svelte";
-import Card from "./card.svelte";
-import type { BillStatementDTO, Query, TransactionDTO } from "./types";
+import type { BillStatementDTO, TransactionDTO } from "./types";
 import { formatRelativeDate } from "../utils/format-relative-date";
 
 export let bill: any;
@@ -14,11 +12,27 @@ export let lockBillStatementCycle = false;
 export let selectedStatement: BillStatementDTO;
 
 export let onTransactionSearch: any;
-let matchingTransactionsQuery: Writable<Query<TransactionDTO[]>> = writable({
-  data: [],
+export let onLoadMoreTransactions: any;
+export let initialTransactions: any[] = [];
+let matchingTransactionsQuery = writable<any>({
+  data: initialTransactions,
   fetching: false,
   error: null,
+  endCursor: null as string | null,
+  hasNextPage: true,
 });
+
+let loadingMore = false;
+const loadMore = async () => {
+  loadingMore = true;
+  try {
+    const after = $matchingTransactionsQuery.endCursor;
+    const first = after === null ? $matchingTransactionsQuery.data.length + 5 : 5;
+    await onLoadMoreTransactions(matchingTransactionsQuery, after, first);
+  } finally {
+    loadingMore = false;
+  }
+};
 
 let transactionSearchTerm: string = "";
 $: selectedTransactions = ($matchingTransactionsQuery?.data?.reduce(
@@ -90,24 +104,31 @@ const onAmountSearchBoxFocusout = () => {
       on:keydown={(e) =>{ if(e.key === 'Enter') onAmountSearchBoxFocusout() }}
     />
 
-    <!-- {#if matchingTransactions.length > 0 } -->
-    <!-- {#each [{ amount: 377, merchant: "test merchant"}] as transaction (transaction.id)} -->
-    <!-- <pre>{JSON.stringify(())}</pre> -->
-    {#each $matchingTransactionsQuery?.data as transaction (transaction.id)}
-      <Card>
-        <p> 
-
-        <!-- bind:checked={new IsSelected(false).state} -->
-      <input
-        type="checkbox"
-        bind:checked={selectedTransactions[transaction.id].state}
-        name={`record-bill-payment-transaction-${transaction.id}`}
-        id={`record-bill-payment-transaction-${transaction.id}`}
-      />
-          <span>{`₹${transaction.amount}/- `}</span>{`at ${transaction.merchant ?? 'Unknown Merchant'} · `}<span>{formatRelativeDate(new Date(transaction.paidAt))}</span>
-          </p>
-      </Card>
-    {/each}
+    <div class="txn-list">
+      {#each $matchingTransactionsQuery?.data ?? [] as transaction (transaction.id)}
+        <label class="txn-row" class:txn-row--selected={selectedTransactions[transaction.id]?.state}>
+          <input
+            type="checkbox"
+            bind:checked={selectedTransactions[transaction.id].state}
+            name={`record-bill-payment-transaction-${transaction.id}`}
+          />
+          <div class="txn-details">
+            <span class="txn-merchant">{transaction.merchant ?? 'Unknown Merchant'}</span>
+            <span class="txn-date">{formatRelativeDate(new Date(transaction.paidAt))}</span>
+          </div>
+          <span class="txn-amount">₹{transaction.amount}/-</span>
+        </label>
+      {/each}
+      {#if $matchingTransactionsQuery.hasNextPage !== false}
+        <button
+          class="load-more-btn"
+          on:click={loadMore}
+          disabled={loadingMore}
+        >
+          {loadingMore ? "Loading…" : "Load more"}
+        </button>
+      {/if}
+    </div>
 
     {#if Object.values(selectedTransactions).filter(x => x.state).length > 0}
     <label for="record-bill-payment-amount">Total Amount (calculated from selected transactions)</label>
@@ -241,5 +262,99 @@ const onAmountSearchBoxFocusout = () => {
     font-weight: 700;
     color: var(--color-primary);
     margin: 0.25rem 0;
+  }
+
+  .txn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--color-base-300);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .txn-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--color-base-300);
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-top: 0;
+  }
+
+  .txn-row:last-of-type {
+    border-bottom: none;
+  }
+
+  .txn-row input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    accent-color: var(--color-primary);
+  }
+
+  .txn-row--selected {
+    background-color: rgba(0, 212, 184, 0.06);
+  }
+
+  .txn-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .txn-merchant {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-base-content);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: "DM Sans", sans-serif;
+  }
+
+  .txn-date {
+    font-size: 0.6875rem;
+    color: var(--color-neutral-content);
+    font-family: "DM Sans", sans-serif;
+  }
+
+  .txn-amount {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-base-content);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .txn-row--selected .txn-amount {
+    color: var(--color-primary);
+  }
+
+  .load-more-btn {
+    width: 100%;
+    padding: 0.625rem;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--color-base-300);
+    color: var(--color-neutral-content);
+    font-family: "Syne", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+  }
+
+  .load-more-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 </style>
