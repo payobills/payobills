@@ -24,7 +24,7 @@ let extraTransactions: any[] = [];
 let initialised = false;
 
 onMount(() => {
-  nav.update((prev) => ({ ...prev, isOpen: true, title: "Trip" }));
+  nav.update((prev) => ({ ...prev, isOpen: true }));
 });
 
 $: tripsQuery = queryStore({
@@ -44,9 +44,6 @@ $: tripsQuery = queryStore({
 $: allTrips = ($tripsQuery.data?.trips ?? []) as Trip[];
 $: currentTrip = allTrips.find((t) => t.id === tripId);
 
-$: if (currentTrip) {
-  nav.update((prev) => ({ ...prev, title: currentTrip!.title }));
-}
 
 $: if (currentTrip && showEditForm) {
   editTitle = currentTrip.title;
