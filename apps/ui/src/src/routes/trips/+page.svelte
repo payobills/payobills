@@ -2,37 +2,20 @@
 import { gql, queryStore } from "@urql/svelte";
 import { onMount } from "svelte";
 import { paymentsUrql } from "$lib/stores/urql";
+import { nav } from "$lib/stores/nav";
 import type { Trip } from "$lib/types";
 import Trips from "$lib/trips.svelte";
-import { formatCurrencyAmount } from "../../utils/currency-formatter.util";
-import { formatRelativeDate } from "../../utils/format-relative-date";
 
-let tripId: string | undefined;
 let showCreateForm = false;
-let showEditForm = false;
-
 let createTitle = '';
 let createStart = '';
 let createEnd = '';
 let createError = '';
 let createLoading = false;
 
-let editTitle = '';
-let editStart = '';
-let editEnd = '';
-let editError = '';
-let editLoading = false;
-
-let loadingMore = false;
-let endCursor: string | null = null;
-let hasNextPage = true;
-let extraTransactions: any[] = [];
-
 onMount(() => {
-  const id = new URLSearchParams(window.location.search)?.get("id");
-  tripId = id ?? undefined;
+  nav.update((prev) => ({ ...prev, isOpen: true, title: "Trips" }));
 });
-
 
 $: tripsQuery = queryStore({
   client: $paymentsUrql,
@@ -49,109 +32,13 @@ $: tripsQuery = queryStore({
 });
 
 $: allTrips = ($tripsQuery.data?.trips ?? []) as Trip[];
-$: currentTrip = tripId ? allTrips.find((t) => t.id === tripId) : undefined;
 
-$: if (currentTrip && showEditForm) {
-  editTitle = currentTrip.title;
-  editStart = currentTrip.startDate ? currentTrip.startDate.split('T')[0] : '';
-  editEnd = currentTrip.endDate ? currentTrip.endDate.split('T')[0] : '';
-}
-
-const TRIP_TRANSACTIONS_QUERY = gql`
-  query TripTransactions {
-    trips {
-      id
-      transactions(first: 15) {
-        nodes {
-          id
-          merchant
-          amount
-          normalizedAmount
-          currency
-          paidAt
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-    }
-  }
-`;
-
-$: tripTransactionsQuery = currentTrip
-  ? queryStore({ client: $paymentsUrql, query: TRIP_TRANSACTIONS_QUERY })
-  : null;
-
-$: currentTripData = tripId && $tripTransactionsQuery?.data
-  ? ($tripTransactionsQuery.data.trips as any[]).find((t: any) => t.id === tripId)
-  : null;
-
-$: initialTransactions = currentTripData?.transactions?.nodes ?? [];
-
-$: {
-  if (currentTripData?.transactions?.pageInfo && endCursor === null) {
-    endCursor = currentTripData.transactions.pageInfo.endCursor ?? null;
-    hasNextPage = currentTripData.transactions.pageInfo.hasNextPage ?? false;
-  }
-}
-
-$: allTransactions = [...initialTransactions, ...extraTransactions];
-
-async function loadMore() {
-  if (loadingMore || !endCursor) return;
-  loadingMore = true;
-  try {
-    const result = await $paymentsUrql.query(
-      `query TripTransactionsMore($after: String) {
-        trips {
-          id
-          transactions(first: 15, after: $after) {
-            nodes {
-              id
-              merchant
-              amount
-              normalizedAmount
-              currency
-              paidAt
-            }
-            pageInfo {
-              endCursor
-              hasNextPage
-            }
-          }
-        }
-      }`,
-      { after: endCursor },
-    ).toPromise();
-
-    const tripData = (result?.data?.trips as any[])?.find((t: any) => t.id === tripId);
-    if (tripData) {
-      const existingIds = new Set(allTransactions.map((t: any) => t.id));
-      const newNodes = (tripData.transactions?.nodes ?? []).filter((t: any) => !existingIds.has(t.id));
-      extraTransactions = [...extraTransactions, ...newNodes];
-      endCursor = tripData.transactions?.pageInfo?.endCursor ?? null;
-      hasNextPage = tripData.transactions?.pageInfo?.hasNextPage ?? false;
-    }
-  } finally {
-    loadingMore = false;
-  }
-}
-
-function resetPagination() {
-  endCursor = null;
-  hasNextPage = true;
-  extraTransactions = [];
-}
-
-$: if (tripId) resetPagination();
-
-function hasOverlap(start: string, end: string, trips: Trip[], excludeId?: string): Trip[] {
+function hasOverlap(start: string, end: string, trips: Trip[]): Trip[] {
   if (!start || !end) return [];
   const s = new Date(start);
   const e = new Date(end);
   return trips.filter((t) => {
-    if (t.id === excludeId || !t.startDate || !t.endDate) return false;
+    if (!t.startDate || !t.endDate) return false;
     return s < new Date(t.endDate) && e > new Date(t.startDate);
   });
 }
@@ -189,140 +76,39 @@ async function submitCreate() {
     createLoading = false;
   }
 }
-
-async function submitEdit() {
-  if (!tripId) return;
-  editError = '';
-  if (!editTitle.trim()) { editError = 'Title is required.'; return; }
-
-  const conflicts = hasOverlap(editStart, editEnd, allTrips, tripId);
-  if (conflicts.length > 0) {
-    editError = `Overlaps with: ${conflicts.map((t) => t.title).join(', ')}`;
-    return;
-  }
-
-  editLoading = true;
-  try {
-    const r = await $paymentsUrql.mutation(
-      gql`mutation TripUpdate($id: String!, $input: TripUpdateDTOInput!) {
-        tripUpdate(id: $id, input: $input) { id title startDate endDate }
-      }`,
-      { id: tripId, input: { title: editTitle, startDate: editStart || null, endDate: editEnd || null } },
-    ).toPromise();
-    if (r.error) { editError = r.error.message; return; }
-    showEditForm = false;
-    refreshTrips();
-  } finally {
-    editLoading = false;
-  }
-}
 </script>
 
 <section>
-  {#if !tripId}
+  <Trips trips={allTrips} />
 
-    <Trips trips={allTrips} />
-
-    <div class="create-area">
-      {#if !showCreateForm}
-        <button on:click={() => (showCreateForm = true)}>+ New Trip</button>
-      {:else}
-        <form on:submit|preventDefault={submitCreate}>
-          <h2>New Trip</h2>
-          <label>
-            Title
-            <input type="text" bind:value={createTitle} placeholder="Europe 2025" />
-          </label>
-          <label>
-            Start Date
-            <input type="date" bind:value={createStart} />
-          </label>
-          <label>
-            End Date
-            <input type="date" bind:value={createEnd} />
-          </label>
-          {#if createError}
-            <p class="error">{createError}</p>
-          {/if}
-          <div class="form-actions">
-            <button type="submit" disabled={createLoading}>{createLoading ? 'Saving...' : 'Create'}</button>
-            <button type="button" on:click={() => { showCreateForm = false; createError = ''; }}>Cancel</button>
-          </div>
-        </form>
-      {/if}
-    </div>
-
-  {:else}
-
-    <div class="trip-header">
-      <a href="/trips" class="back">← Trips</a>
-      <div class="trip-title-row">
-        <h1>{currentTrip?.title ?? '...'}</h1>
-        <button on:click={() => { showEditForm = !showEditForm; editError = ''; }}>
-          {showEditForm ? 'Cancel' : 'Edit'}
-        </button>
-      </div>
-      {#if currentTrip?.startDate && currentTrip?.endDate}
-        <p class="date-range">
-          {new Date(currentTrip.startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-          –
-          {new Date(currentTrip.endDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-        </p>
-      {/if}
-    </div>
-
-    {#if showEditForm}
-      <form on:submit|preventDefault={submitEdit} class="edit-form">
+  <div class="create-area">
+    {#if !showCreateForm}
+      <button class="new-trip-btn" on:click={() => (showCreateForm = true)}>+ New Trip</button>
+    {:else}
+      <form on:submit|preventDefault={submitCreate}>
+        <h2>New Trip</h2>
         <label>
           Title
-          <input type="text" bind:value={editTitle} />
+          <input type="text" bind:value={createTitle} placeholder="Europe 2025" />
         </label>
         <label>
           Start Date
-          <input type="date" bind:value={editStart} />
+          <input type="date" bind:value={createStart} />
         </label>
         <label>
           End Date
-          <input type="date" bind:value={editEnd} />
+          <input type="date" bind:value={createEnd} />
         </label>
-        {#if editError}
-          <p class="error">{editError}</p>
+        {#if createError}
+          <p class="error">{createError}</p>
         {/if}
-        <button type="submit" disabled={editLoading}>{editLoading ? 'Saving...' : 'Save'}</button>
+        <div class="form-actions">
+          <button type="submit" disabled={createLoading}>{createLoading ? 'Saving...' : 'Create'}</button>
+          <button type="button" on:click={() => { showCreateForm = false; createError = ''; }}>Cancel</button>
+        </div>
       </form>
     {/if}
-
-    <div class="transactions-section">
-      {#if $tripTransactionsQuery?.fetching && allTransactions.length === 0}
-        <p class="loading">Loading transactions...</p>
-      {:else if allTransactions.length === 0}
-        <p class="empty">No transactions found for this trip.</p>
-      {:else}
-        <ul class="transaction-list">
-          {#each allTransactions as txn (txn.id)}
-            <li class="transaction-item">
-              <a href={`/transaction?id=${txn.id}`} class="transaction-link">
-                <div class="txn-left">
-                  <span class="txn-merchant">{txn.merchant ?? 'Unknown'}</span>
-                  <span class="txn-date">{txn.paidAt ? formatRelativeDate(new Date(txn.paidAt)) : ''}</span>
-                </div>
-                <span class="txn-amount">
-                  {formatCurrencyAmount(txn.normalizedAmount ?? txn.amount, txn.currency)}
-                </span>
-              </a>
-            </li>
-          {/each}
-        </ul>
-
-        {#if hasNextPage}
-          <button class="load-more" on:click={loadMore} disabled={loadingMore}>
-            {loadingMore ? 'Loading...' : 'Load more'}
-          </button>
-        {/if}
-      {/if}
-    </div>
-
-  {/if}
+  </div>
 </section>
 
 <style>
@@ -332,6 +118,15 @@ async function submitEdit() {
 
   .create-area {
     margin-top: 1.5rem;
+  }
+
+  .new-trip-btn {
+    background: transparent;
+    border: 1px solid var(--color-base-300);
+    border-radius: 6px;
+    color: var(--color-primary);
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
 
   form {
@@ -352,8 +147,10 @@ async function submitEdit() {
   input {
     padding: 0.4rem 0.6rem;
     font-size: 1rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-base-300);
     border-radius: 4px;
+    background: var(--color-base-200);
+    color: var(--color-base-content);
   }
 
   .form-actions {
@@ -362,112 +159,8 @@ async function submitEdit() {
   }
 
   .error {
-    color: red;
+    color: var(--color-error);
     font-size: 0.85rem;
     margin: 0;
-  }
-
-  .trip-header {
-    margin-bottom: 1rem;
-  }
-
-  .trip-title-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .trip-title-row h1 {
-    margin: 0;
-  }
-
-  .date-range {
-    margin: 0.25rem 0 0;
-    font-size: 0.9rem;
-    opacity: 0.65;
-  }
-
-  .back {
-    font-size: 0.9rem;
-    color: inherit;
-    display: inline-block;
-    margin-bottom: 0.25rem;
-  }
-
-  .edit-form {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--color-base-300);
-  }
-
-  .transactions-section {
-    margin-top: 1rem;
-  }
-
-  .transaction-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .transaction-item {
-    border-bottom: 1px solid var(--color-base-200);
-  }
-
-  .transaction-item:last-child {
-    border-bottom: none;
-  }
-
-  .transaction-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 0;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .txn-left {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-  }
-
-  .txn-merchant {
-    font-weight: 500;
-  }
-
-  .txn-date {
-    font-size: 0.8rem;
-    opacity: 0.6;
-  }
-
-  .txn-amount {
-    font-weight: 600;
-    font-size: 1rem;
-    white-space: nowrap;
-  }
-
-  .load-more {
-    display: block;
-    width: 100%;
-    margin-top: 1rem;
-    padding: 0.6rem;
-    background: transparent;
-    border: 1px solid var(--color-base-300);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-
-  .load-more:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .loading, .empty {
-    opacity: 0.6;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
   }
 </style>

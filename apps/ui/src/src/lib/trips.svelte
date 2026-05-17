@@ -23,7 +23,7 @@ function formatDateRange(trip: Trip): string {
   <p>Transactions made on a trip can help you track your expenses in one place.</p>
   <section class='trip-cards'>
     {#each trips as trip (trip.id)}
-      <a href={`trips?id=${trip.id}`}>
+      <a href={`/trips/${trip.id}`}>
         <Card>
           <h2>{trip.title}</h2>
           {#if trip.startDate && trip.endDate}
