@@ -14,7 +14,7 @@ let createError = '';
 let createLoading = false;
 
 onMount(() => {
-  nav.update((prev) => ({ ...prev, isOpen: true, title: "Trips" }));
+  nav.update((prev) => ({ ...prev, isOpen: true }));
 });
 
 $: tripsQuery = queryStore({
