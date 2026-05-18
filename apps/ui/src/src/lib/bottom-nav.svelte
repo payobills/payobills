@@ -19,8 +19,10 @@ const navItems = [
 ];
 
 $: currentPath = $page.url.pathname;
+$: isLoginPage = currentPath === "/";
 </script>
 
+{#if !isLoginPage}
 <nav class="bottom-nav">
   {#each navItems as item}
     {@const isActive = currentPath === item.href}
@@ -39,6 +41,7 @@ $: currentPath = $page.url.pathname;
     </button>
   {/each}
 </nav>
+{/if}
 
 <style>
   .bottom-nav {

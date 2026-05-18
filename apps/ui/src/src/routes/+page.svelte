@@ -122,7 +122,7 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
   .one-liner {
     margin-bottom: 2rem;
     text-align: center;
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 
   span {
@@ -135,20 +135,24 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
   }
 
   h1 {
-    font-size: 3.5rem;
+    font-size: 2.5rem;
     font-weight: 900;
     text-align: center;
     margin: 1rem;
-    margin-bottom: 4rem;
+    margin-bottom: 2rem;
   }
 
   .card {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    min-height: 8rem;
+    min-height: 12rem;
     padding: 2rem 2.5rem;
     margin-bottom: 1rem;
-    gap: 2rem;
+  }
+
+  .card > div {
+    width: 70%;
   }
 
   h3 {
