@@ -412,12 +412,16 @@ async function submitEdit() {
 
   .transactions-section {
     margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .transaction-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    width: 100%;
   }
 
   .transaction-item {
