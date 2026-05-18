@@ -9,7 +9,7 @@ import Trips from "$lib/trips.svelte";
 import { formatCurrencyAmount } from "../../utils/currency-formatter.util";
 import { formatRelativeDate } from "../../utils/format-relative-date";
 
-$: tripId = $page.url.searchParams.get('id');
+let tripId: string | null = null;
 
 // List page state
 let showCreateForm = false;
@@ -35,6 +35,7 @@ let initialised = false;
 
 onMount(() => {
   nav.update((prev) => ({ ...prev, isOpen: true }));
+  tripId = $page.url.searchParams.get('id');
 });
 
 $: tripsQuery = queryStore({
