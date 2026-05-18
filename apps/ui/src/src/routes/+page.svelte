@@ -146,8 +146,8 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
     display: flex;
     flex-direction: row;
     align-items: center;
-    min-height: 12rem;
-    padding: 2rem 2.5rem;
+    min-height: 10rem;
+    padding: 2rem 1rem;
     margin-bottom: 1rem;
   }
 
@@ -156,6 +156,7 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
   }
 
   h3 {
+    font-family: "DM Sans", system-ui, -apple-system, sans-serif;
     font-size: 1.25rem;
     font-weight: 900;
     color: white;
@@ -165,16 +166,14 @@ const iconStyle = (colorsLeftToRight: string[] = []) => `
   .login-link {
     align-self: center;
     width: auto;
-    font-family: "Figtree";
-    font-weight: 900;
-    text-transform: unset;
-    background: linear-gradient(to right, var(--color-primary), #633cbd);
+    text-transform: uppercase;
+    background: var(--color-info);
     border: none;
     color: white;
     margin: 1rem 0;
-    margin-top: 4rem;
-    padding: 1rem 10rem;
-    font-size: 1.5rem;
+    margin-top: 2rem;
+    padding: 1rem 3rem;
+    font-size: 1rem;
     text-align: center;
     border-radius: 4rem;
     cursor: pointer;
