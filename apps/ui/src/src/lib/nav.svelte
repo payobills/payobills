@@ -9,6 +9,7 @@ const navLinks = [
   { label: "Timeline", href: "/lite/timeline" },
   { label: "Bills", href: "/lite/bills/add" },
   { label: "Transactions", href: "/lite/transactions" },
+  { label: "Trips", href: "/trips" },
   { label: "Summary", href: "/transactions/summary" },
   { label: "Add Transaction", href: "/lite/transaction/add" },
 ];

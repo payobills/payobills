@@ -17,23 +17,21 @@ onMount(() => {
   }
 });
 
-$: transactionTagsQuery = queryStore({
+$: tripsQuery = queryStore({
   client: $paymentsUrql,
   query: gql`
-      query {
-        transactionTags {
-          id
-          title
-        }
+    query {
+      trips {
+        id
+        title
+        startDate
+        endDate
       }
-    `,
+    }
+  `,
 });
 
-$: trips =
-  $transactionTagsQuery?.data?.transactionTags
-    ?.filter((p: Trip) => p.title.startsWith("Trip"))
-    .map((p: Trip) => ({ ...p, title: p.title.replace(/^Trip:\s*?/, "") })) ??
-  undefined;
+$: trips = ($tripsQuery.data?.trips ?? undefined) as Trip[] | undefined;
 
 const billsQuery = queryStore({
   client: $billsUrql,

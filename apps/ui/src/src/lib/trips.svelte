@@ -1,43 +1,87 @@
 <script lang="ts">
 import type { Trip } from "./types";
 import Card from "$lib/card.svelte";
-import IdeaCard from "$lib/idea-card.svelte";
 export let trips: Trip[];
+export let onNewTrip: (() => void) | undefined = undefined;
+export let fetching: boolean = false;
+
+function formatDateRange(trip: Trip): string {
+  if (!trip.startDate || !trip.endDate) return '';
+  const fmt = (d: string) => new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  return `${fmt(trip.startDate)} – ${fmt(trip.endDate)}`;
+}
 </script>
 
 {#if trips}
 
-<h1>Trips</h1>
+<div class="trips-header">
+  <h1>Trips</h1>
+  {#if onNewTrip}
+    <button class="new-trip-btn" on:click={onNewTrip}>+ New Trip</button>
+  {:else}
+    <a href="/trips" class="view-all-btn">View All →</a>
+  {/if}
+</div>
 
-
-      <IdeaCard
-        idea={`Going for a trip? Group your transactions together and manage them easily...`}
-      />
-
-{#if trips.length === 0}
-  <p>Looks like you haven't created any trips yet. Tag any transaction to a trip so it shows up here...</p>
+{#if fetching}
+  <p>Loading...</p>
+{:else if trips.length === 0}
+  <p>No trips yet.</p>
 {:else}
-  <p>Transactions made on a trip can help you track your expenses in one place.</p>
-<section class='trip-cards'>
-  {#each trips as trip (trip.id)}
-    <a href={`trips?id=${trip.id}&title=${trip.title}`}>
-      <Card>
-        <h2>{trip.title}</h2>
-      </Card>
-    </a>
-  {/each}
-</section>
+  <section class='trip-cards'>
+    {#each trips as trip (trip.id)}
+      <a href={`/trips?id=${trip.id}`}>
+        <Card>
+          <h2>{trip.title}</h2>
+          {#if trip.startDate && trip.endDate}
+            <p class="date-range">{formatDateRange(trip)}</p>
+          {/if}
+        </Card>
+      </a>
+    {/each}
+  </section>
 {/if}
 
 {/if}
 
 <style>
+  .trips-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.75rem;
+  }
+
+  .new-trip-btn {
+    background: transparent;
+    border: 1px solid var(--color-base-300);
+    border-radius: 6px;
+    color: var(--color-primary);
+    padding: 0.4rem 0.875rem;
+    font-size: 0.85rem;
+  }
+
+  .view-all-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    font-family: "Syne", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+
   a {
     text-decoration: none;
   }
 
-  p {
-    margin-top: 0 0 1rem 0;
+  .trip-cards a {
+    margin: 0.75rem 0;
+    display: block;
   }
 
   h2 {
@@ -48,15 +92,9 @@ export let trips: Trip[];
     margin-bottom: 0;
   }
 
-  :global(:first-of-type(.trip-cards .card)) {
-    margin-top: 0;
-  }
-
-  :global(:last-of-type(.trip-cards .card)) {
-    margin-bottom: 0;
-  }
-
-  :global(.trip-cards .card) {
-    margin: 1rem 0;
+  .date-range {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    opacity: 0.65;
   }
 </style>
