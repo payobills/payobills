@@ -2,7 +2,7 @@
 import type { Trip } from "./types";
 import Card from "$lib/card.svelte";
 export let trips: Trip[];
-export let onNewTrip: () => void;
+export let onNewTrip: (() => void) | undefined = undefined;
 export let fetching: boolean = false;
 
 function formatDateRange(trip: Trip): string {
@@ -16,7 +16,11 @@ function formatDateRange(trip: Trip): string {
 
 <div class="trips-header">
   <h1>Trips</h1>
-  <button class="new-trip-btn" on:click={onNewTrip}>+ New Trip</button>
+  {#if onNewTrip}
+    <button class="new-trip-btn" on:click={onNewTrip}>+ New Trip</button>
+  {:else}
+    <a href="/trips" class="view-all-btn">View All →</a>
+  {/if}
 </div>
 
 {#if fetching}
@@ -26,7 +30,7 @@ function formatDateRange(trip: Trip): string {
 {:else}
   <section class='trip-cards'>
     {#each trips as trip (trip.id)}
-      <a href={`/trips/${trip.id}`}>
+      <a href={`/trips?id=${trip.id}`}>
         <Card>
           <h2>{trip.title}</h2>
           {#if trip.startDate && trip.endDate}
@@ -57,8 +61,27 @@ function formatDateRange(trip: Trip): string {
     font-size: 0.85rem;
   }
 
+  .view-all-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-primary);
+    font-family: "Syne", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+
   a {
     text-decoration: none;
+  }
+
+  .trip-cards a {
+    margin: 0.75rem 0;
+    display: block;
   }
 
   h2 {
