@@ -26,7 +26,9 @@ $: isLoginPage = currentPath === "/";
 <nav class="bottom-nav">
   {#each navItems as item}
     {@const isActive = currentPath === item.href}
-    <button
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div
       class="nav-item"
       class:active={isActive}
       on:click={() => goto(item.href)}
@@ -38,7 +40,7 @@ $: isLoginPage = currentPath === "/";
         backgroundColor="transparent"
       />
       <span class="nav-label">{item.label}</span>
-    </button>
+    </div>
   {/each}
 </nav>
 {/if}
