@@ -2,6 +2,7 @@
 import { writable } from "svelte/store";
 import BillPayment from "./bills/bill-payment.svelte";
 import Button from "./button.svelte";
+import Card from "./card.svelte";
 import type { BillStatementDTO, TransactionDTO } from "./types";
 import { formatRelativeDate } from "../utils/format-relative-date";
 

@@ -6,6 +6,7 @@ import Nav from "$lib/nav.svelte";
 import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
 import { tryLoadEnv } from "$lib/stores/env";
 import { uiDrawer } from "$lib/stores/ui-drawer";
+import type { Snippet } from "svelte";
 import {
   faChevronDown,
   faDownLeftAndUpRightToCenter,
@@ -59,6 +60,8 @@ const toggleFullScreenUiDrawer = () => {
     return { ...curr, isFullScreen: !curr.isFullScreen };
   });
 };
+
+let { children }: { children: Snippet } = $props();
 </script>
 
 <Nav />
@@ -66,7 +69,7 @@ const toggleFullScreenUiDrawer = () => {
 
 <!-- <button on:click={randomNotification}>Notification</button> -->
 <main class="bg-base-100" style={`${$nav.isOpen ? "height: calc(100% - 4rem)" : "height: 100%"}`}>
-  <slot />
+  {@render children()}
   {#if $uiDrawer.content}
     <button
       class="drawer-transparent"
@@ -112,7 +115,7 @@ const toggleFullScreenUiDrawer = () => {
 
         <div class="drawer-content">
           {#if $uiDrawer.content}
-            <svelte:component this={$uiDrawer.content} />
+            {@render $uiDrawer.content()}
           {/if}
         </div>
       </div>

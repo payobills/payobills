@@ -1,5 +1,4 @@
 <script lang="ts">
-import { goto } from "$app/navigation";
 import Card from "$lib/card.svelte";
 import { onMount } from "svelte";
 import { withOrdinalSuffix } from "../../utils/ordinal-suffix";
@@ -110,10 +109,8 @@ $: {
       <div class="actions">
         <button
           on:click={() => {
-            goto(`#payment__bill_${bill.id}`);
             currentPayingBill = null;
             currentPayingBill = bill;
-            // console.log("currentPayingBill", currentPayingBill);
           }}>Record payment</button
         >
       </div>

@@ -9,5 +9,9 @@ $effect(() => {
     content: children,
     onClose,
   }));
+
+  return () => {
+    uiDrawer.update((curr) => ({ ...curr, content: null }));
+  };
 });
 </script>
