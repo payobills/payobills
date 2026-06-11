@@ -4,6 +4,8 @@
 plz-out
 .plzconfig.local
 
+.venv
+
 /data
 /playground
 /worktrees
