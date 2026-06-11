@@ -13,7 +13,7 @@ Follow-up TODOs:
   - TODO(RATIFICATION_DATE): Exact original project adoption date unknown; marked as project start estimate.
 -->
 
-# payobills Constitution
+# Payobills Constitution
 
 ## Core Principles
 
