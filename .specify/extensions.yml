@@ -6,7 +6,7 @@ hooks:
   after_specify:
   - extension: agent-context
     command: speckit.agent-context.update
-    enabled: true
+    enabled: false
     optional: true
     priority: 10
     prompt: Execute speckit.agent-context.update?
@@ -15,7 +15,7 @@ hooks:
   after_plan:
   - extension: agent-context
     command: speckit.agent-context.update
-    enabled: true
+    enabled: false
     optional: true
     priority: 10
     prompt: Execute speckit.agent-context.update?

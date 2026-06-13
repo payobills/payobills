@@ -1,14 +1,14 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: [TEMPLATE] → 1.0.0
-Modified principles: N/A (initial population from template)
-Added sections: Core Principles (I–V), Deployment Model, Development Workflow, Governance
-Removed sections: None (template placeholders replaced)
+Version change: 1.2.0 → 1.3.0
+Modified principles: None
+Added sections: Core Principles VIII (Diagram Standards)
+Removed sections: None
 Templates requiring updates:
-  - .specify/templates/plan-template.md ✅ (constitution check gates align with principles)
-  - .specify/templates/spec-template.md ✅ (no mandatory section changes required)
-  - .specify/templates/tasks-template.md ✅ (no new principle-driven task types)
+  - .specify/templates/plan-template.md ✅ (no diagram references)
+  - .specify/templates/spec-template.md ✅ (no diagram references)
+  - .specify/templates/tasks-template.md ✅ (no diagram references)
 Follow-up TODOs:
   - TODO(RATIFICATION_DATE): Exact original project adoption date unknown; marked as project start estimate.
 -->
@@ -37,6 +37,42 @@ The project currently lacks tests in many areas. Tests SHOULD be added increment
 
 Features MUST favor simplicity over cleverness. The core value proposition is self-hosted, user-owned financial data — no feature may compromise data locality or require external cloud services to function. YAGNI applies: implement what is needed now, not hypothetical future needs.
 
+### VI. HLD Design Discipline
+
+High-Level Design (HLD) artifacts MUST describe features purely in terms of services, systems, data flows, and interactions. HLD artifacts MUST NOT contain code snippets, class names, method signatures, framework-specific constructs, or any other implementation detail. The purpose of an HLD is to reason about what systems are involved and how they interact — not how those systems are built internally. Implementation details belong exclusively in LLD artifacts, tasks, and source code.
+
+### VII. Feature Artifact Structure
+
+Every feature specification directory MUST contain exactly the following artifacts and no others:
+
+```
+specs/<feature>/
+├── checklists/
+│   └── requirements.md   — spec quality checklist
+├── research.md            — research findings and decisions
+├── spec.md                — feature specification
+├── hld.md                 — high-level design (services and systems only; see Principle VI)
+├── lld.md                 — low-level design including data model
+├── service-contracts.md   — API/interface contracts between services
+└── plan.md                — implementation plan and task breakdown
+```
+
+No additional artifacts (e.g., `quickstart.md`, `data-model.md`, separate `contracts/` directories) MUST be created. If information does not fit one of these seven files, it belongs in the source code, a PR description, or a commit message — not a new spec artifact. This constraint keeps the spec directory scannable and prevents documentation sprawl.
+
+### VIII. Diagram Standards
+
+All diagrams in spec and design artifacts MUST be written in [Mermaid](https://mermaid.js.org/) syntax. Image-based or proprietary diagram formats MUST NOT be committed.
+
+Every Mermaid diagram MUST be validated before committing using the official CLI:
+
+```sh
+docker run --rm -u `id -u`:`id -g` \
+  -v /path/to/diagrams:/data \
+  minlag/mermaid-cli -i diagram.mmd
+```
+
+Replace `/path/to/diagrams` with the directory containing the `.mmd` file and `diagram.mmd` with the filename. If Docker is not running when diagram validation is attempted, raise an error and instruct the user to start Docker before proceeding. Do not skip validation.
+
 ## Deployment Model
 
 All apps are deployed to a Kubernetes cluster managed by `kube-homelab`. Each app has its own Helm chart. The `common/` directory contains shared Docker base images, k8s helpers, and reusable chart templates. Deployment pipeline changes MUST be validated against the running homelab cluster before merging.
@@ -54,8 +90,9 @@ Apps:
 
 ## Development Workflow
 
-- Branches MUST be rebased against `origin/main` (never `develop` or `master` for rebase).
-- PRs target the `develop` branch for integration, `main` for releases.
+- The project uses mainline development. All work targets `main` directly. There is no `develop` or `master` branch.
+- PRs MUST be raised against `main`. Short-lived feature branches MUST be merged to `main` and deleted.
+- Branches MUST be rebased against `origin/main` before merging.
 - Each app is independently deployable; deploy only changed apps when possible.
 - CSS MUST NOT use negative margins or negative padding — restructure layout instead.
 - `.tool-versions` MUST NOT be modified; it pins the Rust toolchain for CI.
@@ -67,6 +104,6 @@ This constitution supersedes all informal project conventions. Amendments requir
 2. Version increment per semantic versioning rules (MAJOR: principle removal/redefinition; MINOR: new principle/section; PATCH: clarification/wording).
 3. Sync impact report updated in the HTML comment above.
 
-All feature plans MUST include a Constitution Check gate verifying compliance with principles I–V before implementation begins.
+All feature plans MUST include a Constitution Check gate verifying compliance with principles I–VIII before implementation begins.
 
-**Version**: 1.0.0 | **Ratified**: TODO(RATIFICATION_DATE): use project start date ~2023 | **Last Amended**: 2026-06-11
+**Version**: 1.3.0 | **Ratified**: TODO(RATIFICATION_DATE): use project start date ~2023 | **Last Amended**: 2026-06-13
