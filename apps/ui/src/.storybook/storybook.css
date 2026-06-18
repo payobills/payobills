@@ -1,0 +1,91 @@
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300..700&display=swap");
+
+:root,
+[data-theme="dark"] {
+  --color-base-100: #09090e;
+  --color-base-200: #111118;
+  --color-base-300: #1c1c26;
+  --color-base-content: #dde1eb;
+  --color-primary: #00d4b8;
+  --color-primary-content: #000a09;
+  --color-secondary: #6d28d9;
+  --color-secondary-content: #f0ebff;
+  --color-accent: #00d4b8;
+  --color-accent-content: #000a09;
+  --color-neutral: #1c1c26;
+  --color-neutral-content: #a8b0c0;
+  --color-info: #38bdf8;
+  --color-success: #22d3a0;
+  --color-warning: #fbbf24;
+  --color-error: #f43f5e;
+
+  --color: #8892a4;
+  --primary-color: #00d4b8;
+  --primary-bg-color: #09090e;
+  --secondary-bg-color: #1c1c26;
+  --primary-accent-color: #00d4b8;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Syne", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  color: var(--color-base-content);
+}
+
+h1 {
+  margin: 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+p {
+  font-size: 0.8125rem;
+  color: var(--color-neutral-content);
+  line-height: 1.6;
+}
+
+a {
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+button {
+  font-family: "DM Sans", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.mono, .amount, .stat-value {
+  font-family: "JetBrains Mono", monospace;
+  font-feature-settings: "tnum";
+}
+
+body {
+  background-color: #09090e;
+  color: #dde1eb;
+  margin: 0;
+  padding: 0;
+}
