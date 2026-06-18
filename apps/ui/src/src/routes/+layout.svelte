@@ -6,11 +6,13 @@ import Nav from "$lib/nav.svelte";
 import { auth, loadAuthFromLocalStorage } from "$lib/stores/auth";
 import { tryLoadEnv } from "$lib/stores/env";
 import { uiDrawer } from "$lib/stores/ui-drawer";
+import { toasts } from "$lib/stores/ui-toast";
 import type { Snippet } from "svelte";
 import {
   faChevronDown,
   faDownLeftAndUpRightToCenter,
   faUpRightAndDownLeftFromCenter,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { onMount } from "svelte";
 import { fade, fly } from "svelte/transition";
@@ -119,6 +121,32 @@ let { children }: { children: Snippet } = $props();
           {/if}
         </div>
       </div>
+    </div>
+  {/if}
+
+  {#if $toasts.length > 0}
+    <div class="toast-container">
+      {#each $toasts as toast (toast.id)}
+        <div
+          class={`toast toast--${toast.variant}`}
+          in:fly={{ y: 100, duration: 300 }}
+          out:fly={{ y: 100, duration: 200 }}
+        >
+          <span class="toast-message">{toast.message}</span>
+          <button
+            class="toast-close"
+            aria-label="Dismiss notification"
+            on:click={() => toasts.dismiss(toast.id)}
+          >
+            <IconButton
+              icon={faXmark}
+              color="currentColor"
+              backgroundColor="transparent"
+              scale={0.7}
+            />
+          </button>
+        </div>
+      {/each}
     </div>
   {/if}
 </main>
@@ -323,6 +351,71 @@ let { children }: { children: Snippet } = $props();
   :global(*::-webkit-scrollbar-thumb) {
     background: #2a2a38;
     border-radius: 2px;
+  }
+
+  .toast-container {
+    position: fixed;
+    bottom: 5rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    pointer-events: none;
+  }
+
+  .toast {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    pointer-events: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .toast--success {
+    background-color: rgba(34, 211, 160, 0.14);
+    border: 1px solid rgba(34, 211, 160, 0.3);
+    color: #22d3a0;
+  }
+
+  .toast--info {
+    background-color: rgba(56, 189, 248, 0.14);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+  }
+
+  .toast--error {
+    background-color: rgba(244, 63, 94, 0.14);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    color: #f43f5e;
+  }
+
+  .toast-message {
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .toast-close {
+    background: transparent;
+    padding: 0;
+    flex-shrink: 0;
+    color: inherit;
+  }
+
+  @media (min-width: 72rem) {
+    .toast-container {
+      bottom: 1.5rem;
+      left: 6rem;
+      right: auto;
+      max-width: 24rem;
+    }
   }
 </style>
 
