@@ -9,6 +9,7 @@ import { formatRelativeDate } from "../utils/format-relative-date";
 export let bill: any;
 export let billStatements: BillStatementDTO[];
 export let onRecordingPayment;
+export let onPaymentRecorded: (detail: { amount: number; isFullyPaid: boolean }) => void = () => {};
 export let lockBillStatementCycle = false;
 export let selectedStatement: BillStatementDTO;
 
@@ -149,9 +150,10 @@ const onAmountSearchBoxFocusout = () => {
   <Button
     onclick={async () => {
       isSaving = true;
+      const paidAmount = Object.values(selectedTransactions).filter(x => x.state).length > 0 ? amount : +transactionSearchTerm;
       await onRecordingPayment({
       id: selectedStatement.id,
-      amount:  Object.values(selectedTransactions).filter(x => x.state).length > 0 ? amount : +transactionSearchTerm,
+      amount: paidAmount,
         bill,
       cycleFromDate: selectedStatement.startDate,
         cycleToDate:selectedStatement.endDate,
@@ -159,6 +161,7 @@ const onAmountSearchBoxFocusout = () => {
         transactions: Object.values(selectedTransactions).filter(x => x.state).map((p: IsSelected<TransactionDTO>) => p.metadata)
       });
       isSaving = false;
+      onPaymentRecorded({ amount: paidAmount, isFullyPaid });
     }}
     state={isSaving ? "LOADING" : "DEFAULT"}
     >Record Payment

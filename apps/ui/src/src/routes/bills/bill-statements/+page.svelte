@@ -17,6 +17,7 @@ import { currencyFormatter } from "$utils/currency-formatter.util";
 import UiDrawer from "$lib/ui-drawer.svelte";
 import RecordPaymentForm from "$lib/record-payment-form.svelte";
 import { writable, type Writable } from "svelte/store";
+import { toasts } from "$lib/stores/ui-toast";
 import type { BillStatementDTO, Query, TransactionDTO } from "$lib/types";
 import { ProTransactionsService } from "../../../utils/pro/pro-transactions.service";
 
@@ -281,12 +282,19 @@ const addFilesBaseUrlPrefix = ({ url }: { url: string }) => {
       {#if showRecordPayment}
         <UiDrawer onClose={() => {(showRecordPayment) = false}}>
           <RecordPaymentForm
-            bill={$billStatementsQuery.data.bill} 
+            bill={$billStatementsQuery.data.bill}
             billStatements={[currentBillStatement]}
             selectedStatement={currentBillStatement}
             lockBillStatementCycle={true}
             {onRecordingPayment}
             {onTransactionSearch}
+            onPaymentRecorded={({ amount, isFullyPaid }) => {
+              showRecordPayment = false;
+              toasts.show(
+                `Payment of ${currencyFormatter(amount)} recorded${isFullyPaid ? " — Fully Paid" : " — Partially Paid"}`,
+                "success"
+              );
+            }}
           />
         </UiDrawer>
       {/if}

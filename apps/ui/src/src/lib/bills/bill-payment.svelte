@@ -6,6 +6,8 @@ import { getBillPaymentCycle } from "../../utils/get-bill-payment-cycle";
 import RecordPaymentForm from "$lib/record-payment-form.svelte";
 import UiDrawer from "$lib/ui-drawer.svelte";
 import type { BillStatementDTO } from "$lib/types";
+import { toasts } from "$lib/stores/ui-toast";
+import { currencyFormatter } from "../../utils/currency-formatter.util";
 
 export let bill;
 export let billingStatements: BillStatementDTO[] | undefined;
@@ -125,6 +127,13 @@ $: {
     >
       <RecordPaymentForm bill={currentPayingBill}
         {onRecordingPayment}
+        onPaymentRecorded={({ amount, isFullyPaid }) => {
+          currentPayingBill = null;
+          toasts.show(
+            `Payment of ${currencyFormatter(amount)} recorded${isFullyPaid ? " — Fully Paid" : " — Partially Paid"}`,
+            "success"
+          );
+        }}
         billStatements={[currentBillStatement]}
         selectedStatement={currentBillStatement}
         {onTransactionSearch}
