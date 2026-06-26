@@ -1,16 +1,30 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.2.0 → 1.3.0
+Version change: 1.3.3 → 1.3.4
 Modified principles: None
-Added sections: Core Principles VIII (Diagram Standards)
+Added sections: Governance — Notion Publishing workflow
 Removed sections: None
 Templates requiring updates:
-  - .specify/templates/plan-template.md ✅ (no diagram references)
-  - .specify/templates/spec-template.md ✅ (no diagram references)
-  - .specify/templates/tasks-template.md ✅ (no diagram references)
+  - .specify/templates/plan-template.md ✅ (no changes required)
+  - .specify/templates/spec-template.md ✅ (no changes required)
+  - .specify/templates/tasks-template.md ✅ (no changes required)
 Follow-up TODOs:
   - TODO(RATIFICATION_DATE): Exact original project adoption date unknown; marked as project start estimate.
+  - TODO(LLD_MIGRATION): specs/001-bill-types/lld.md predates this structure requirement and should be
+    reorganised to match the mandatory sections (Data Model Changes, DTO Changes, Frontend Changes).
+  - TODO(NOTION_SKILL): speckit.notion.push skill implementation required for the after_plan hook to execute.
+
+Prior version history (applied cumulatively on this branch):
+  1.0.0 — Initial constitution
+  1.1.0 — Add Principle VI: HLD Design Discipline
+  1.1.1 — Development Workflow: mainline branching (main only, no develop/master)
+  1.2.0 — Add Principle VII: Feature Artifact Structure
+  1.3.0 — Add Principle VIII: Diagram Standards (Mermaid + Docker validation)
+  1.3.1 — Principle VIII clarified: failed rendering blocks document readiness
+  1.3.2 — Principle VII clarified: mandatory lld.md section structure
+  1.3.3 — Principle VII clarified: omit ER diagram when no data model changes
+  1.3.4 — Governance: add optional Notion publishing hook after plan execution
 -->
 
 # Payobills Constitution
@@ -59,6 +73,14 @@ specs/<feature>/
 
 No additional artifacts (e.g., `quickstart.md`, `data-model.md`, separate `contracts/` directories) MUST be created. If information does not fit one of these seven files, it belongs in the source code, a PR description, or a commit message — not a new spec artifact. This constraint keeps the spec directory scannable and prevents documentation sprawl.
 
+Every `lld.md` MUST follow this section structure:
+
+1. **Data Model Changes** — entity/table changes with an ER diagram (Mermaid). If no data model changes, state explicitly and MUST NOT include a diagram.
+2. **DTO Changes** — input/output data transfer object changes per service affected. If no DTO changes, state explicitly.
+3. **Frontend Changes** *(include only if the feature involves UI changes)* — one subsection per page that requires changes, each containing:
+   - What changes on that page
+   - Decision on which components to build or reuse
+
 ### VIII. Diagram Standards
 
 All diagrams in spec and design artifacts MUST be written in [Mermaid](https://mermaid.js.org/) syntax. Image-based or proprietary diagram formats MUST NOT be committed.
@@ -72,6 +94,8 @@ docker run --rm -u `id -u`:`id -g` \
 ```
 
 Replace `/path/to/diagrams` with the directory containing the `.mmd` file and `diagram.mmd` with the filename. If Docker is not running when diagram validation is attempted, raise an error and instruct the user to start Docker before proceeding. Do not skip validation.
+
+A document containing a diagram that fails to render MUST NOT be marked as ready for review or considered complete. Rendering failures MUST be fixed before the document can advance to the next workflow stage.
 
 ## Deployment Model
 
@@ -106,4 +130,8 @@ This constitution supersedes all informal project conventions. Amendments requir
 
 All feature plans MUST include a Constitution Check gate verifying compliance with principles I–VIII before implementation begins.
 
-**Version**: 1.3.0 | **Ratified**: TODO(RATIFICATION_DATE): use project start date ~2023 | **Last Amended**: 2026-06-13
+### Notion Publishing
+
+After `/speckit-plan` completes, the user MUST be prompted (optionally) to publish spec artifacts to Notion. If confirmed, the `speckit.notion.push` command MUST publish the current feature's spec directory to the Notion workspace configured via the `NOTION_DOCS_ROOT_URL` environment variable. The value of `NOTION_DOCS_ROOT_URL` MUST NOT be committed to the repository; it MUST be provided via environment configuration (e.g., `.env.local` or shell profile). The root Notion page is identified solely by this env var.
+
+**Version**: 1.3.4 | **Ratified**: TODO(RATIFICATION_DATE): use project start date ~2023 | **Last Amended**: 2026-06-22

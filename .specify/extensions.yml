@@ -21,3 +21,11 @@ hooks:
     prompt: Execute speckit.agent-context.update?
     description: Refresh agent context after planning
     condition: null
+  - extension: notion-push
+    command: speckit.notion.push
+    enabled: true
+    optional: true
+    priority: 20
+    prompt: Push spec files to Notion? (requires NOTION_DOCS_ROOT_URL env var)
+    description: Publish spec artifacts to Notion under the configured docs root page
+    condition: null

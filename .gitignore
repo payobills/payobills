@@ -20,3 +20,7 @@ plz-out
 
 .DS_Store
 repos
+
+.specify/**/*.pdf
+specs/**/*.pdf
+
