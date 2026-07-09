@@ -4,11 +4,13 @@ devenv_items = [
   "sonarqube",
   "sonar-scanner-cli",
   "sonarqube-expose",
+  "nocodb"
 ]
 
 local_dev_items = [
   "sonarqube-expose",
-  "sonar-scanner-cli"
+  "sonar-scanner-cli",
+  "nocodb"
 ]
 
 # externals
@@ -50,7 +52,7 @@ for i in local_dev_items:
     rm -r plz-out/gen/devenv/{i}_k8s 2> /dev/null
     mkdir plz-out/gen/devenv/{i}_k8s
     tar xvf plz-out/gen/devenv/{i}_k8s.tar.gz --directory plz-out/gen/devenv/{i}_k8s
-    helm upgrade --install \
+    helm upgrade --dry-run --debug --install \
       --create-namespace -n ${PROJECT_NAME}-dev \
       --set helpers.PROJECT_ROOT=${PROJECT_ROOT} \
       --values plz-out/gen/devenv/{i}_k8s/values.local.yaml \
