@@ -18,17 +18,18 @@ import {
 // @ts-ignore
 import 'graphql-import-node/register.js';
 
-// import NocoDbClientFactory from './nocodb-client.factory';
+import NocoDbClientFactory from './nocodb-client.factory.mjs';
+import { me } from './me.resolver.mjs'
 
 async function main() {
   let app = Express();
   let port = +(process.env.PORT || 80);
   let host = process.env.HOST || '0.0.0.0';
 
-  // const nocoDbClient = await NocoDbClientFactory.generate();
-  // const DI = {
-  //   nocoDbClient,
-  // };
+  const nocoDbClient = await NocoDbClientFactory.generate();
+  const DI = {
+    nocoDbClient,
+  }
 
   const typeDefs = graphqlTag.default`
     scalar DateTimeISO
@@ -71,15 +72,7 @@ async function main() {
 
   const resolvers = {
     Query: {
-      me() {
-        return {
-          user: {
-            id: '1',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        };
-      },
+      me: me(DI),
     },
     User: {
       __resolveReference() {
