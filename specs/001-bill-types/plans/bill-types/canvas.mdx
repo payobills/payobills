@@ -1,0 +1,108 @@
+
+<DesignBoard>
+  <Section title="Add Bill Form — Billing Type Selector">
+    <Artboard title="Add Bill — Monthly (default)" surface="mobile">
+      <Screen surface="mobile" html={`
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px;height:100%">
+          <h2>add bill</h2>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="wf-muted" style="font-size:0.75rem">name</div>
+            <input value="My Credit Card" />
+            <div class="wf-muted" style="font-size:0.75rem">billing type</div>
+            <div style="display:flex;gap:0;border:1.4px solid var(--wf-line);border-radius:var(--wf-radius);overflow:hidden">
+              <div style="flex:1;text-align:center;padding:8px 0;background:var(--wf-accent);color:var(--wf-accent-fg);font-size:0.8rem;font-weight:600">monthly</div>
+              <div style="flex:1;text-align:center;padding:8px 0;font-size:0.8rem;border-left:1.4px solid var(--wf-line)">yearly</div>
+              <div style="flex:1;text-align:center;padding:8px 0;font-size:0.8rem;border-left:1.4px solid var(--wf-line)">prepaid</div>
+            </div>
+            <div class="wf-muted" style="font-size:0.75rem">billing date</div>
+            <input value="1" />
+            <div class="wf-muted" style="font-size:0.75rem">pay by date</div>
+            <input value="12" />
+          </div>
+          <div style="flex-grow:1"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--wf-warn);display:flex;align-items:center;justify-content:center"><span data-icon="x" aria-label="Cancel"></span></div>
+            <button class="primary" style="padding:8px 32px">save</button>
+          </div>
+        </div>
+      `} />
+      <Annotation targetId="add-bill-monthly" placement="right">
+        **Default state.** "monthly" is pre-selected. BillingDate and PayByDate fields are visible.
+      </Annotation>
+    </Artboard>
+    <Artboard title="Add Bill — Prepaid selected" surface="mobile" x={420}>
+      <Screen surface="mobile" html={`
+        <div style="display:flex;flex-direction:column;gap:12px;padding:16px;height:100%">
+          <h2>add bill</h2>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="wf-muted" style="font-size:0.75rem">name</div>
+            <input value="Prepaid Mobile" />
+            <div class="wf-muted" style="font-size:0.75rem">billing type</div>
+            <div style="display:flex;gap:0;border:1.4px solid var(--wf-line);border-radius:var(--wf-radius);overflow:hidden">
+              <div style="flex:1;text-align:center;padding:8px 0;font-size:0.8rem">monthly</div>
+              <div style="flex:1;text-align:center;padding:8px 0;font-size:0.8rem;border-left:1.4px solid var(--wf-line)">yearly</div>
+              <div style="flex:1;text-align:center;padding:8px 0;background:var(--wf-accent);color:var(--wf-accent-fg);font-size:0.8rem;font-weight:600;border-left:1.4px solid var(--wf-line)">prepaid</div>
+            </div>
+          </div>
+          <div class="wf-muted" style="font-size:0.7rem;padding:4px 0">Billing date and pay-by date are not required for prepaid bills.</div>
+          <div style="flex-grow:1"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--wf-warn);display:flex;align-items:center;justify-content:center"><span data-icon="x" aria-label="Cancel"></span></div>
+            <button class="primary" style="padding:8px 32px">save</button>
+          </div>
+        </div>
+      `} />
+      <Annotation targetId="add-bill-prepaid" placement="right">
+        **Prepaid selected.** BillingDate and PayByDate fields are hidden since prepaid bills have no fixed cycle.
+      </Annotation>
+    </Artboard>
+  </Section>
+
+  <Section title="Bill Detail — Read-only Badge">
+    <Artboard title="Bill Detail — Monthly badge" surface="mobile" x={0} y={750}>
+      <Screen surface="mobile" html={`
+        <div style="display:flex;flex-direction:column;gap:10px;padding:16px;height:100%">
+          <div style="display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1.4px solid var(--wf-line)">
+            <h2 style="flex:1;margin:0">HDFC Credit Card</h2>
+            <span data-icon="edit" aria-label="Edit"></span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="wf-pill accent" style="font-size:0.7rem">monthly</span>
+          </div>
+          <div class="wf-box" style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:0.75rem;padding:10px">
+            <div style="font-weight:600">Billing Date</div><div>the 1st of every month</div>
+            <div style="font-weight:600">Pay by Date</div><div>the 12th of every month</div>
+          </div>
+          <h3 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em" class="wf-muted">past payments</h3>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1.4px solid var(--wf-line);font-size:0.8rem">
+            <span>₹ 12,450 (manually entered)</span><span class="wf-muted">Jun '26</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1.4px solid var(--wf-line);font-size:0.8rem">
+            <span>₹ 8,320 (manually entered)</span><span class="wf-muted">May '26</span>
+          </div>
+        </div>
+      `} />
+      <Annotation targetId="bill-detail-monthly" placement="right">
+        **Read-only badge.** Billing type shown as an accent pill below the title. Non-interactive — no edit control.
+      </Annotation>
+    </Artboard>
+    <Artboard title="Bill Detail — Prepaid badge" surface="mobile" x={420} y={750}>
+      <Screen surface="mobile" html={`
+        <div style="display:flex;flex-direction:column;gap:10px;padding:16px;height:100%">
+          <div style="display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1.4px solid var(--wf-line)">
+            <h2 style="flex:1;margin:0">Prepaid Mobile</h2>
+            <span data-icon="edit" aria-label="Edit"></span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="wf-pill" style="font-size:0.7rem">prepaid</span>
+          </div>
+          <h3 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em" class="wf-muted">past payments</h3>
+          <div class="wf-muted" style="font-size:0.8rem;padding:8px 0">we don't see any payments made for this bill. 😞</div>
+        </div>
+      `} />
+      <Annotation targetId="bill-detail-prepaid" placement="right">
+        **Prepaid bill.** No billing date / pay-by date section shown. Badge uses default (non-accent) pill.
+      </Annotation>
+    </Artboard>
+  </Section>
+</DesignBoard>

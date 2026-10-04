@@ -1,0 +1,256 @@
+---
+title: "Bill Types — monthly, yearly, prepaid"
+status: draft
+---
+
+<RichText>
+## Objective
+
+Support three billing types — **monthly** (default), **yearly**, and **prepaid** — so users can track bills with different recurrence patterns. "Done" means: a user can create a bill with any of the three types, see the type in list and detail views, and the type is immutable after creation.
+
+## Scope
+
+**In scope:** Add `billingPeriod` to the `CreateBillDTO` on the backend, add a billing-type pill picker to the add-bill form, show a read-only badge in the detail view, and hide date fields when "prepaid" is selected.
+
+**Not in scope:** Filtering/sorting by billing type, recurring payment automation, notifications, data migration of legacy records (handled by read-time default).
+</RichText>
+
+<RichText>
+## Approach
+
+The `BillingPeriod` field already exists in NocoDB and the `Bill` model. The work is purely wiring it through the API contract and surfacing it in the UI. Three changes across two apps:
+
+1. **Backend (`apps/bills`)** — Add `BillingPeriod` to `CreateBillDTO` so the `addBill` mutation accepts it. AutoMapper already resolves it by convention. No schema migration.
+
+2. **Frontend — Add Bill form (`apps/ui`)** — Insert a `BillingTypePicker` (three inline pill buttons) between the name and billing-date fields. Default to "monthly". When "prepaid" is selected, hide `billingDate` and `payByDate` inputs. Wire the value into the `addBill` mutation.
+
+3. **Frontend — Bill Detail view (`apps/ui`)** — Show a `BillingTypeBadge` (read-only pill) below the bill title. Fallback: if `billingPeriod` is null/empty, display "monthly".
+</RichText>
+
+<RichText>
+> **Decision — Immutability enforcement:** Billing type is set at creation and never changed. Enforced by: (1) no update mutation exists, (2) the detail view renders a read-only badge with no edit control. No explicit server-side guard needed since NocoDB has no update-billing-period endpoint.
+</RichText>
+
+<RichText>
+## Implementation Steps
+</RichText>
+
+<AnnotatedCode data={{
+  filename: "apps/bills/src/Services.Contracts/DTOs/CreateBillDTO.cs",
+  language: "csharp",
+  code: `namespace Payobills.Bills.Services.Contracts.DTOs;
+
+public class CreateBillDTO
+{
+    public string Name { get; set; } = string.Empty;
+    public int? BillingDate { get; set; }
+    public int? PayByDate { get; set; }
+    public int? LatePayByDate { get; set; }
+    public string? PrimaryType { get; set; }
+    public string BillingPeriod { get; set; } = "monthly";
+}`,
+  annotations: [
+    { lines: "10", note: "Add BillingPeriod with default \"monthly\". AutoMapper resolves it by name convention to the Bill model — no mapping profile change needed." }
+  ]
+}} />
+
+<RichText>
+### Step 2 — Frontend: BillingTypePicker component
+
+Create a new Svelte component `apps/ui/src/src/lib/billing-type-picker.svelte` — three inline pill/toggle buttons. Accepts a `value` binding and dispatches `change`. When "prepaid" is selected, the parent form hides date inputs.
+</RichText>
+
+<AnnotatedCode data={{
+  filename: "apps/ui/src/src/lib/billing-type-picker.svelte (new)",
+  language: "svelte",
+  code: `<script lang="ts">
+  export let value: string = "monthly";
+  const options = ["monthly", "yearly", "prepaid"];
+</script>
+
+<div class="picker">
+  {#each options as option}
+    <button
+      class:active={value === option}
+      on:click={() => (value = option)}
+      type="button"
+    >{option}</button>
+  {/each}
+</div>
+
+<style>
+  .picker {
+    display: flex;
+    border: 1px solid var(--color-base-300);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  button {
+    flex: 1;
+    padding: 0.5rem 0;
+    border: none;
+    background: transparent;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-transform: lowercase;
+  }
+  button + button {
+    border-left: 1px solid var(--color-base-300);
+  }
+  button.active {
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+  }
+</style>`,
+  annotations: [
+    { lines: "2", note: "Defaults to \"monthly\", bound two-way from parent via bind:value." },
+    { lines: "9", note: "Active state styled with the app's primary color. Mutually exclusive selection." }
+  ]
+}} />
+
+<RichText>
+### Step 3 — Wire BillingTypePicker into the Add Bill form
+
+In `apps/ui/src/src/routes/bills/add/+page.svelte`:
+- Import `BillingTypePicker`
+- Add a `billingPeriod` variable (default `"monthly"`)
+- Insert the picker between the name and billing-date fields
+- Conditionally hide `billingDate` and `payByDate` when `billingPeriod === "prepaid"`
+- Pass `billingPeriod` to the `addBill` mutation variables
+</RichText>
+
+<AnnotatedCode data={{
+  filename: "apps/ui/src/src/routes/bills/add/+page.svelte",
+  language: "svelte",
+  code: `<!-- Add to script block -->
+import BillingTypePicker from "$lib/billing-type-picker.svelte";
+let billingPeriod: string = "monthly";
+
+<!-- Add to mutation -->
+mutation ($name: String!, $payByDate: Int, $billingDate: Int, $billingPeriod: String) {
+  addBill(billDto: {
+    name: $name
+    payByDate: $payByDate
+    billingDate: $billingDate
+    latePayByDate: 0
+    billingPeriod: $billingPeriod
+  }) { ... }
+}
+
+<!-- Add to form, between name input and billing date -->
+<div>billing type</div>
+<BillingTypePicker bind:value={billingPeriod} />
+
+{#if billingPeriod !== "prepaid"}
+  <div>billing date</div>
+  <input type="number" placeholder="1" bind:value={billingDate} />
+  <div>pay by date</div>
+  <input type="number" placeholder="12" bind:value={payByDate} />
+{/if}`,
+  annotations: [
+    { lines: "5-6", note: "payByDate and billingDate become optional (Int → Int?) since prepaid bills don't need them." },
+    { lines: "20-26", note: "Date fields hidden when prepaid is selected — FR-008." }
+  ]
+}} />
+
+<RichText>
+### Step 4 — BillingTypeBadge component
+
+Create `apps/ui/src/src/lib/billing-type-badge.svelte` — a read-only pill that displays the billing type. Reused in the detail view (and optionally the bill list).
+</RichText>
+
+<AnnotatedCode data={{
+  filename: "apps/ui/src/src/lib/billing-type-badge.svelte (new)",
+  language: "svelte",
+  code: `<script lang="ts">
+  export let billingPeriod: string | null = null;
+  $: label = billingPeriod || "monthly";
+</script>
+
+<span class="badge">{label}</span>
+
+<style>
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: lowercase;
+    background: rgba(0, 212, 184, 0.15);
+    color: var(--color-primary);
+  }
+</style>`,
+  annotations: [
+    { lines: "3", note: "Fallback to \"monthly\" for legacy records with no BillingPeriod — FR-007." }
+  ]
+}} />
+
+<RichText>
+### Step 5 — Show badge in Bill Detail view
+
+In the lite bill detail (`apps/ui/src/src/routes/lite/bills/+page.svelte`), add the badge below the heading section and add `billingPeriod` to the query selection set.
+
+In the standard bill detail (`apps/ui/src/src/routes/bills/+page.svelte`), similarly add the badge and query field.
+</RichText>
+
+<RichText>
+## File Map
+
+| File | Change |
+|------|--------|
+| `apps/bills/src/Services.Contracts/DTOs/CreateBillDTO.cs` | Add `BillingPeriod` property |
+| `apps/ui/src/src/lib/billing-type-picker.svelte` | **New** — pill toggle selector |
+| `apps/ui/src/src/lib/billing-type-badge.svelte` | **New** — read-only badge |
+| `apps/ui/src/src/routes/bills/add/+page.svelte` | Wire picker + conditional date fields |
+| `apps/ui/src/src/routes/bills/+page.svelte` | Add badge + query field |
+| `apps/ui/src/src/routes/lite/bills/+page.svelte` | Add badge + query field |
+</RichText>
+
+<Diagram data={{
+  html: `<div style="display:flex;flex-direction:column;gap:16px;padding:20px;font-size:0.85rem">
+    <div style="text-align:center;font-weight:700;font-size:1rem;color:var(--wf-ink)">Data Flow: Create Bill with Billing Type</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap">
+      <div class="diagram-card" style="padding:12px 16px;text-align:center">
+        <div style="font-weight:600">UI</div>
+        <div class="diagram-muted" style="font-size:0.75rem">BillingTypePicker</div>
+        <div class="diagram-muted" style="font-size:0.75rem">bind:value → billingPeriod</div>
+      </div>
+      <div style="font-size:1.2rem;color:var(--wf-accent)">→</div>
+      <div class="diagram-card" style="padding:12px 16px;text-align:center">
+        <div style="font-weight:600">GraphQL</div>
+        <div class="diagram-muted" style="font-size:0.75rem">addBill(billingPeriod)</div>
+        <div class="diagram-muted" style="font-size:0.75rem">CreateBillDTO</div>
+      </div>
+      <div style="font-size:1.2rem;color:var(--wf-accent)">→</div>
+      <div class="diagram-card" style="padding:12px 16px;text-align:center">
+        <div style="font-weight:600">NocoDB</div>
+        <div class="diagram-muted" style="font-size:0.75rem">Bill.BillingPeriod</div>
+        <div class="diagram-muted" style="font-size:0.75rem">(already exists)</div>
+      </div>
+    </div>
+  </div>`
+}} />
+
+<RichText>
+## Verification
+
+1. **Create monthly bill** — Open add-bill form, leave "monthly" selected, fill name/dates, save. Verify bill appears with "monthly" badge.
+2. **Create yearly bill** — Select "yearly", fill all fields, save. Badge shows "yearly".
+3. **Create prepaid bill** — Select "prepaid", verify date fields disappear, save without dates. Badge shows "prepaid".
+4. **Immutability** — Open any bill detail. Billing type is a non-interactive badge. No edit control.
+5. **Legacy fallback** — View a bill in NocoDB with empty `BillingPeriod`. UI shows "monthly".
+</RichText>
+
+<QuestionForm questions={[
+  {
+    id: "bill-list-badge",
+    title: "Should the billing type badge also appear in the bills list view (home page)?",
+    mode: "single",
+    options: [
+      { id: "yes", label: "Yes — show badge in list", recommended: true },
+      { id: "no", label: "No — only in detail view" }
+    ]
+  }
+]} />
